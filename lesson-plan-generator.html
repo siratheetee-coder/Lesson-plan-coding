@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Lesson Plan Generator | สร้างแผนการสอนภาษาอังกฤษ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --primary-dark: #1d4ed8;
+    --secondary: #7c3aed;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--gray-800);
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 20px 30px;
+    color: white;
+  }
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 50px;
+    padding: 4px 16px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Steps nav */
+  .steps-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0 20px 24px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50px;
+    padding: 6px;
+    backdrop-filter: blur(10px);
+    overflow-x: auto;
+  }
+  .step-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .step-btn.active {
+    background: white;
+    color: var(--primary-dark);
+    box-shadow: var(--shadow);
+    font-weight: 600;
+  }
+  .step-btn:hover:not(.active) {
+    color: white;
+    background: rgba(255,255,255,0.15);
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-lg);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--gray-100);
+  }
+  .card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .icon-blue { background: var(--primary-light); }
+  .icon-purple { background: #ede9fe; }
+  .icon-green { background: #dcfce7; }
+  .icon-orange { background: #ffedd5; }
+  .icon-pink { background: #fce7f3; }
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--gray-800);
+  }
+  .card-subtitle {
+    font-size: 0.85rem;
+    color: var(--gray-500);
+    margin-top: 2px;
+  }
+
+  /* Step content */
+  .step-content { display: none; }
+  .step-content.active { display: block; }
+
+  /* Form elements */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .form-group {
+    margin-bottom: 18px;
+  }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+  }
+  label .required {
+    color: var(--danger);
+    margin-left: 2px;
+  }
+  input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.95rem;
+    color: var(--gray-800);
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  /* Checkbox groups */
+  .checkbox-section {
+    margin-bottom: 20px;
+  }
+  .checkbox-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--gray-700);
+    margin-bottom: 10px;
+    padding: 6px 12px;
+    background: var(--gray-50);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 6px 6px 0;
+  }
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .checkbox-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .checkbox-item:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checkbox-item.checked {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .checkbox-label {
+    font-size: 0.88rem;
+    color: var(--gray-700);
+    line-height: 1.4;
+  }
+  .checkbox-label strong {
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+
+  /* Activities table */
+  .activities-container { overflow-x: auto; }
+  .activities-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .activities-table th {
+    background: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .activities-table th:first-child { border-radius: 8px 0 0 0; }
+  .activities-table th:last-child { border-radius: 0 8px 0 0; }
+  .activities-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gray-200);
+    vertical-align: top;
+  }
+  .activities-table tr:nth-child(even) td { background: var(--gray-50); }
+  .activities-table tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+  .activities-table tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+  .activities-table input[type="text"],
+  .activities-table textarea,
+  .activities-table input[type="number"] {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
+  .activities-table textarea { min-height: 80px; }
+  .phase-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .phase-intro { background: #fef3c7; color: #92400e; }
+  .phase-teach { background: #dbeafe; color: #1e40af; }
+  .phase-practice { background: #dcfce7; color: #14532d; }
+  .phase-apply { background: #f3e8ff; color: #4c1d95; }
+  .phase-conclude { background: #fee2e2; color: #7f1d1d; }
+
+  /* Vocab table */
+  .vocab-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin-top: 10px;
+  }
+  .vocab-table th {
+    background: var(--secondary);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  .vocab-table td {
+    padding: 6px 10px;
+    border: 1px solid var(--gray-200);
+  }
+  .vocab-table tr:nth-child(even) td { background: #faf5ff; }
+
+  /* Add button */
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1.5px dashed var(--gray-300);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-add:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+  }
+  .btn-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #fee2e2;
+    color: var(--danger);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-remove:hover { background: #fca5a5; }
+
+  /* Nav buttons */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--gray-200);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-prev {
+    background: var(--gray-100);
+    color: var(--gray-700);
+  }
+  .btn-prev:hover { background: var(--gray-200); }
+  .btn-next {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 6px rgba(37,99,235,0.3);
+  }
+  .btn-next:hover { background: var(--primary-dark); box-shadow: 0 6px 8px rgba(37,99,235,0.4); transform: translateY(-1px); }
+  .btn-generate {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: white;
+    box-shadow: 0 4px 6px rgba(22,163,74,0.3);
+    font-size: 1.05rem;
+    padding: 14px 36px;
+  }
+  .btn-generate:hover { box-shadow: 0 6px 10px rgba(22,163,74,0.4); transform: translateY(-1px); }
+  .btn-print {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: white;
+    box-shadow: 0 4px 6px rgba(124,58,237,0.3);
+  }
+  .btn-print:hover { box-shadow: 0 6px 10px rgba(124,58,237,0.4); transform: translateY(-1px); }
+
+  /* Objective rows */
+  .objective-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .objective-row input[type="text"] { flex: 1; }
+  .obj-bullet {
+    flex-shrink: 0;
+    width: 28px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  /* Assessment table */
+  .assessment-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .assessment-table th {
+    background: var(--success);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  .assessment-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--gray-200);
+    vertical-align: top;
+  }
+  .assessment-table tr:nth-child(even) td { background: #f0fdf4; }
+  .assessment-table input[type="text"], .assessment-table textarea {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  /* Preview */
+  #preview-section {
+    display: none;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .preview-header {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: white;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .preview-header h2 { font-size: 1.2rem; font-weight: 700; }
+  .preview-body { padding: 0; }
+
+  /* PRINT STYLES for the plan */
+  #plan-output {
+    padding: 30px 40px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1a1a1a;
+    max-width: 100%;
+  }
+  .plan-title-box {
+    text-align: center;
+    border: 2px solid #1a1a1a;
+    padding: 16px 24px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    background: #f8f9ff;
+  }
+  .plan-title-box .main-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 6px;
+  }
+  .plan-title-box .sub-info {
+    font-size: 1rem;
+    line-height: 1.8;
+    font-weight: 600;
+  }
+  .plan-section {
+    margin-bottom: 14px;
+  }
+  .plan-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a237e;
+    background: #e8eaf6;
+    padding: 6px 14px;
+    border-left: 4px solid #3949ab;
+    margin-bottom: 8px;
+    border-radius: 0 4px 4px 0;
+  }
+  .plan-section-body {
+    padding: 2px 14px;
+  }
+  .plan-indicator {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+  .plan-indicator .indicator-mark { color: #1a237e; font-weight: 700; flex-shrink: 0; }
+  .plan-objective {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+  .plan-objective .obj-mark { color: #1a237e; font-weight: 700; flex-shrink: 0; }
+
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    border: 1px solid #ccc;
+    margin: 8px 0;
+  }
+  .vocab-grid-header {
+    display: contents;
+  }
+  .vocab-cell {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+  }
+  .vocab-cell.header {
+    background: #e8eaf6;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .plan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 0.9rem;
+  }
+  .plan-table th {
+    background: #3949ab;
+    color: white;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 700;
+    border: 1px solid #1a237e;
+  }
+  .plan-table td {
+    padding: 8px 12px;
+    border: 1px solid #bbb;
+    vertical-align: top;
+  }
+  .plan-table tr:nth-child(even) td { background: #f8f9ff; }
+  .plan-table .phase-cell {
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    color: #1a237e;
+    background: #e8eaf6 !important;
+  }
+  .plan-table .time-cell {
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .plan-assessment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 8px 0;
+  }
+  .plan-assessment-table th {
+    background: #1b5e20;
+    color: white;
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid #1b5e20;
+  }
+  .plan-assessment-table td {
+    padding: 7px 12px;
+    border: 1px solid #bbb;
+    vertical-align: top;
+  }
+  .plan-assessment-table tr:nth-child(even) td { background: #f0fdf4; }
+
+  .plan-signature-box {
+    display: flex;
+    gap: 40px;
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 16px;
+  }
+  .plan-signature {
+    flex: 1;
+    text-align: center;
+  }
+  .plan-signature .sig-line {
+    border-bottom: 1px dashed #555;
+    margin: 8px 0;
+    padding-bottom: 24px;
+  }
+  .plan-notes-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 6px 0;
+  }
+  .plan-notes-box .notes-title {
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 6px;
+  }
+  .notes-line {
+    border-bottom: 1px dotted #ccc;
+    margin: 8px 0;
+    height: 24px;
+  }
+  .skills-3rs {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 6px 0 10px;
+  }
+  .skill-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+  .skill-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #555;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .skill-check.checked { background: #1a237e; color: white; border-color: #1a237e; }
+
+  /* Print media */
+  @media print {
+    body { background: white; padding: 0; }
+    .container { max-width: 100%; }
+    .header, .steps-nav, .form-section, .nav-buttons { display: none !important; }
+    #preview-section { display: block !important; box-shadow: none; border-radius: 0; }
+    .preview-header { display: none; }
+    #plan-output { padding: 10px 20px; }
+    .btn-print-bar { display: none; }
+  }
+
+  /* Utilities */
+  .mt-2 { margin-top: 8px; }
+  .mt-3 { margin-top: 12px; }
+  .mt-4 { margin-top: 16px; }
+  .text-sm { font-size: 0.85rem; }
+  .text-gray { color: var(--gray-500); }
+  .hint {
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    margin-top: 4px;
+  }
+  .divider {
+    border: none;
+    border-top: 1px solid var(--gray-200);
+    margin: 20px 0;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    margin: 2px;
+  }
+
+  /* Sentence structures */
+  .sentence-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .sentence-label {
+    flex-shrink: 0;
+    font-size: 0.88rem;
+    color: var(--gray-500);
+    width: 80px;
+  }
+  .sentence-row input { flex: 1; }
+
+  /* 21st skills grid */
+  .skills21-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .skills21-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+  }
+  .skills21-item:hover { border-color: var(--secondary); background: #ede9fe; }
+  .skills21-item.checked { border-color: var(--secondary); background: #ede9fe; }
+  .skills21-item input { accent-color: var(--secondary); }
+
+  /* Media items */
+  .media-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .media-row input[type="text"] { flex: 1; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .form-grid, .form-grid-3, .checkbox-grid, .skills21-grid { grid-template-columns: 1fr; }
+    .card { padding: 20px 16px; }
+    .header h1 { font-size: 1.6rem; }
+    .steps-nav { margin: 0 0 16px; }
+    .plan-signature-box { flex-direction: column; gap: 16px; }
+    .vocab-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">📚 ภาษาต่างประเทศ • ประถมศึกษา</div>
+    <h1>🎓 AI Lesson Plan Generator</h1>
+    <p>สร้างแผนการจัดการเรียนรู้ภาษาอังกฤษ อย่างมืออาชีพ</p>
+  </div>
+
+  <!-- STEPS NAV -->
+  <div class="steps-nav">
+    <button class="step-btn active" onclick="goToStep(1)">① ข้อมูลทั่วไป</button>
+    <button class="step-btn" onclick="goToStep(2)">② ตัวชี้วัด &amp; จุดประสงค์</button>
+    <button class="step-btn" onclick="goToStep(3)">③ สาระ &amp; สื่อ</button>
+    <button class="step-btn" onclick="goToStep(4)">④ กิจกรรม</button>
+    <button class="step-btn" onclick="goToStep(5)">⑤ วัดผล &amp; สร้าง</button>
+  </div>
+
+  <!-- ===== STEP 1: General Info ===== -->
+  <div class="step-content active" id="step-1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-blue">📋</div>
+        <div>
+          <div class="card-title">ข้อมูลทั่วไปของแผนการสอน</div>
+          <div class="card-subtitle">กรอกข้อมูลพื้นฐานสำหรับแผนการจัดการเรียนรู้</div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>แผนการสอนที่ <span class="required">*</span></label>
+          <input type="number" id="plan-number" value="11" min="1" max="100">
+        </div>
+        <div class="form-group">
+          <label>รายวิชา</label>
+          <input type="text" id="subject-name" value="ภาษาอังกฤษพื้นฐาน">
+        </div>
+        <div class="form-group">
+          <label>รหัสวิชา</label>
+          <input type="text" id="subject-code" value="14101">
+        </div>
+        <div class="form-group">
+          <label>กลุ่มสาระการเรียนรู้</label>
+          <input type="text" id="subject-group" value="ภาษาต่างประเทศ">
+        </div>
+        <div class="form-group">
+          <label>ชั้น <span class="required">*</span></label>
+          <select id="class-level">
+            <option value="ประถมศึกษาปีที่ 1">ป.1</option>
+            <option value="ประถมศึกษาปีที่ 2">ป.2</option>
+            <option value="ประถมศึกษาปีที่ 3">ป.3</option>
+            <option value="ประถมศึกษาปีที่ 4" selected>ป.4</option>
+            <option value="ประถมศึกษาปีที่ 5">ป.5</option>
+            <option value="ประถมศึกษาปีที่ 6">ป.6</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ภาคเรียนที่</label>
+          <select id="semester">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ปีการศึกษา</label>
+          <input type="text" id="academic-year" value="2569">
+        </div>
+        <div class="form-group">
+          <label>ครูผู้สอน</label>
+          <input type="text" id="teacher-name" placeholder="ชื่อ-นามสกุล ครูผู้สอน">
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>หน่วยการเรียนรู้ที่</label>
+          <input type="number" id="unit-number" value="2" min="1">
+        </div>
+        <div class="form-group">
+          <label>ชื่อหน่วยการเรียนรู้ <span class="required">*</span></label>
+          <input type="text" id="unit-name" value="My Family &amp; People Around Me">
+        </div>
+        <div class="form-group">
+          <label>จำนวนชั่วโมง (ทั้งหน่วย)</label>
+          <input type="number" id="unit-hours" value="10" min="1">
+        </div>
+        <div class="form-group">
+          <label>เวลา (แผนนี้) <span class="required">*</span></label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="number" id="lesson-time" value="80" min="10" max="300" style="width:100px; flex-shrink:0;">
+            <span style="color:var(--gray-500); font-size:0.9rem;">นาที</span>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>เรื่อง (Topic) <span class="required">*</span></label>
+          <input type="text" id="lesson-topic" value="Meet My Family!" placeholder="เช่น Meet My Family!, Colors Around Us, ...">
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <div></div>
+        <button class="btn btn-next" onclick="goToStep(2)">ถัดไป: ตัวชี้วัด ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2: Standards & Objectives ===== -->
+  <div class="step-content" id="step-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-purple">🎯</div>
+        <div>
+          <div class="card-title">มาตรฐานและตัวชี้วัด</div>
+          <div class="card-subtitle">เลือกตัวชี้วัดที่ใช้ในแผนการสอนนี้</div>
+        </div>
+      </div>
+
+      <div id="indicators-loading" style="text-align:center; padding:20px; color:var(--gray-500);">
+        <span style="font-size:1.5rem;">⏳</span><br>กรุณาเลือกชั้นเรียนในขั้นตอนที่ 1 ก่อน
+      </div>
+      <div id="indicators-container"></div>
+      <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn-add" onclick="selectAllIndicators(true)" style="border-color:var(--primary);">☑ เลือกทั้งหมด</button>
+        <button class="btn-add" onclick="selectAllIndicators(false)">☐ ยกเลือกทั้งหมด</button>
+        <span style="margin-left:auto; font-size:0.85rem; color:var(--gray-500); align-self:center;" id="ind-count-label"></span>
+      </div>
+    </div>
+
+    <!-- Objectives -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-purple">✅</div>
+        <div>
+          <div class="card-title">จุดประสงค์การเรียนรู้</div>
+          <div class="card-subtitle">เพิ่ม/แก้ไขจุดประสงค์ที่ต้องการ</div>
+        </div>
+      </div>
+      <div id="objectives-container">
+        <div class="objective-row">
+          <span class="obj-bullet">■</span>
+          <input type="text" class="obj-input" value="นักเรียนสามารถอ่านออกเสียงและบอกความหมายคำศัพท์ที่เรียนได้ไม่น้อยกว่า 7 คำ">
+          <button class="btn-remove" onclick="removeObjective(this)" title="ลบ">✕</button>
+        </div>
+        <div class="objective-row">
+          <span class="obj-bullet">■</span>
+          <input type="text" class="obj-input" value="นักเรียนสามารถพูดประโยค &quot;This is my ___.&quot; และ &quot;He/She is my ___.&quot; ได้ถูกต้อง">
+          <button class="btn-remove" onclick="removeObjective(this)" title="ลบ">✕</button>
+        </div>
+        <div class="objective-row">
+          <span class="obj-bullet">■</span>
+          <input type="text" class="obj-input" value="นักเรียนสามารถเขียนคำศัพท์และเติมประโยคในใบงานได้ถูกต้อง">
+          <button class="btn-remove" onclick="removeObjective(this)" title="ลบ">✕</button>
+        </div>
+        <div class="objective-row">
+          <span class="obj-bullet">■</span>
+          <input type="text" class="obj-input" value="นักเรียนร่วมกิจกรรมด้วยความกระตือรือร้นและให้ความร่วมมือในการทำงานกลุ่ม">
+          <button class="btn-remove" onclick="removeObjective(this)" title="ลบ">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addObjective()">+ เพิ่มจุดประสงค์</button>
+      <p class="hint mt-2">💡 จุดประสงค์ควรสอดคล้องกับตัวชี้วัดที่เลือกและครอบคลุม K (ความรู้), P (ทักษะ), A (เจตคติ)</p>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToStep(1)">← กลับ</button>
+        <button class="btn btn-next" onclick="goToStep(3)">ถัดไป: สาระ & สื่อ ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: Content & Media ===== -->
+  <div class="step-content" id="step-3">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-orange">📖</div>
+        <div>
+          <div class="card-title">สาระสำคัญและสาระการเรียนรู้</div>
+          <div class="card-subtitle">คำศัพท์ โครงสร้างประโยค และสาระสำคัญของบทเรียน</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>สาระสำคัญ (Key Concept) <span class="required">*</span></label>
+        <textarea id="key-concept" rows="3">นักเรียนจะได้เรียนรู้คำศัพท์สมาชิกในครอบครัว 9 คำ และฝึกใช้ประโยค "This is my ___." / "He/She is my ___." / "I have ___." เพื่อแนะนำและพูดถึงสมาชิกในครอบครัวได้อย่างถูกต้อง ผ่านกิจกรรมที่หลากหลาย</textarea>
+      </div>
+
+      <hr class="divider">
+      <label style="margin-bottom:10px; display:block;">คำศัพท์ (Vocabulary)</label>
+      <div id="vocab-container">
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="grandfather">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ปู่ / ตา">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="grandmother">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ย่า / ยาย">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="father">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="พ่อ">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="mother">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="แม่">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="brother">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="พี่ชาย / น้องชาย">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="sister">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="พี่สาว / น้องสาว">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="uncle">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ลุง / น้า / อา">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="aunt">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ป้า / น้า / อา">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="baby">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="เด็กทารก">
+          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addVocab()">+ เพิ่มคำศัพท์</button>
+
+      <hr class="divider">
+      <label style="margin-bottom:10px; display:block;">โครงสร้างประโยคหลัก (Key Sentence Structures)</label>
+      <div id="sentences-container">
+        <div class="sentence-row">
+          <span class="sentence-label">แนะนำ:</span>
+          <input type="text" class="sent-input" value="This is my father. / This is my grandmother.">
+          <button class="btn-remove" onclick="removeSentence(this)">✕</button>
+        </div>
+        <div class="sentence-row">
+          <span class="sentence-label">พูดถึง:</span>
+          <input type="text" class="sent-input" value="He is my brother. / She is my aunt.">
+          <button class="btn-remove" onclick="removeSentence(this)">✕</button>
+        </div>
+        <div class="sentence-row">
+          <span class="sentence-label">บอกจำนวน:</span>
+          <input type="text" class="sent-input" value="I have one sister. / I have two brothers.">
+          <button class="btn-remove" onclick="removeSentence(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addSentence()">+ เพิ่มประโยค</button>
+    </div>
+
+    <!-- Media & Resources -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-orange">🖥️</div>
+        <div>
+          <div class="card-title">สื่อและแหล่งการเรียนรู้</div>
+          <div class="card-subtitle">เพิ่มสื่อที่ใช้ในการสอน</div>
+        </div>
+      </div>
+      <div id="media-container">
+        <div class="media-row">
+          <input type="text" class="media-input" value="สไลด์ PowerPoint: Flashcards รูปสมาชิกในครอบครัว + ประโยคตัวอย่าง">
+          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
+        </div>
+        <div class="media-row">
+          <input type="text" class="media-input" value="บัตรภาพสมาชิกในครอบครัว (Family Picture Cards) 9 ใบ/กลุ่ม">
+          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
+        </div>
+        <div class="media-row">
+          <input type="text" class="media-input" value="ใบงาน: Family Members Worksheet (Part A: ระบุชื่อ 6 ข้อ / Part B: เติมประโยค 4 ข้อ)">
+          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
+        </div>
+        <div class="media-row">
+          <input type="text" class="media-input" value="ลำโพง / โปรเจคเตอร์ สำหรับแสดงสไลด์และเล่น Chant">
+          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addMedia()">+ เพิ่มสื่อ</button>
+    </div>
+
+    <!-- 21st Century Skills -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-green">🌟</div>
+        <div>
+          <div class="card-title">ทักษะผู้เรียนในศตวรรษที่ 21 (3Rs × 8Cs)</div>
+          <div class="card-subtitle">เลือกทักษะที่ฝึกในแผนนี้</div>
+        </div>
+      </div>
+      <p style="font-size:0.9rem; font-weight:600; color:var(--gray-700); margin-bottom:8px;">3Rs — ทักษะการเรียนรู้พื้นฐาน</p>
+      <div class="skills-3rs" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+        <label class="skills21-item checked" id="lbl-reading">
+          <input type="checkbox" id="sk-reading" checked onchange="toggleChecked(this)"> ☑ Reading (การอ่าน)
+        </label>
+        <label class="skills21-item checked" id="lbl-writing">
+          <input type="checkbox" id="sk-writing" checked onchange="toggleChecked(this)"> ☑ Writing (การเขียน)
+        </label>
+        <label class="skills21-item" id="lbl-arith">
+          <input type="checkbox" id="sk-arith" onchange="toggleChecked(this)"> Arithmetic (การคิดเลข)
+        </label>
+      </div>
+      <p style="font-size:0.9rem; font-weight:600; color:var(--gray-700); margin-bottom:8px;">8Cs — ทักษะแห่งศตวรรษที่ 21</p>
+      <div class="skills21-grid">
+        <label class="skills21-item checked" id="lbl-critical">
+          <input type="checkbox" id="sk-critical" checked onchange="toggleChecked(this)"> Critical Thinking (การคิดวิเคราะห์)
+        </label>
+        <label class="skills21-item checked" id="lbl-creativity">
+          <input type="checkbox" id="sk-creativity" checked onchange="toggleChecked(this)"> Creativity (ความคิดสร้างสรรค์)
+        </label>
+        <label class="skills21-item checked" id="lbl-collab">
+          <input type="checkbox" id="sk-collab" checked onchange="toggleChecked(this)"> Collaboration (การทำงานร่วมกัน)
+        </label>
+        <label class="skills21-item checked" id="lbl-comm">
+          <input type="checkbox" id="sk-comm" checked onchange="toggleChecked(this)"> Communication (การสื่อสาร)
+        </label>
+        <label class="skills21-item checked" id="lbl-cross">
+          <input type="checkbox" id="sk-cross" checked onchange="toggleChecked(this)"> Cross-cultural Understanding (การเข้าใจต่างวัฒนธรรม)
+        </label>
+        <label class="skills21-item" id="lbl-computing">
+          <input type="checkbox" id="sk-computing" onchange="toggleChecked(this)"> Computing (การใช้คอมพิวเตอร์)
+        </label>
+        <label class="skills21-item" id="lbl-career">
+          <input type="checkbox" id="sk-career" onchange="toggleChecked(this)"> Career (ทักษะอาชีพ)
+        </label>
+        <label class="skills21-item checked" id="lbl-compassion">
+          <input type="checkbox" id="sk-compassion" checked onchange="toggleChecked(this)"> Compassion (ความเมตตา มีคุณธรรม)
+        </label>
+      </div>
+
+      <hr class="divider">
+      <div class="form-group">
+        <label>ภาระชิ้นงาน (Task/Assignment)</label>
+        <textarea id="task-description" rows="2">ใบงาน Family Members Worksheet (Part A: ระบุชื่อสมาชิก 6 ข้อ / Part B: เติมประโยค 4 ข้อ)</textarea>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToStep(2)">← กลับ</button>
+        <button class="btn btn-next" onclick="goToStep(4)">ถัดไป: กิจกรรม ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: Activities ===== -->
+  <div class="step-content" id="step-4">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-pink">🎮</div>
+        <div>
+          <div class="card-title">กิจกรรมการเรียนรู้</div>
+          <div class="card-subtitle">กรอกรายละเอียดกิจกรรมแต่ละขั้นตอน (Active Learning: 2W3P)</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>รูปแบบการจัดการเรียนรู้</label>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+          <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-2w3p">
+            <input type="checkbox" id="method-2w3p" checked onchange="toggleChecked(this)">
+            <span class="checkbox-label">การสอนด้วยกระบวนการ 2W3P</span>
+          </label>
+          <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-clt">
+            <input type="checkbox" id="method-clt" checked onchange="toggleChecked(this)">
+            <span class="checkbox-label">การสอนภาษาอังกฤษที่เน้นการสื่อสาร CLT</span>
+          </label>
+          <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-games">
+            <input type="checkbox" id="method-games" checked onchange="toggleChecked(this)">
+            <span class="checkbox-label">การเรียนรู้แบบใช้เกม (Games)</span>
+          </label>
+          <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-chant">
+            <input type="checkbox" id="method-chant" checked onchange="toggleChecked(this)">
+            <span class="checkbox-label">การเรียนรู้แบบใช้เพลง/เพลงคำพูด (Chant)</span>
+          </label>
+          <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-roleplay">
+            <input type="checkbox" id="method-roleplay" onchange="toggleChecked(this)">
+            <span class="checkbox-label">การเรียนรู้แบบบทบาทสมมติ / สัมภาษณ์</span>
+          </label>
+          <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-pbl">
+            <input type="checkbox" id="method-pbl" onchange="toggleChecked(this)">
+            <span class="checkbox-label">การเรียนรู้แบบโครงงาน (PBL)</span>
+          </label>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <p style="font-size:0.9rem; color:var(--gray-500); margin-bottom:12px;">📝 กรอกรายละเอียดกิจกรรมแต่ละขั้น (แก้ไขได้ทั้งหมด)</p>
+
+      <div class="activities-container">
+        <table class="activities-table" id="activities-table">
+          <thead>
+            <tr>
+              <th style="width:130px;">ขั้น</th>
+              <th style="width:160px;">ชื่อกิจกรรม</th>
+              <th>รายละเอียดกิจกรรม</th>
+              <th style="width:90px;">เวลา (นาที)</th>
+            </tr>
+          </thead>
+          <tbody id="activities-tbody">
+            <tr>
+              <td><span class="phase-badge phase-intro">นำเข้าสู่บทเรียน</span></td>
+              <td><input type="text" class="act-name" value="Family Photo Intro"></td>
+              <td><textarea class="act-detail">1. ครูแสดงรูป "Family Photo" บนสไลด์ (ภาพครอบครัวสมมติที่มีสมาชิกหลากหลาย)
+2. ครูถามเป็นภาษาอังกฤษ: "How many people are in this family?" / "Can you see a grandfather? A baby?"
+3. นักเรียนตอบแบบ Thumbs Up / Down
+4. ครูแนะนำ: "Today we learn about family members in English!"</textarea></td>
+              <td><input type="number" class="act-time" value="10" min="1"></td>
+            </tr>
+            <tr>
+              <td><span class="phase-badge phase-teach">สอน</span></td>
+              <td><input type="text" class="act-name" value="Family Vocab &amp; Chant"></td>
+              <td><textarea class="act-detail">1. ครูสอนคำศัพท์ผ่านสไลด์ Flashcards ออกเสียงพร้อมกัน 3 รอบ (Repeat after me)
+2. เรียนประโยคหลัก: "This is my father." / "He is my brother." / "She is my mother." / "I have two sisters."
+3. ครูนำ Chant: "Who's in my family?" นักเรียนปรบมือตามจังหวะ 3 รอบ</textarea></td>
+              <td><input type="number" class="act-time" value="20" min="1"></td>
+            </tr>
+            <tr>
+              <td><span class="phase-badge phase-practice">ฝึกปฏิบัติ</span></td>
+              <td><input type="text" class="act-name" value="Family Tree Card Game"></td>
+              <td><textarea class="act-detail">1. แจกบัตรรูปสมาชิกในครอบครัว (Family Cards) ให้กลุ่มละ 1 ชุด
+2. ครูพูดชื่อสมาชิก นักเรียนยกบัตรภาพขึ้น เช่น ครูพูด "grandmother" → นักเรียนยกบัตรภาพย่า/ยาย
+3. สลับ: ครูแสดงบัตรภาพ นักเรียนพูดชื่อ
+4. กิจกรรม Pair Work: ผลัดกันพูด "This is my ___." คู่แสดงบัตรภาพ อีกคนตอบชื่อสมาชิก</textarea></td>
+              <td><input type="number" class="act-time" value="15" min="1"></td>
+            </tr>
+            <tr>
+              <td><span class="phase-badge phase-apply">ประยุกต์ใช้</span></td>
+              <td><input type="text" class="act-name" value="Family Worksheet"></td>
+              <td><textarea class="act-detail">1. แจกใบงาน Family Members: Part A เขียนชื่อสมาชิกใต้รูปภาพ (6 ข้อ) / Part B เติมประโยค "This is my ___." / "He/She is my ___." (4 ข้อ)
+2. ครูทำตัวอย่าง Part A ข้อแรกบนกระดาน
+3. นักเรียนทำรายบุคคล (10 นาที) ครูเดินสังเกต แนะนำการสะกด uncle/aunt</textarea></td>
+              <td><input type="number" class="act-time" value="20" min="1"></td>
+            </tr>
+            <tr>
+              <td><span class="phase-badge phase-conclude">สรุปบทเรียน</span></td>
+              <td><input type="text" class="act-name" value="Family Relay Quiz"></td>
+              <td><textarea class="act-detail">1. แบ่ง 2 ทีม เล่น Family Relay Quiz ครูแสดงบัตรภาพสมาชิก นักเรียนพูดประโยค: "This is my ___." (5 ข้อต่อทีม)
+2. ครูเฉลยใบงานบนสไลด์ นักเรียนตรวจและแก้ไขคำตอบตัวเอง
+3. ครูสรุป: "We learned 9 family members today. Use 'This is my ___' to introduce family!"
+4. ครูเก็บใบงาน</textarea></td>
+              <td><input type="number" class="act-time" value="15" min="1"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
+        <button class="btn-add" onclick="addActivity()">+ เพิ่มกิจกรรม</button>
+        <div style="margin-left:auto; padding:8px 16px; background:var(--primary-light); color:var(--primary-dark); border-radius:8px; font-size:0.9rem;">
+          ⏱️ รวมเวลา: <strong id="total-time">80</strong> นาที
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToStep(3)">← กลับ</button>
+        <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: วัดผล & สร้าง ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 5: Assessment & Generate ===== -->
+  <div class="step-content" id="step-5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-green">📊</div>
+        <div>
+          <div class="card-title">การวัดและประเมินผล</div>
+          <div class="card-subtitle">กำหนดวิธีประเมินและเกณฑ์ผ่านสำหรับแต่ละด้าน</div>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="assessment-table" id="assessment-table">
+          <thead>
+            <tr>
+              <th style="width:160px;">สิ่งที่ประเมิน</th>
+              <th>วิธีการประเมิน</th>
+              <th style="width:180px;">เกณฑ์ผ่าน</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" class="assess-what" value="ความรู้คำศัพท์ (K)"></td>
+              <td><input type="text" class="assess-how" value="ตรวจใบงาน Part A และ Part B (รวม 10 ข้อ)"></td>
+              <td><input type="text" class="assess-criteria" value="ทำได้ถูกต้อง ≥ 7 ใน 10 ข้อ"></td>
+            </tr>
+            <tr>
+              <td><input type="text" class="assess-what" value="ทักษะการพูด (P)"></td>
+              <td><input type="text" class="assess-how" value="สังเกตการพูดในกิจกรรม Card Game และ Relay Quiz"></td>
+              <td><input type="text" class="assess-criteria" value="พูดประโยคได้ถูกต้อง ≥ 3 ใน 5 ครั้ง"></td>
+            </tr>
+            <tr>
+              <td><input type="text" class="assess-what" value="เจตคติ (A)"></td>
+              <td><input type="text" class="assess-how" value="สังเกตพฤติกรรมการมีส่วนร่วมและการทำงานกลุ่ม"></td>
+              <td><input type="text" class="assess-criteria" value="ร่วมกิจกรรมครบทุกขั้นตอน"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn-add" onclick="addAssessment()" style="margin-top:8px;">+ เพิ่มรายการประเมิน</button>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="goToStep(4)">← กลับ</button>
+        <button class="btn btn-generate" onclick="generatePlan()">
+          ✨ สร้างแผนการสอน
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PREVIEW ===== -->
+  <div id="preview-section">
+    <div class="preview-header">
+      <div>
+        <h2>📄 แผนการจัดการเรียนรู้ที่สร้างขึ้น</h2>
+        <p style="font-size:0.85rem; opacity:0.85; margin-top:4px;">พร้อมสำหรับพิมพ์หรือบันทึก</p>
+      </div>
+      <div style="display:flex; gap:10px;" class="btn-print-bar">
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์แผนการสอน</button>
+        <button class="btn" style="background:rgba(255,255,255,0.2); color:white;" onclick="document.getElementById('preview-section').style.display='none'; window.scrollTo(0,0);">✕ ปิด</button>
+      </div>
+    </div>
+    <div class="preview-body">
+      <div id="plan-output"></div>
+    </div>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+// ===== Navigation =====
+let currentStep = 1;
+function goToStep(step) {
+  document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.step-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('step-' + step).classList.add('active');
+  document.querySelectorAll('.step-btn')[step - 1].classList.add('active');
+  currentStep = step;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (step === 4) updateTotalTime();
+}
+
+// ===== Toggle checkbox label =====
+function toggleChecked(cb) {
+  const label = cb.closest('label');
+  if (label) label.classList.toggle('checked', cb.checked);
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    const label = cb.closest('label');
+    if (label && cb.checked) label.classList.add('checked');
+  });
+  updateTotalTime();
+  document.querySelectorAll('.act-time').forEach(el => el.addEventListener('input', updateTotalTime));
+});
+
+// ===== Total time =====
+function updateTotalTime() {
+  let total = 0;
+  document.querySelectorAll('.act-time').forEach(el => total += parseInt(el.value) || 0);
+  const el = document.getElementById('total-time');
+  if (el) el.textContent = total;
+}
+
+// ===== Add/Remove rows =====
+function addObjective() {
+  const container = document.getElementById('objectives-container');
+  const div = document.createElement('div');
+  div.className = 'objective-row';
+  div.innerHTML = `<span class="obj-bullet">■</span><input type="text" class="obj-input" placeholder="พิมพ์จุดประสงค์..."><button class="btn-remove" onclick="removeObjective(this)">✕</button>`;
+  container.appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeObjective(btn) {
+  const row = btn.closest('.objective-row');
+  if (document.querySelectorAll('.objective-row').length > 1) row.remove();
+}
+
+function addVocab() {
+  const container = document.getElementById('vocab-container');
+  const div = document.createElement('div');
+  div.className = 'vocab-row';
+  div.style.cssText = 'display:flex; gap:8px; margin-bottom:8px; align-items:center;';
+  div.innerHTML = `<input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;"><input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;"><button class="btn-remove" onclick="removeVocab(this)">✕</button>`;
+  container.appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeVocab(btn) {
+  btn.closest('.vocab-row').remove();
+}
+
+function addSentence() {
+  const container = document.getElementById('sentences-container');
+  const div = document.createElement('div');
+  div.className = 'sentence-row';
+  div.innerHTML = `<span class="sentence-label">ประโยค:</span><input type="text" class="sent-input" placeholder="พิมพ์โครงสร้างประโยค..."><button class="btn-remove" onclick="removeSentence(this)">✕</button>`;
+  container.appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeSentence(btn) {
+  const row = btn.closest('.sentence-row');
+  if (document.querySelectorAll('.sentence-row').length > 1) row.remove();
+}
+
+function addMedia() {
+  const container = document.getElementById('media-container');
+  const div = document.createElement('div');
+  div.className = 'media-row';
+  div.innerHTML = `<input type="text" class="media-input" placeholder="พิมพ์รายการสื่อ..."><button class="btn-remove" onclick="removeMedia(this)">✕</button>`;
+  container.appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeMedia(btn) {
+  btn.closest('.media-row').remove();
+}
+
+const phaseNames = ['นำเข้าสู่บทเรียน','สอน','ฝึกปฏิบัติ','ประยุกต์ใช้','สรุปบทเรียน'];
+const phaseBadgeClasses = ['phase-intro','phase-teach','phase-practice','phase-apply','phase-conclude'];
+function addActivity() {
+  const tbody = document.getElementById('activities-tbody');
+  const idx = Math.min(tbody.rows.length, phaseNames.length - 1);
+  const phaseName = phaseNames[idx] || 'กิจกรรมเพิ่มเติม';
+  const badgeClass = phaseBadgeClasses[idx] || 'phase-intro';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="phase-badge ${badgeClass}">${phaseName}</span></td>
+    <td><input type="text" class="act-name" placeholder="ชื่อกิจกรรม"></td>
+    <td><textarea class="act-detail" placeholder="รายละเอียดกิจกรรม..."></textarea></td>
+    <td><input type="number" class="act-time" value="10" min="1"></td>`;
+  tbody.appendChild(tr);
+  tr.querySelector('.act-time').addEventListener('input', updateTotalTime);
+  updateTotalTime();
+}
+
+function addAssessment() {
+  const tbody = document.querySelector('#assessment-table tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน"></td><td><input type="text" class="assess-how" placeholder="วิธีการประเมิน"></td><td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน"></td>`;
+  tbody.appendChild(tr);
+}
+
+// ===== Generate Plan =====
+function generatePlan() {
+  // Collect data
+  const d = {
+    planNo: document.getElementById('plan-number').value,
+    subject: document.getElementById('subject-name').value,
+    code: document.getElementById('subject-code').value,
+    group: document.getElementById('subject-group').value,
+    classLevel: document.getElementById('class-level').value,
+    semester: document.getElementById('semester').value,
+    year: document.getElementById('academic-year').value,
+    teacher: document.getElementById('teacher-name').value || '...............................',
+    unitNo: document.getElementById('unit-number').value,
+    unitName: document.getElementById('unit-name').value,
+    unitHours: document.getElementById('unit-hours').value,
+    time: document.getElementById('lesson-time').value,
+    topic: document.getElementById('lesson-topic').value,
+    keyConcept: document.getElementById('key-concept').value,
+    taskDesc: document.getElementById('task-description').value,
+  };
+
+  // Indicators
+  const indicators = [];
+  const indicatorData = [
+    { id: 'ind-t11-p41', code: 'ต 1.1 ป.4/1', desc: 'ปฏิบัติตามคำสั่ง คำขอร้อง และคำแนะนำง่ายๆ ที่ฟังและอ่าน' },
+    { id: 'ind-t11-p42', code: 'ต 1.1 ป.4/2', desc: 'อ่านออกเสียงและบอกความหมายคำ กลุ่มคำ และประโยคง่ายๆ ที่เรียนรู้มาแล้ว' },
+    { id: 'ind-t11-p43', code: 'ต 1.1 ป.4/3', desc: 'เลือก/ระบุภาพหรือสัญลักษณ์ตรงตามความหมายของประโยคที่ฟัง' },
+    { id: 'ind-t11-p44', code: 'ต 1.1 ป.4/4', desc: 'บอกใจความสำคัญและตอบคำถามจากการฟังบทสนทนาสั้นๆ' },
+    { id: 'ind-t12-p41', code: 'ต 1.2 ป.4/1', desc: 'พูด/เขียนโต้ตอบในการสื่อสารระหว่างบุคคล' },
+    { id: 'ind-t12-p42', code: 'ต 1.2 ป.4/2', desc: 'ใช้คำสั่งและคำขอร้องง่ายๆ ในสถานการณ์ต่างๆ ในชั้นเรียน' },
+    { id: 'ind-t12-p43', code: 'ต 1.2 ป.4/3', desc: 'พูด/เขียนแสดงความต้องการและขอความช่วยเหลือในสถานการณ์ง่ายๆ' },
+    { id: 'ind-t12-p44', code: 'ต 1.2 ป.4/4', desc: 'พูด/เขียนแสดงความรู้สึกของตนเองเกี่ยวกับเรื่องต่างๆ ใกล้ตัว' },
+    { id: 'ind-t13-p41', code: 'ต 1.3 ป.4/1', desc: 'พูดให้ข้อมูลเกี่ยวกับตนเองและเรื่องใกล้ตัว' },
+    { id: 'ind-t13-p42', code: 'ต 1.3 ป.4/2', desc: 'พูด/เขียนแสดงความคิดเห็นเกี่ยวกับเรื่องต่างๆ ใกล้ตัวอย่างง่ายๆ' },
+    { id: 'ind-t13-p43', code: 'ต 1.3 ป.4/3', desc: 'พูด/เขียนบรรยายเกี่ยวกับตนเอง สิ่งแวดล้อมใกล้ตัวและกิจกรรมต่างๆ' },
+    { id: 'ind-t13-p44', code: 'ต 1.3 ป.4/4', desc: 'พูด/เขียนบรรยายและแสดงความคิดเห็นเกี่ยวกับกิจกรรมหรือเรื่องต่างๆ' },
+    { id: 'ind-t21-p41', code: 'ต 2.1 ป.4/1', desc: 'บอกความสัมพันธ์ระหว่างภาษากับวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-p42', code: 'ต 2.1 ป.4/2', desc: 'เข้าร่วมกิจกรรมทางภาษาและวัฒนธรรมตามความสนใจ' },
+    { id: 'ind-t31-p41', code: 'ต 3.1 ป.4/1', desc: 'บอกความเหมือนและความแตกต่างระหว่างการออกเสียงภาษาอังกฤษกับภาษาไทย' },
+    { id: 'ind-t41-p41', code: 'ต 4.1 ป.4/1', desc: 'ใช้ภาษาอังกฤษสื่อสารในสถานการณ์จริง/สถานการณ์จำลองในชั้นเรียน' },
+  ];
+  indicatorData.forEach(ind => {
+    const el = document.getElementById(ind.id);
+    if (el && el.checked) indicators.push(ind);
+  });
+
+  // Objectives
+  const objectives = [];
+  document.querySelectorAll('.obj-input').forEach(el => {
+    if (el.value.trim()) objectives.push(el.value.trim());
+  });
+
+  // Vocab
+  const vocab = [];
+  document.querySelectorAll('#vocab-container .vocab-row').forEach(row => {
+    const inputs = row.querySelectorAll('input[type="text"]');
+    if (inputs[0] && inputs[0].value.trim()) vocab.push({ word: inputs[0].value.trim(), meaning: inputs[1] ? inputs[1].value.trim() : '' });
+  });
+
+  // Sentences
+  const sentences = [];
+  document.querySelectorAll('.sent-input').forEach(el => {
+    if (el.value.trim()) sentences.push(el.value.trim());
+  });
+
+  // Media
+  const media = [];
+  document.querySelectorAll('.media-input').forEach(el => {
+    if (el.value.trim()) media.push(el.value.trim());
+  });
+
+  // Skills
+  const skills3r = [];
+  if (document.getElementById('sk-reading').checked) skills3r.push({ label: 'Reading (การอ่าน)', checked: true });
+  if (document.getElementById('sk-writing').checked) skills3r.push({ label: 'Writing (การเขียน)', checked: true });
+  if (document.getElementById('sk-arith').checked) skills3r.push({ label: 'Arithmetic (การคิดเลข)', checked: true });
+  const allSkills3r = [
+    { label: 'Reading (การอ่าน)', checked: document.getElementById('sk-reading').checked },
+    { label: 'Writing (การเขียน)', checked: document.getElementById('sk-writing').checked },
+    { label: 'Arithmetic (การคิดเลข)', checked: document.getElementById('sk-arith').checked },
+  ];
+  const allSkills8c = [
+    { label: 'Critical Thinking (การคิดวิเคราะห์)', checked: document.getElementById('sk-critical').checked },
+    { label: 'Creativity (ความคิดสร้างสรรค์)', checked: document.getElementById('sk-creativity').checked },
+    { label: 'Collaboration (การทำงานร่วมกัน)', checked: document.getElementById('sk-collab').checked },
+    { label: 'Communication (การสื่อสาร)', checked: document.getElementById('sk-comm').checked },
+    { label: 'Cross-cultural Understanding (การเข้าใจต่างวัฒนธรรม)', checked: document.getElementById('sk-cross').checked },
+    { label: 'Computing (การใช้คอมพิวเตอร์)', checked: document.getElementById('sk-computing').checked },
+    { label: 'Career (ทักษะอาชีพ)', checked: document.getElementById('sk-career').checked },
+    { label: 'Compassion (ความเมตตา มีคุณธรรม)', checked: document.getElementById('sk-compassion').checked },
+  ];
+
+  // Methods
+  const methods = [];
+  if (document.getElementById('method-2w3p').checked) methods.push('การสอนด้วยกระบวนการ 2W3P');
+  if (document.getElementById('method-clt').checked) methods.push('การสอนภาษาอังกฤษที่เน้นการสื่อสาร CLT');
+  if (document.getElementById('method-games').checked) methods.push('การเรียนรู้แบบใช้เกม (Games)');
+  if (document.getElementById('method-chant').checked) methods.push('การเรียนรู้แบบใช้เพลง/เพลงคำพูด (Chant)');
+  if (document.getElementById('method-roleplay').checked) methods.push('การเรียนรู้แบบบทบาทสมมติ / สัมภาษณ์ (Role-play)');
+  if (document.getElementById('method-pbl').checked) methods.push('การเรียนรู้แบบโครงงาน (PBL)');
+
+  // Activities
+  const activities = [];
+  document.querySelectorAll('#activities-tbody tr').forEach(tr => {
+    const phaseBadge = tr.querySelector('.phase-badge');
+    const nameEl = tr.querySelector('.act-name');
+    const detailEl = tr.querySelector('.act-detail');
+    const timeEl = tr.querySelector('.act-time');
+    if (nameEl && detailEl && timeEl) {
+      activities.push({
+        phase: phaseBadge ? phaseBadge.textContent.trim() : '',
+        name: nameEl.value.trim(),
+        detail: detailEl.value.trim(),
+        time: timeEl.value,
+      });
+    }
+  });
+  const totalTime = activities.reduce((s, a) => s + (parseInt(a.time) || 0), 0);
+
+  // Assessment
+  const assessments = [];
+  document.querySelectorAll('#assessment-table tbody tr').forEach(tr => {
+    const w = tr.querySelector('.assess-what');
+    const h = tr.querySelector('.assess-how');
+    const c = tr.querySelector('.assess-criteria');
+    if (w && w.value.trim()) assessments.push({ what: w.value.trim(), how: h ? h.value.trim() : '', criteria: c ? c.value.trim() : '' });
+  });
+
+  // ===== Build HTML =====
+  const skillCheck = (checked) => `<span class="skill-check ${checked ? 'checked' : ''}">${checked ? '✓' : ''}</span>`;
+
+  // Vocab rows (3 per row)
+  let vocabHTML = '';
+  if (vocab.length > 0) {
+    const headers = `
+      <div class="vocab-cell header">คำศัพท์</div>
+      <div class="vocab-cell header">ความหมาย</div>
+      <div class="vocab-cell header">คำศัพท์</div>
+      <div class="vocab-cell header">ความหมาย</div>
+      <div class="vocab-cell header">คำศัพท์</div>
+      <div class="vocab-cell header">ความหมาย</div>`;
+    let rows = '';
+    for (let i = 0; i < vocab.length; i += 3) {
+      const v1 = vocab[i] || { word: '', meaning: '' };
+      const v2 = vocab[i+1] || { word: '', meaning: '' };
+      const v3 = vocab[i+2] || { word: '', meaning: '' };
+      rows += `<div class="vocab-cell" style="font-weight:600;">${v1.word}</div><div class="vocab-cell">${v1.meaning}</div>`;
+      rows += `<div class="vocab-cell" style="font-weight:600;">${v2.word}</div><div class="vocab-cell">${v2.meaning}</div>`;
+      rows += `<div class="vocab-cell" style="font-weight:600;">${v3.word}</div><div class="vocab-cell">${v3.meaning}</div>`;
+    }
+    vocabHTML = `<div class="vocab-grid" style="grid-template-columns: repeat(6, 1fr);">${headers}${rows}</div>`;
+  }
+
+  const html = `
+    <div class="plan-title-box">
+      <div class="main-title">แผนการจัดการเรียนรู้ที่ ${d.planNo}</div>
+      <div class="sub-info">
+        รายวิชา ${d.subject} รหัสวิชา ${d.code}<br>
+        กลุ่มสาระการเรียนรู้${d.group} &nbsp;|&nbsp; ภาคเรียนที่ ${d.semester} ปีการศึกษา ${d.year}<br>
+        ชั้น${d.classLevel}
+      </div>
+      <div class="sub-info" style="margin-top:10px;">
+        หน่วยการเรียนรู้ที่ ${d.unitNo} &nbsp;<em>${d.unitName}</em>&nbsp; ทั้งหมด ${d.unitHours} ชั่วโมง
+      </div>
+      <div class="sub-info">
+        <strong>เรื่อง ${d.topic}</strong> &nbsp;|&nbsp; เวลา ${d.time} นาที
+      </div>
+      <div class="sub-info" style="margin-top:8px;">ครูผู้สอน ${d.teacher}</div>
+    </div>
+
+    <!-- 1. มาตรฐานและตัวชี้วัด -->
+    <div class="plan-section">
+      <div class="plan-section-title">1. มาตรฐานและตัวชี้วัด</div>
+      <div class="plan-section-body">
+        ${indicators.map(ind => `
+          <div class="plan-indicator">
+            <span class="indicator-mark">■</span>
+            <span><strong>${ind.code}:</strong> ${ind.desc}</span>
+          </div>`).join('') || '<em style="color:#888">ไม่ได้เลือกตัวชี้วัด</em>'}
+      </div>
+    </div>
+
+    <!-- 2. สาระสำคัญ -->
+    <div class="plan-section">
+      <div class="plan-section-title">2. สาระสำคัญ</div>
+      <div class="plan-section-body">
+        <p>${d.keyConcept.replace(/\n/g, '<br>')}</p>
+      </div>
+    </div>
+
+    <!-- 3. จุดประสงค์ -->
+    <div class="plan-section">
+      <div class="plan-section-title">3. จุดประสงค์การเรียนรู้</div>
+      <div class="plan-section-body">
+        ${objectives.map(obj => `
+          <div class="plan-objective">
+            <span class="obj-mark">■</span>
+            <span>${obj}</span>
+          </div>`).join('') || '<em style="color:#888">ไม่ได้กรอกจุดประสงค์</em>'}
+      </div>
+    </div>
+
+    <!-- 4. สาระการเรียนรู้ -->
+    <div class="plan-section">
+      <div class="plan-section-title">4. สาระการเรียนรู้</div>
+      <div class="plan-section-body">
+        ${vocab.length > 0 ? `<p style="font-weight:600; margin-bottom:6px;">คำศัพท์ ${vocab.length} คำ ได้แก่:</p>${vocabHTML}` : ''}
+        ${sentences.length > 0 ? `
+          <p style="font-weight:600; margin:10px 0 6px;">โครงสร้างประโยคหลัก:</p>
+          ${sentences.map(s => `<div class="plan-indicator"><span class="indicator-mark">■</span><span>${s}</span></div>`).join('')}
+        ` : ''}
+      </div>
+    </div>
+
+    <!-- 5. สื่อและแหล่งการเรียนรู้ -->
+    <div class="plan-section">
+      <div class="plan-section-title">5. สื่อและแหล่งการเรียนรู้</div>
+      <div class="plan-section-body">
+        ${media.map(m => `<div class="plan-indicator"><span class="indicator-mark">■</span><span>${m}</span></div>`).join('') || '<em style="color:#888">ไม่ได้กรอกสื่อ</em>'}
+      </div>
+    </div>
+
+    <!-- 6. ทักษะศตวรรษที่ 21 -->
+    <div class="plan-section">
+      <div class="plan-section-title">6. ทักษะผู้เรียนในศตวรรษที่ 21 (3Rs × 8Cs)</div>
+      <div class="plan-section-body">
+        <p style="font-weight:600; margin-bottom:6px;">3Rs (ทักษะการเรียนรู้พื้นฐาน)</p>
+        <div class="skills-3rs">
+          ${allSkills3r.map(s => `<div class="skill-item">${skillCheck(s.checked)} ${s.label}</div>`).join('')}
+        </div>
+        <p style="font-weight:600; margin:8px 0 6px;">8Cs (ทักษะแห่งศตวรรษที่ 21)</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+          ${allSkills8c.map(s => `<div class="skill-item">${skillCheck(s.checked)} ${s.label}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. ภาระชิ้นงาน -->
+    <div class="plan-section">
+      <div class="plan-section-title">7. ภาระชิ้นงาน</div>
+      <div class="plan-section-body">
+        <p>${d.taskDesc}</p>
+      </div>
+    </div>
+
+    <!-- 8. รูปแบบการจัดการเรียนรู้ -->
+    <div class="plan-section">
+      <div class="plan-section-title">8. การจัดกิจกรรมการเรียนรู้</div>
+      <div class="plan-section-body">
+        <p>จัดการเรียนรู้แบบ Active Learning โดยใช้กลยุทธ์การสอนดังนี้</p>
+        ${methods.map(m => `<div class="plan-indicator"><span class="indicator-mark">☑</span><span>${m}</span></div>`).join('')}
+      </div>
+    </div>
+
+    <!-- 9. กิจกรรม -->
+    <div class="plan-section">
+      <div class="plan-section-title">9. กิจกรรมการเรียนรู้</div>
+      <div class="plan-section-body" style="padding:0 8px;">
+        <table class="plan-table">
+          <thead>
+            <tr>
+              <th style="width:120px;">ขั้น</th>
+              <th style="width:150px;">ชื่อกิจกรรม</th>
+              <th>รายละเอียดกิจกรรม</th>
+              <th style="width:80px;">เวลา (นาที)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${activities.map(a => `
+              <tr>
+                <td class="phase-cell">${a.phase}</td>
+                <td style="font-weight:600;">${a.name}</td>
+                <td style="white-space:pre-wrap; line-height:1.6;">${a.detail}</td>
+                <td class="time-cell">${a.time}</td>
+              </tr>`).join('')}
+            <tr>
+              <td colspan="3" style="text-align:right; font-weight:700; background:#e8eaf6;">รวมเวลาทั้งหมด</td>
+              <td class="time-cell" style="font-weight:700; background:#e8eaf6; font-size:1rem;">${totalTime}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 10. การวัดผล -->
+    <div class="plan-section">
+      <div class="plan-section-title">10. การวัดและประเมินผล</div>
+      <div class="plan-section-body" style="padding:0 8px;">
+        <table class="plan-assessment-table">
+          <thead>
+            <tr>
+              <th style="width:160px;">สิ่งที่ประเมิน</th>
+              <th>วิธีการประเมิน</th>
+              <th style="width:200px;">เกณฑ์ผ่าน</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${assessments.map(a => `
+              <tr>
+                <td style="font-weight:600;">${a.what}</td>
+                <td>${a.how}</td>
+                <td>${a.criteria}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 11. บันทึกหลังการเรียนรู้ -->
+    <div class="plan-section">
+      <div class="plan-section-title">11. บันทึกหลังการจัดการเรียนรู้</div>
+      <div class="plan-section-body">
+        <div class="plan-notes-box">
+          <div class="notes-title">ผลการจัดการเรียนรู้</div>
+          <p style="font-size:0.85rem; margin-bottom:6px;"><strong>ด้านความรู้ (Knowledge: K)</strong></p>
+          <div class="notes-line"></div><div class="notes-line"></div>
+          <p style="font-size:0.85rem; margin:8px 0 6px;"><strong>ด้านกระบวนการ (Process: P)</strong></p>
+          <div class="notes-line"></div><div class="notes-line"></div>
+          <p style="font-size:0.85rem; margin:8px 0 6px;"><strong>ด้านคุณลักษณะอันพึงประสงค์และเจตคติ (Attitude: A)</strong></p>
+          <div class="notes-line"></div><div class="notes-line"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <p style="font-weight:700; margin-bottom:6px;">ปัญหาและอุปสรรค:</p>
+          <div class="notes-line"></div><div class="notes-line"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <p style="font-weight:700; margin-bottom:6px;">ข้อเสนอแนะ / แนวทางแก้ไข:</p>
+          <div class="notes-line"></div><div class="notes-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ลายเซ็น -->
+    <div class="plan-signature-box">
+      <div class="plan-signature">
+        <p>ลงชื่อ</p>
+        <div class="sig-line"></div>
+        <p>ครูผู้สอน</p>
+        <p style="margin-top:4px;">(${d.teacher === '...............................' ? '...............................' : d.teacher})</p>
+        <p style="margin-top:4px;">วันที่ ......... / ......... / ............</p>
+      </div>
+      <div class="plan-signature">
+        <p>ลงชื่อ</p>
+        <div class="sig-line"></div>
+        <p>ผู้อำนวยการโรงเรียน</p>
+        <p style="margin-top:4px;">(................................................................)</p>
+        <p style="margin-top:4px;">วันที่ ......... / ......... / ............</p>
+      </div>
+    </div>
+
+    <!-- ภาคผนวก -->
+    <div class="plan-section" style="margin-top:20px; border-top:1px solid #ccc; padding-top:16px;">
+      <div class="plan-section-title">ภาคผนวก</div>
+      <div class="plan-section-body">
+        ${media.map(m => `<div class="plan-indicator"><span class="indicator-mark">•</span><span>${m}</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('plan-output').innerHTML = html;
+  const preview = document.getElementById('preview-section');
+  preview.style.display = 'block';
+  setTimeout(() => {
+    preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+</script>
+</body>
+</html>
