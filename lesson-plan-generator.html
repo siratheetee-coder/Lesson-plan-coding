@@ -903,11 +903,11 @@
         </div>
         <div class="form-group">
           <label>รายวิชา</label>
-          <input type="text" id="subject-name" value="ภาษาอังกฤษพื้นฐาน">
+          <input type="text" id="subject-name" placeholder="เช่น ภาษาอังกฤษพื้นฐาน">
         </div>
         <div class="form-group">
           <label>กลุ่มสาระการเรียนรู้</label>
-          <input type="text" id="subject-group" value="ภาษาต่างประเทศ">
+          <input type="text" id="subject-group" placeholder="เช่น ภาษาต่างประเทศ">
         </div>
         <div class="form-group">
           <label>ชั้น <span class="required">*</span></label>
@@ -929,7 +929,7 @@
         </div>
         <div class="form-group">
           <label>ปีการศึกษา</label>
-          <input type="text" id="academic-year" value="2569">
+          <input type="text" id="academic-year" placeholder="เช่น 2568">
         </div>
         <div class="form-group">
           <label>ครูผู้สอน</label>
@@ -1014,55 +1014,15 @@
 
       <div class="form-group">
         <label>สาระสำคัญ (Key Concept) <span class="required">*</span></label>
-        <textarea id="key-concept" rows="3">นักเรียนจะได้เรียนรู้คำศัพท์สมาชิกในครอบครัว 9 คำ และฝึกใช้ประโยค "This is my ___." / "He/She is my ___." / "I have ___." เพื่อแนะนำและพูดถึงสมาชิกในครอบครัวได้อย่างถูกต้อง ผ่านกิจกรรมที่หลากหลาย</textarea>
+        <textarea id="key-concept" rows="3" placeholder="พิมพ์สาระสำคัญของบทเรียน..."></textarea>
       </div>
 
       <hr class="divider">
       <label style="margin-bottom:10px; display:block;">คำศัพท์ (Vocabulary)</label>
       <div id="vocab-container">
         <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="grandfather">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ปู่ / ตา">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="grandmother">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ย่า / ยาย">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="father">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="พ่อ">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="mother">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="แม่">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="brother">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="พี่ชาย / น้องชาย">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="sister">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="พี่สาว / น้องสาว">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="uncle">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ลุง / น้า / อา">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="aunt">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="ป้า / น้า / อา">
-          <button class="btn-remove" onclick="removeVocab(this)">✕</button>
-        </div>
-        <div class="vocab-row" style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;" value="baby">
-          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;" value="เด็กทารก">
+          <input type="text" placeholder="คำศัพท์ภาษาอังกฤษ" style="flex:1;">
+          <input type="text" placeholder="ความหมาย (ไทย)" style="flex:1;">
           <button class="btn-remove" onclick="removeVocab(this)">✕</button>
         </div>
       </div>
@@ -1072,18 +1032,8 @@
       <label style="margin-bottom:10px; display:block;">โครงสร้างประโยคหลัก (Key Sentence Structures)</label>
       <div id="sentences-container">
         <div class="sentence-row">
-          <span class="sentence-label">แนะนำ:</span>
-          <input type="text" class="sent-input" value="This is my father. / This is my grandmother.">
-          <button class="btn-remove" onclick="removeSentence(this)">✕</button>
-        </div>
-        <div class="sentence-row">
-          <span class="sentence-label">พูดถึง:</span>
-          <input type="text" class="sent-input" value="He is my brother. / She is my aunt.">
-          <button class="btn-remove" onclick="removeSentence(this)">✕</button>
-        </div>
-        <div class="sentence-row">
-          <span class="sentence-label">บอกจำนวน:</span>
-          <input type="text" class="sent-input" value="I have one sister. / I have two brothers.">
+          <span class="sentence-label">ประโยค:</span>
+          <input type="text" class="sent-input" placeholder="พิมพ์โครงสร้างประโยค...">
           <button class="btn-remove" onclick="removeSentence(this)">✕</button>
         </div>
       </div>
@@ -1101,19 +1051,7 @@
       </div>
       <div id="media-container">
         <div class="media-row">
-          <input type="text" class="media-input" value="สไลด์ PowerPoint: Flashcards รูปสมาชิกในครอบครัว + ประโยคตัวอย่าง">
-          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
-        </div>
-        <div class="media-row">
-          <input type="text" class="media-input" value="บัตรภาพสมาชิกในครอบครัว (Family Picture Cards) 9 ใบ/กลุ่ม">
-          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
-        </div>
-        <div class="media-row">
-          <input type="text" class="media-input" value="ใบงาน: Family Members Worksheet (Part A: ระบุชื่อ 6 ข้อ / Part B: เติมประโยค 4 ข้อ)">
-          <button class="btn-remove" onclick="removeMedia(this)">✕</button>
-        </div>
-        <div class="media-row">
-          <input type="text" class="media-input" value="ลำโพง / โปรเจคเตอร์ สำหรับแสดงสไลด์และเล่น Chant">
+          <input type="text" class="media-input" placeholder="พิมพ์รายการสื่อ...">
           <button class="btn-remove" onclick="removeMedia(this)">✕</button>
         </div>
       </div>
@@ -1131,11 +1069,11 @@
       </div>
       <p style="font-size:0.9rem; font-weight:600; color:var(--gray-700); margin-bottom:8px;">3Rs — ทักษะการเรียนรู้พื้นฐาน</p>
       <div class="skills-3rs" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
-        <label class="skills21-item checked" id="lbl-reading">
-          <input type="checkbox" id="sk-reading" checked onchange="toggleChecked(this)"> ☑ Reading (การอ่าน)
+        <label class="skills21-item" id="lbl-reading">
+          <input type="checkbox" id="sk-reading" onchange="toggleChecked(this)"> Reading (การอ่าน)
         </label>
-        <label class="skills21-item checked" id="lbl-writing">
-          <input type="checkbox" id="sk-writing" checked onchange="toggleChecked(this)"> ☑ Writing (การเขียน)
+        <label class="skills21-item" id="lbl-writing">
+          <input type="checkbox" id="sk-writing" onchange="toggleChecked(this)"> Writing (การเขียน)
         </label>
         <label class="skills21-item" id="lbl-arith">
           <input type="checkbox" id="sk-arith" onchange="toggleChecked(this)"> Arithmetic (การคิดเลข)
@@ -1143,20 +1081,20 @@
       </div>
       <p style="font-size:0.9rem; font-weight:600; color:var(--gray-700); margin-bottom:8px;">8Cs — ทักษะแห่งศตวรรษที่ 21</p>
       <div class="skills21-grid">
-        <label class="skills21-item checked" id="lbl-critical">
-          <input type="checkbox" id="sk-critical" checked onchange="toggleChecked(this)"> Critical Thinking (การคิดวิเคราะห์)
+        <label class="skills21-item" id="lbl-critical">
+          <input type="checkbox" id="sk-critical" onchange="toggleChecked(this)"> Critical Thinking (การคิดวิเคราะห์)
         </label>
-        <label class="skills21-item checked" id="lbl-creativity">
-          <input type="checkbox" id="sk-creativity" checked onchange="toggleChecked(this)"> Creativity (ความคิดสร้างสรรค์)
+        <label class="skills21-item" id="lbl-creativity">
+          <input type="checkbox" id="sk-creativity" onchange="toggleChecked(this)"> Creativity (ความคิดสร้างสรรค์)
         </label>
-        <label class="skills21-item checked" id="lbl-collab">
-          <input type="checkbox" id="sk-collab" checked onchange="toggleChecked(this)"> Collaboration (การทำงานร่วมกัน)
+        <label class="skills21-item" id="lbl-collab">
+          <input type="checkbox" id="sk-collab" onchange="toggleChecked(this)"> Collaboration (การทำงานร่วมกัน)
         </label>
-        <label class="skills21-item checked" id="lbl-comm">
-          <input type="checkbox" id="sk-comm" checked onchange="toggleChecked(this)"> Communication (การสื่อสาร)
+        <label class="skills21-item" id="lbl-comm">
+          <input type="checkbox" id="sk-comm" onchange="toggleChecked(this)"> Communication (การสื่อสาร)
         </label>
-        <label class="skills21-item checked" id="lbl-cross">
-          <input type="checkbox" id="sk-cross" checked onchange="toggleChecked(this)"> Cross-cultural Understanding (การเข้าใจต่างวัฒนธรรม)
+        <label class="skills21-item" id="lbl-cross">
+          <input type="checkbox" id="sk-cross" onchange="toggleChecked(this)"> Cross-cultural Understanding (การเข้าใจต่างวัฒนธรรม)
         </label>
         <label class="skills21-item" id="lbl-computing">
           <input type="checkbox" id="sk-computing" onchange="toggleChecked(this)"> Computing (การใช้คอมพิวเตอร์)
@@ -1164,15 +1102,15 @@
         <label class="skills21-item" id="lbl-career">
           <input type="checkbox" id="sk-career" onchange="toggleChecked(this)"> Career (ทักษะอาชีพ)
         </label>
-        <label class="skills21-item checked" id="lbl-compassion">
-          <input type="checkbox" id="sk-compassion" checked onchange="toggleChecked(this)"> Compassion (ความเมตตา มีคุณธรรม)
+        <label class="skills21-item" id="lbl-compassion">
+          <input type="checkbox" id="sk-compassion" onchange="toggleChecked(this)"> Compassion (ความเมตตา มีคุณธรรม)
         </label>
       </div>
 
       <hr class="divider">
       <div class="form-group">
         <label>ภาระชิ้นงาน (Task/Assignment)</label>
-        <textarea id="task-description" rows="2">ใบงาน Family Members Worksheet (Part A: ระบุชื่อสมาชิก 6 ข้อ / Part B: เติมประโยค 4 ข้อ)</textarea>
+        <textarea id="task-description" rows="2" placeholder="พิมพ์รายละเอียดภาระชิ้นงาน..."></textarea>
       </div>
 
       <div class="nav-buttons">
@@ -1197,19 +1135,19 @@
         <label>รูปแบบการจัดการเรียนรู้</label>
         <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
           <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-2w3p">
-            <input type="checkbox" id="method-2w3p" checked onchange="toggleChecked(this)">
+            <input type="checkbox" id="method-2w3p" onchange="toggleChecked(this)">
             <span class="checkbox-label">การสอนด้วยกระบวนการ 2W3P</span>
           </label>
           <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-clt">
-            <input type="checkbox" id="method-clt" checked onchange="toggleChecked(this)">
+            <input type="checkbox" id="method-clt" onchange="toggleChecked(this)">
             <span class="checkbox-label">การสอนภาษาอังกฤษที่เน้นการสื่อสาร CLT</span>
           </label>
           <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-games">
-            <input type="checkbox" id="method-games" checked onchange="toggleChecked(this)">
+            <input type="checkbox" id="method-games" onchange="toggleChecked(this)">
             <span class="checkbox-label">การเรียนรู้แบบใช้เกม (Games)</span>
           </label>
           <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-chant">
-            <input type="checkbox" id="method-chant" checked onchange="toggleChecked(this)">
+            <input type="checkbox" id="method-chant" onchange="toggleChecked(this)">
             <span class="checkbox-label">การเรียนรู้แบบใช้เพลง/เพลงคำพูด (Chant)</span>
           </label>
           <label class="checkbox-item" style="flex:1; min-width:200px;" id="lbl-roleplay">
@@ -1239,46 +1177,33 @@
           <tbody id="activities-tbody">
             <tr>
               <td><span class="phase-badge phase-intro">นำเข้าสู่บทเรียน</span></td>
-              <td><input type="text" class="act-name" value="Family Photo Intro"></td>
-              <td><textarea class="act-detail">1. ครูแสดงรูป "Family Photo" บนสไลด์ (ภาพครอบครัวสมมติที่มีสมาชิกหลากหลาย)
-2. ครูถามเป็นภาษาอังกฤษ: "How many people are in this family?" / "Can you see a grandfather? A baby?"
-3. นักเรียนตอบแบบ Thumbs Up / Down
-4. ครูแนะนำ: "Today we learn about family members in English!"</textarea></td>
+              <td><input type="text" class="act-name" placeholder="ชื่อกิจกรรม..."></td>
+              <td><textarea class="act-detail" placeholder="รายละเอียดกิจกรรม..."></textarea></td>
               <td><input type="number" class="act-time" value="10" min="1"></td>
             </tr>
             <tr>
               <td><span class="phase-badge phase-teach">สอน</span></td>
-              <td><input type="text" class="act-name" value="Family Vocab &amp; Chant"></td>
-              <td><textarea class="act-detail">1. ครูสอนคำศัพท์ผ่านสไลด์ Flashcards ออกเสียงพร้อมกัน 3 รอบ (Repeat after me)
-2. เรียนประโยคหลัก: "This is my father." / "He is my brother." / "She is my mother." / "I have two sisters."
-3. ครูนำ Chant: "Who's in my family?" นักเรียนปรบมือตามจังหวะ 3 รอบ</textarea></td>
-              <td><input type="number" class="act-time" value="20" min="1"></td>
+              <td><input type="text" class="act-name" placeholder="ชื่อกิจกรรม..."></td>
+              <td><textarea class="act-detail" placeholder="รายละเอียดกิจกรรม..."></textarea></td>
+              <td><input type="number" class="act-time" value="10" min="1"></td>
             </tr>
             <tr>
               <td><span class="phase-badge phase-practice">ฝึกปฏิบัติ</span></td>
-              <td><input type="text" class="act-name" value="Family Tree Card Game"></td>
-              <td><textarea class="act-detail">1. แจกบัตรรูปสมาชิกในครอบครัว (Family Cards) ให้กลุ่มละ 1 ชุด
-2. ครูพูดชื่อสมาชิก นักเรียนยกบัตรภาพขึ้น เช่น ครูพูด "grandmother" → นักเรียนยกบัตรภาพย่า/ยาย
-3. สลับ: ครูแสดงบัตรภาพ นักเรียนพูดชื่อ
-4. กิจกรรม Pair Work: ผลัดกันพูด "This is my ___." คู่แสดงบัตรภาพ อีกคนตอบชื่อสมาชิก</textarea></td>
-              <td><input type="number" class="act-time" value="15" min="1"></td>
+              <td><input type="text" class="act-name" placeholder="ชื่อกิจกรรม..."></td>
+              <td><textarea class="act-detail" placeholder="รายละเอียดกิจกรรม..."></textarea></td>
+              <td><input type="number" class="act-time" value="10" min="1"></td>
             </tr>
             <tr>
               <td><span class="phase-badge phase-apply">ประยุกต์ใช้</span></td>
-              <td><input type="text" class="act-name" value="Family Worksheet"></td>
-              <td><textarea class="act-detail">1. แจกใบงาน Family Members: Part A เขียนชื่อสมาชิกใต้รูปภาพ (6 ข้อ) / Part B เติมประโยค "This is my ___." / "He/She is my ___." (4 ข้อ)
-2. ครูทำตัวอย่าง Part A ข้อแรกบนกระดาน
-3. นักเรียนทำรายบุคคล (10 นาที) ครูเดินสังเกต แนะนำการสะกด uncle/aunt</textarea></td>
-              <td><input type="number" class="act-time" value="20" min="1"></td>
+              <td><input type="text" class="act-name" placeholder="ชื่อกิจกรรม..."></td>
+              <td><textarea class="act-detail" placeholder="รายละเอียดกิจกรรม..."></textarea></td>
+              <td><input type="number" class="act-time" value="10" min="1"></td>
             </tr>
             <tr>
               <td><span class="phase-badge phase-conclude">สรุปบทเรียน</span></td>
-              <td><input type="text" class="act-name" value="Family Relay Quiz"></td>
-              <td><textarea class="act-detail">1. แบ่ง 2 ทีม เล่น Family Relay Quiz ครูแสดงบัตรภาพสมาชิก นักเรียนพูดประโยค: "This is my ___." (5 ข้อต่อทีม)
-2. ครูเฉลยใบงานบนสไลด์ นักเรียนตรวจและแก้ไขคำตอบตัวเอง
-3. ครูสรุป: "We learned 9 family members today. Use 'This is my ___' to introduce family!"
-4. ครูเก็บใบงาน</textarea></td>
-              <td><input type="number" class="act-time" value="15" min="1"></td>
+              <td><input type="text" class="act-name" placeholder="ชื่อกิจกรรม..."></td>
+              <td><textarea class="act-detail" placeholder="รายละเอียดกิจกรรม..."></textarea></td>
+              <td><input type="number" class="act-time" value="10" min="1"></td>
             </tr>
           </tbody>
         </table>
@@ -1320,19 +1245,19 @@
           </thead>
           <tbody>
             <tr>
-              <td><input type="text" class="assess-what" value="ความรู้คำศัพท์ (K)"></td>
-              <td><input type="text" class="assess-how" value="ตรวจใบงาน Part A และ Part B (รวม 10 ข้อ)"></td>
-              <td><input type="text" class="assess-criteria" value="ทำได้ถูกต้อง ≥ 7 ใน 10 ข้อ"></td>
+              <td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>
+              <td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>
+              <td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>
             </tr>
             <tr>
-              <td><input type="text" class="assess-what" value="ทักษะการพูด (P)"></td>
-              <td><input type="text" class="assess-how" value="สังเกตการพูดในกิจกรรม Card Game และ Relay Quiz"></td>
-              <td><input type="text" class="assess-criteria" value="พูดประโยคได้ถูกต้อง ≥ 3 ใน 5 ครั้ง"></td>
+              <td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>
+              <td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>
+              <td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>
             </tr>
             <tr>
-              <td><input type="text" class="assess-what" value="เจตคติ (A)"></td>
-              <td><input type="text" class="assess-how" value="สังเกตพฤติกรรมการมีส่วนร่วมและการทำงานกลุ่ม"></td>
-              <td><input type="text" class="assess-criteria" value="ร่วมกิจกรรมครบทุกขั้นตอน"></td>
+              <td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>
+              <td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>
+              <td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>
             </tr>
           </tbody>
         </table>
