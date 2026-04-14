@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Lesson Plan Generator | สร้างแผนการสอนภาษาอังกฤษ</title>
+<script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 
@@ -1266,9 +1268,14 @@
 
       <div class="nav-buttons">
         <button class="btn btn-prev" onclick="goToStep(4)">← กลับ</button>
-        <button class="btn btn-generate" onclick="generatePlan()">
-          ✨ สร้างแผนการสอน
-        </button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-generate" onclick="generatePlan('pdf')" style="background:linear-gradient(135deg,#dc2626,#b91c1c);">
+            📄 สร้าง PDF
+          </button>
+          <button class="btn btn-generate" onclick="generatePlan('docx')" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
+            📝 สร้าง DOCX
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1589,7 +1596,7 @@ function addAssessment() {
 }
 
 // ===== Generate Plan =====
-function generatePlan() {
+function generatePlan(format = 'pdf') {
   // Collect data
   const d = {
     planNo: document.getElementById('plan-number').value,
@@ -1937,6 +1944,36 @@ function generatePlan() {
   setTimeout(() => {
     preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
+
+  if (format === 'pdf') {
+    setTimeout(() => window.print(), 400);
+  } else if (format === 'docx') {
+    exportAsDocx(html, d);
+  }
+}
+
+function exportAsDocx(planHtml, d) {
+  const filename = `แผนการสอน_${d.planNo || ''}_${d.classLevel || ''}.docx`.replace(/\s+/g, '_');
+  const fullHtml = `<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <style>
+      body { font-family: 'TH Sarabun New', Sarabun, sans-serif; font-size: 14pt; line-height: 1.6; margin: 2cm; }
+      table { border-collapse: collapse; width: 100%; margin-bottom: 12pt; }
+      td, th { border: 1px solid #333; padding: 6pt 8pt; vertical-align: top; }
+      th { background: #e8eaf6; font-weight: bold; }
+      h1 { font-size: 16pt; text-align: center; margin-bottom: 8pt; }
+      h2 { font-size: 14pt; margin-top: 12pt; margin-bottom: 4pt; }
+      .plan-section-title { font-weight: bold; font-size: 13pt; background: #e8eaf6; padding: 4pt 8pt; margin-bottom: 4pt; }
+      .plan-indicator { margin-bottom: 4pt; }
+    </style>
+  </head><body>${planHtml}</body></html>`;
+
+  try {
+    const blob = htmlDocx.asBlob(fullHtml, { orientation: 'portrait', margins: { top: 720, right: 720, bottom: 720, left: 720 } });
+    saveAs(blob, filename);
+  } catch (e) {
+    alert('ไม่สามารถสร้างไฟล์ DOCX ได้: ' + e.message);
+  }
 }
 </script>
 </body>
