@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview — BlastBoard Style</title>
+<style>
+:root {
+  --blue:        #2563eb;
+  --blue-dark:   #1d4ed8;
+  --blue-light:  #eff6ff;
+  --blue-mid:    #dbeafe;
+  --black:       #0a0a0a;
+  --gray-page:   #f4f4f5;
+  --gray-border: #e4e4e7;
+  --gray-text:   #71717a;
+  --gray-label:  #52525b;
+  --white:       #ffffff;
+  --success:     #16a34a;
+  --amber:       #d97706;
+  --purple:      #7c3aed;
+  --red:         #dc2626;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, 'Inter', 'Segoe UI', 'Noto Sans Thai', Arial, sans-serif;
+  background: var(--gray-page);
+  color: var(--black);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── TOPBAR ─────────────────────────────────────── */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-border);
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--black);
+}
+.topbar-logo-icon {
+  width: 30px; height: 30px;
+  background: var(--blue);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+}
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-link {
+  font-size: 0.85rem;
+  color: var(--gray-label);
+  background: none; border: none; cursor: pointer;
+  padding: 6px 10px; border-radius: 6px;
+}
+.topbar-link:hover { background: var(--gray-page); }
+.btn-topbar-history {
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--gray-border);
+  background: white;
+  color: var(--black);
+}
+.btn-topbar-cta {
+  padding: 7px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: var(--black);
+  color: white;
+}
+
+/* ── HERO ───────────────────────────────────────── */
+.hero {
+  padding: 72px 48px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.hero-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--black);
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+.hero-title span { color: var(--blue); }
+.hero-sub {
+  font-size: 1rem;
+  color: var(--gray-text);
+  margin-bottom: 32px;
+  line-height: 1.7;
+  max-width: 420px;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-hero-primary {
+  padding: 12px 28px;
+  background: var(--black);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-hero-secondary {
+  padding: 12px 24px;
+  background: white;
+  color: var(--black);
+  border: 1.5px solid var(--gray-border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Hero right — mock exported plan preview */
+.hero-visual {
+  background: white;
+  border: 1px solid var(--gray-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+}
+.hero-visual-bar {
+  background: var(--blue);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-visual-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+.hero-visual-title { color: white; font-size: 0.8rem; font-weight: 600; margin-left: 6px; }
+.hero-visual-body { padding: 20px; }
+.plan-preview-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.plan-preview-label { font-size: 0.7rem; font-weight: 700; color: var(--gray-text); width: 90px; flex-shrink: 0; }
+.plan-preview-value { font-size: 0.78rem; color: var(--black); font-weight: 500; }
+.plan-preview-chip {
+  display: inline-block; padding: 2px 8px;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 10px; font-size: 0.68rem; font-weight: 700;
+  margin: 1px 2px;
+}
+.plan-preview-divider { height: 1px; background: var(--gray-border); margin: 12px 0; }
+.plan-preview-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #dcfce7; color: var(--success);
+  padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+}
+
+/* ── STEPS NAV ──────────────────────────────────── */
+.steps-outer {
+  background: white;
+  border-top: 1px solid var(--gray-border);
+  border-bottom: 1px solid var(--gray-border);
+}
+.steps-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.step-tab {
+  padding: 15px 22px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gray-text);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  display: flex; align-items: center; gap: 7px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.step-tab .step-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700;
+  background: var(--gray-border); color: var(--gray-text);
+}
+.step-tab.done { color: var(--blue); }
+.step-tab.done .step-num { background: var(--blue); color: white; }
+.step-tab.done .step-num::after { content: '✓'; }
+.step-tab.active { color: var(--black); font-weight: 700; border-bottom-color: var(--blue); }
+.step-tab.active .step-num { background: var(--black); color: white; }
+.step-progress {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--gray-text);
+  white-space: nowrap;
+  padding: 0 0 0 20px;
+}
+.step-progress strong { color: var(--blue); }
+
+/* ── MAIN ───────────────────────────────────────── */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 48px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── CARD ───────────────────────────────────────── */
+.card {
+  background: white;
+  border: 1px solid var(--gray-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.card-top {
+  padding: 20px 28px 16px;
+  border-bottom: 1px solid var(--gray-border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.card-top-left { display: flex; align-items: flex-start; gap: 14px; }
+.card-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.icon-blue   { background: var(--blue-light); }
+.icon-amber  { background: #fef3c7; }
+.icon-green  { background: #dcfce7; }
+.icon-purple { background: #f3e8ff; }
+.card-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.card-title { font-size: 1rem; font-weight: 700; color: var(--black); }
+.card-sub   { font-size: 0.8rem; color: var(--gray-text); margin-top: 2px; }
+.card-body  { padding: 24px 28px; }
+
+/* ── FORM ───────────────────────────────────────── */
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label {
+  font-size: 0.78rem; font-weight: 600; color: var(--gray-label);
+}
+.form-group input, .form-group select, .form-group textarea {
+  padding: 9px 13px;
+  border: 1.5px solid var(--gray-border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--black);
+  background: white;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+/* ── SECTION LABEL ──────────────────────────────── */
+.section-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 12px;
+}
+.section-eyebrow-line { flex: 1; height: 1px; background: var(--gray-border); }
+.section-eyebrow-text {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── CHIPS ──────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip {
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.chip-off { border-color: var(--gray-border); color: var(--gray-text); background: white; }
+.chip-on  { border-color: var(--blue); color: var(--blue); background: var(--blue-light); font-weight: 700; }
+
+/* ── ACTIVITY TABLE ─────────────────────────────── */
+.act-table { width: 100%; border-collapse: collapse; }
+.act-table thead th {
+  padding: 10px 16px;
+  background: var(--black);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: left;
+}
+.act-table thead th:first-child { border-radius: 8px 0 0 0; }
+.act-table thead th:last-child  { border-radius: 0 8px 0 0; }
+.act-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--gray-border);
+  font-size: 0.875rem;
+  vertical-align: top;
+}
+.act-table tr:last-child td { border-bottom: none; }
+.act-table tr.row-intro  td { background: #fffbeb; }
+.act-table tr.row-teach  td { background: var(--blue-light); }
+.act-table tr.row-prac   td { background: #f0fdf4; }
+.act-table tr.row-apply  td { background: #faf5ff; }
+.act-table tr.row-close  td { background: #fef2f2; }
+
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.pill-intro  { background: #fde68a; color: #78350f; }
+.pill-teach  { background: #bfdbfe; color: #1e3a8a; }
+.pill-prac   { background: #bbf7d0; color: #14532d; }
+.pill-apply  { background: #e9d5ff; color: #4c1d95; }
+.pill-close  { background: #fecaca; color: #7f1d1d; }
+.act-time    { text-align: center; font-weight: 700; color: var(--gray-label); }
+
+/* ── NAV BUTTONS ────────────────────────────────── */
+.card-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--gray-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+}
+.btn-group { display: flex; gap: 10px; align-items: center; }
+.btn {
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: inherit;
+}
+.btn-ghost  { background: white; color: var(--gray-label); border: 1.5px solid var(--gray-border); }
+.btn-ghost:hover { background: var(--gray-page); }
+.btn-outline{ background: white; color: var(--blue);  border: 1.5px solid var(--blue); }
+.btn-outline:hover { background: var(--blue-light); }
+.btn-primary{ background: var(--black); color: white; border: none; }
+.btn-primary:hover { background: #1a1a1a; }
+.btn-blue   { background: var(--blue); color: white; border: none; }
+.btn-red    { background: #dc2626; color: white; border: none; }
+.btn-green  { background: var(--success); color: white; border: none; }
+
+/* ── ASSESSMENT TABLE ───────────────────────────── */
+.ass-table { width: 100%; border-collapse: collapse; }
+.ass-table th {
+  padding: 9px 14px;
+  background: var(--gray-page);
+  border: 1px solid var(--gray-border);
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--gray-label); text-align: left;
+}
+.ass-table td {
+  padding: 9px 14px;
+  border: 1px solid var(--gray-border);
+  font-size: 0.85rem;
+}
+
+/* ── BEFORE/AFTER ───────────────────────────────── */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.compare-box { border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-border); }
+.compare-badge {
+  padding: 9px 16px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.badge-before { background: #f4f4f5; color: var(--gray-text); }
+.badge-after  { background: var(--black); color: white; }
+
+.old-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 28px; text-align: center; color: white;
+}
+.old-badge { display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; margin-bottom: 10px; }
+.old-h1   { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+.old-sub  { font-size: 0.83rem; opacity: 0.75; }
+
+.new-header-mini {
+  background: var(--white);
+  padding: 28px;
+  border-bottom: 1px solid var(--gray-border);
+}
+.new-mini-eyebrow {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--blue-light); color: var(--blue);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+  padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+}
+.new-mini-title { font-size: 1.5rem; font-weight: 800; color: var(--black); line-height: 1.2; margin-bottom: 8px; }
+.new-mini-sub   { font-size: 0.82rem; color: var(--gray-text); margin-bottom: 18px; }
+.new-mini-btns  { display: flex; gap: 10px; }
+.new-mini-btn1  { padding: 8px 20px; background: var(--black); color: white; border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.new-mini-btn2  { padding: 8px 18px; background: white; color: var(--black); border: 1.5px solid var(--gray-border); border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+
+/* ── PALETTE ────────────────────────────────────── */
+.palette { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.swatch  { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.swatch-box { width: 52px; height: 52px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.08); }
+.swatch-name { font-size: 0.68rem; font-weight: 700; color: var(--gray-text); text-align: center; }
+
+/* ── SECTION TITLE ──────────────────────────────── */
+.preview-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gray-text);
+  border-bottom: 1px solid var(--gray-border);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="topbar-logo-icon">📘</div>
+    LessonAI
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-link">คู่มือการใช้งาน</button>
+    <button class="topbar-link">ติดต่อเรา</button>
+    <button class="btn-topbar-history">📚 แผนที่เคยทำ</button>
+    <button class="btn-topbar-cta">+ สร้างแผนใหม่</button>
+  </div>
+</div>
+
+<!-- ══ HERO ════════════════════════════════════════ -->
+<div style="background:white; border-bottom:1px solid var(--gray-border);">
+  <div class="hero">
+    <!-- Left -->
+    <div>
+      <div class="hero-eyebrow">
+        ⚡ สอดคล้องหลักสูตรแกนกลาง พ.ศ. 2551
+      </div>
+      <div class="hero-title">
+        สร้างแผนการสอน<br><span>ภาษาอังกฤษ</span><br>อย่างมืออาชีพ
+      </div>
+      <div class="hero-sub">
+        ระบบช่วยสร้างแผนการจัดการเรียนรู้ที่ครบถ้วนตามมาตรฐาน ใน 5 ขั้นตอน พร้อม Export เป็น PDF และ DOCX ทันที
+      </div>
+      <div class="hero-actions">
+        <button class="btn-hero-primary">เริ่มสร้างแผน →</button>
+        <button class="btn-hero-secondary">ดูตัวอย่าง</button>
+      </div>
+    </div>
+    <!-- Right — mock plan preview card -->
+    <div class="hero-visual">
+      <div class="hero-visual-bar">
+        <div class="hero-visual-dot"></div>
+        <div class="hero-visual-dot"></div>
+        <div class="hero-visual-dot"></div>
+        <div class="hero-visual-title">แผนการสอนที่ 1 — English Language ป.4</div>
+      </div>
+      <div class="hero-visual-body">
+        <div class="plan-preview-row">
+          <div class="plan-preview-label">รายวิชา</div>
+          <div class="plan-preview-value">English Language</div>
+        </div>
+        <div class="plan-preview-row">
+          <div class="plan-preview-label">ระดับชั้น</div>
+          <div class="plan-preview-value">ประถมศึกษาปีที่ 4 / ภาคเรียนที่ 1</div>
+        </div>
+        <div class="plan-preview-row">
+          <div class="plan-preview-label">ครูผู้สอน</div>
+          <div class="plan-preview-value">นายสมชาย ดีงาม</div>
+        </div>
+        <div class="plan-preview-divider"></div>
+        <div class="plan-preview-row">
+          <div class="plan-preview-label">ตัวชี้วัด</div>
+          <div class="plan-preview-value">
+            <span class="plan-preview-chip">ต 1.1 ป.4/1</span>
+            <span class="plan-preview-chip">ต 1.1 ป.4/2</span>
+            <span class="plan-preview-chip">ต 1.2 ป.4/1</span>
+          </div>
+        </div>
+        <div class="plan-preview-row" style="margin-top:6px;">
+          <div class="plan-preview-label">เวลา</div>
+          <div class="plan-preview-value">80 นาที (2 ชั่วโมง)</div>
+        </div>
+        <div class="plan-preview-divider"></div>
+        <div style="display:flex; justify-content:flex-end;">
+          <span class="plan-preview-badge">✓ พร้อม Export</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STEP NAV ═════════════════════════════════════ -->
+<div class="steps-outer">
+  <div class="steps-inner">
+    <button class="step-tab done">
+      <span class="step-num"></span> ข้อมูลทั่วไป
+    </button>
+    <button class="step-tab done">
+      <span class="step-num"></span> ตัวชี้วัด
+    </button>
+    <button class="step-tab active">
+      <span class="step-num">3</span> สาระ &amp; สื่อ
+    </button>
+    <button class="step-tab">
+      <span class="step-num">4</span> กิจกรรม
+    </button>
+    <button class="step-tab">
+      <span class="step-num">5</span> วัดผล &amp; สร้าง
+    </button>
+    <div class="step-progress">ความคืบหน้า <strong>3/5</strong> ขั้นตอน</div>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ═════════════════════════════════ -->
+<div class="main">
+
+  <!-- FORM CARD -->
+  <div class="card">
+    <div class="card-top">
+      <div class="card-top-left">
+        <div class="card-icon icon-blue">📋</div>
+        <div>
+          <div class="card-eyebrow">⚡ ขั้นตอนที่ 1</div>
+          <div class="card-title">ข้อมูลทั่วไปของแผนการสอน</div>
+          <div class="card-sub">กรอกข้อมูลพื้นฐานสำหรับหน้าปกแผนการสอน</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>แผนการสอนที่</label>
+          <input type="number" value="1">
+        </div>
+        <div class="form-group">
+          <label>ชื่อรายวิชา</label>
+          <input type="text" value="English Language">
+        </div>
+        <div class="form-group">
+          <label>กลุ่มสาระการเรียนรู้</label>
+          <input type="text" value="ภาษาต่างประเทศ">
+        </div>
+        <div class="form-group">
+          <label>ระดับชั้น</label>
+          <select><option>ประถมศึกษาปีที่ 4</option></select>
+        </div>
+        <div class="form-group">
+          <label>ภาคเรียนที่</label>
+          <select><option>1</option></select>
+        </div>
+        <div class="form-group">
+          <label>ปีการศึกษา</label>
+          <input type="text" value="2568">
+        </div>
+      </div>
+
+      <div class="section-eyebrow">
+        <div class="section-eyebrow-line"></div>
+        <div class="section-eyebrow-text">ตัวชี้วัดที่เลือก</div>
+        <div class="section-eyebrow-line"></div>
+      </div>
+
+      <div class="chips">
+        <span class="chip chip-on">ต 1.1 ป.4/1</span>
+        <span class="chip chip-on">ต 1.1 ป.4/2</span>
+        <span class="chip chip-on">ต 1.2 ป.4/1</span>
+        <span class="chip chip-off">ต 1.2 ป.4/2</span>
+        <span class="chip chip-off">ต 2.1 ป.4/1</span>
+        <span class="chip chip-off">ต 3.1 ป.4/1</span>
+        <span class="chip chip-off">ต 4.1 ป.4/1</span>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-ghost">← กลับ</button>
+      <div class="btn-group">
+        <button class="btn btn-outline">💾 บันทึก</button>
+        <button class="btn btn-primary">ถัดไป: สาระ & สื่อ →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY TABLE CARD -->
+  <div class="card">
+    <div class="card-top">
+      <div class="card-top-left">
+        <div class="card-icon icon-amber">⚡</div>
+        <div>
+          <div class="card-eyebrow">⚡ ขั้นตอนที่ 4</div>
+          <div class="card-title">ตารางกิจกรรมการเรียนรู้</div>
+          <div class="card-sub">กำหนดขั้นตอนและรายละเอียดกิจกรรมในชั่วโมงสอน</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; background:var(--blue-light); padding:8px 16px; border-radius:8px; font-size:0.82rem;">
+        ⏱ รวม <strong style="color:var(--blue); margin:0 4px;">80</strong> นาที
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <table class="act-table">
+        <thead>
+          <tr>
+            <th style="width:170px;">ขั้นการสอน</th>
+            <th style="width:170px;">ชื่อกิจกรรม</th>
+            <th>รายละเอียดกิจกรรม</th>
+            <th style="width:90px;">เวลา</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-intro">
+            <td><span class="phase-pill pill-intro">นำเข้าสู่บทเรียน</span></td>
+            <td>Warm-up Game</td>
+            <td>ครูใช้บัตรคำศัพท์ให้นักเรียนเดาคำและแปลความหมาย</td>
+            <td class="act-time">10 นาที</td>
+          </tr>
+          <tr class="row-teach">
+            <td><span class="phase-pill pill-teach">สอน / นำเสนอ</span></td>
+            <td>Vocabulary Input</td>
+            <td>ครูนำเสนอคำศัพท์ 10 คำ พร้อมรูปภาพและตัวอย่างประโยค</td>
+            <td class="act-time">20 นาที</td>
+          </tr>
+          <tr class="row-prac">
+            <td><span class="phase-pill pill-prac">ฝึกปฏิบัติ</span></td>
+            <td>Pair Practice</td>
+            <td>นักเรียนทำงานเป็นคู่ ฝึกพูดโครงสร้างประโยค "I like..."</td>
+            <td class="act-time">25 นาที</td>
+          </tr>
+          <tr class="row-apply">
+            <td><span class="phase-pill pill-apply">นำไปใช้</span></td>
+            <td>Role Play</td>
+            <td>กลุ่มนักเรียนแสดงบทบาทสมมุติตามสถานการณ์ที่กำหนด</td>
+            <td class="act-time">15 นาที</td>
+          </tr>
+          <tr class="row-close">
+            <td><span class="phase-pill pill-close">สรุปบทเรียน</span></td>
+            <td>Exit Ticket</td>
+            <td>นักเรียนเขียนสิ่งที่เรียนรู้วันนี้ 3 ข้อลงในกระดาษ</td>
+            <td class="act-time">10 นาที</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer">
+      <button class="btn btn-ghost">← กลับ</button>
+      <div class="btn-group">
+        <button class="btn btn-outline">💾 บันทึก</button>
+        <button class="btn btn-red">📄 PDF</button>
+        <button class="btn btn-blue">📝 DOCX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEFORE / AFTER -->
+  <div>
+    <div class="preview-label">เปรียบเทียบ Header — แบบเดิม vs แบบใหม่</div>
+    <div class="compare">
+      <div class="compare-box">
+        <div class="compare-badge badge-before">← แบบเดิม (Purple Gradient)</div>
+        <div class="old-header">
+          <div class="old-badge">📚 ภาษาต่างประเทศ • ประถมศึกษา</div>
+          <div class="old-h1">🎓 AI Lesson Plan Generator</div>
+          <div class="old-sub">สร้างแผนการจัดการเรียนรู้ภาษาอังกฤษ อย่างมืออาชีพ</div>
+        </div>
+      </div>
+      <div class="compare-box">
+        <div class="compare-badge badge-after">→ แบบใหม่ (BlastBoard Style)</div>
+        <div class="new-header-mini">
+          <div class="new-mini-eyebrow">⚡ สอดคล้องหลักสูตรแกนกลาง พ.ศ. 2551</div>
+          <div class="new-mini-title">สร้างแผนการสอน<br>อย่างมืออาชีพ</div>
+          <div class="new-mini-sub">Export เป็น PDF และ DOCX ได้ทันที ไม่ต้องติดตั้งโปรแกรม</div>
+          <div class="new-mini-btns">
+            <button class="new-mini-btn1">เริ่มสร้างแผน →</button>
+            <button class="new-mini-btn2">ดูตัวอย่าง</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOUR PALETTE -->
+  <div>
+    <div class="preview-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch"><div class="swatch-box" style="background:#0a0a0a;"></div><div class="swatch-name">Black<br>#0a0a0a</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#2563eb;"></div><div class="swatch-name">Blue<br>#2563eb</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#1d4ed8;"></div><div class="swatch-name">Blue Dark<br>#1d4ed8</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#eff6ff;"></div><div class="swatch-name">Blue Light<br>#eff6ff</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#f4f4f5;"></div><div class="swatch-name">Page BG<br>#f4f4f5</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#ffffff; border:1px solid #e4e4e7;"></div><div class="swatch-name">Card BG<br>#ffffff</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#e4e4e7;"></div><div class="swatch-name">Border<br>#e4e4e7</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#71717a;"></div><div class="swatch-name">Gray Text<br>#71717a</div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</body>
+</html>

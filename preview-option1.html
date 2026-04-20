@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Option 1 Preview — Thai Academic Warmth</title>
+<style>
+  :root {
+    --primary:        #1e3a8a;
+    --primary-mid:    #2d55b3;
+    --primary-light:  #e8eef8;
+    --primary-dark:   #152a6b;
+    --gold:           #c49a4a;
+    --gold-light:     #fdf6e8;
+    --success:        #166534;
+    --success-light:  #dcfce7;
+    --danger:         #991b1b;
+    --gray-50:        #fdfbf5;
+    --gray-100:       #f4f1ea;
+    --gray-200:       #e2ddd4;
+    --gray-300:       #c8c2b5;
+    --gray-500:       #78726a;
+    --gray-700:       #3d3730;
+    --gray-800:       #231f1a;
+    --cream:          #fdfbf5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-800);
+    font-size: 15px;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────── */
+  .header {
+    background: var(--primary);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle Thai-pattern watermark */
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(196,154,74,0.12) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 40%);
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 40px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+  }
+
+  .header-crest {
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(196,154,74,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  .header-text { flex: 1; }
+
+  .header-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .header-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .header-sub {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.65);
+    margin-top: 5px;
+    font-weight: 300;
+  }
+
+  .header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .btn-history-new {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(196,154,74,0.45);
+    color: var(--gold);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ─── STEP NAV ────────────────────────────────────── */
+  .steps-wrapper {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    box-shadow: 0 1px 3px rgba(30,58,138,0.06);
+  }
+
+  .steps-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .progress-bar-track {
+    height: 3px;
+    background: var(--gray-200);
+    position: relative;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .steps-nav {
+    display: flex;
+    gap: 0;
+  }
+
+  .step-btn {
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    position: relative;
+    bottom: -1px;
+  }
+
+  .step-btn:hover { color: var(--primary); }
+
+  .step-btn.done {
+    color: var(--primary);
+  }
+  .step-btn.done::before {
+    content: '✓ ';
+    color: var(--gold);
+    font-size: 0.8rem;
+  }
+
+  .step-btn.active {
+    color: var(--primary);
+    font-weight: 700;
+    border-bottom-color: var(--primary);
+  }
+
+  /* ─── MAIN CONTENT ────────────────────────────────── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 40px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* ─── CARD ────────────────────────────────────────── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--cream);
+  }
+
+  .card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .icon-indigo { background: var(--primary-light); }
+  .icon-gold   { background: var(--gold-light); }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-800);
+  }
+
+  .card-subtitle {
+    font-size: 0.8rem;
+    color: var(--gray-500);
+    margin-top: 2px;
+  }
+
+  .card-body {
+    padding: 24px;
+  }
+
+  /* ─── FORM FIELDS ─────────────────────────────────── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    letter-spacing: 0.3px;
+  }
+  .form-group input, .form-group select {
+    padding: 9px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 0.95rem;
+    color: var(--gray-800);
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,58,138,0.08);
+  }
+
+  /* ─── DIVIDER ─────────────────────────────────────── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 16px;
+  }
+  .section-divider-line { flex: 1; height: 1px; background: var(--gray-200); }
+  .section-divider-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ─── INDICATOR CHIPS ─────────────────────────────── */
+  .chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid;
+    transition: all 0.15s;
+  }
+  .chip-off  { border-color: var(--gray-300); color: var(--gray-500); background: #fff; }
+  .chip-on   { border-color: var(--primary); color: var(--primary); background: var(--primary-light); font-weight: 600; }
+  .chip-gold { border-color: var(--gold); color: #8a6020; background: var(--gold-light); }
+
+  /* ─── NAV BUTTONS ─────────────────────────────────── */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-top: 1px solid var(--gray-200);
+    background: var(--cream);
+  }
+
+  .btn {
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-prev {
+    background: #fff;
+    color: var(--gray-700);
+    border: 1px solid var(--gray-200);
+  }
+  .btn-save {
+    background: #fff;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+  }
+  .btn-next {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(30,58,138,0.25);
+  }
+  .btn-next:hover { background: var(--primary-dark); }
+
+  .btn-generate-pdf {
+    background: var(--danger);
+    color: #fff;
+    padding: 11px 28px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(153,27,27,0.25);
+  }
+  .btn-generate-docx {
+    background: var(--primary);
+    color: #fff;
+    padding: 11px 28px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Sarabun', 'Noto Sans Thai', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(30,58,138,0.25);
+  }
+  .btn-group { display: flex; gap: 10px; align-items: center; }
+
+  /* ─── ACTIVITY TABLE ──────────────────────────────── */
+  .act-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .act-table th {
+    padding: 10px 14px;
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    text-align: left;
+    font-size: 0.82rem;
+    letter-spacing: 0.3px;
+  }
+  .act-table th:first-child { border-radius: 6px 0 0 0; }
+  .act-table th:last-child  { border-radius: 0 6px 0 0; }
+  .act-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gray-200);
+    vertical-align: top;
+  }
+  .act-table tr.intro  td { background: #fffbeb; }
+  .act-table tr.teach  td { background: #eff6ff; }
+  .act-table tr.prac   td { background: #f0fdf4; }
+  .act-table tr.apply  td { background: #faf5ff; }
+  .act-table tr.close  td { background: #fef2f2; }
+
+  .phase-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .phase-intro { background: #fde68a; color: #78350f; }
+  .phase-teach { background: #bfdbfe; color: #1e3a8a; }
+  .phase-prac  { background: #bbf7d0; color: #14532d; }
+  .phase-apply { background: #e9d5ff; color: #4c1d95; }
+  .phase-close { background: #fecaca; color: #7f1d1d; }
+
+  /* ─── PALETTE SWATCHES ────────────────────────────── */
+  .palette { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .swatch {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .swatch-box {
+    width: 56px; height: 56px; border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .swatch-label { font-size: 0.7rem; color: var(--gray-500); text-align: center; font-weight: 600; }
+
+  /* ─── TYPOGRAPHY SAMPLES ──────────────────────────── */
+  .type-sample { margin-bottom: 8px; }
+  .type-h1 { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+  .type-h2 { font-size: 1.2rem; font-weight: 700; color: var(--gray-800); }
+  .type-label { font-size: 0.82rem; font-weight: 700; color: var(--gray-700); letter-spacing: 0.3px; }
+  .type-body { font-size: 0.95rem; color: var(--gray-700); line-height: 1.6; }
+  .type-hint { font-size: 0.8rem; color: var(--gray-500); font-weight: 300; }
+
+  /* ─── COMPARE SECTION ─────────────────────────────── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .compare-box {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+  }
+  .compare-label {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .before-label { background: #f3f4f6; color: #6b7280; }
+  .after-label  { background: var(--primary); color: white; }
+
+  /* old style mock */
+  .old-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 24px;
+    text-align: center;
+    color: white;
+  }
+  .old-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+  .old-h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+  .old-sub { font-size: 0.85rem; opacity: 0.8; }
+
+  .new-header-mini {
+    background: var(--primary);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .new-header-mini::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(196,154,74,0.15) 0%, transparent 60%);
+  }
+  .new-crest-mini {
+    width: 44px; height: 44px;
+    border: 1.5px solid rgba(196,154,74,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .new-eyebrow { font-size: 0.7rem; font-weight: 600; color: var(--gold); letter-spacing: 1.2px; text-transform: uppercase; }
+  .new-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-top: 2px; }
+
+  /* ─── SECTION LABEL ───────────────────────────────── */
+  .preview-section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  FULL HEADER PREVIEW                              -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-crest">📘</div>
+    <div class="header-text">
+      <div class="header-eyebrow">กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ · ระดับประถมศึกษา</div>
+      <div class="header-title">ระบบสร้างแผนการจัดการเรียนรู้ภาษาอังกฤษ</div>
+      <div class="header-sub">สอดคล้องหลักสูตรแกนกลาง พ.ศ. 2551 — ใช้งานได้ฟรี ไม่ต้องติดตั้ง</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-history-new">📚 แผนที่เคยทำ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  STEP NAV PREVIEW                                 -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="steps-wrapper">
+  <div class="steps-inner">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill"></div>
+    </div>
+    <div class="steps-nav">
+      <button class="step-btn done">① ข้อมูลทั่วไป</button>
+      <button class="step-btn done">② ตัวชี้วัด</button>
+      <button class="step-btn active">③ สาระ &amp; สื่อ</button>
+      <button class="step-btn">④ กิจกรรม</button>
+      <button class="step-btn">⑤ วัดผล &amp; สร้าง</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--  MAIN CONTENT                                     -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- FORM CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon icon-indigo">📋</div>
+      <div>
+        <div class="card-title">ข้อมูลทั่วไปของแผนการสอน</div>
+        <div class="card-subtitle">กรอกข้อมูลพื้นฐานสำหรับหน้าปกแผนการสอน</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>แผนการสอนที่</label>
+          <input type="number" value="1">
+        </div>
+        <div class="form-group">
+          <label>ชื่อรายวิชา</label>
+          <input type="text" value="English Language">
+        </div>
+        <div class="form-group">
+          <label>ระดับชั้น</label>
+          <select>
+            <option>ประถมศึกษาปีที่ 4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ชื่อครูผู้สอน</label>
+          <input type="text" placeholder="ชื่อ - นามสกุล">
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <div class="section-divider-label">ตัวชี้วัดที่เลือก</div>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="chips-row">
+        <span class="chip chip-on">ต 1.1 ป.4/1</span>
+        <span class="chip chip-on">ต 1.1 ป.4/2</span>
+        <span class="chip chip-gold">ต 1.2 ป.4/1</span>
+        <span class="chip chip-off">ต 1.2 ป.4/2</span>
+        <span class="chip chip-off">ต 2.1 ป.4/1</span>
+        <span class="chip chip-off">ต 3.1 ป.4/1</span>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-prev">← กลับ</button>
+      <div class="btn-group">
+        <button class="btn btn-save">💾 บันทึก</button>
+        <button class="btn btn-next">ถัดไป: กิจกรรม →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY TABLE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon icon-gold">⚡</div>
+      <div>
+        <div class="card-title">ตารางกิจกรรมการเรียนรู้</div>
+        <div class="card-subtitle">กำหนดขั้นตอนและรายละเอียดกิจกรรมในชั่วโมงสอน</div>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <table class="act-table">
+        <thead>
+          <tr>
+            <th style="width:160px;">ขั้นการสอน</th>
+            <th style="width:160px;">ชื่อกิจกรรม</th>
+            <th>รายละเอียดกิจกรรม</th>
+            <th style="width:80px;">เวลา (นาที)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="intro">
+            <td><span class="phase-tag phase-intro">นำเข้าสู่บทเรียน</span></td>
+            <td>Warm-up Game</td>
+            <td>ครูใช้บัตรคำศัพท์ให้นักเรียนเดาคำและแปลความหมาย</td>
+            <td style="text-align:center;">10</td>
+          </tr>
+          <tr class="teach">
+            <td><span class="phase-tag phase-teach">สอน / นำเสนอ</span></td>
+            <td>Vocabulary Input</td>
+            <td>ครูนำเสนอคำศัพท์ใหม่ 10 คำ พร้อมรูปภาพและตัวอย่างประโยค</td>
+            <td style="text-align:center;">20</td>
+          </tr>
+          <tr class="prac">
+            <td><span class="phase-tag phase-prac">ฝึกปฏิบัติ</span></td>
+            <td>Pair Practice</td>
+            <td>นักเรียนทำงานเป็นคู่ ฝึกพูดโครงสร้างประโยค "I like..."</td>
+            <td style="text-align:center;">25</td>
+          </tr>
+          <tr class="apply">
+            <td><span class="phase-tag phase-apply">นำไปใช้</span></td>
+            <td>Role Play</td>
+            <td>กลุ่มนักเรียนแสดงบทบาทสมมุติตามสถานการณ์ที่กำหนด</td>
+            <td style="text-align:center;">15</td>
+          </tr>
+          <tr class="close">
+            <td><span class="phase-tag phase-close">สรุปบทเรียน</span></td>
+            <td>Exit Ticket</td>
+            <td>นักเรียนเขียนสิ่งที่เรียนรู้วันนี้ 3 ข้อลงในกระดาษ</td>
+            <td style="text-align:center;">10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-prev">← กลับ</button>
+      <div class="btn-group">
+        <button class="btn btn-save">💾 บันทึก</button>
+        <button class="btn-generate-pdf">📄 สร้าง PDF</button>
+        <button class="btn-generate-docx">📝 สร้าง DOCX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── BEFORE / AFTER ─────────────────────────────── -->
+  <div>
+    <div class="preview-section-label">เปรียบเทียบ — Header เก่า vs ใหม่</div>
+    <div class="compare-grid">
+      <div class="compare-box">
+        <div class="compare-label before-label">⬅ แบบเดิม (Purple Gradient)</div>
+        <div class="old-header">
+          <div class="old-badge">📚 ภาษาต่างประเทศ • ประถมศึกษา</div>
+          <div class="old-h1">🎓 AI Lesson Plan Generator</div>
+          <div class="old-sub">สร้างแผนการจัดการเรียนรู้ภาษาอังกฤษ อย่างมืออาชีพ</div>
+        </div>
+      </div>
+      <div class="compare-box">
+        <div class="compare-label after-label">➡ Option 1 (Thai Academic Warmth)</div>
+        <div class="new-header-mini">
+          <div class="new-crest-mini">📘</div>
+          <div>
+            <div class="new-eyebrow">กลุ่มสาระฯ ภาษาต่างประเทศ</div>
+            <div class="new-title">ระบบสร้างแผนการสอนภาษาอังกฤษ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── COLOUR PALETTE ─────────────────────────────── -->
+  <div>
+    <div class="preview-section-label">Color Palette</div>
+    <div class="palette">
+      <div class="swatch"><div class="swatch-box" style="background:#1e3a8a;"></div><div class="swatch-label">Primary<br>#1e3a8a</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#2d55b3;"></div><div class="swatch-label">Primary Mid<br>#2d55b3</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#e8eef8;"></div><div class="swatch-label">Primary Light<br>#e8eef8</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#c49a4a;"></div><div class="swatch-label">Gold Accent<br>#c49a4a</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#fdf6e8;"></div><div class="swatch-label">Gold Light<br>#fdf6e8</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#fdfbf5; border:1px solid #e2ddd4;"></div><div class="swatch-label">Cream BG<br>#fdfbf5</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#f4f1ea;"></div><div class="swatch-label">Warm Gray<br>#f4f1ea</div></div>
+      <div class="swatch"><div class="swatch-box" style="background:#231f1a;"></div><div class="swatch-label">Near Black<br>#231f1a</div></div>
+    </div>
+  </div>
+
+  <!-- ─── TYPOGRAPHY ─────────────────────────────────── -->
+  <div>
+    <div class="preview-section-label">Typography — Sarabun (ไม่เปลี่ยน font)</div>
+    <div class="type-sample"><div class="type-h1">ระบบสร้างแผนการจัดการเรียนรู้</div></div>
+    <div class="type-sample"><div class="type-h2">ข้อมูลทั่วไปของแผนการสอน</div></div>
+    <div class="type-sample"><div class="type-label">ชื่อรายวิชา</div></div>
+    <div class="type-sample"><div class="type-body">ครูนำเสนอคำศัพท์ใหม่ 10 คำ พร้อมรูปภาพและตัวอย่างประโยคในบริบทจริง เพื่อให้นักเรียนเชื่อมโยงความหมายกับชีวิตประจำวัน</div></div>
+    <div class="type-sample"><div class="type-hint">💡 จุดประสงค์ควรสอดคล้องกับตัวชี้วัดที่เลือก</div></div>
+  </div>
+
+</div><!-- /main -->
+
+</body>
+</html>
