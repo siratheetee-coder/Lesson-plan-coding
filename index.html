@@ -1503,7 +1503,554 @@
     .dash-quota-bar { display: none; }
     .dash-welcome h1 { font-size: 1.35rem; }
   }
+
+  /* ============ UNIT PLANNER ============ */
+  .unit-list-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .unit-create-btn {
+    background: linear-gradient(135deg,#7c3aed,#5b21b6);
+    color: white; border: none;
+    padding: 10px 20px; border-radius: 10px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(124,58,237,0.25);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .unit-create-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
+
+  .unit-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .unit-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .unit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(124,58,237,0.12);
+    border-color: #c4b5fd;
+  }
+  .unit-card-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: linear-gradient(135deg,#ede9fe,#c4b5fd);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 12px;
+  }
+  .unit-card-title {
+    font-size: 1.02rem; font-weight: 700; color: #1f2937;
+    margin-bottom: 4px; line-height: 1.3;
+  }
+  .unit-card-sub {
+    font-size: 0.82rem; color: #6b7280; margin-bottom: 12px;
+  }
+  .unit-card-stats {
+    display: flex; gap: 14px; font-size: 0.75rem; color: #6b7280;
+    border-top: 1px solid #f3f4f6; padding-top: 10px;
+  }
+  .unit-card-stats b { color: #5b21b6; }
+  .unit-card-menu {
+    position: absolute; top: 12px; right: 12px;
+    background: transparent; border: none;
+    width: 28px; height: 28px; border-radius: 50%;
+    cursor: pointer; font-size: 1rem; color: #6b7280;
+    transition: background 0.15s;
+  }
+  .unit-card-menu:hover { background: #f3f4f6; color: #1f2937; }
+
+  /* Unit Editor */
+  .unit-editor-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; gap: 12px; flex-wrap: wrap;
+  }
+  .unit-editor-back {
+    background: #f3f4f6; color: #4b5563;
+    border: 1px solid #e5e7eb;
+    padding: 7px 14px; border-radius: 8px;
+    font-family: inherit; font-size: 0.82rem; font-weight: 500;
+    cursor: pointer;
+  }
+  .unit-editor-back:hover { background: #e5e7eb; }
+  .unit-editor-title-wrap h2 {
+    margin: 0; font-size: 1.35rem; color: #1f2937; font-weight: 700;
+  }
+  .unit-editor-title-wrap .crumbs {
+    font-size: 0.78rem; color: #9ca3af; margin-bottom: 4px;
+  }
+  .unit-editor-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .unit-editor-actions button {
+    padding: 8px 16px; border-radius: 8px;
+    font-family: inherit; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .unit-btn-save {
+    background: white; color: #5b21b6; border: 1px solid #c4b5fd !important;
+  }
+  .unit-btn-save:hover { background: #f5f3ff; }
+  .unit-btn-export {
+    background: linear-gradient(135deg,#7c3aed,#5b21b6); color: white;
+  }
+  .unit-btn-export:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+
+  .unit-steps-nav {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 18px;
+  }
+  .unit-step-btn {
+    flex: 1 1 auto; min-width: 110px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #6b7280;
+    font-family: inherit; font-size: 0.82rem; font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    text-align: center;
+  }
+  .unit-step-btn:hover { background: #f3f4f6; color: #1f2937; }
+  .unit-step-btn.active {
+    background: linear-gradient(135deg,#ede9fe,#ddd6fe);
+    color: #5b21b6; font-weight: 700;
+    border-color: #c4b5fd;
+  }
+
+  .unit-step-panel {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .unit-step-panel h3 {
+    margin: 0 0 6px; font-size: 1.08rem; color: #5b21b6; font-weight: 700;
+  }
+  .unit-step-panel .step-help {
+    color: #6b7280; font-size: 0.85rem; margin-bottom: 18px;
+  }
+  .unit-field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .unit-field label {
+    display: block; font-size: 0.82rem; font-weight: 600;
+    color: #4b5563; margin-bottom: 5px;
+  }
+  .unit-field input, .unit-field select, .unit-field textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit; font-size: 0.9rem;
+    color: #1f2937; background: #fafafe;
+    box-sizing: border-box;
+  }
+  .unit-field input:focus, .unit-field select:focus, .unit-field textarea:focus {
+    outline: none; border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+  }
+  .unit-field.full { grid-column: 1 / -1; }
+
+  .unit-chk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+  .unit-chk-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer; font-size: 0.86rem;
+    background: #fafafe;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .unit-chk-item:hover { background: #f5f3ff; border-color: #c4b5fd; }
+  .unit-chk-item input { margin-top: 2px; flex-shrink: 0; accent-color: #7c3aed; }
+
+  .unit-ind-filter {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .unit-ind-filter select {
+    padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+    font-family: inherit; font-size: 0.85rem;
+  }
+  .unit-ind-filter button {
+    padding: 6px 12px; background: #f3f4f6; color: #4b5563;
+    border: none; border-radius: 6px;
+    font-family: inherit; font-size: 0.8rem; cursor: pointer;
+  }
+  .unit-ind-filter button:hover { background: #e5e7eb; }
+  .unit-ind-list {
+    max-height: 360px; overflow-y: auto;
+    border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 10px; background: #fafafa;
+  }
+  .unit-ind-group { margin-bottom: 12px; }
+  .unit-ind-group-title {
+    font-weight: 700; font-size: 0.82rem; color: #5b21b6;
+    padding: 4px 6px; margin-bottom: 4px;
+    border-bottom: 1px dashed #c4b5fd;
+  }
+  .unit-ind-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 7px 8px; border-radius: 6px;
+    font-size: 0.84rem; cursor: pointer; color: #374151;
+  }
+  .unit-ind-item:hover { background: #f5f3ff; }
+  .unit-ind-item input { margin-top: 3px; flex-shrink: 0; accent-color: #7c3aed; }
+  .unit-ind-item b { color: #5b21b6; margin-right: 4px; }
+  .unit-ind-count { margin-top: 10px; font-size: 0.82rem; color: #6b7280; }
+  .unit-ind-count b { color: #5b21b6; }
+
+  .unit-lesson-list {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .unit-lesson-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fafafa;
+    padding: 16px;
+    position: relative;
+  }
+  .unit-lesson-card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .unit-lesson-num {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg,#7c3aed,#5b21b6);
+    color: white; font-weight: 700; font-size: 0.88rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .unit-lesson-title-input {
+    flex: 1; border: none; background: transparent;
+    font-size: 0.98rem; font-weight: 600; color: #1f2937;
+    padding: 4px 8px;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+  }
+  .unit-lesson-title-input:focus {
+    outline: none; border-bottom-color: #c4b5fd;
+  }
+  .unit-lesson-delete {
+    background: transparent; border: none;
+    width: 30px; height: 30px; border-radius: 50%;
+    cursor: pointer; color: #ef4444; font-size: 1rem;
+    transition: background 0.15s;
+  }
+  .unit-lesson-delete:hover { background: #fee2e2; }
+  .unit-lesson-move {
+    background: transparent; border: none;
+    width: 26px; height: 26px; border-radius: 50%;
+    cursor: pointer; color: #9ca3af; font-size: 0.85rem;
+  }
+  .unit-lesson-move:hover { background: #f3f4f6; color: #5b21b6; }
+  .unit-lesson-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .unit-lesson-body .unit-field label { font-size: 0.78rem; font-weight: 500; }
+  .unit-lesson-body .unit-field input,
+  .unit-lesson-body .unit-field textarea { padding: 7px 10px; font-size: 0.85rem; }
+
+  .unit-add-lesson-btn {
+    width: 100%;
+    padding: 14px;
+    background: #fafafa;
+    border: 2px dashed #c4b5fd;
+    border-radius: 12px;
+    color: #5b21b6;
+    font-family: inherit; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .unit-add-lesson-btn:hover { background: #f5f3ff; border-color: #7c3aed; }
+
+  .unit-hours-meter {
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
+    flex-wrap: wrap;
+  }
+  .unit-hours-meter .label { font-size: 0.85rem; color: #5b21b6; font-weight: 600; }
+  .unit-hours-meter .bar {
+    flex: 1; min-width: 120px;
+    height: 8px; background: white;
+    border-radius: 999px; overflow: hidden;
+  }
+  .unit-hours-meter .bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg,#7c3aed,#a78bfa);
+    transition: width 0.3s;
+  }
+  .unit-hours-meter.over .bar > span { background: linear-gradient(90deg,#ef4444,#f87171); }
+  .unit-hours-meter .val { font-size: 0.85rem; color: #4b5563; font-weight: 600; }
+  .unit-hours-meter.over .val { color: #dc2626; }
+
+  .unit-assess-table {
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  .unit-assess-table th {
+    background: #f5f3ff; color: #5b21b6;
+    font-weight: 600; padding: 9px 10px;
+    text-align: left; border-bottom: 2px solid #ddd6fe;
+    font-size: 0.8rem;
+  }
+  .unit-assess-table td {
+    padding: 6px; border-bottom: 1px solid #f3f4f6; vertical-align: middle;
+  }
+  .unit-assess-table input {
+    width: 100%; padding: 6px 8px;
+    border: 1px solid #e5e7eb; border-radius: 6px;
+    font-family: inherit; font-size: 0.84rem; background: white;
+  }
+  .unit-assess-table input:focus { outline: none; border-color: #7c3aed; }
+  .unit-assess-table .col-action { width: 40px; text-align: center; }
+
+  .unit-review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .unit-review-item {
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .unit-review-item .k {
+    font-size: 0.78rem; color: #6b7280; font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .unit-review-item .v {
+    font-size: 0.92rem; color: #1f2937; font-weight: 500;
+    white-space: pre-wrap;
+  }
+  .unit-review-item.full { grid-column: 1 / -1; }
+
+  .unit-step-footer {
+    display: flex; justify-content: space-between;
+    margin-top: 18px; gap: 10px;
+  }
+  .unit-step-footer button {
+    padding: 9px 20px; border-radius: 8px;
+    font-family: inherit; font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .unit-step-prev {
+    background: #f3f4f6; color: #4b5563; border-color: #e5e7eb;
+  }
+  .unit-step-prev:hover { background: #e5e7eb; }
+  .unit-step-next {
+    background: linear-gradient(135deg,#7c3aed,#5b21b6);
+    color: white;
+  }
+  .unit-step-next:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+
+  .unit-empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border: 1px dashed #d1d5db;
+    border-radius: 14px;
+    color: #9ca3af;
+  }
+  .unit-empty .icon { font-size: 3rem; margin-bottom: 10px; }
+  .unit-empty .title { font-weight: 700; color: #6b7280; font-size: 1rem; }
+  .unit-empty .sub { font-size: 0.86rem; margin-top: 6px; }
+
+  .unit-toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: #1f2937; color: white;
+    padding: 10px 20px; border-radius: 10px;
+    font-size: 0.88rem; font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 10050;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+  }
+  .unit-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ===== Auth Modal ===== */
+  .auth-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(15,23,42,.55);
+    display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .auth-overlay.show { display: flex; }
+  .auth-modal {
+    width: min(420px, 92vw);
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    padding: 28px 28px 24px;
+    font-family: 'Sarabun', sans-serif;
+  }
+  .auth-modal h2 { margin: 0 0 6px; font-size: 1.4rem; color: #1e293b; }
+  .auth-modal .auth-sub { color: #64748b; font-size: .9rem; margin-bottom: 18px; }
+  .auth-modal label { display: block; font-size: .85rem; color: #334155; margin: 10px 0 4px; font-weight: 500; }
+  .auth-modal input[type=email],
+  .auth-modal input[type=password],
+  .auth-modal input[type=text] {
+    width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 1rem; font-family: inherit;
+    box-sizing: border-box; transition: border-color .15s;
+  }
+  .auth-modal input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+  .auth-modal .auth-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0 6px; font-size: .88rem; }
+  .auth-modal .auth-row label { display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer; }
+  .auth-modal button.auth-primary {
+    width: 100%; margin-top: 14px; padding: 11px;
+    background: #2563eb; color: #fff; border: none; border-radius: 8px;
+    font-size: 1rem; font-weight: 600; cursor: pointer;
+    transition: background .15s;
+  }
+  .auth-modal button.auth-primary:hover:not(:disabled) { background: #1d4ed8; }
+  .auth-modal button.auth-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 14px; color: #94a3b8; font-size: .82rem; }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+  #auth-google-btn { display: flex; justify-content: center; min-height: 44px; }
+  .auth-toggle { text-align: center; margin-top: 16px; font-size: .9rem; color: #475569; }
+  .auth-toggle a { color: #2563eb; cursor: pointer; font-weight: 500; }
+  .auth-toggle a:hover { text-decoration: underline; }
+  .auth-error { background: #fee2e2; color: #991b1b; padding: 8px 12px; border-radius: 8px; font-size: .88rem; margin-top: 10px; display: none; }
+  .auth-error.show { display: block; }
+  /* Logout button in dashboard topbar */
+  .dash-logout-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 8px;
+    background: #fff; color: #475569;
+    border: 1px solid #e2e8f0;
+    font-family: inherit; font-size: .85rem; font-weight: 500;
+    cursor: pointer; transition: all .15s;
+  }
+  .dash-logout-btn:hover { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+
+  /* Top-up button */
+  .dash-topup-btn {
+    display: flex; align-items: center; gap: 4px;
+    padding: 7px 13px; border-radius: 8px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border: none;
+    font-family: inherit; font-size: .82rem; font-weight: 600;
+    cursor: pointer; transition: opacity .15s;
+    white-space: nowrap;
+  }
+  .dash-topup-btn:hover { opacity: .88; }
+  @media (max-width: 640px) { .dash-topup-btn { display: none; } }
+
+  /* ─── Top-up Modal ─── */
+  .topup-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    z-index: 10100; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .topup-modal {
+    background: white; border-radius: 20px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,.2);
+  }
+  .topup-modal-header {
+    padding: 28px 28px 18px; text-align: center;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    border-radius: 20px 20px 0 0;
+  }
+  .topup-modal-header h2 { margin: 8px 0 4px; font-size: 1.3rem; color: #3730a3; }
+  .topup-modal-header p  { margin: 0; font-size: .9rem; color: #6b7280; }
+  .topup-modal-body { padding: 20px 24px 28px; }
+  .topup-modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: rgba(255,255,255,.8); border: none; border-radius: 50%;
+    width: 32px; height: 32px; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    color: #6b7280; transition: background .15s;
+  }
+  .topup-modal-close:hover { background: white; color: #1f2937; }
+  .topup-packages-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 400px) { .topup-packages-grid { grid-template-columns: 1fr; } }
+  .topup-pkg-card {
+    border: 2px solid #e5e7eb; border-radius: 14px; padding: 16px 14px;
+    cursor: pointer; transition: all .15s; text-align: center; position: relative;
+    background: white;
+  }
+  .topup-pkg-card:hover { border-color: #7c3aed; background: #faf5ff; }
+  .topup-pkg-card.selected { border-color: #7c3aed; background: #f5f3ff; box-shadow: 0 0 0 3px #c4b5fd; }
+  .topup-pkg-card .pkg-credits { font-size: 1.6rem; font-weight: 800; color: #4c1d95; }
+  .topup-pkg-card .pkg-label   { font-size: .8rem; color: #6b7280; margin-bottom: 8px; }
+  .topup-pkg-card .pkg-price   { font-size: 1.1rem; font-weight: 700; color: #1f2937; }
+  .topup-pkg-card .pkg-per     { font-size: .72rem; color: #9ca3af; margin-top: 2px; }
+  .topup-pkg-badge {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white; font-size: .65rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .topup-contact-box {
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px;
+    padding: 16px 18px; margin-top: 12px;
+  }
+  .topup-contact-box h4 { margin: 0 0 10px; font-size: .9rem; color: #166534; }
+  .topup-contact-box p  { margin: 4px 0; font-size: .85rem; color: #374151; }
+  .topup-confirm-btn {
+    width: 100%; margin-top: 14px; padding: 13px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .topup-confirm-btn:hover { opacity: .9; }
+  .topup-confirm-btn:disabled { opacity: .5; cursor: default; }
+  .topup-history-list { margin-top: 4px; }
+  .topup-history-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: .85rem;
+  }
+  .topup-history-item:last-child { border-bottom: none; }
+  .topup-history-amt.plus  { color: #059669; font-weight: 700; }
+  .topup-history-amt.minus { color: #dc2626; font-weight: 700; }
+
+  /* Login as full page view */
+  .auth-overlay {
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #fef3c7 100%);
+    backdrop-filter: none;
+  }
+  .auth-overlay::before {
+    content: '🎓 AI Lesson Plan Generator';
+    position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+    font-size: 1.1rem; font-weight: 600; color: #475569; letter-spacing: .5px;
+  }
 </style>
+
+<!-- Google Identity Services (loaded only if configured) -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -1519,12 +2066,16 @@
       </div>
     </div>
     <div class="dash-topbar-right">
-      <div class="dash-quota" title="โควตาการสร้างแผนด้วย AI">
+      <div class="dash-quota" id="dash-quota-widget" title="เครดิต AI ที่เหลืออยู่ — คลิกเพื่อเติมเครดิต" onclick="openTopupModal()" style="cursor:pointer;">
         <span>⚡</span>
-        <span>เหลือ <b id="dash-quota-text">20/20</b> แผน</span>
-        <div class="dash-quota-bar"><span id="dash-quota-fill" style="width:100%;"></span></div>
+        <span>เหลือ <b id="dash-quota-text">—</b> แผน</span>
+        <div class="dash-quota-bar"><span id="dash-quota-fill" style="width:0%;"></span></div>
       </div>
+      <button class="dash-topup-btn" onclick="openTopupModal()" title="เติมเครดิต">+ เติมเครดิต</button>
       <div class="dash-avatar" id="dash-avatar" onclick="openProfileMenu()" title="โปรไฟล์">คณ</div>
+      <button id="dash-logout-btn" class="dash-logout-btn" type="button" title="ออกจากระบบ">
+        <span style="font-size:1rem">⏻</span><span>ออกจากระบบ</span>
+      </button>
     </div>
   </div>
 
@@ -1537,6 +2088,9 @@
       </button>
       <button class="dash-nav-item" data-nav="library" onclick="dashNav('library')">
         <span class="icon">📚</span><span class="label">คลังแผนการสอน</span>
+      </button>
+      <button class="dash-nav-item" data-nav="units" onclick="dashNav('units')">
+        <span class="icon">📦</span><span class="label">คลังหน่วยการเรียนรู้</span>
       </button>
       <button class="dash-nav-item" data-nav="templates" onclick="dashNav('templates')">
         <span class="icon">📐</span><span class="label">แม่แบบมาตรฐาน</span>
@@ -1569,11 +2123,10 @@
             <div class="dash-action-title">สร้างแผนรายคาบ</div>
             <div class="dash-action-sub">Single Lesson Plan — แผนการจัดการเรียนรู้ 1 คาบ พร้อม Export DOCX/PDF</div>
           </button>
-          <button class="dash-action-card" onclick="alert('ระบบ Unit Planner กำลังพัฒนา — เร็วๆ นี้!')">
+          <button class="dash-action-card" onclick="openUnitEditor()">
             <div class="dash-action-icon blue">📚</div>
             <div class="dash-action-title">สร้างหน่วยการเรียนรู้</div>
             <div class="dash-action-sub">Unit Planner — วางแผนภาพรวมระยะยาว หลายแผนย่อยในหน่วยเดียว</div>
-            <div class="dash-action-badge">เร็วๆ นี้</div>
           </button>
           <button class="dash-action-card" onclick="alert('ระบบสร้างใบงาน/ข้อสอบ กำลังพัฒนา — เร็วๆ นี้!')">
             <div class="dash-action-icon emerald">📝</div>
@@ -1592,9 +2145,15 @@
 
       <!-- LIBRARY -->
       <div data-panel="library" style="display:none;">
-        <div class="dash-welcome">
-          <h1>📚 คลังแผนการสอนของฉัน</h1>
-          <p>แผนทั้งหมดที่เคยสร้างและบันทึกไว้</p>
+        <div class="dash-welcome" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div>
+            <h1>📚 คลังแผนการสอนของฉัน</h1>
+            <p>แผนทั้งหมดที่เคยสร้างและบันทึกไว้</p>
+          </div>
+          <button onclick="openFormView()"
+            style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:12px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.95rem; font-weight:600; box-shadow:0 4px 12px rgba(124,58,237,0.3); white-space:nowrap;">
+            ✨ สร้างแผนรายคาบ
+          </button>
         </div>
         <div class="dash-recent" id="dash-library-list"></div>
       </div>
@@ -1642,16 +2201,16 @@
                 style="width:100%; padding:10px 14px; border:1px solid #ddd6fe; border-radius:10px; font-family:inherit; font-size:0.9rem;">
             </div>
             <div>
-              <div style="font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">โควตาการสร้างแผน (ด้วย AI)</div>
+              <div style="font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">เครดิต AI</div>
               <div style="background:#f5f3ff; padding:14px; border-radius:10px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                  <span style="font-size:0.85rem; color:#5b21b6;">ใช้ไปแล้ว</span>
-                  <span id="profile-quota-text" style="font-size:0.85rem; font-weight:700; color:#5b21b6;">0 / 20 แผน</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                  <span style="font-size:0.85rem; color:#5b21b6;">⚡ เครดิตคงเหลือ</span>
+                  <span id="profile-quota-text" style="font-size:1.1rem; font-weight:800; color:#5b21b6;">— แผน</span>
                 </div>
-                <div style="background:white; height:8px; border-radius:999px; overflow:hidden;">
-                  <div id="profile-quota-fill" style="height:100%; background:linear-gradient(90deg,#7c3aed,#a78bfa); border-radius:999px; width:0%; transition:width 0.3s;"></div>
-                </div>
-                <div style="font-size:0.72rem; color:#6b7280; margin-top:8px;">โควตารีเซ็ตทุก 30 วัน · อัปเกรดเพื่อรับเพิ่ม</div>
+                <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
+                  ⚡ เติมเครดิต
+                </button>
+                <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 3 แผนแรก</div>
               </div>
             </div>
             <button onclick="saveProfile()" class="btn-primary" style="padding:10px 20px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer; align-self:flex-start;">
@@ -1660,8 +2219,154 @@
           </div>
         </div>
       </div>
+
+      <!-- UNIT PLANNER PANEL -->
+      <div data-panel="units" style="display:none;">
+        <!-- MODE: LIST -->
+        <div id="unit-list-mode">
+          <div class="unit-list-header">
+            <div>
+              <h1 style="margin:0 0 4px; font-size:1.6rem; color:#1f2937; font-weight:700;">📚 หน่วยการเรียนรู้ของฉัน</h1>
+              <p style="margin:0; color:#6b7280; font-size:0.92rem;">วางแผนภาพรวมการสอนระยะยาว รวบรวมหลายคาบเข้าเป็นหน่วยเดียว</p>
+            </div>
+            <button class="unit-create-btn" onclick="openUnitEditor()">+ สร้างหน่วยใหม่</button>
+          </div>
+          <div id="unit-card-list" class="unit-card-grid"></div>
+        </div>
+
+        <!-- MODE: EDITOR -->
+        <div id="unit-editor-mode" style="display:none;">
+          <div class="unit-editor-topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button class="unit-editor-back" onclick="backToUnitList()">← หน่วยของฉัน</button>
+              <div class="unit-editor-title-wrap">
+                <div class="crumbs">Unit Planner</div>
+                <h2 id="ue-title-display">หน่วยการเรียนรู้ใหม่</h2>
+              </div>
+            </div>
+            <div class="unit-editor-actions">
+              <button class="unit-btn-save" onclick="saveCurrentUnit(true)">💾 บันทึก</button>
+              <button class="unit-btn-export" onclick="exportUnitDocx()">📝 Export DOCX</button>
+            </div>
+          </div>
+
+          <!-- Steps navigation -->
+          <div class="unit-steps-nav">
+            <button class="unit-step-btn active" data-step="1" onclick="goUnitStep(1)">① ข้อมูลหน่วย</button>
+            <button class="unit-step-btn" data-step="2" onclick="goUnitStep(2)">② สร้างแผนรายคาบ</button>
+            <button class="unit-step-btn" data-step="3" onclick="goUnitStep(3)">③ Dashboard รวม</button>
+          </div>
+
+          <!-- STEP 1: ข้อมูลหน่วย -->
+          <div class="unit-step-panel" data-ustep="1">
+            <h3>① ข้อมูลหน่วยการเรียนรู้</h3>
+            <div class="step-help">ข้อมูลพื้นฐานของหน่วย — จะแสดงเป็นหัวแผนในทุกแผนรายคาบที่อยู่ในหน่วยนี้</div>
+            <div class="unit-field-grid">
+              <div class="unit-field full">
+                <label>ชื่อหน่วยการเรียนรู้ *</label>
+                <input type="text" id="ue-title" placeholder="เช่น Daily Routines, My Family, Amazing Animals" oninput="syncUnitTitleDisplay(this.value)">
+              </div>
+              <div class="unit-field">
+                <label>หน่วยที่</label>
+                <input type="text" id="ue-unitNo" placeholder="เช่น 2">
+              </div>
+              <div class="unit-field">
+                <label>รายวิชา</label>
+                <input type="text" id="ue-subjectName" placeholder="เช่น ภาษาอังกฤษพื้นฐาน">
+              </div>
+              <div class="unit-field">
+                <label>รหัสวิชา</label>
+                <input type="text" id="ue-subjectCode" placeholder="เช่น อ14101">
+              </div>
+              <div class="unit-field">
+                <label>กลุ่มสาระการเรียนรู้</label>
+                <input type="text" id="ue-subjectGroup" value="ภาษาต่างประเทศ">
+              </div>
+              <div class="unit-field">
+                <label>ชั้นเรียน *</label>
+                <select id="ue-classLevel" onchange="onUnitClassChange(this.value)">
+                  <optgroup label="ประถมศึกษา">
+                    <option>ประถมศึกษาปีที่ 1</option>
+                    <option>ประถมศึกษาปีที่ 2</option>
+                    <option>ประถมศึกษาปีที่ 3</option>
+                    <option selected>ประถมศึกษาปีที่ 4</option>
+                    <option>ประถมศึกษาปีที่ 5</option>
+                    <option>ประถมศึกษาปีที่ 6</option>
+                  </optgroup>
+                  <optgroup label="มัธยมศึกษา">
+                    <option>มัธยมศึกษาปีที่ 1</option>
+                    <option>มัธยมศึกษาปีที่ 2</option>
+                    <option>มัธยมศึกษาปีที่ 3</option>
+                    <option>มัธยมศึกษาปีที่ 4</option>
+                    <option>มัธยมศึกษาปีที่ 5</option>
+                    <option>มัธยมศึกษาปีที่ 6</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="unit-field">
+                <label>ภาคเรียน</label>
+                <select id="ue-semester">
+                  <option value="1">ภาคเรียนที่ 1</option>
+                  <option value="2">ภาคเรียนที่ 2</option>
+                </select>
+              </div>
+              <div class="unit-field">
+                <label>ปีการศึกษา</label>
+                <input type="text" id="ue-year" placeholder="2568">
+              </div>
+              <div class="unit-field">
+                <label>จำนวนคาบรวม (ชั่วโมง)</label>
+                <input type="number" id="ue-totalHours" placeholder="10" min="1">
+              </div>
+              <div class="unit-field full">
+                <label>ครูผู้สอน</label>
+                <input type="text" id="ue-teacher" placeholder="ชื่อ-นามสกุล ครูผู้สอน">
+              </div>
+            </div>
+            <div class="unit-step-footer">
+              <span></span>
+              <button class="unit-step-next" onclick="goUnitStep(2)">ถัดไป →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: เริ่มสร้างแผน -->
+          <div class="unit-step-panel" data-ustep="2" style="display:none;">
+            <h3>② สร้างแผนการจัดการเรียนรู้รายคาบ</h3>
+            <div class="step-help">กดปุ่มด้านล่างเพื่อไปยังระบบสร้างแผนรายคาบ — ข้อมูลหน่วยจะถูกกรอกให้โดยอัตโนมัติ เมื่อสร้างแผนเสร็จ กดปุ่ม "เพิ่มแผนนี้ในหน่วยการเรียนรู้" ที่ด้านบนของฟอร์ม</div>
+            <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe); border:1px dashed #c4b5fd; border-radius:14px; padding:32px 24px; text-align:center; margin:16px 0;">
+              <div style="font-size:3rem; margin-bottom:8px;">📝</div>
+              <div style="font-size:1.1rem; font-weight:700; color:#5b21b6; margin-bottom:6px;">พร้อมสร้างแผนรายคาบสำหรับหน่วยนี้</div>
+              <div style="font-size:0.88rem; color:#6b7280; margin-bottom:18px;">คลิกเพื่อเปิดระบบสร้างแผน พร้อมข้อมูลหัวแผนที่กรอกไว้</div>
+              <button onclick="startLessonForUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:12px 28px; font-size:1rem; font-weight:600; border-radius:12px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(91,33,182,0.25);">
+                ➕ เริ่มสร้างแผนรายคาบใหม่
+              </button>
+            </div>
+            <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:12px 14px; font-size:0.85rem; color:#92400e;">
+              💡 <b>เคล็ดลับ:</b> หากคุณเคยสร้างแผนไว้แล้ว สามารถเพิ่มแผนเดิมเข้าหน่วยได้จากแท็บ ③ Dashboard รวม
+            </div>
+            <div class="unit-step-footer">
+              <button class="unit-step-prev" onclick="goUnitStep(1)">← ก่อนหน้า</button>
+              <button class="unit-step-next" onclick="goUnitStep(3)">ถัดไป →</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Dashboard -->
+          <div class="unit-step-panel" data-ustep="3" style="display:none;">
+            <h3>③ Dashboard รวมของหน่วย</h3>
+            <div class="step-help">ภาพรวมของแผนรายคาบทั้งหมดที่อยู่ในหน่วยนี้</div>
+            <div id="ue-dashboard"></div>
+            <div class="unit-step-footer">
+              <button class="unit-step-prev" onclick="goUnitStep(2)">← ก่อนหน้า</button>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
+
+  <!-- Unit Toast -->
+  <div class="unit-toast" id="unit-toast"></div>
 </div>
 
 <div class="bg-particles" aria-hidden="true">
@@ -1676,8 +2381,15 @@
       <img src="logo.png" alt="สื่อ ENG ที่จริงใจ" />
     </div>
     <div class="header-left">
-      <button id="form-back-btn" type="button" onclick="openDashboardView()">← กลับหน้าแรก</button>
-      <div class="badge">ภาษาต่างประเทศ · ระดับประถมศึกษา</div>
+      <button id="form-back-btn" type="button" onclick="backFromFormView()">← กลับหน้าแรก</button>
+      <div id="unit-context-banner" style="display:none; margin:8px 0 4px; padding:10px 14px; background:linear-gradient(135deg,#ede9fe,#ddd6fe); border:1px solid #c4b5fd; border-radius:10px; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="font-size:1.1rem;">📚</span>
+        <span style="font-size:0.88rem; color:#4c1d95;">กำลังสร้างแผนสำหรับหน่วย: <b id="unit-context-title">—</b></span>
+        <span style="margin-left:auto; font-size:0.78rem; color:#6d28d9; background:#fff; padding:4px 10px; border-radius:999px; border:1px solid #ddd6fe;">
+          ✨ กด Export เพื่อบันทึกแผนและเพิ่มเข้าหน่วยอัตโนมัติ
+        </span>
+      </div>
+      <div class="badge">ภาษาต่างประเทศ · ระดับประถมศึกษา–มัธยมศึกษา</div>
       <h1>ระบบสร้างแผนการจัดการเรียนรู้ภาษาอังกฤษ</h1>
       <p>สอดคล้องหลักสูตรแกนกลาง พ.ศ. 2551 — สร้างและ Export ได้ทันที ไม่ต้องติดตั้งโปรแกรม</p>
     </div>
@@ -1805,18 +2517,32 @@
           <input type="text" id="subject-name" placeholder="เช่น ภาษาอังกฤษพื้นฐาน">
         </div>
         <div class="form-group">
+          <label>รหัสวิชา</label>
+          <input type="text" id="subject-code" placeholder="เช่น อ14101">
+        </div>
+        <div class="form-group">
           <label>กลุ่มสาระการเรียนรู้</label>
           <input type="text" id="subject-group" placeholder="เช่น ภาษาต่างประเทศ">
         </div>
         <div class="form-group">
           <label>ชั้น <span class="required">*</span></label>
           <select id="class-level">
-            <option value="ประถมศึกษาปีที่ 1" selected>ป.1</option>
-            <option value="ประถมศึกษาปีที่ 2">ป.2</option>
-            <option value="ประถมศึกษาปีที่ 3">ป.3</option>
-            <option value="ประถมศึกษาปีที่ 4">ป.4</option>
-            <option value="ประถมศึกษาปีที่ 5">ป.5</option>
-            <option value="ประถมศึกษาปีที่ 6">ป.6</option>
+            <optgroup label="ประถมศึกษา">
+              <option value="ประถมศึกษาปีที่ 1" selected>ป.1</option>
+              <option value="ประถมศึกษาปีที่ 2">ป.2</option>
+              <option value="ประถมศึกษาปีที่ 3">ป.3</option>
+              <option value="ประถมศึกษาปีที่ 4">ป.4</option>
+              <option value="ประถมศึกษาปีที่ 5">ป.5</option>
+              <option value="ประถมศึกษาปีที่ 6">ป.6</option>
+            </optgroup>
+            <optgroup label="มัธยมศึกษา">
+              <option value="มัธยมศึกษาปีที่ 1">ม.1</option>
+              <option value="มัธยมศึกษาปีที่ 2">ม.2</option>
+              <option value="มัธยมศึกษาปีที่ 3">ม.3</option>
+              <option value="มัธยมศึกษาปีที่ 4">ม.4</option>
+              <option value="มัธยมศึกษาปีที่ 5">ม.5</option>
+              <option value="มัธยมศึกษาปีที่ 6">ม.6</option>
+            </optgroup>
           </select>
         </div>
         <div class="form-group">
@@ -1842,6 +2568,10 @@
         <div class="form-group">
           <label>หน่วยการเรียนรู้ที่</label>
           <input type="number" id="unit-number" value="1" min="1">
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>เรื่อง (Topic) <span class="required">*</span></label>
+          <input type="text" id="topic" placeholder="เช่น My Family, Animals in the Zoo">
         </div>
       </div>
 
@@ -2173,47 +2903,27 @@
         </div>
       </div>
 
+      <div style="margin-bottom:14px; padding:12px; background:#faf5ff; border:1px solid #e9d5ff; border-radius:10px;">
+        <div style="font-size:0.9rem; font-weight:600; color:#7c3aed; margin-bottom:8px;">
+          📋 เลือกสิ่งที่ต้องการประเมิน — ระบบจะเติมวิธีการประเมินและแนบแบบประเมินในภาคผนวกให้อัตโนมัติ
+        </div>
+        <div id="rubric-picker" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px;"></div>
+      </div>
+
       <div style="overflow-x:auto;">
         <table class="assessment-table" id="assessment-table">
           <thead>
             <tr>
-              <th style="width:160px;">สิ่งที่ประเมิน</th>
+              <th style="width:180px;">สิ่งที่ประเมิน</th>
               <th>วิธีการประเมิน</th>
-              <th style="width:180px;">เกณฑ์ผ่าน</th>
+              <th style="width:200px;">เกณฑ์ผ่าน</th>
+              <th style="width:40px;"></th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>
-              <td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>
-              <td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>
-            </tr>
-            <tr>
-              <td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>
-              <td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>
-              <td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>
-            </tr>
-            <tr>
-              <td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>
-              <td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>
-              <td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>
-            </tr>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
-      <button class="btn-add" onclick="addAssessment()" style="margin-top:8px;">+ เพิ่มรายการประเมิน</button>
-    </div>
-
-    <!-- แบบประเมิน Rubrics -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon" style="background:linear-gradient(135deg,#a855f7,#7c3aed);">📋</div>
-        <div>
-          <div class="card-title">แบบประเมิน (แนบในภาคผนวก)</div>
-          <div class="card-subtitle">เลือกแบบประเมินที่ใช้ — ระบบจะสร้างตารางพร้อมเกณฑ์ให้อัตโนมัติใน DOCX</div>
-        </div>
-      </div>
-      <div id="rubric-picker" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px; margin-top:8px;"></div>
+      <button class="btn-add" onclick="addAssessment()" style="margin-top:8px;">+ เพิ่มรายการประเมิน (กำหนดเอง)</button>
     </div>
 
     <!-- ภาคผนวก -->
@@ -2232,6 +2942,9 @@
         <button class="btn btn-prev" onclick="goToStep(4)">← กลับ</button>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
+          <button class="btn btn-generate" onclick="addCurrentPlanToUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">
+            📎 เพิ่มแผนนี้ในหน่วยการเรียนรู้
+          </button>
           <button class="btn btn-generate" onclick="generatePlan('pdf')" style="background:linear-gradient(135deg,#dc2626,#b91c1c);">
             📄 สร้าง PDF
           </button>
@@ -2385,6 +3098,142 @@ const indicatorsByLevel = {
     { id: 'ind-t41-p6-1', code: 'ต 4.1 ป.6/1', desc: 'ใช้ภาษาอังกฤษสื่อสารในสถานการณ์จริง/จำลองในชั้นเรียน โรงเรียน และชุมชน' },
     { id: 'ind-t42-p6-1', code: 'ต 4.2 ป.6/1', desc: 'ใช้ภาษาอังกฤษในการสืบค้น รวบรวม และนำเสนอข้อมูลที่เกี่ยวข้องกับกลุ่มสาระวิชาอื่น' },
   ],
+  'มัธยมศึกษาปีที่ 1': [
+    { id: 'ind-t11-m1-1', code: 'ต 1.1 ม.1/1', desc: 'ปฏิบัติตามคำสั่ง คำขอร้อง คำแนะนำ และคำชี้แจงง่ายๆ ที่ฟังและอ่าน' },
+    { id: 'ind-t11-m1-2', code: 'ต 1.1 ม.1/2', desc: 'อ่านออกเสียงข้อความ นิทาน และบทกลอนสั้นๆ ถูกต้องตามหลักการอ่าน' },
+    { id: 'ind-t11-m1-3', code: 'ต 1.1 ม.1/3', desc: 'เลือก/ระบุประโยคและข้อความให้สัมพันธ์กับสื่อที่ไม่ใช่ความเรียง (non-text information)' },
+    { id: 'ind-t11-m1-4', code: 'ต 1.1 ม.1/4', desc: 'ระบุหัวข้อเรื่อง (topic) ใจความสำคัญ (main idea) และตอบคำถามจากการฟังและอ่านบทสนทนา นิทาน และเรื่องสั้น' },
+    { id: 'ind-t12-m1-1', code: 'ต 1.2 ม.1/1', desc: 'สนทนาแลกเปลี่ยนข้อมูลเกี่ยวกับตนเอง กิจกรรม และสถานการณ์ต่างๆ ในชีวิตประจำวัน' },
+    { id: 'ind-t12-m1-2', code: 'ต 1.2 ม.1/2', desc: 'ใช้คำขอร้อง ให้คำแนะนำ และคำชี้แจงตามสถานการณ์' },
+    { id: 'ind-t12-m1-3', code: 'ต 1.2 ม.1/3', desc: 'พูดและเขียนแสดงความต้องการ ขอความช่วยเหลือ ตอบรับและปฏิเสธการให้ความช่วยเหลือในสถานการณ์ต่างๆ อย่างเหมาะสม' },
+    { id: 'ind-t12-m1-4', code: 'ต 1.2 ม.1/4', desc: 'พูดและเขียนเพื่อขอและให้ข้อมูล และแสดงความคิดเห็นเกี่ยวกับเรื่องที่ฟังหรืออ่านอย่างเหมาะสม' },
+    { id: 'ind-t12-m1-5', code: 'ต 1.2 ม.1/5', desc: 'พูดและเขียนแสดงความรู้สึกและความคิดเห็นของตนเองเกี่ยวกับเรื่องต่างๆ ใกล้ตัว กิจกรรมต่างๆ พร้อมทั้งให้เหตุผลสั้นๆ ประกอบอย่างเหมาะสม' },
+    { id: 'ind-t13-m1-1', code: 'ต 1.3 ม.1/1', desc: 'พูดและเขียนบรรยายเกี่ยวกับตนเอง กิจวัตรประจำวัน ประสบการณ์ และสิ่งแวดล้อมใกล้ตัว' },
+    { id: 'ind-t13-m1-2', code: 'ต 1.3 ม.1/2', desc: 'พูด/เขียน สรุปใจความสำคัญ/แก่นสาระ (theme) ที่ได้จากการวิเคราะห์เรื่อง/เหตุการณ์ที่อยู่ในความสนใจของสังคม' },
+    { id: 'ind-t13-m1-3', code: 'ต 1.3 ม.1/3', desc: 'พูด/เขียนแสดงความคิดเห็นเกี่ยวกับกิจกรรมหรือเรื่องต่างๆ ใกล้ตัว พร้อมทั้งให้เหตุผลสั้นๆ ประกอบ' },
+    { id: 'ind-t21-m1-1', code: 'ต 2.1 ม.1/1', desc: 'ใช้ภาษา น้ำเสียง และกิริยาท่าทางสุภาพเหมาะสม ตามมารยาทสังคมและวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-m1-2', code: 'ต 2.1 ม.1/2', desc: 'บรรยายเกี่ยวกับเทศกาล วันสำคัญ ชีวิตความเป็นอยู่ และประเพณีของเจ้าของภาษา' },
+    { id: 'ind-t21-m1-3', code: 'ต 2.1 ม.1/3', desc: 'เข้าร่วม/จัดกิจกรรมทางภาษาและวัฒนธรรมตามความสนใจ' },
+    { id: 'ind-t22-m1-1', code: 'ต 2.2 ม.1/1', desc: 'บอกความเหมือนและความแตกต่างระหว่างการออกเสียงประโยคชนิดต่างๆ การใช้เครื่องหมายวรรคตอน และการลำดับคำตามโครงสร้างประโยคของภาษาต่างประเทศและภาษาไทย' },
+    { id: 'ind-t22-m1-2', code: 'ต 2.2 ม.1/2', desc: 'เปรียบเทียบความเหมือนและความแตกต่างระหว่างเทศกาล งานฉลอง วันสำคัญ และชีวิตความเป็นอยู่ของเจ้าของภาษากับของไทย' },
+    { id: 'ind-t31-m1-1', code: 'ต 3.1 ม.1/1', desc: 'ค้นคว้า รวบรวม และสรุปข้อมูล/ข้อเท็จจริงที่เกี่ยวข้องกับกลุ่มสาระการเรียนรู้อื่นจากแหล่งเรียนรู้ และนำเสนอด้วยการพูด/การเขียน' },
+    { id: 'ind-t41-m1-1', code: 'ต 4.1 ม.1/1', desc: 'ใช้ภาษาสื่อสารในสถานการณ์จริง/สถานการณ์จำลองที่เกิดขึ้นในห้องเรียนและสถานศึกษา' },
+    { id: 'ind-t42-m1-1', code: 'ต 4.2 ม.1/1', desc: 'ใช้ภาษาต่างประเทศในการสืบค้น/ค้นคว้า ความรู้/ข้อมูลต่างๆ จากสื่อและแหล่งการเรียนรู้ต่างๆ ในการศึกษาต่อและประกอบอาชีพ' },
+  ],
+  'มัธยมศึกษาปีที่ 2': [
+    { id: 'ind-t11-m2-1', code: 'ต 1.1 ม.2/1', desc: 'ปฏิบัติตามคำขอร้อง คำแนะนำ คำชี้แจง และคำอธิบายง่ายๆ ที่ฟังและอ่าน' },
+    { id: 'ind-t11-m2-2', code: 'ต 1.1 ม.2/2', desc: 'อ่านออกเสียงข้อความ ข่าว ประกาศ และบทร้อยกรองสั้นๆ ถูกต้องตามหลักการอ่าน' },
+    { id: 'ind-t11-m2-3', code: 'ต 1.1 ม.2/3', desc: 'ระบุ/เขียน ประโยคและข้อความให้สัมพันธ์กับสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ที่อ่าน' },
+    { id: 'ind-t11-m2-4', code: 'ต 1.1 ม.2/4', desc: 'เลือกหัวข้อเรื่อง ใจความสำคัญ บอกรายละเอียดสนับสนุน และแสดงความคิดเห็นเกี่ยวกับเรื่องที่ฟังและอ่าน พร้อมทั้งให้เหตุผลและยกตัวอย่างง่ายๆ ประกอบ' },
+    { id: 'ind-t12-m2-1', code: 'ต 1.2 ม.2/1', desc: 'สนทนาแลกเปลี่ยนข้อมูลเกี่ยวกับตนเอง เรื่องต่างๆ ใกล้ตัว และสถานการณ์ต่างๆ ในชีวิตประจำวันอย่างเหมาะสม' },
+    { id: 'ind-t12-m2-2', code: 'ต 1.2 ม.2/2', desc: 'ใช้คำขอร้อง ให้คำแนะนำ คำชี้แจง และคำอธิบายตามสถานการณ์' },
+    { id: 'ind-t12-m2-3', code: 'ต 1.2 ม.2/3', desc: 'พูดและเขียนแสดงความต้องการ เสนอและให้ความช่วยเหลือ ตอบรับและปฏิเสธการให้ความช่วยเหลือในสถานการณ์ต่างๆ อย่างเหมาะสม' },
+    { id: 'ind-t12-m2-4', code: 'ต 1.2 ม.2/4', desc: 'พูดและเขียนเพื่อขอและให้ข้อมูล บรรยาย และแสดงความคิดเห็นเกี่ยวกับเรื่องที่ฟังหรืออ่านอย่างเหมาะสม' },
+    { id: 'ind-t12-m2-5', code: 'ต 1.2 ม.2/5', desc: 'พูดและเขียนแสดงความรู้สึกและความคิดเห็นของตนเองเกี่ยวกับเรื่องต่างๆ กิจกรรม และประสบการณ์ พร้อมทั้งให้เหตุผลประกอบอย่างเหมาะสม' },
+    { id: 'ind-t13-m2-1', code: 'ต 1.3 ม.2/1', desc: 'พูดและเขียนบรรยายเกี่ยวกับตนเอง กิจวัตรประจำวัน ประสบการณ์ และข่าว/เหตุการณ์ที่อยู่ในความสนใจของสังคม' },
+    { id: 'ind-t13-m2-2', code: 'ต 1.3 ม.2/2', desc: 'พูดและเขียนสรุปใจความสำคัญ/แก่นสาระ หัวข้อเรื่อง (topic) ที่ได้จากการวิเคราะห์เรื่อง/ข่าว/เหตุการณ์ที่อยู่ในความสนใจของสังคม' },
+    { id: 'ind-t13-m2-3', code: 'ต 1.3 ม.2/3', desc: 'พูดและเขียนแสดงความคิดเห็นเกี่ยวกับกิจกรรม เรื่องต่างๆ ใกล้ตัว และประสบการณ์ พร้อมทั้งให้เหตุผลสั้นๆ ประกอบ' },
+    { id: 'ind-t21-m2-1', code: 'ต 2.1 ม.2/1', desc: 'ใช้ภาษา น้ำเสียง และกิริยาท่าทางเหมาะกับบุคคลและโอกาส ตามมารยาทสังคมและวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-m2-2', code: 'ต 2.1 ม.2/2', desc: 'อธิบายเกี่ยวกับเทศกาล วันสำคัญ ชีวิตความเป็นอยู่ และประเพณีของเจ้าของภาษา' },
+    { id: 'ind-t21-m2-3', code: 'ต 2.1 ม.2/3', desc: 'เข้าร่วม/จัดกิจกรรมทางภาษาและวัฒนธรรมตามความสนใจ' },
+    { id: 'ind-t22-m2-1', code: 'ต 2.2 ม.2/1', desc: 'เปรียบเทียบและอธิบายความเหมือนและความแตกต่างระหว่างการออกเสียงประโยคชนิดต่างๆ และการลำดับคำตามโครงสร้างประโยคของภาษาต่างประเทศและภาษาไทย' },
+    { id: 'ind-t22-m2-2', code: 'ต 2.2 ม.2/2', desc: 'เปรียบเทียบและอธิบายความเหมือนและความแตกต่างระหว่างชีวิตความเป็นอยู่และวัฒนธรรมของเจ้าของภาษากับของไทย และนำไปใช้อย่างเหมาะสม' },
+    { id: 'ind-t31-m2-1', code: 'ต 3.1 ม.2/1', desc: 'ค้นคว้า รวบรวม และสรุปข้อมูล/ข้อเท็จจริงที่เกี่ยวข้องกับกลุ่มสาระการเรียนรู้อื่นจากแหล่งเรียนรู้ และนำเสนอด้วยการพูด/การเขียน' },
+    { id: 'ind-t41-m2-1', code: 'ต 4.1 ม.2/1', desc: 'ใช้ภาษาสื่อสารในสถานการณ์จริง/สถานการณ์จำลองที่เกิดขึ้นในห้องเรียน สถานศึกษา และชุมชน' },
+    { id: 'ind-t42-m2-1', code: 'ต 4.2 ม.2/1', desc: 'ใช้ภาษาต่างประเทศในการสืบค้น/ค้นคว้า รวบรวม และสรุปความรู้/ข้อมูลต่างๆ จากสื่อและแหล่งการเรียนรู้ต่างๆ ในการศึกษาต่อและประกอบอาชีพ' },
+  ],
+  'มัธยมศึกษาปีที่ 3': [
+    { id: 'ind-t11-m3-1', code: 'ต 1.1 ม.3/1', desc: 'ปฏิบัติตามคำขอร้อง คำแนะนำ คำชี้แจง และคำอธิบายที่ฟังและอ่าน' },
+    { id: 'ind-t11-m3-2', code: 'ต 1.1 ม.3/2', desc: 'อ่านออกเสียงข้อความ ข่าว โฆษณา และบทร้อยกรองสั้นๆ ถูกต้องตามหลักการอ่าน' },
+    { id: 'ind-t11-m3-3', code: 'ต 1.1 ม.3/3', desc: 'ระบุและเขียนสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ให้สัมพันธ์กับประโยคและข้อความที่ฟังหรืออ่าน' },
+    { id: 'ind-t11-m3-4', code: 'ต 1.1 ม.3/4', desc: 'เลือก/ระบุหัวข้อเรื่อง ใจความสำคัญ รายละเอียดสนับสนุน และแสดงความคิดเห็นเกี่ยวกับเรื่องที่ฟังและอ่านจากสื่อประเภทต่างๆ พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t12-m3-1', code: 'ต 1.2 ม.3/1', desc: 'สนทนาและเขียนโต้ตอบข้อมูลเกี่ยวกับตนเอง เรื่องต่างๆ ใกล้ตัว สถานการณ์ ข่าว เรื่องที่อยู่ในความสนใจของสังคม และสื่อสารอย่างต่อเนื่องและเหมาะสม' },
+    { id: 'ind-t12-m3-2', code: 'ต 1.2 ม.3/2', desc: 'ใช้คำขอร้อง ให้คำแนะนำ คำชี้แจง และคำอธิบายอย่างเหมาะสม' },
+    { id: 'ind-t12-m3-3', code: 'ต 1.2 ม.3/3', desc: 'พูดและเขียนแสดงความต้องการ เสนอและให้ความช่วยเหลือ ตอบรับและปฏิเสธการให้ความช่วยเหลือในสถานการณ์ต่างๆ อย่างเหมาะสม' },
+    { id: 'ind-t12-m3-4', code: 'ต 1.2 ม.3/4', desc: 'พูดและเขียนเพื่อขอและให้ข้อมูล อธิบาย เปรียบเทียบ และแสดงความคิดเห็นเกี่ยวกับเรื่องที่ฟังหรืออ่านอย่างเหมาะสม' },
+    { id: 'ind-t12-m3-5', code: 'ต 1.2 ม.3/5', desc: 'พูดและเขียนบรรยายความรู้สึก และความคิดเห็นของตนเองเกี่ยวกับเรื่องต่างๆ กิจกรรม ประสบการณ์ และข่าว/เหตุการณ์ พร้อมทั้งให้เหตุผลประกอบอย่างเหมาะสม' },
+    { id: 'ind-t13-m3-1', code: 'ต 1.3 ม.3/1', desc: 'พูดและเขียนบรรยายเกี่ยวกับตนเอง ประสบการณ์ ข่าว/เหตุการณ์/เรื่อง/ประเด็นต่างๆ ที่อยู่ในความสนใจของสังคม' },
+    { id: 'ind-t13-m3-2', code: 'ต 1.3 ม.3/2', desc: 'พูดและเขียนสรุปใจความสำคัญ/แก่นสาระ หัวข้อเรื่องที่ได้จากการวิเคราะห์เรื่อง/ข่าว/เหตุการณ์/สถานการณ์ที่อยู่ในความสนใจของสังคม' },
+    { id: 'ind-t13-m3-3', code: 'ต 1.3 ม.3/3', desc: 'พูดและเขียนแสดงความคิดเห็นเกี่ยวกับกิจกรรม ประสบการณ์ และเหตุการณ์ พร้อมทั้งให้เหตุผลประกอบ' },
+    { id: 'ind-t21-m3-1', code: 'ต 2.1 ม.3/1', desc: 'เลือกใช้ภาษา น้ำเสียง และกิริยาท่าทางเหมาะกับบุคคลและโอกาส ตามมารยาทสังคม และวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-m3-2', code: 'ต 2.1 ม.3/2', desc: 'อธิบายเกี่ยวกับชีวิตความเป็นอยู่ ขนบธรรมเนียม และประเพณีของเจ้าของภาษา' },
+    { id: 'ind-t21-m3-3', code: 'ต 2.1 ม.3/3', desc: 'เข้าร่วม/จัดกิจกรรมทางภาษาและวัฒนธรรมตามความสนใจ' },
+    { id: 'ind-t22-m3-1', code: 'ต 2.2 ม.3/1', desc: 'เปรียบเทียบและอธิบายความเหมือนและความแตกต่างระหว่างการออกเสียงประโยคชนิดต่างๆ และการลำดับคำตามโครงสร้างประโยคของภาษาต่างประเทศและภาษาไทย' },
+    { id: 'ind-t22-m3-2', code: 'ต 2.2 ม.3/2', desc: 'เปรียบเทียบและอธิบายความเหมือนและความแตกต่างระหว่างชีวิตความเป็นอยู่และวัฒนธรรมของเจ้าของภาษากับของไทย และนำไปใช้อย่างเหมาะสม' },
+    { id: 'ind-t31-m3-1', code: 'ต 3.1 ม.3/1', desc: 'ค้นคว้า รวบรวม และสรุปข้อมูล/ข้อเท็จจริงที่เกี่ยวข้องกับกลุ่มสาระการเรียนรู้อื่นจากแหล่งเรียนรู้ และนำเสนอด้วยการพูดและการเขียน' },
+    { id: 'ind-t41-m3-1', code: 'ต 4.1 ม.3/1', desc: 'ใช้ภาษาสื่อสารในสถานการณ์จริง/สถานการณ์จำลองที่เกิดขึ้นในห้องเรียน สถานศึกษา ชุมชน และสังคม' },
+    { id: 'ind-t42-m3-1', code: 'ต 4.2 ม.3/1', desc: 'ใช้ภาษาต่างประเทศในการสืบค้น/ค้นคว้า รวบรวม และสรุปความรู้/ข้อมูลต่างๆ จากสื่อและแหล่งการเรียนรู้ต่างๆ ในการศึกษาต่อและประกอบอาชีพ' },
+    { id: 'ind-t42-m3-2', code: 'ต 4.2 ม.3/2', desc: 'เผยแพร่/ประชาสัมพันธ์ ข้อมูล ข่าวสารของโรงเรียน ชุมชน และท้องถิ่น เป็นภาษาต่างประเทศ' },
+  ],
+  'มัธยมศึกษาปีที่ 4': [
+    { id: 'ind-t11-m4-1', code: 'ต 1.1 ม.4/1', desc: 'ปฏิบัติตามคำแนะนำในคู่มือการใช้งานต่างๆ คำชี้แจง คำอธิบาย และคำบรรยายที่ฟังและอ่าน' },
+    { id: 'ind-t11-m4-2', code: 'ต 1.1 ม.4/2', desc: 'อ่านออกเสียงข้อความ ข่าว ประกาศ โฆษณา บทร้อยกรอง และบทละครสั้น (skit) ถูกต้องตามหลักการอ่าน' },
+    { id: 'ind-t11-m4-3', code: 'ต 1.1 ม.4/3', desc: 'อธิบายและเขียนประโยคและข้อความให้สัมพันธ์กับสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ที่อ่าน รวมทั้งระบุและเขียนสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ให้สัมพันธ์กับประโยคและข้อความที่ฟังหรืออ่าน' },
+    { id: 'ind-t11-m4-4', code: 'ต 1.1 ม.4/4', desc: 'จับใจความสำคัญ วิเคราะห์ความ สรุปความ ตีความ และแสดงความคิดเห็นจากการฟังและอ่านเรื่องที่เป็นสารคดีและบันเทิงคดี พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t12-m4-1', code: 'ต 1.2 ม.4/1', desc: 'สนทนาและเขียนโต้ตอบข้อมูลเกี่ยวกับตนเองและเรื่องต่างๆ ใกล้ตัว ประสบการณ์ สถานการณ์ ข่าว/เหตุการณ์ ประเด็นที่อยู่ในความสนใจของสังคม และสื่อสารอย่างต่อเนื่องและเหมาะสม' },
+    { id: 'ind-t12-m4-2', code: 'ต 1.2 ม.4/2', desc: 'เลือกและใช้คำขอร้อง ให้คำแนะนำ คำชี้แจง คำอธิบายอย่างคล่องแคล่ว' },
+    { id: 'ind-t12-m4-3', code: 'ต 1.2 ม.4/3', desc: 'พูดและเขียนแสดงความต้องการ เสนอและให้ความช่วยเหลือ ตอบรับและปฏิเสธการให้ความช่วยเหลือในสถานการณ์จำลองหรือสถานการณ์จริงอย่างเหมาะสม' },
+    { id: 'ind-t12-m4-4', code: 'ต 1.2 ม.4/4', desc: 'พูดและเขียนเพื่อขอและให้ข้อมูล บรรยาย อธิบาย เปรียบเทียบ และแสดงความคิดเห็นเกี่ยวกับเรื่อง/ประเด็น/ข่าว/เหตุการณ์ที่ฟังและอ่านอย่างเหมาะสม' },
+    { id: 'ind-t12-m4-5', code: 'ต 1.2 ม.4/5', desc: 'พูดและเขียนบรรยายความรู้สึกและแสดงความคิดเห็นของตนเองเกี่ยวกับเรื่องต่างๆ กิจกรรม ประสบการณ์ และข่าว/เหตุการณ์อย่างมีเหตุผล' },
+    { id: 'ind-t13-m4-1', code: 'ต 1.3 ม.4/1', desc: 'พูดและเขียนนำเสนอข้อมูลเกี่ยวกับตนเอง/ประสบการณ์ ข่าว/เหตุการณ์ เรื่องและประเด็นต่างๆ ตามความสนใจของสังคม' },
+    { id: 'ind-t13-m4-2', code: 'ต 1.3 ม.4/2', desc: 'พูดและเขียนสรุปใจความสำคัญ/แก่นสาระที่ได้จากการวิเคราะห์เรื่อง กิจกรรม ข่าว เหตุการณ์ และสถานการณ์ตามความสนใจ' },
+    { id: 'ind-t13-m4-3', code: 'ต 1.3 ม.4/3', desc: 'พูดและเขียนแสดงความคิดเห็นเกี่ยวกับกิจกรรม ประสบการณ์ และเหตุการณ์ ทั้งในท้องถิ่น สังคม และโลก พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t21-m4-1', code: 'ต 2.1 ม.4/1', desc: 'เลือกใช้ภาษา น้ำเสียง และกิริยาท่าทางเหมาะกับระดับของบุคคล เวลา โอกาส และสถานที่ตามมารยาทสังคมและวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-m4-2', code: 'ต 2.1 ม.4/2', desc: 'อธิบาย/อภิปรายวิถีชีวิต ความคิด ความเชื่อ และที่มาของขนบธรรมเนียมและประเพณีของเจ้าของภาษา' },
+    { id: 'ind-t21-m4-3', code: 'ต 2.1 ม.4/3', desc: 'เข้าร่วม แนะนำ และจัดกิจกรรมทางภาษาและวัฒนธรรมอย่างเหมาะสม' },
+    { id: 'ind-t22-m4-1', code: 'ต 2.2 ม.4/1', desc: 'อธิบาย/เปรียบเทียบความแตกต่างระหว่างโครงสร้างประโยค ข้อความ สำนวน คำพังเพย สุภาษิต และบทกลอนของภาษาต่างประเทศและภาษาไทย' },
+    { id: 'ind-t22-m4-2', code: 'ต 2.2 ม.4/2', desc: 'วิเคราะห์/อภิปรายความเหมือนและความแตกต่างระหว่างวิถีชีวิต ความเชื่อ และวัฒนธรรมของเจ้าของภาษากับของไทย และนำไปใช้อย่างมีเหตุผล' },
+    { id: 'ind-t31-m4-1', code: 'ต 3.1 ม.4/1', desc: 'ค้นคว้า/สืบค้น บันทึก สรุป และแสดงความคิดเห็นเกี่ยวกับข้อมูลที่เกี่ยวข้องกับกลุ่มสาระการเรียนรู้อื่นจากแหล่งเรียนรู้ต่างๆ และนำเสนอด้วยการพูดและการเขียน' },
+    { id: 'ind-t41-m4-1', code: 'ต 4.1 ม.4/1', desc: 'ใช้ภาษาสื่อสารในสถานการณ์จริง/สถานการณ์จำลองที่เกิดขึ้นในห้องเรียน สถานศึกษา ชุมชน และสังคม' },
+    { id: 'ind-t42-m4-1', code: 'ต 4.2 ม.4/1', desc: 'ใช้ภาษาต่างประเทศในการสืบค้น/ค้นคว้า รวบรวม วิเคราะห์ และสรุปความรู้/ข้อมูลต่างๆ จากสื่อและแหล่งการเรียนรู้ต่างๆ ในการศึกษาต่อและประกอบอาชีพ' },
+    { id: 'ind-t42-m4-2', code: 'ต 4.2 ม.4/2', desc: 'เผยแพร่/ประชาสัมพันธ์ ข้อมูล ข่าวสารของโรงเรียน ชุมชน และท้องถิ่น/ประเทศชาติ เป็นภาษาต่างประเทศ' },
+  ],
+  'มัธยมศึกษาปีที่ 5': [
+    { id: 'ind-t11-m5-1', code: 'ต 1.1 ม.5/1', desc: 'ปฏิบัติตามคำแนะนำในคู่มือการใช้งานต่างๆ คำชี้แจง คำอธิบาย และคำบรรยายที่ฟังและอ่าน' },
+    { id: 'ind-t11-m5-2', code: 'ต 1.1 ม.5/2', desc: 'อ่านออกเสียงข้อความ ข่าว ประกาศ โฆษณา บทร้อยกรอง และบทละครสั้น (skit) ถูกต้องตามหลักการอ่าน' },
+    { id: 'ind-t11-m5-3', code: 'ต 1.1 ม.5/3', desc: 'อธิบายและเขียนประโยคและข้อความให้สัมพันธ์กับสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ที่อ่าน รวมทั้งระบุและเขียนสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ให้สัมพันธ์กับประโยคและข้อความที่ฟังหรืออ่าน' },
+    { id: 'ind-t11-m5-4', code: 'ต 1.1 ม.5/4', desc: 'จับใจความสำคัญ วิเคราะห์ความ สรุปความ ตีความ และแสดงความคิดเห็นจากการฟังและอ่านเรื่องที่เป็นสารคดีและบันเทิงคดี พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t12-m5-1', code: 'ต 1.2 ม.5/1', desc: 'สนทนาและเขียนโต้ตอบข้อมูลเกี่ยวกับตนเองและเรื่องต่างๆ ใกล้ตัว ประสบการณ์ สถานการณ์ ข่าว/เหตุการณ์ ประเด็นที่อยู่ในความสนใจของสังคม และสื่อสารอย่างต่อเนื่องและเหมาะสม' },
+    { id: 'ind-t12-m5-2', code: 'ต 1.2 ม.5/2', desc: 'เลือกและใช้คำขอร้อง ให้คำแนะนำ คำชี้แจง คำอธิบายอย่างคล่องแคล่ว' },
+    { id: 'ind-t12-m5-3', code: 'ต 1.2 ม.5/3', desc: 'พูดและเขียนแสดงความต้องการ เสนอและให้ความช่วยเหลือ ตอบรับและปฏิเสธการให้ความช่วยเหลือในสถานการณ์จำลองหรือสถานการณ์จริงอย่างเหมาะสม' },
+    { id: 'ind-t12-m5-4', code: 'ต 1.2 ม.5/4', desc: 'พูดและเขียนเพื่อขอและให้ข้อมูล บรรยาย อธิบาย เปรียบเทียบ และแสดงความคิดเห็นเกี่ยวกับเรื่อง/ประเด็น/ข่าว/เหตุการณ์ที่ฟังและอ่านอย่างเหมาะสม' },
+    { id: 'ind-t12-m5-5', code: 'ต 1.2 ม.5/5', desc: 'พูดและเขียนบรรยายความรู้สึกและแสดงความคิดเห็นของตนเองเกี่ยวกับเรื่องต่างๆ กิจกรรม ประสบการณ์ และข่าว/เหตุการณ์อย่างมีเหตุผล' },
+    { id: 'ind-t13-m5-1', code: 'ต 1.3 ม.5/1', desc: 'พูดและเขียนนำเสนอข้อมูลเกี่ยวกับตนเอง/ประสบการณ์ ข่าว/เหตุการณ์ เรื่องและประเด็นต่างๆ ตามความสนใจของสังคม' },
+    { id: 'ind-t13-m5-2', code: 'ต 1.3 ม.5/2', desc: 'พูดและเขียนสรุปใจความสำคัญ/แก่นสาระที่ได้จากการวิเคราะห์เรื่อง กิจกรรม ข่าว เหตุการณ์ และสถานการณ์ตามความสนใจ' },
+    { id: 'ind-t13-m5-3', code: 'ต 1.3 ม.5/3', desc: 'พูดและเขียนแสดงความคิดเห็นเกี่ยวกับกิจกรรม ประสบการณ์ และเหตุการณ์ ทั้งในท้องถิ่น สังคม และโลก พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t21-m5-1', code: 'ต 2.1 ม.5/1', desc: 'เลือกใช้ภาษา น้ำเสียง และกิริยาท่าทางเหมาะกับระดับของบุคคล เวลา โอกาส และสถานที่ตามมารยาทสังคมและวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-m5-2', code: 'ต 2.1 ม.5/2', desc: 'อธิบาย/อภิปรายวิถีชีวิต ความคิด ความเชื่อ และที่มาของขนบธรรมเนียมและประเพณีของเจ้าของภาษา' },
+    { id: 'ind-t21-m5-3', code: 'ต 2.1 ม.5/3', desc: 'เข้าร่วม แนะนำ และจัดกิจกรรมทางภาษาและวัฒนธรรมอย่างเหมาะสม' },
+    { id: 'ind-t22-m5-1', code: 'ต 2.2 ม.5/1', desc: 'อธิบาย/เปรียบเทียบความแตกต่างระหว่างโครงสร้างประโยค ข้อความ สำนวน คำพังเพย สุภาษิต และบทกลอนของภาษาต่างประเทศและภาษาไทย' },
+    { id: 'ind-t22-m5-2', code: 'ต 2.2 ม.5/2', desc: 'วิเคราะห์/อภิปรายความเหมือนและความแตกต่างระหว่างวิถีชีวิต ความเชื่อ และวัฒนธรรมของเจ้าของภาษากับของไทย และนำไปใช้อย่างมีเหตุผล' },
+    { id: 'ind-t31-m5-1', code: 'ต 3.1 ม.5/1', desc: 'ค้นคว้า/สืบค้น บันทึก สรุป และแสดงความคิดเห็นเกี่ยวกับข้อมูลที่เกี่ยวข้องกับกลุ่มสาระการเรียนรู้อื่นจากแหล่งเรียนรู้ต่างๆ และนำเสนอด้วยการพูดและการเขียน' },
+    { id: 'ind-t41-m5-1', code: 'ต 4.1 ม.5/1', desc: 'ใช้ภาษาสื่อสารในสถานการณ์จริง/สถานการณ์จำลองที่เกิดขึ้นในห้องเรียน สถานศึกษา ชุมชน และสังคม' },
+    { id: 'ind-t42-m5-1', code: 'ต 4.2 ม.5/1', desc: 'ใช้ภาษาต่างประเทศในการสืบค้น/ค้นคว้า รวบรวม วิเคราะห์ และสรุปความรู้/ข้อมูลต่างๆ จากสื่อและแหล่งการเรียนรู้ต่างๆ ในการศึกษาต่อและประกอบอาชีพ' },
+    { id: 'ind-t42-m5-2', code: 'ต 4.2 ม.5/2', desc: 'เผยแพร่/ประชาสัมพันธ์ ข้อมูล ข่าวสารของโรงเรียน ชุมชน และท้องถิ่น/ประเทศชาติ เป็นภาษาต่างประเทศ' },
+  ],
+  'มัธยมศึกษาปีที่ 6': [
+    { id: 'ind-t11-m6-1', code: 'ต 1.1 ม.6/1', desc: 'ปฏิบัติตามคำแนะนำในคู่มือการใช้งานต่างๆ คำชี้แจง คำอธิบาย และคำบรรยายที่ฟังและอ่าน' },
+    { id: 'ind-t11-m6-2', code: 'ต 1.1 ม.6/2', desc: 'อ่านออกเสียงข้อความ ข่าว ประกาศ โฆษณา บทร้อยกรอง และบทละครสั้น (skit) ถูกต้องตามหลักการอ่าน' },
+    { id: 'ind-t11-m6-3', code: 'ต 1.1 ม.6/3', desc: 'อธิบายและเขียนประโยคและข้อความให้สัมพันธ์กับสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ที่อ่าน รวมทั้งระบุและเขียนสื่อที่ไม่ใช่ความเรียงรูปแบบต่างๆ ให้สัมพันธ์กับประโยคและข้อความที่ฟังหรืออ่าน' },
+    { id: 'ind-t11-m6-4', code: 'ต 1.1 ม.6/4', desc: 'จับใจความสำคัญ วิเคราะห์ความ สรุปความ ตีความ และแสดงความคิดเห็นจากการฟังและอ่านเรื่องที่เป็นสารคดีและบันเทิงคดี พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t12-m6-1', code: 'ต 1.2 ม.6/1', desc: 'สนทนาและเขียนโต้ตอบข้อมูลเกี่ยวกับตนเองและเรื่องต่างๆ ใกล้ตัว ประสบการณ์ สถานการณ์ ข่าว/เหตุการณ์ ประเด็นที่อยู่ในความสนใจของสังคม และสื่อสารอย่างต่อเนื่องและเหมาะสม' },
+    { id: 'ind-t12-m6-2', code: 'ต 1.2 ม.6/2', desc: 'เลือกและใช้คำขอร้อง ให้คำแนะนำ คำชี้แจง คำอธิบายอย่างคล่องแคล่ว' },
+    { id: 'ind-t12-m6-3', code: 'ต 1.2 ม.6/3', desc: 'พูดและเขียนแสดงความต้องการ เสนอและให้ความช่วยเหลือ ตอบรับและปฏิเสธการให้ความช่วยเหลือในสถานการณ์จำลองหรือสถานการณ์จริงอย่างเหมาะสม' },
+    { id: 'ind-t12-m6-4', code: 'ต 1.2 ม.6/4', desc: 'พูดและเขียนเพื่อขอและให้ข้อมูล บรรยาย อธิบาย เปรียบเทียบ และแสดงความคิดเห็นเกี่ยวกับเรื่อง/ประเด็น/ข่าว/เหตุการณ์ที่ฟังและอ่านอย่างเหมาะสม' },
+    { id: 'ind-t12-m6-5', code: 'ต 1.2 ม.6/5', desc: 'พูดและเขียนบรรยายความรู้สึกและแสดงความคิดเห็นของตนเองเกี่ยวกับเรื่องต่างๆ กิจกรรม ประสบการณ์ และข่าว/เหตุการณ์อย่างมีเหตุผล' },
+    { id: 'ind-t13-m6-1', code: 'ต 1.3 ม.6/1', desc: 'พูดและเขียนนำเสนอข้อมูลเกี่ยวกับตนเอง/ประสบการณ์ ข่าว/เหตุการณ์ เรื่องและประเด็นต่างๆ ตามความสนใจของสังคม' },
+    { id: 'ind-t13-m6-2', code: 'ต 1.3 ม.6/2', desc: 'พูดและเขียนสรุปใจความสำคัญ/แก่นสาระที่ได้จากการวิเคราะห์เรื่อง กิจกรรม ข่าว เหตุการณ์ และสถานการณ์ตามความสนใจ' },
+    { id: 'ind-t13-m6-3', code: 'ต 1.3 ม.6/3', desc: 'พูดและเขียนแสดงความคิดเห็นเกี่ยวกับกิจกรรม ประสบการณ์ และเหตุการณ์ ทั้งในท้องถิ่น สังคม และโลก พร้อมทั้งให้เหตุผลและยกตัวอย่างประกอบ' },
+    { id: 'ind-t21-m6-1', code: 'ต 2.1 ม.6/1', desc: 'เลือกใช้ภาษา น้ำเสียง และกิริยาท่าทางเหมาะกับระดับของบุคคล เวลา โอกาส และสถานที่ตามมารยาทสังคมและวัฒนธรรมของเจ้าของภาษา' },
+    { id: 'ind-t21-m6-2', code: 'ต 2.1 ม.6/2', desc: 'อธิบาย/อภิปรายวิถีชีวิต ความคิด ความเชื่อ และที่มาของขนบธรรมเนียมและประเพณีของเจ้าของภาษา' },
+    { id: 'ind-t21-m6-3', code: 'ต 2.1 ม.6/3', desc: 'เข้าร่วม แนะนำ และจัดกิจกรรมทางภาษาและวัฒนธรรมอย่างเหมาะสม' },
+    { id: 'ind-t22-m6-1', code: 'ต 2.2 ม.6/1', desc: 'อธิบาย/เปรียบเทียบความแตกต่างระหว่างโครงสร้างประโยค ข้อความ สำนวน คำพังเพย สุภาษิต และบทกลอนของภาษาต่างประเทศและภาษาไทย' },
+    { id: 'ind-t22-m6-2', code: 'ต 2.2 ม.6/2', desc: 'วิเคราะห์/อภิปรายความเหมือนและความแตกต่างระหว่างวิถีชีวิต ความเชื่อ และวัฒนธรรมของเจ้าของภาษากับของไทย และนำไปใช้อย่างมีเหตุผล' },
+    { id: 'ind-t31-m6-1', code: 'ต 3.1 ม.6/1', desc: 'ค้นคว้า/สืบค้น บันทึก สรุป และแสดงความคิดเห็นเกี่ยวกับข้อมูลที่เกี่ยวข้องกับกลุ่มสาระการเรียนรู้อื่นจากแหล่งเรียนรู้ต่างๆ และนำเสนอด้วยการพูดและการเขียน' },
+    { id: 'ind-t41-m6-1', code: 'ต 4.1 ม.6/1', desc: 'ใช้ภาษาสื่อสารในสถานการณ์จริง/สถานการณ์จำลองที่เกิดขึ้นในห้องเรียน สถานศึกษา ชุมชน และสังคม' },
+    { id: 'ind-t42-m6-1', code: 'ต 4.2 ม.6/1', desc: 'ใช้ภาษาต่างประเทศในการสืบค้น/ค้นคว้า รวบรวม วิเคราะห์ และสรุปความรู้/ข้อมูลต่างๆ จากสื่อและแหล่งการเรียนรู้ต่างๆ ในการศึกษาต่อและประกอบอาชีพ' },
+    { id: 'ind-t42-m6-2', code: 'ต 4.2 ม.6/2', desc: 'เผยแพร่/ประชาสัมพันธ์ ข้อมูล ข่าวสารของโรงเรียน ชุมชน และท้องถิ่น/ประเทศชาติ เป็นภาษาต่างประเทศ' },
+  ],
 };
 
 const saraConfig = {
@@ -2489,27 +3338,21 @@ document.addEventListener('DOMContentLoaded', () => {
   renderIndicators(classLevelEl.value);
   classLevelEl.addEventListener('change', () => {
     renderIndicators(classLevelEl.value);
-    scheduleSave();
   });
 
-  // Auto-save init
-  installAutoSave();
+  // Manual save only — restore the last explicitly-saved draft silently, if any.
+  // (Auto-save has been removed; users press 💾 บันทึก to save.)
   const draft = readDraft();
-  if (draft && hasMeaningfulData(draft)) {
-    if (draft.explicit) {
-      // User previously clicked "บันทึก" — restore silently, no banner
-      try { applyDraft(draft); } catch (e) { console.warn('applyDraft failed:', e); }
-    } else {
-      showResumeBanner(draft);
-    }
+  if (draft && hasMeaningfulData(draft) && draft.explicit) {
+    try { applyDraft(draft); } catch (e) { console.warn('applyDraft failed:', e); }
   }
 });
 
 // ================= AUTO-SAVE (LocalStorage) =================
 const DRAFT_KEY = 'lpg:draft:v1';
 const TEXT_FIELD_IDS = [
-  'plan-number','subject-name','subject-group','class-level','semester',
-  'academic-year','teacher-name','unit-number','key-concept','task-description'
+  'plan-number','subject-name','subject-code','subject-group','class-level','semester',
+  'academic-year','teacher-name','unit-number','topic','key-concept','task-description'
 ];
 const CHECKBOX_IDS = [
   'sk-reading','sk-writing','sk-arith',
@@ -2554,11 +3397,12 @@ function collectDraft() {
     };
   });
   data.assessments = [...document.querySelectorAll('#assessment-table tbody tr')].map(tr => ({
-    what:     (tr.querySelector('.assess-what') || {}).value || '',
-    how:      (tr.querySelector('.assess-how') || {}).value || '',
-    criteria: (tr.querySelector('.assess-criteria') || {}).value || '',
+    what:      (tr.querySelector('.assess-what') || {}).value || '',
+    how:       (tr.querySelector('.assess-how') || {}).value || '',
+    criteria:  (tr.querySelector('.assess-criteria') || {}).value || '',
+    rubricKey: tr.dataset.rubricKey || '',
   }));
-  data.rubrics = [...document.querySelectorAll('#rubric-picker .rubric-chk:checked')].map(cb => cb.dataset.rubricKey);
+  data.rubrics = [...document.querySelectorAll('#assessment-table tbody tr[data-rubric-key]')].map(tr => tr.dataset.rubricKey);
   data.attachments = [...document.querySelectorAll('#attachment-container .attachment-row')].map(row => ({
     title:   (row.querySelector('.attach-title') || {}).value || '',
     content: (row.querySelector('.attach-content') || {}).value || '',
@@ -2709,22 +3553,10 @@ function applyDraft(data) {
     });
     updateTotalTime();
   }
-  // Assessments
+  // Assessments: start empty by default — do not restore prior assessments or rubric selections from drafts
   const asb = document.querySelector('#assessment-table tbody');
   if (asb) {
     asb.innerHTML = '';
-    const list = (data.assessments && data.assessments.length) ? data.assessments :
-      [{what:'',how:'',criteria:''},{what:'',how:'',criteria:''},{what:'',how:'',criteria:''}];
-    list.forEach(a => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..."></td>' +
-        '<td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..."></td>' +
-        '<td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน..."></td>';
-      tr.querySelector('.assess-what').value = a.what || '';
-      tr.querySelector('.assess-how').value = a.how || '';
-      tr.querySelector('.assess-criteria').value = a.criteria || '';
-      asb.appendChild(tr);
-    });
   }
   // Attachments
   const attc = document.getElementById('attachment-container');
@@ -2732,9 +3564,9 @@ function applyDraft(data) {
     attc.innerHTML = '';
     (data.attachments || []).forEach(a => addAttachment(a.title || '', a.content || '', a.images || []));
   }
-  // Rubrics
+  // Rubric chips: keep all unchecked by default (do not auto-mark from saved drafts)
   if (document.getElementById('rubric-picker')) {
-    setSelectedRubrics(data.rubrics || []);
+    setSelectedRubrics([]);
   }
 }
 
@@ -2747,16 +3579,8 @@ function saveDraft(explicit) {
     showSavedIndicator(data.savedAt, !!explicit);
   } catch (e) { console.warn('Draft save failed:', e); }
 }
-function scheduleSave() {
-  clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(() => saveDraft(false), 800);
-}
 function saveNow() {
-  clearTimeout(_saveTimer);
   saveDraft(true);
-  // Also dismiss any visible resume banner since the user clearly saved on purpose
-  const banner = document.getElementById('resume-banner');
-  if (banner) banner.remove();
 }
 window.saveNow = saveNow;
 function readDraft() {
@@ -2791,68 +3615,21 @@ function ensureSaveIndicator() {
   }
   return el;
 }
-function showSavedIndicator(ts, explicit) {
+function showSavedIndicator(ts) {
   const el = ensureSaveIndicator();
-  if (explicit) {
-    el.textContent = '✅ บันทึกแล้วเมื่อ ' + formatTime(ts);
-    el.style.background = '#dcfce7';
-    el.style.borderColor = '#86efac';
-    el.style.color = '#166534';
-  } else {
-    el.textContent = '💾 บันทึกอัตโนมัติเมื่อ ' + formatTime(ts);
-    el.style.background = 'rgba(255,255,255,0.95)';
-    el.style.borderColor = '#d1d5db';
-    el.style.color = '#374151';
-  }
+  el.textContent = '✅ บันทึกแล้วเมื่อ ' + formatTime(ts);
+  el.style.background = '#dcfce7';
+  el.style.borderColor = '#86efac';
+  el.style.color = '#166534';
   el.style.opacity = '1';
   clearTimeout(el._fadeTimer);
-  el._fadeTimer = setTimeout(() => { el.style.opacity = '0.4'; }, explicit ? 3500 : 2500);
+  el._fadeTimer = setTimeout(() => { el.style.opacity = '0.4'; }, 3500);
 }
 
-function showResumeBanner(draft) {
-  const banner = document.createElement('div');
-  banner.id = 'resume-banner';
-  banner.style.cssText = 'position:fixed; top:16px; right:16px; z-index:9999;' +
-    'background:#fff; border:1px solid #d1d5db; border-radius:12px;' +
-    'padding:14px 18px; box-shadow:0 10px 28px rgba(0,0,0,0.15);' +
-    'max-width:360px; font-size:0.9rem;';
-  banner.innerHTML =
-    '<div style="font-weight:600; margin-bottom:6px; color:#1f2937;">💾 พบแผนที่ยังไม่ได้บันทึก</div>' +
-    '<div style="color:#6b7280; margin-bottom:12px; font-size:0.85rem;">บันทึกอัตโนมัติเมื่อ ' + formatTime(draft.savedAt) + '</div>' +
-    '<div style="display:flex; gap:8px;">' +
-    '<button id="btn-resume" style="background:#2563eb; color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:600;">โหลดต่อ</button>' +
-    '<button id="btn-discard" style="background:#f3f4f6; color:#374151; border:1px solid #d1d5db; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem;">เริ่มใหม่</button>' +
-    '</div>';
-  document.body.appendChild(banner);
-  document.getElementById('btn-resume').onclick = () => {
-    applyDraft(draft);
-    banner.remove();
-    showSavedIndicator(draft.savedAt);
-  };
-  document.getElementById('btn-discard').onclick = () => {
-    clearDraft();
-    banner.remove();
-  };
-}
-
-function installAutoSave() {
-  // Any form input change → debounced save
-  document.addEventListener('input', e => {
-    if (e.target.matches('input, select, textarea')) scheduleSave();
-  });
-  document.addEventListener('change', e => {
-    if (e.target.matches('input, select, textarea')) scheduleSave();
-  });
-  // Indicator button toggles
-  document.addEventListener('click', e => {
-    if (e.target.closest('.ind-btn')) setTimeout(scheduleSave, 0);
-    if (e.target.closest('.btn-remove, .act-remove, .btn-add')) setTimeout(scheduleSave, 50);
-  });
-  // Periodic backup every 10s
-  setInterval(saveDraft, 10000);
-  // Save before page unload
-  window.addEventListener('beforeunload', () => { try { saveDraft(); } catch(e){} });
-}
+// Auto-save system has been removed — saving is now explicit (💾 บันทึก button only).
+// This stub is kept so any stray references no-op safely.
+function installAutoSave() { /* disabled */ }
+function scheduleSave() { /* disabled */ }
 
 // Manually clear current draft (expose to console / future button)
 window.clearLessonDraft = clearDraft;
@@ -2865,7 +3642,9 @@ function loadHistory() {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
+    if (!Array.isArray(arr)) return [];
+    // Completed plans only — filter out any legacy 'draft' entries (from pre-manual-save builds).
+    return arr.filter(e => e && e.format !== 'draft');
   } catch (e) { return []; }
 }
 function writeHistory(arr) {
@@ -2875,10 +3654,84 @@ function writeHistory(arr) {
 function buildHistoryTitle(data) {
   const f = data.fields || {};
   const planNo = f['plan-number'] ? ('แผนการสอนที่ ' + f['plan-number'] + ' — ') : 'แผนการสอนที่ ... — ';
-  const subj = f['subject-name'] || 'ไม่มีชื่อวิชา';
-  const unit = f['unit-number'] ? (' หน่วยที่ ' + f['unit-number']) : '';
-  const lvl  = f['class-level'] ? (' • ' + f['class-level']) : '';
-  return planNo + subj + unit + lvl;
+  const subj  = f['subject-name'] || 'ไม่มีชื่อวิชา';
+  const topic = (f['topic'] || '').trim() ? (' เรื่อง ' + f['topic'].trim()) : '';
+  const unit  = f['unit-number'] ? (' หน่วยที่ ' + f['unit-number']) : '';
+  const lvl   = f['class-level'] ? (' • ' + f['class-level']) : '';
+  return planNo + subj + topic + unit + lvl;
+}
+
+// Single source of truth for a lesson's display name.
+// Prefers the user-set customTitle, falling back to the auto-generated title.
+function getLessonTitle(entry) {
+  if (!entry) return 'ไม่มีชื่อแผน';
+  const custom = (entry.customTitle || '').trim();
+  if (custom) return custom;
+  if (entry.data) return buildHistoryTitle(entry.data);
+  return entry.title || 'ไม่มีชื่อแผน';
+}
+
+function renameHistoryItem(id) {
+  const hist = loadHistory();
+  const entry = hist.find(e => e.id === id);
+  if (!entry) return;
+  const current = getLessonTitle(entry);
+  const next = window.prompt('ตั้งชื่อแผนใหม่:\n(ปล่อยว่างเพื่อคืนค่าเป็นชื่ออัตโนมัติ)', current);
+  if (next === null) return; // cancelled
+  const trimmed = next.trim();
+  if (trimmed) {
+    entry.customTitle = trimmed;
+  } else {
+    delete entry.customTitle;
+  }
+  entry.title = getLessonTitle(entry); // keep legacy `title` field in sync
+  // Write back — loadHistory may have filtered legacy drafts, but writing back with the filtered
+  // list is fine: drafts are already invalid. To be safe, merge with raw storage.
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    if (Array.isArray(arr)) {
+      const idx = arr.findIndex(e => e && e.id === id);
+      if (idx >= 0) {
+        arr[idx].customTitle = entry.customTitle;
+        arr[idx].title = entry.title;
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+      } else {
+        writeHistory(hist);
+      }
+    } else {
+      writeHistory(hist);
+    }
+  } catch (e) {
+    writeHistory(hist);
+  }
+  // Refresh all places that display lesson titles
+  if (typeof renderHistoryList === 'function') renderHistoryList();
+  if (typeof renderUnitDashboard === 'function') {
+    try { renderUnitDashboard(); } catch (e) {}
+  }
+  if (typeof renderUnitEditor === 'function') {
+    try { renderUnitEditor(); } catch (e) {}
+  }
+  if (typeof renderUnitList === 'function') {
+    try { renderUnitList(); } catch (e) {}
+  }
+  if (typeof renderRecentPlans === 'function') {
+    try { renderRecentPlans(); } catch (e) {}
+  }
+}
+window.renameHistoryItem = renameHistoryItem;
+// Fingerprint identifies "the same lesson" across re-exports so a previously
+// renamed plan keeps its custom name when re-exported.
+function lessonFingerprint(data) {
+  const f = (data && data.fields) || {};
+  return [
+    (f['plan-number']  || '').trim(),
+    (f['subject-name'] || '').trim(),
+    (f['unit-number']  || '').trim(),
+    (f['topic']        || '').trim(),
+    (f['class-level']  || '').trim(),
+  ].join('|');
 }
 function saveToHistory(format) {
   const snap = collectDraft();
@@ -2890,13 +3743,40 @@ function saveToHistory(format) {
     data: snap
   };
   const hist = loadHistory();
+  // Carry forward custom name from a prior entry with the same fingerprint
+  const fp = lessonFingerprint(snap);
+  if (fp.replace(/\|/g, '').trim()) {
+    const prior = hist.find(e => e && e.customTitle && lessonFingerprint(e.data) === fp);
+    if (prior) {
+      entry.customTitle = prior.customTitle;
+      entry.title = prior.customTitle;
+    }
+  }
   hist.unshift(entry);
   writeHistory(hist);
 }
 function deleteHistoryItem(id) {
   const hist = loadHistory().filter(e => e.id !== id);
   writeHistory(hist);
+  // Cascade: remove this lesson id from any unit that references it so counts stay accurate
+  try {
+    const units = loadUnits();
+    let changed = false;
+    units.forEach(u => {
+      if (!Array.isArray(u.lessonIds)) return;
+      const before = u.lessonIds.length;
+      u.lessonIds = u.lessonIds.filter(lid => lid !== id);
+      if (u.lessonIds.length !== before) {
+        u.updatedAt = Date.now();
+        changed = true;
+      }
+    });
+    if (changed) writeUnits(units);
+  } catch (e) { /* unit storage not available — fine */ }
   renderHistoryList();
+  // Refresh any unit views that are currently visible
+  if (typeof renderUnitList === 'function') { try { renderUnitList(); } catch(e){} }
+  if (typeof renderUnitDashboard === 'function') { try { renderUnitDashboard(); } catch(e){} }
 }
 function applyHistoryItem(id) {
   const hit = loadHistory().find(e => e.id === id);
@@ -2910,7 +3790,7 @@ function applyHistoryItem(id) {
     document.getElementById('step-1').scrollIntoView({ behavior: 'smooth', block: 'start' });
     // Toast
     const ind = ensureSaveIndicator();
-    ind.textContent = '✅ โหลดแผน "' + hit.title + '" เป็นต้นแบบแล้ว';
+    ind.textContent = '✅ โหลดแผน "' + getLessonTitle(hit) + '" เป็นต้นแบบแล้ว';
     ind.style.background = '#dcfce7';
     ind.style.borderColor = '#86efac';
     ind.style.color = '#166534';
@@ -3060,18 +3940,23 @@ function renderHistoryList() {
   list.innerHTML = hist.map(e => {
     const badgeClass = e.format === 'docx' ? 'docx' : 'pdf';
     const badgeText  = e.format === 'docx' ? 'DOCX' : 'PDF';
-    // Rebuild title from data each render so old entries also get the "แผนการสอนที่..." prefix
-    const displayTitle = e.data ? buildHistoryTitle(e.data) : (e.title || 'ไม่มีชื่อแผน');
+    // Prefer the user-set custom title; fallback to auto-generated
+    const displayTitle = getLessonTitle(e);
+    const isCustom = !!(e.customTitle && e.customTitle.trim());
     return (
       '<div class="history-item">' +
         '<div class="history-item-info">' +
-          '<div class="history-item-title">' + escapeHtml(displayTitle) + '</div>' +
+          '<div class="history-item-title">' +
+            escapeHtml(displayTitle) +
+            (isCustom ? ' <span style="font-size:0.7rem; color:#7c3aed; background:#ede9fe; padding:1px 6px; border-radius:6px; font-weight:500; margin-left:4px;">ตั้งชื่อเอง</span>' : '') +
+          '</div>' +
           '<div class="history-item-meta">' +
             '<span>🕒 ' + formatTime(e.savedAt) + '</span>' +
             '<span class="history-badge ' + badgeClass + '">' + badgeText + '</span>' +
           '</div>' +
         '</div>' +
         '<div class="history-actions">' +
+          '<button class="history-btn use" onclick="renameHistoryItem(\'' + e.id + '\')" title="เปลี่ยนชื่อแผน" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe;">✏️ ชื่อ</button>' +
           '<button class="history-btn use" onclick="applyHistoryItem(\'' + e.id + '\')">ใช้เป็นต้นแบบ</button>' +
           '<button class="history-btn del" onclick="deleteHistoryItem(\'' + e.id + '\')">🗑</button>' +
         '</div>' +
@@ -3421,31 +4306,104 @@ const RUBRIC_TYPES = [
   ]},
 ];
 
+// Mapping: rubric key -> default assessment method text
+const RUBRIC_METHODS = {
+  listening: 'สังเกตและประเมินการฟังโดยใช้แบบประเมินการฟัง (ภาคผนวก)',
+  speaking:  'สังเกตและประเมินการพูดโดยใช้แบบประเมินการพูด (ภาคผนวก)',
+  reading:   'สังเกตและประเมินการอ่านโดยใช้แบบประเมินการอ่าน (ภาคผนวก)',
+  writing:   'ตรวจผลงานการเขียนโดยใช้แบบประเมินการเขียน (ภาคผนวก)',
+  behavior:  'สังเกตพฤติกรรมรายบุคคลโดยใช้แบบสังเกตพฤติกรรม (ภาคผนวก)',
+  work:      'ตรวจชิ้นงานโดยใช้แบบประเมินชิ้นงาน (ภาคผนวก)',
+  desired:   'สังเกตและประเมินโดยใช้แบบประเมินคุณลักษณะอันพึงประสงค์ (ภาคผนวก)',
+  competency:'สังเกตและประเมินโดยใช้แบบประเมินสมรรถนะผู้เรียน (ภาคผนวก)',
+};
+
+const CRITERIA_PLACEHOLDER = 'รอ AI ช่วยเติม หรือกรอกเอง';
+
 function renderRubricPicker() {
   const host = document.getElementById('rubric-picker');
   if (!host) return;
   host.innerHTML = RUBRIC_TYPES.map(r => `
-    <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; background:#fff; transition:all 0.15s;"
-      onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background=this.querySelector('input').checked?'#ede9fe':'#fff'">
-      <input type="checkbox" class="rubric-chk" data-rubric-key="${r.key}" style="width:18px; height:18px; cursor:pointer;"
-        onchange="this.closest('label').style.background=this.checked?'#ede9fe':'#fff'">
-      <span style="font-size:1.2rem;">${r.icon}</span>
-      <span style="font-size:0.9rem; font-weight:500;">${r.label}</span>
+    <label data-rubric-chip="${r.key}" style="display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; background:#fff; transition:all 0.15s;"
+      onmouseover="if(!this.querySelector('input').checked)this.style.background='#f5f3ff'" onmouseout="this.style.background=this.querySelector('input').checked?'#ede9fe':'#fff'">
+      <input type="checkbox" class="rubric-chk" data-rubric-key="${r.key}" style="width:16px; height:16px; cursor:pointer;"
+        onchange="onRubricChipToggle(this.dataset.rubricKey, this.checked)">
+      <span style="font-size:1.1rem;">${r.icon}</span>
+      <span style="font-size:0.85rem; font-weight:500;">${r.label}</span>
     </label>
   `).join('');
 }
 
+function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = '' } = {}) {
+  const tr = document.createElement('tr');
+  if (rubricKey) tr.dataset.rubricKey = rubricKey;
+  const locked = !!rubricKey;
+  tr.innerHTML =
+    `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..." ${locked ? 'readonly style="background:#faf5ff; font-weight:500;"' : ''}></td>` +
+    `<td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..." ${locked ? 'readonly style="background:#faf5ff;"' : ''}></td>` +
+    `<td><input type="text" class="assess-criteria" placeholder="${CRITERIA_PLACEHOLDER}"></td>` +
+    `<td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeAssessmentRow(this)" title="ลบรายการนี้" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:16px;">✕</button></td>`;
+  tr.querySelector('.assess-what').value = what;
+  tr.querySelector('.assess-how').value = how;
+  tr.querySelector('.assess-criteria').value = criteria;
+  return tr;
+}
+
+function onRubricChipToggle(key, checked) {
+  const tbody = document.querySelector('#assessment-table tbody');
+  const chipLabel = document.querySelector(`label[data-rubric-chip="${key}"]`);
+  if (chipLabel) chipLabel.style.background = checked ? '#ede9fe' : '#fff';
+  if (!tbody) return;
+  const existing = tbody.querySelector(`tr[data-rubric-key="${key}"]`);
+  if (checked) {
+    if (existing) return;
+    const rubric = RUBRIC_TYPES.find(r => r.key === key);
+    if (!rubric) return;
+    const tr = buildAssessmentRow({
+      what: rubric.label,
+      how: RUBRIC_METHODS[key] || '',
+      criteria: '',
+      rubricKey: key,
+    });
+    tbody.appendChild(tr);
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+function removeAssessmentRow(btn) {
+  const tr = btn.closest('tr');
+  if (!tr) return;
+  const key = tr.dataset.rubricKey;
+  if (key) {
+    // Uncheck the matching chip
+    const cb = document.querySelector(`.rubric-chk[data-rubric-key="${key}"]`);
+    if (cb) {
+      cb.checked = false;
+      const lbl = cb.closest('label');
+      if (lbl) lbl.style.background = '#fff';
+    }
+  }
+  tr.remove();
+}
+
 function getSelectedRubrics() {
-  return [...document.querySelectorAll('#rubric-picker .rubric-chk:checked')]
-    .map(cb => RUBRIC_TYPES.find(r => r.key === cb.dataset.rubricKey))
-    .filter(Boolean);
+  // Source of truth: rubric-keyed rows in the assessment table
+  const keys = new Set(
+    [...document.querySelectorAll('#assessment-table tbody tr[data-rubric-key]')]
+      .map(tr => tr.dataset.rubricKey)
+  );
+  // Fallback: also include chips checked (in case table not yet rendered)
+  document.querySelectorAll('#rubric-picker .rubric-chk:checked').forEach(cb => keys.add(cb.dataset.rubricKey));
+  return [...keys].map(k => RUBRIC_TYPES.find(r => r.key === k)).filter(Boolean);
 }
 
 function setSelectedRubrics(keys) {
   const set = new Set(keys || []);
   document.querySelectorAll('#rubric-picker .rubric-chk').forEach(cb => {
     cb.checked = set.has(cb.dataset.rubricKey);
-    cb.closest('label').style.background = cb.checked ? '#ede9fe' : '#fff';
+    const lbl = cb.closest('label');
+    if (lbl) lbl.style.background = cb.checked ? '#ede9fe' : '#fff';
   });
 }
 
@@ -3529,9 +4487,8 @@ function removeActivity(btn) {
 
 function addAssessment() {
   const tbody = document.querySelector('#assessment-table tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน"></td><td><input type="text" class="assess-how" placeholder="วิธีการประเมิน"></td><td><input type="text" class="assess-criteria" placeholder="เกณฑ์ผ่าน"></td>`;
-  tbody.appendChild(tr);
+  if (!tbody) return;
+  tbody.appendChild(buildAssessmentRow());
 }
 
 // ===== Generate Plan =====
@@ -3546,6 +4503,7 @@ function checkPlanCompleteness() {
   if (!val('class-level').trim())   warn(1, 'ยังไม่ได้เลือก "ระดับชั้น"');
   if (!val('teacher-name').trim())  warn(1, 'ยังไม่ได้กรอก "ชื่อครูผู้สอน"');
   if (!val('unit-number').trim())   warn(1, 'ยังไม่ได้ระบุ "หน่วยการเรียนรู้"');
+  if (!val('topic').trim())         warn(1, 'ยังไม่ได้กรอก "เรื่อง (Topic)"');
 
   // Step 2 — indicators & objectives
   const indSelected = document.querySelectorAll('#indicators-container .ind-btn.selected').length;
@@ -3672,7 +4630,7 @@ function _doGeneratePlan(format = 'pdf') {
     unitName: '',
     unitHours: '',
     time: '',
-    topic: '',
+    topic: (document.getElementById('topic') || {}).value || '',
     keyConcept: document.getElementById('key-concept').value,
     taskDesc: document.getElementById('task-description').value,
   };
@@ -4041,14 +4999,45 @@ function _doGeneratePlan(format = 'pdf') {
   }, 100);
 
   if (format === 'pdf') {
-    setTimeout(() => window.print(), 400);
+    // Set document.title so the browser's "Save as PDF" default filename includes the topic
+    const topicSlug = (d.topic || '').trim().replace(/[\\/:*?"<>|]/g, '').slice(0, 40);
+    const prevTitle = document.title;
+    const pdfTitle = (
+      `แผนการสอน_${d.planNo||''}` +
+      (topicSlug ? `_${topicSlug}` : '') +
+      `_${d.classLevel||''}`
+    ).replace(/\s+/g,'_');
+    document.title = pdfTitle;
+    setTimeout(() => {
+      window.print();
+      // Restore after print dialog
+      setTimeout(() => { document.title = prevTitle; }, 1500);
+    }, 400);
   } else if (format === 'docx') {
     exportAsDocx({ d, indicators, objectives, vocab, sentences, media, attachments, rubrics,
                    allSkills3r, allSkills8c, activities, assessments, totalTime });
   }
 
-  // Save a snapshot to history so this plan can be reused as template later
-  try { saveToHistory(format); } catch (e) { console.warn('saveToHistory failed:', e); }
+  // Save a snapshot to history (this is a COMPLETED plan — ready for reuse / unit linking)
+  try {
+    saveToHistory(format);
+    // If the user launched this plan from a Unit, auto-link the new history entry to that unit
+    if (_activeUnitId && typeof getUnitById === 'function') {
+      const unit = getUnitById(_activeUnitId);
+      const hist = loadHistory();
+      if (unit && hist.length) {
+        if (!unit.lessonIds) unit.lessonIds = [];
+        const newId = hist[0].id;
+        if (!unit.lessonIds.includes(newId)) {
+          unit.lessonIds.push(newId);
+          saveUnit(unit);
+          if (typeof showUnitToast === 'function') {
+            showUnitToast('✅ เพิ่มแผนเข้าหน่วย "' + unit.title + '" แล้ว');
+          }
+        }
+      }
+    }
+  } catch (e) { console.warn('saveToHistory failed:', e); }
 }
 
 function exportAsDocx(data) {
@@ -4353,7 +5342,7 @@ function exportAsDocx(data) {
       unit_number:            safe(d.unitNo),
       unit_name:              '',
       total_hours:            '',
-      lesson_topic:           '',
+      lesson_topic:           safe(d.topic || ''),
       duration:               safe(String(totalTime)),
       teacher_name:           '...................................................',
       standard:               '',  // replaced inline below
@@ -4869,7 +5858,12 @@ function exportAsDocx(data) {
       type: 'blob',
       mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     });
-    const filename = `แผนการสอน_${d.planNo||''}_${d.classLevel||''}.docx`.replace(/\s+/g,'_');
+    const topicSlug = (d.topic || '').trim().replace(/[\\/:*?"<>|]/g, '').slice(0, 40);
+    const filename = (
+      `แผนการสอน_${d.planNo||''}` +
+      (topicSlug ? `_${topicSlug}` : '') +
+      `_${d.classLevel||''}.docx`
+    ).replace(/\s+/g,'_');
     saveAs(blob, filename);
   } catch(e) {
     alert('ไม่สามารถสร้างไฟล์ DOCX ได้: ' + e.message);
@@ -4903,17 +5897,10 @@ function saveProfileData(p) {
 
 function renderProfileUI() {
   const p = loadProfile();
-  const remaining = Math.max(0, p.quotaMax - p.quotaUsed);
-  const pct = p.quotaMax > 0 ? (remaining / p.quotaMax) * 100 : 0;
-  const usedPct = p.quotaMax > 0 ? (p.quotaUsed / p.quotaMax) * 100 : 0;
 
-  // Topbar
+  // Topbar name + avatar
   const nameEl = document.getElementById('dash-user-name');
   if (nameEl) nameEl.textContent = p.name;
-  const quotaTextEl = document.getElementById('dash-quota-text');
-  if (quotaTextEl) quotaTextEl.textContent = remaining + '/' + p.quotaMax;
-  const quotaFillEl = document.getElementById('dash-quota-fill');
-  if (quotaFillEl) quotaFillEl.style.width = pct + '%';
   const avatarEl = document.getElementById('dash-avatar');
   if (avatarEl) {
     const initial = (p.name || 'คณ').trim().charAt(0) || 'ค';
@@ -4923,10 +5910,7 @@ function renderProfileUI() {
   // Profile panel
   const profileInput = document.getElementById('profile-name-input');
   if (profileInput) profileInput.value = p.name;
-  const profileQuotaText = document.getElementById('profile-quota-text');
-  if (profileQuotaText) profileQuotaText.textContent = p.quotaUsed + ' / ' + p.quotaMax + ' แผน';
-  const profileQuotaFill = document.getElementById('profile-quota-fill');
-  if (profileQuotaFill) profileQuotaFill.style.width = usedPct + '%';
+  // Credits display is handled by updateCreditsUI (auth login event)
 }
 
 function saveProfile() {
@@ -4994,15 +5978,18 @@ function escapeHtmlDash(s) {
 }
 
 function buildRecentCard(e) {
-  const title = e.data ? buildHistoryTitle(e.data) : (e.title || 'ไม่มีชื่อแผน');
+  const title = getLessonTitle(e);
   const fmt = (e.format || 'docx').toLowerCase();
   const badgeText = fmt === 'pdf' ? 'PDF' : 'DOCX';
   const badgeClass = fmt === 'pdf' ? 'pdf' : 'docx';
   const when = formatRelTime(e.ts || e.timestamp || 0);
   const cls = (e.data && e.data.classLevel) || '';
   return (
-    '<div class="dash-recent-card" onclick="loadRecentPlan(\'' + e.id + '\')">' +
-      '<div class="dash-recent-title">' + escapeHtmlDash(title) + '</div>' +
+    '<div class="dash-recent-card" style="position:relative;" onclick="loadRecentPlan(\'' + e.id + '\')">' +
+      '<button onclick="event.stopPropagation(); renameHistoryItem(\'' + e.id + '\')" ' +
+        'title="เปลี่ยนชื่อแผน" ' +
+        'style="position:absolute; top:8px; right:8px; background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">✏️</button>' +
+      '<div class="dash-recent-title" style="padding-right:32px;">' + escapeHtmlDash(title) + '</div>' +
       '<div class="dash-recent-meta">' +
         '<span class="dash-recent-badge ' + badgeClass + '">' + badgeText + '</span>' +
         (cls ? '<span>' + escapeHtmlDash(cls) + '</span><span>·</span>' : '') +
@@ -5077,6 +6064,1272 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// ============================================================
+// UNIT PLANNER (Phase 1)
+// ============================================================
+const UNITS_KEY = 'lpg:units:v1';
+const ACTIVE_UNIT_KEY = 'lpg:activeUnit:v1';
+let _currentUnit = null; // Unit being edited in Unit Editor
+let _activeUnitId = null; // Unit currently being linked from the lesson form
+
+function _newUnitId() {
+  return 'unit-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
+}
+
+// ----- Data layer -----
+function loadUnits() {
+  try {
+    const raw = localStorage.getItem(UNITS_KEY);
+    return raw ? (JSON.parse(raw) || []) : [];
+  } catch(e) { return []; }
+}
+function writeUnits(arr) {
+  try { localStorage.setItem(UNITS_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+function saveUnit(unit) {
+  const arr = loadUnits();
+  unit.updatedAt = Date.now();
+  const i = arr.findIndex(u => u.id === unit.id);
+  if (i >= 0) arr[i] = unit;
+  else { unit.createdAt = Date.now(); arr.unshift(unit); }
+  writeUnits(arr);
+  return unit;
+}
+function deleteUnit(id) {
+  const arr = loadUnits().filter(u => u.id !== id);
+  writeUnits(arr);
+}
+function getUnitById(id) {
+  return loadUnits().find(u => u.id === id) || null;
+}
+function blankUnit() {
+  return {
+    id: _newUnitId(),
+    title: '',
+    unitNo: '',
+    subjectName: '',
+    subjectCode: '',
+    subjectGroup: 'ภาษาต่างประเทศ',
+    classLevel: 'ประถมศึกษาปีที่ 4',
+    semester: '1',
+    year: '',
+    totalHours: '',
+    teacher: '',
+    lessonIds: [], // references to history entry ids
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+}
+
+// ----- Toast -----
+function showUnitToast(msg) {
+  const t = document.getElementById('unit-toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ----- Navigation -----
+function openUnitEditor(unitId) {
+  dashNav('units');
+  const unit = unitId ? getUnitById(unitId) : blankUnit();
+  _currentUnit = unit ? JSON.parse(JSON.stringify(unit)) : blankUnit();
+  // Back-compat: migrate old units that used 'subject' → subjectGroup
+  if (!_currentUnit.subjectGroup && _currentUnit.subject) {
+    _currentUnit.subjectGroup = _currentUnit.subject;
+  }
+  if (!_currentUnit.lessonIds) _currentUnit.lessonIds = [];
+  // Show editor, hide list
+  document.getElementById('unit-list-mode').style.display = 'none';
+  document.getElementById('unit-editor-mode').style.display = '';
+  applyUnitToForm(_currentUnit);
+  goUnitStep(1);
+}
+function backToUnitList() {
+  // Autosave draft (only if title present)
+  if (_currentUnit && (_currentUnit.title || '').trim()) {
+    collectCurrentUnitFromForm();
+    saveUnit(_currentUnit);
+  }
+  document.getElementById('unit-editor-mode').style.display = 'none';
+  document.getElementById('unit-list-mode').style.display = '';
+  renderUnitList();
+}
+function renderUnitList() {
+  const box = document.getElementById('unit-card-list');
+  if (!box) return;
+  // Prune stale lessonIds (referring to deleted history entries) so counts reflect reality
+  const histIds = new Set((typeof loadHistory === 'function' ? loadHistory() : []).map(h => h.id));
+  let unitsRaw = loadUnits();
+  let pruned = false;
+  unitsRaw.forEach(u => {
+    if (!Array.isArray(u.lessonIds)) return;
+    const before = u.lessonIds.length;
+    u.lessonIds = u.lessonIds.filter(id => histIds.has(id));
+    if (u.lessonIds.length !== before) pruned = true;
+  });
+  if (pruned) writeUnits(unitsRaw);
+  const units = unitsRaw.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  if (!units.length) {
+    box.innerHTML =
+      '<div class="unit-empty" style="grid-column:1/-1;">' +
+        '<div class="icon">📦</div>' +
+        '<div class="title">ยังไม่มีหน่วยการเรียนรู้</div>' +
+        '<div class="sub">กดปุ่ม "+ สร้างหน่วยใหม่" ด้านบนเพื่อเริ่มต้น</div>' +
+      '</div>';
+    return;
+  }
+  box.innerHTML = units.map(u => {
+    const n = (u.lessonIds || []).length;
+    const total = parseFloat(u.totalHours) || 0;
+    const when = formatRelTime(u.updatedAt || u.createdAt || 0);
+    const title = escapeHtmlDash(u.title || '(ยังไม่ตั้งชื่อ)');
+    const cls = escapeHtmlDash(u.classLevel || '');
+    const subj = escapeHtmlDash(u.subjectName || u.subjectGroup || u.subject || '');
+    return (
+      '<div class="unit-card" onclick="openUnitEditor(\'' + u.id + '\')">' +
+        '<button class="unit-card-menu" onclick="event.stopPropagation(); confirmDeleteUnit(\'' + u.id + '\');" title="ลบ">🗑</button>' +
+        '<div class="unit-card-icon">📚</div>' +
+        '<div class="unit-card-title">' + title + '</div>' +
+        '<div class="unit-card-sub">' + (subj ? subj + ' · ' : '') + cls + (u.year ? ' · ปี ' + escapeHtmlDash(u.year) : '') + '</div>' +
+        '<div class="unit-card-stats">' +
+          '<span>🗂 <b>' + n + '</b> แผน</span>' +
+          (total ? '<span>⏱ <b>' + total + '</b> ชม.</span>' : '') +
+          '<span style="margin-left:auto;">' + escapeHtmlDash(when) + '</span>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+function confirmDeleteUnit(id) {
+  const u = getUnitById(id);
+  if (!u) return;
+  if (!confirm('ลบหน่วย "' + (u.title || 'ไม่มีชื่อ') + '" ใช่หรือไม่? การกระทำนี้ย้อนกลับไม่ได้')) return;
+  deleteUnit(id);
+  renderUnitList();
+  showUnitToast('🗑 ลบหน่วยแล้ว');
+}
+
+// ----- Step navigation -----
+function goUnitStep(n) {
+  collectCurrentUnitFromForm();
+  document.querySelectorAll('.unit-step-btn').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.step) === n);
+  });
+  document.querySelectorAll('.unit-step-panel').forEach(p => {
+    p.style.display = (Number(p.dataset.ustep) === n) ? '' : 'none';
+  });
+  if (n === 3) renderUnitDashboard();
+  const main = document.getElementById('dash-main-content');
+  if (main) main.scrollTop = 0;
+}
+
+// ----- Apply / Collect form <-> unit object -----
+function applyUnitToForm(u) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val == null ? '' : val; };
+  set('ue-title', u.title);
+  set('ue-unitNo', u.unitNo);
+  set('ue-subjectName', u.subjectName);
+  set('ue-subjectCode', u.subjectCode);
+  set('ue-subjectGroup', u.subjectGroup || 'ภาษาต่างประเทศ');
+  set('ue-classLevel', u.classLevel || 'ประถมศึกษาปีที่ 4');
+  set('ue-semester', u.semester || '1');
+  set('ue-year', u.year);
+  set('ue-totalHours', u.totalHours);
+  set('ue-teacher', u.teacher);
+  const td = document.getElementById('ue-title-display');
+  if (td) td.textContent = (u.title || '').trim() || 'หน่วยการเรียนรู้ใหม่';
+}
+
+function collectCurrentUnitFromForm() {
+  if (!_currentUnit) return;
+  const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  // Only collect if the fields exist (editor panel present)
+  if (!document.getElementById('ue-title')) return;
+  _currentUnit.title = get('ue-title').trim();
+  _currentUnit.unitNo = get('ue-unitNo').trim();
+  _currentUnit.subjectName = get('ue-subjectName').trim();
+  _currentUnit.subjectCode = get('ue-subjectCode').trim();
+  _currentUnit.subjectGroup = get('ue-subjectGroup').trim();
+  _currentUnit.classLevel = get('ue-classLevel');
+  _currentUnit.semester = get('ue-semester');
+  _currentUnit.year = get('ue-year').trim();
+  _currentUnit.totalHours = get('ue-totalHours').trim();
+  _currentUnit.teacher = get('ue-teacher').trim();
+  const td = document.getElementById('ue-title-display');
+  if (td) td.textContent = _currentUnit.title || 'หน่วยการเรียนรู้ใหม่';
+}
+
+function saveCurrentUnit(showToast) {
+  if (!_currentUnit) return;
+  collectCurrentUnitFromForm();
+  if (!_currentUnit.title) {
+    alert('กรุณาตั้งชื่อหน่วยการเรียนรู้ก่อนบันทึก');
+    goUnitStep(1);
+    setTimeout(() => { const el = document.getElementById('ue-title'); if (el) el.focus(); }, 80);
+    return;
+  }
+  saveUnit(_currentUnit);
+  if (showToast) showUnitToast('💾 บันทึกหน่วยแล้ว');
+}
+
+// ----- Step 3: Dashboard renderer -----
+function renderUnitDashboard() {
+  if (!_currentUnit) return;
+  collectCurrentUnitFromForm();
+  const u = _currentUnit;
+  const box = document.getElementById('ue-dashboard');
+  if (!box) return;
+  const esc = escapeHtmlDash;
+  const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const linkedIds = u.lessonIds || [];
+  const lessons = linkedIds
+    .map(id => hist.find(h => h.id === id))
+    .filter(Boolean);
+  const missing = linkedIds.length - lessons.length;
+
+  // Summary cards
+  const summaryHtml =
+    '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:18px;">' +
+      '<div style="background:linear-gradient(135deg,#ede9fe,#ddd6fe); padding:14px 16px; border-radius:12px;">' +
+        '<div style="font-size:0.78rem; color:#6b21a8; font-weight:600;">แผนรายคาบในหน่วย</div>' +
+        '<div style="font-size:1.8rem; font-weight:800; color:#4c1d95;">' + lessons.length + '</div>' +
+      '</div>' +
+      '<div style="background:linear-gradient(135deg,#fef3c7,#fde68a); padding:14px 16px; border-radius:12px;">' +
+        '<div style="font-size:0.78rem; color:#92400e; font-weight:600;">เวลาเรียนรวม</div>' +
+        '<div style="font-size:1.8rem; font-weight:800; color:#78350f;">' + (u.totalHours || '—') + ' <span style="font-size:0.9rem; font-weight:600;">ชม.</span></div>' +
+      '</div>' +
+      '<div style="background:linear-gradient(135deg,#dcfce7,#bbf7d0); padding:14px 16px; border-radius:12px;">' +
+        '<div style="font-size:0.78rem; color:#166534; font-weight:600;">ระดับชั้น</div>' +
+        '<div style="font-size:1.05rem; font-weight:700; color:#14532d; margin-top:8px;">' + esc(u.classLevel || '—') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  // Lesson list
+  let listHtml = '';
+  if (!lessons.length) {
+    listHtml =
+      '<div class="unit-empty">' +
+        '<div class="icon">📝</div>' +
+        '<div class="title">ยังไม่มีแผนรายคาบในหน่วยนี้</div>' +
+        '<div class="sub">ไปที่แท็บ ② แล้วกด "เริ่มสร้างแผนรายคาบใหม่" หรือเพิ่มแผนที่เคยทำด้านล่าง</div>' +
+      '</div>';
+  } else {
+    listHtml =
+      '<div style="margin-bottom:10px; font-weight:600; color:#374151;">📋 รายการแผนในหน่วย (' + lessons.length + ')</div>' +
+      '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">' +
+        lessons.map((h, i) => {
+          const title = getLessonTitle(h);
+          const fields = (h.data && h.data.fields) || {};
+          const obj = fields['main-objective'] || fields['objective'] || '';
+          const when = formatRelTime(h.savedAt || 0);
+          return (
+            '<div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:12px;">' +
+              '<div style="width:32px; height:32px; background:#ede9fe; color:#5b21b6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">' + (i + 1) + '</div>' +
+              '<div style="flex:1; min-width:0;">' +
+                '<div style="font-weight:600; color:#1f2937; font-size:0.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(title) + '</div>' +
+                (obj ? '<div style="font-size:0.8rem; color:#6b7280; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎯 ' + esc(obj) + '</div>' : '') +
+                '<div style="font-size:0.75rem; color:#9ca3af; margin-top:2px;">' + esc(when) + '</div>' +
+              '</div>' +
+              '<button onclick="renameHistoryItem(\'' + esc(h.id) + '\')" style="background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; width:30px; height:30px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.85rem; flex-shrink:0;" title="เปลี่ยนชื่อแผน">✏️</button>' +
+              '<button onclick="openLessonFromUnit(\'' + esc(h.id) + '\')" style="background:#ede9fe; color:#5b21b6; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.8rem; font-weight:600; flex-shrink:0;">เปิดแผน</button>' +
+              '<button onclick="removeUnitLesson(\'' + esc(h.id) + '\')" style="background:#fee2e2; color:#991b1b; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.85rem; flex-shrink:0;" title="เอาออกจากหน่วย">✕</button>' +
+            '</div>'
+          );
+        }).join('') +
+      '</div>';
+  }
+
+  if (missing > 0) {
+    listHtml += '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:0.82rem; color:#991b1b; margin-bottom:10px;">⚠️ มีแผน ' + missing + ' รายการที่ถูกลบไปแล้ว</div>';
+  }
+
+  // Attach existing lessons from history
+  const unlinked = hist.filter(h => !linkedIds.includes(h.id));
+  let attachHtml = '';
+  if (unlinked.length) {
+    attachHtml =
+      '<details style="margin-top:10px; padding:12px 14px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px;">' +
+        '<summary style="cursor:pointer; font-weight:600; color:#5b21b6; font-size:0.88rem;">➕ เพิ่มแผนที่เคยทำไว้เข้าหน่วย (' + unlinked.length + ' รายการ)</summary>' +
+        '<div style="margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:300px; overflow-y:auto;">' +
+          unlinked.map(h => {
+            const title = getLessonTitle(h);
+            const when = formatRelTime(h.savedAt || 0);
+            return (
+              '<div style="display:flex; align-items:center; gap:10px; padding:8px 10px; background:white; border-radius:8px; border:1px solid #f3f4f6;">' +
+                '<div style="flex:1; min-width:0;">' +
+                  '<div style="font-size:0.85rem; color:#374151; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(title) + '</div>' +
+                  '<div style="font-size:0.72rem; color:#9ca3af;">' + esc(when) + '</div>' +
+                '</div>' +
+                '<button onclick="attachLessonToUnit(\'' + esc(h.id) + '\')" style="background:#5b21b6; color:white; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:0.78rem;">+ เพิ่ม</button>' +
+              '</div>'
+            );
+          }).join('') +
+        '</div>' +
+      '</details>';
+  }
+
+  box.innerHTML = summaryHtml + listHtml + attachHtml;
+}
+
+function attachLessonToUnit(historyId) {
+  if (!_currentUnit) return;
+  if (!_currentUnit.lessonIds) _currentUnit.lessonIds = [];
+  if (!_currentUnit.lessonIds.includes(historyId)) {
+    _currentUnit.lessonIds.push(historyId);
+    saveUnit(_currentUnit);
+    showUnitToast('✅ เพิ่มแผนในหน่วยแล้ว');
+    renderUnitDashboard();
+  }
+}
+function removeUnitLesson(historyId) {
+  if (!_currentUnit) return;
+  if (!confirm('เอาแผนนี้ออกจากหน่วย? (ตัวแผนจะยังอยู่ในคลังของคุณ)')) return;
+  _currentUnit.lessonIds = (_currentUnit.lessonIds || []).filter(id => id !== historyId);
+  saveUnit(_currentUnit);
+  showUnitToast('➖ เอาออกจากหน่วยแล้ว');
+  renderUnitDashboard();
+}
+function openLessonFromUnit(historyId) {
+  // Open the lesson plan in form view using history item
+  if (typeof applyHistoryItem === 'function') {
+    openFormView();
+    setTimeout(() => applyHistoryItem(historyId), 80);
+  }
+}
+
+// ----- Step 2: Launch lesson creator with unit context -----
+function startLessonForUnit() {
+  if (!_currentUnit) return;
+  collectCurrentUnitFromForm();
+  if (!_currentUnit.title) {
+    alert('กรุณาตั้งชื่อหน่วยและกด "ถัดไป" จากแท็บ ① ก่อน');
+    goUnitStep(1);
+    return;
+  }
+  // Persist the unit so we can come back to it
+  saveUnit(_currentUnit);
+  _activeUnitId = _currentUnit.id;
+  try { localStorage.setItem(ACTIVE_UNIT_KEY, _activeUnitId); } catch(e) {}
+  // Pre-fill the lesson form with unit info
+  prefillLessonFormFromUnit(_currentUnit);
+  // Show context banner
+  showUnitContextBanner();
+  openFormView();
+}
+
+function prefillLessonFormFromUnit(u) {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val != null && val !== '') el.value = val;
+  };
+  // Map every unit field onto its matching lesson-form input
+  set('subject-name', u.subjectName);
+  set('subject-code', u.subjectCode);            // field may not exist — set() no-ops safely
+  set('subject-group', u.subjectGroup);
+  set('unit-number', u.unitNo);
+  set('teacher-name', u.teacher);
+  set('academic-year', u.year);
+  const sem = document.getElementById('semester');
+  if (sem && u.semester) sem.value = u.semester;
+  const cls = document.getElementById('class-level');
+  if (cls && u.classLevel) {
+    cls.value = u.classLevel;
+    // Fire change so the indicator list re-renders for the chosen level
+    cls.dispatchEvent(new Event('change'));
+  }
+  // Persist the pre-filled values into the draft so reloads don't lose them
+  if (typeof saveDraft === 'function') {
+    try { saveDraft(true); } catch(e) {}
+  }
+}
+
+function showUnitContextBanner() {
+  const unit = _activeUnitId ? getUnitById(_activeUnitId) : null;
+  const banner = document.getElementById('unit-context-banner');
+  const titleEl = document.getElementById('unit-context-title');
+  if (!banner || !titleEl) return;
+  if (unit && unit.title) {
+    banner.style.display = 'flex';
+    titleEl.textContent = unit.title;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+function hideUnitContextBanner() {
+  const banner = document.getElementById('unit-context-banner');
+  if (banner) banner.style.display = 'none';
+}
+
+// Let user pick a unit to attach this plan to. The actual link is created on Export.
+function addCurrentPlanToUnit() {
+  const units = (typeof loadUnits === 'function') ? loadUnits() : [];
+  if (!units.length) {
+    if (confirm('ยังไม่มีหน่วยการเรียนรู้ในระบบ\nต้องการสร้างหน่วยใหม่ก่อนหรือไม่?')) {
+      openDashboardView();
+      setTimeout(() => { if (typeof dashNav === 'function') dashNav('units'); }, 60);
+    }
+    return;
+  }
+  openUnitPickerModal(units);
+}
+
+function openUnitPickerModal(units) {
+  // Remove any prior modal
+  const prior = document.getElementById('unit-picker-modal');
+  if (prior) prior.remove();
+
+  const sorted = [...units].sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  const activeId = _activeUnitId || '';
+  const esc = escapeHtmlDash;
+
+  const modal = document.createElement('div');
+  modal.id = 'unit-picker-modal';
+  modal.style.cssText = 'position:fixed; inset:0; background:rgba(17,24,39,0.55); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+  const card = document.createElement('div');
+  card.style.cssText = 'background:white; border-radius:14px; max-width:560px; width:100%; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;';
+  card.innerHTML =
+    '<div style="padding:18px 22px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center;">' +
+      '<div><div style="font-size:1.1rem; font-weight:700; color:#5b21b6;">📎 เลือกหน่วยการเรียนรู้</div>' +
+      '<div style="font-size:0.82rem; color:#6b7280; margin-top:2px;">แผนนี้จะถูกเพิ่มเข้าหน่วยที่เลือกโดยอัตโนมัติเมื่อคุณกด Export</div></div>' +
+      '<button onclick="document.getElementById(\'unit-picker-modal\').remove()" style="background:transparent; border:none; font-size:1.3rem; color:#9ca3af; cursor:pointer; padding:4px 8px;">✕</button>' +
+    '</div>' +
+    '<div style="padding:12px 18px; overflow-y:auto; flex:1;">' +
+      sorted.map(u => {
+        const n = (u.lessonIds || []).length;
+        const isActive = u.id === activeId;
+        const subj = esc(u.subjectName || u.subjectGroup || '');
+        const cls = esc(u.classLevel || '');
+        return (
+          '<button onclick="pickUnitForCurrentPlan(\'' + esc(u.id) + '\')" ' +
+            'style="display:block; width:100%; text-align:left; background:' + (isActive ? '#ede9fe' : '#fff') + '; border:1px solid ' + (isActive ? '#a78bfa' : '#e5e7eb') + '; border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-family:inherit;">' +
+            '<div style="font-weight:600; color:#1f2937; margin-bottom:4px;">📚 ' + esc(u.title || '(ยังไม่ตั้งชื่อ)') + (isActive ? ' <span style="color:#7c3aed; font-size:0.75rem;">• หน่วยปัจจุบัน</span>' : '') + '</div>' +
+            '<div style="font-size:0.78rem; color:#6b7280;">' + (subj ? subj + ' · ' : '') + cls + ' · มี ' + n + ' แผน</div>' +
+          '</button>'
+        );
+      }).join('') +
+    '</div>' +
+    (activeId ?
+      '<div style="padding:10px 18px 16px; border-top:1px solid #e5e7eb;">' +
+        '<button onclick="clearActiveUnitContext()" style="width:100%; background:#fef2f2; color:#991b1b; border:1px solid #fecaca; padding:9px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.85rem;">✖ ยกเลิกการเชื่อมโยงหน่วยปัจจุบัน</button>' +
+      '</div>'
+    : '');
+
+  modal.appendChild(card);
+  document.body.appendChild(modal);
+}
+
+function pickUnitForCurrentPlan(unitId) {
+  const unit = getUnitById(unitId);
+  if (!unit) return;
+  _activeUnitId = unitId;
+  try { localStorage.setItem(ACTIVE_UNIT_KEY, unitId); } catch(e) {}
+  if (typeof showUnitContextBanner === 'function') showUnitContextBanner();
+  const m = document.getElementById('unit-picker-modal');
+  if (m) m.remove();
+  const ind = (typeof ensureSaveIndicator === 'function') ? ensureSaveIndicator() : null;
+  if (ind) {
+    ind.textContent = '✅ แผนนี้จะถูกเพิ่มเข้าหน่วย "' + unit.title + '" เมื่อกด Export';
+    ind.style.background = '#dcfce7';
+    ind.style.borderColor = '#86efac';
+    ind.style.color = '#166534';
+    ind.style.opacity = '1';
+    clearTimeout(ind._fadeTimer);
+    ind._fadeTimer = setTimeout(() => { ind.style.opacity = '0.4'; }, 4500);
+  } else {
+    alert('✅ แผนนี้จะถูกเพิ่มเข้าหน่วย "' + unit.title + '" เมื่อกด Export');
+  }
+}
+
+function clearActiveUnitContext() {
+  _activeUnitId = null;
+  try { localStorage.removeItem(ACTIVE_UNIT_KEY); } catch(e) {}
+  if (typeof hideUnitContextBanner === 'function') hideUnitContextBanner();
+  const m = document.getElementById('unit-picker-modal');
+  if (m) m.remove();
+}
+
+window.pickUnitForCurrentPlan = pickUnitForCurrentPlan;
+window.clearActiveUnitContext = clearActiveUnitContext;
+
+function backFromFormView() {
+  if (_activeUnitId) {
+    // Return to the unit editor's dashboard step
+    const unit = getUnitById(_activeUnitId);
+    _activeUnitId = null;
+    try { localStorage.removeItem(ACTIVE_UNIT_KEY); } catch(e) {}
+    hideUnitContextBanner();
+    if (unit) {
+      openDashboardView();
+      setTimeout(() => openUnitEditor(unit.id), 50);
+      setTimeout(() => goUnitStep(3), 120);
+      return;
+    }
+  }
+  openDashboardView();
+}
+
+// ----- DOCX Export (simplified: unit header + list of lesson references) -----
+function exportUnitDocx() {
+  if (!_currentUnit) return;
+  collectCurrentUnitFromForm();
+  const u = _currentUnit;
+  if (!u.title) {
+    alert('กรุณาตั้งชื่อหน่วยก่อน Export');
+    goUnitStep(1);
+    return;
+  }
+  saveUnit(u);
+
+  const esc = s => String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const para = (text, opts) => {
+    opts = opts || {};
+    const sz = opts.sz || 28;
+    const bold = opts.bold ? '<w:b/>' : '';
+    const align = opts.align ? '<w:jc w:val="' + opts.align + '"/>' : '';
+    const color = opts.color ? '<w:color w:val="' + opts.color + '"/>' : '';
+    const spacing = opts.spaceBefore || opts.spaceAfter
+      ? '<w:spacing' + (opts.spaceBefore ? ' w:before="' + opts.spaceBefore + '"' : '') + (opts.spaceAfter ? ' w:after="' + opts.spaceAfter + '"' : '') + '/>'
+      : '';
+    return '<w:p><w:pPr>' + align + spacing + '</w:pPr><w:r><w:rPr>' + bold + color +
+      '<w:sz w:val="' + sz + '"/><w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/>' +
+      '</w:rPr><w:t xml:space="preserve">' + esc(text) + '</w:t></w:r></w:p>';
+  };
+  const heading = (text) =>
+    '<w:p><w:pPr><w:spacing w:before="240" w:after="120"/></w:pPr>' +
+      '<w:r><w:rPr><w:b/><w:color w:val="5B21B6"/><w:sz w:val="32"/>' +
+      '<w:rFonts w:ascii="TH Sarabun New" w:hAnsi="TH Sarabun New" w:cs="TH Sarabun New"/></w:rPr>' +
+      '<w:t xml:space="preserve">' + esc(text) + '</w:t></w:r></w:p>';
+  const infoRow = (label, val) =>
+    '<w:tr>' +
+      '<w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="F5F3FF"/></w:tcPr>' +
+        para(label, { bold:true, sz:26, color:'5B21B6' }) +
+      '</w:tc>' +
+      '<w:tc><w:tcPr><w:tcW w:w="6500" w:type="dxa"/></w:tcPr>' +
+        para(val || '-', { sz:26 }) +
+      '</w:tc></w:tr>';
+  const tblBorders =
+    '<w:tblBorders>' +
+      '<w:top w:val="single" w:sz="4" w:color="C4B5FD"/>' +
+      '<w:left w:val="single" w:sz="4" w:color="C4B5FD"/>' +
+      '<w:bottom w:val="single" w:sz="4" w:color="C4B5FD"/>' +
+      '<w:right w:val="single" w:sz="4" w:color="C4B5FD"/>' +
+      '<w:insideH w:val="single" w:sz="4" w:color="C4B5FD"/>' +
+      '<w:insideV w:val="single" w:sz="4" w:color="C4B5FD"/>' +
+    '</w:tblBorders>';
+  const infoTable = () => {
+    const rows = [
+      infoRow('ชื่อหน่วยการเรียนรู้', u.title),
+      infoRow('หน่วยที่', u.unitNo),
+      infoRow('รายวิชา', u.subjectName),
+      infoRow('รหัสวิชา', u.subjectCode),
+      infoRow('กลุ่มสาระการเรียนรู้', u.subjectGroup),
+      infoRow('ระดับชั้น', u.classLevel),
+      infoRow('ภาคเรียน', 'ภาคเรียนที่ ' + (u.semester || '-') + (u.year ? ' · ปีการศึกษา ' + u.year : '')),
+      infoRow('เวลาเรียน', (u.totalHours || '-') + ' ชั่วโมง'),
+      infoRow('ครูผู้สอน', u.teacher)
+    ].join('');
+    return '<w:tbl><w:tblPr><w:tblW w:w="9500" w:type="dxa"/>' + tblBorders + '</w:tblPr>' + rows + '</w:tbl>';
+  };
+
+  const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const lessons = (u.lessonIds || [])
+    .map(id => hist.find(h => h.id === id))
+    .filter(Boolean);
+
+  const lessonHeader =
+    '<w:tr><w:trPr><w:tblHeader/></w:trPr>' +
+      ['ลำดับ','ชื่อแผน','ชั้น','หน่วย','วันที่บันทึก'].map((h, i) => {
+        const w = [700, 4000, 1600, 1100, 2100][i];
+        return '<w:tc><w:tcPr><w:tcW w:w="' + w + '" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="DDD6FE"/></w:tcPr>' +
+          para(h, { bold:true, sz:24, color:'5B21B6', align:'center' }) + '</w:tc>';
+      }).join('') +
+    '</w:tr>';
+  const lessonRows = lessons.map((h, i) => {
+    const f = (h.data && h.data.fields) || {};
+    const title = getLessonTitle(h) || f['plan-name'] || f['subject-name'] || ('แผน #' + (i+1));
+    const cls = f['class-level'] || '-';
+    const unitNo = f['unit-number'] || '-';
+    const d = h.savedAt ? new Date(h.savedAt).toLocaleDateString('th-TH') : '-';
+    const cells = [
+      [String(i+1), 700, 'center'],
+      [title, 4000, 'left'],
+      [cls, 1600, 'center'],
+      [String(unitNo), 1100, 'center'],
+      [d, 2100, 'center']
+    ];
+    return '<w:tr>' + cells.map(c =>
+      '<w:tc><w:tcPr><w:tcW w:w="' + c[1] + '" w:type="dxa"/></w:tcPr>' +
+        para(c[0], { sz:24, align:c[2] }) + '</w:tc>'
+    ).join('') + '</w:tr>';
+  }).join('') || '<w:tr><w:tc><w:tcPr><w:tcW w:w="9500" w:type="dxa"/><w:gridSpan w:val="5"/></w:tcPr>' + para('(ยังไม่มีแผนรายคาบในหน่วย)', { sz:24, color:'9CA3AF', align:'center' }) + '</w:tc></w:tr>';
+  const lessonTable = '<w:tbl><w:tblPr><w:tblW w:w="9500" w:type="dxa"/>' + tblBorders + '</w:tblPr>' + lessonHeader + lessonRows + '</w:tbl>';
+
+  const bodyXml =
+    para('แผนการจัดการเรียนรู้แบบหน่วย (Unit Plan)', { bold:true, sz:40, align:'center', color:'5B21B6' }) +
+    para(u.title, { bold:true, sz:36, align:'center' }) +
+    para(' ', { sz:20 }) +
+    heading('① ข้อมูลหน่วยการเรียนรู้') +
+    infoTable() +
+    heading('② รายการแผนรายคาบในหน่วย (' + lessons.length + ' แผน)') +
+    lessonTable;
+
+  const documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+      '<w:body>' + bodyXml +
+        '<w:sectPr>' +
+          '<w:pgSz w:w="11906" w:h="16838"/>' +
+          '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="720" w:footer="720" w:gutter="0"/>' +
+        '</w:sectPr>' +
+      '</w:body>' +
+    '</w:document>';
+
+  const contentTypesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+    '</Types>';
+  const rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
+    '</Relationships>';
+  const docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+
+  const zip = new PizZip();
+  zip.file('[Content_Types].xml', contentTypesXml);
+  zip.file('_rels/.rels', rootRels);
+  zip.file('word/_rels/document.xml.rels', docRels);
+  zip.file('word/document.xml', documentXml);
+
+  const blob = zip.generate({
+    type: 'blob',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  });
+  const fname = ('แผนหน่วย_' + (u.unitNo ? u.unitNo + '_' : '') + (u.title || 'unit')).replace(/\s+/g,'_') + '.docx';
+  saveAs(blob, fname);
+  showUnitToast('📝 Export DOCX แล้ว');
+}
+
+
+// ----- Hook into dashNav to refresh unit list -----
+(function hookDashNav() {
+  const orig = window.dashNav;
+  if (typeof orig !== 'function') return;
+  window.dashNav = function(key) {
+    orig(key);
+    if (key === 'units') {
+      // Show list mode by default when navigating via sidebar
+      const editor = document.getElementById('unit-editor-mode');
+      const list = document.getElementById('unit-list-mode');
+      if (editor && editor.style.display !== 'none' && !_currentUnit) {
+        editor.style.display = 'none';
+        if (list) list.style.display = '';
+      }
+      renderUnitList();
+    }
+  };
+})();
+
+// Expose
+function syncUnitTitleDisplay(val) {
+  const td = document.getElementById('ue-title-display');
+  if (td) td.textContent = (val || '').trim() || 'หน่วยการเรียนรู้ใหม่';
+}
+function onUnitClassChange(val) {
+  if (_currentUnit) _currentUnit.classLevel = val;
+}
+// Restore active-unit context on page load (e.g. user refreshed while on form view)
+(function restoreActiveUnit() {
+  try {
+    const id = localStorage.getItem(ACTIVE_UNIT_KEY);
+    if (id && getUnitById(id)) {
+      _activeUnitId = id;
+      // Only show the banner if the dashboard is hidden (form view is active)
+      const dash = document.getElementById('dashboard-view');
+      if (dash && dash.style.display === 'none') showUnitContextBanner();
+    }
+  } catch(e) {}
+})();
+window.syncUnitTitleDisplay = syncUnitTitleDisplay;
+window.onUnitClassChange = onUnitClassChange;
+window.openUnitEditor = openUnitEditor;
+window.backToUnitList = backToUnitList;
+window.goUnitStep = goUnitStep;
+window.saveCurrentUnit = saveCurrentUnit;
+window.exportUnitDocx = exportUnitDocx;
+window.confirmDeleteUnit = confirmDeleteUnit;
+window.startLessonForUnit = startLessonForUnit;
+window.addCurrentPlanToUnit = addCurrentPlanToUnit;
+window.backFromFormView = backFromFormView;
+window.openLessonFromUnit = openLessonFromUnit;
+window.attachLessonToUnit = attachLessonToUnit;
+window.removeUnitLesson = removeUnitLesson;
+window.renderUnitDashboard = renderUnitDashboard;
+</script>
+
+<!-- ============ AUTH MODAL ============ -->
+<div id="auth-overlay" class="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+  <div class="auth-modal">
+    <h2 id="auth-title">เข้าสู่ระบบ</h2>
+    <div class="auth-sub" id="auth-subtitle">เข้าสู่ระบบเพื่อบันทึกแผนการสอนของคุณ</div>
+
+    <form id="auth-form" autocomplete="on" novalidate>
+      <div id="auth-name-row" style="display:none">
+        <label for="auth-name">ชื่อที่แสดง (ไม่บังคับ)</label>
+        <input id="auth-name" type="text" autocomplete="name" />
+      </div>
+
+      <label for="auth-email">อีเมล</label>
+      <input id="auth-email" type="email" autocomplete="email" required />
+
+      <label for="auth-password">รหัสผ่าน</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required minlength="8" />
+
+      <div class="auth-row">
+        <label><input id="auth-remember" type="checkbox" checked /> จดจำการเข้าสู่ระบบ</label>
+        <a id="auth-forgot" style="color:#64748b;font-size:.85rem;cursor:pointer;display:none">ลืมรหัสผ่าน?</a>
+      </div>
+
+      <div id="auth-error" class="auth-error"></div>
+
+      <button type="submit" id="auth-submit" class="auth-primary">เข้าสู่ระบบ</button>
+    </form>
+
+    <div class="auth-divider" id="auth-google-divider">หรือ</div>
+    <div id="auth-google-btn"></div>
+
+    <div class="auth-toggle">
+      <span id="auth-toggle-text">ยังไม่มีบัญชี?</span>
+      <a id="auth-toggle-link">สมัครสมาชิก</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AUTH CLIENT ============ -->
+<script>
+(function () {
+  // ─── Configuration ────────────────────────────────────
+  // Edit these to match your backend deployment:
+  // Same-origin by default (frontend served from the auth server itself).
+  // Override with window.AUTH_API_BASE for split deployments.
+  const AUTH_API = window.AUTH_API_BASE || '';
+  const GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || ''; // set to enable Google sign-in
+
+  // ─── State ────────────────────────────────────────────
+  let accessToken = null;
+  let currentUser = null;
+  let authMode = 'login'; // 'login' | 'register'
+
+  // ─── Helpers ──────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const overlay = $('auth-overlay');
+
+  function showAuth() {
+    overlay.classList.add('show');
+    const dash = $('dashboard-view');
+    if (dash) dash.style.display = 'none';
+    setTimeout(() => $('auth-email').focus(), 50);
+  }
+  function hideAuth() {
+    overlay.classList.remove('show');
+    const dash = $('dashboard-view');
+    if (dash) dash.style.display = '';
+    clearError();
+  }
+  function showError(msg) { const e = $('auth-error'); e.textContent = msg; e.classList.add('show'); }
+  function clearError() { $('auth-error').classList.remove('show'); }
+
+  function setMode(mode) {
+    authMode = mode;
+    const isRegister = mode === 'register';
+    $('auth-title').textContent = isRegister ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+    $('auth-subtitle').textContent = isRegister
+      ? 'สร้างบัญชีใหม่เพื่อเริ่มสร้างแผนการสอน'
+      : 'เข้าสู่ระบบเพื่อบันทึกแผนการสอนของคุณ';
+    $('auth-submit').textContent = isRegister ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+    $('auth-name-row').style.display = isRegister ? 'block' : 'none';
+    $('auth-password').autocomplete = isRegister ? 'new-password' : 'current-password';
+    $('auth-toggle-text').textContent = isRegister ? 'มีบัญชีแล้ว?' : 'ยังไม่มีบัญชี?';
+    $('auth-toggle-link').textContent = isRegister ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+    clearError();
+  }
+
+  async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    if (accessToken && !opts.skipAuth) headers['Authorization'] = 'Bearer ' + accessToken;
+    const res = await fetch(AUTH_API + path, {
+      method: opts.method || 'GET',
+      headers,
+      credentials: 'include',     // send refresh cookie
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+    let data = null;
+    try { data = await res.json(); } catch { /* no body */ }
+    if (!res.ok) {
+      const err = new Error(data?.message || data?.error || 'request_failed');
+      err.status = res.status;
+      err.code = data?.error;
+      throw err;
+    }
+    return data;
+  }
+
+  function applySession({ accessToken: at, user }) {
+    accessToken = at;
+    currentUser = user;
+    window.currentUser = user;
+    window.dispatchEvent(new CustomEvent('auth:login', { detail: { user } }));
+    hideAuth();
+    renderUserBar();
+  }
+
+  function clearSession() {
+    accessToken = null;
+    currentUser = null;
+    window.currentUser = null;
+    window.dispatchEvent(new CustomEvent('auth:logout'));
+    renderUserBar();
+  }
+
+  // ─── Auto-restore session on page load (via refresh cookie) ───
+  async function tryRestoreSession() {
+    try {
+      const out = await api('/auth/refresh', { method: 'POST', skipAuth: true });
+      applySession(out);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // ─── Form handlers ────────────────────────────────────
+  async function handleSubmit(e) {
+    e.preventDefault();
+    clearError();
+    const email = $('auth-email').value.trim();
+    const password = $('auth-password').value;
+    const remember = $('auth-remember').checked;
+    const displayName = $('auth-name').value.trim();
+    const btn = $('auth-submit');
+    btn.disabled = true;
+    btn.textContent = 'กำลังประมวลผล...';
+    try {
+      const path = authMode === 'register' ? '/auth/register' : '/auth/login';
+      const body = authMode === 'register'
+        ? { email, password, displayName, remember }
+        : { email, password, remember };
+      const out = await api(path, { method: 'POST', skipAuth: true, body });
+      applySession(out);
+    } catch (err) {
+      showError(err.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = authMode === 'register' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+    }
+  }
+
+  async function handleGoogleCredential(response) {
+    clearError();
+    try {
+      const remember = $('auth-remember').checked;
+      const out = await api('/auth/google', {
+        method: 'POST', skipAuth: true,
+        body: { credential: response.credential, remember },
+      });
+      applySession(out);
+    } catch (err) {
+      showError(err.message || 'Google sign-in ล้มเหลว');
+    }
+  }
+
+  function initGoogle() {
+    if (!GOOGLE_CLIENT_ID) {
+      $('auth-google-divider').style.display = 'none';
+      $('auth-google-btn').style.display = 'none';
+      return;
+    }
+    const tryInit = () => {
+      if (!window.google?.accounts?.id) return setTimeout(tryInit, 200);
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+      });
+      window.google.accounts.id.renderButton($('auth-google-btn'), {
+        theme: 'outline', size: 'large', text: 'continue_with', width: 360, locale: 'th',
+      });
+    };
+    tryInit();
+  }
+
+  async function logout() {
+    try { await api('/auth/logout', { method: 'POST', skipAuth: true }); } catch {}
+    clearSession();
+    showAuth();
+  }
+
+  // Wire the existing logout button in the dashboard topbar; update greeting/avatar with the user info.
+  function renderUserBar() {
+    const btn = $('dash-logout-btn');
+    if (btn && !btn._wired) {
+      btn.addEventListener('click', logout);
+      btn._wired = true;
+    }
+    if (currentUser) {
+      const name = currentUser.displayName || currentUser.email.split('@')[0];
+      const nameEl = $('dash-user-name');
+      if (nameEl) nameEl.textContent = name;
+      const avatar = $('dash-avatar');
+      if (avatar) {
+        const initial = (name[0] || '?').toUpperCase();
+        avatar.textContent = initial;
+      }
+      // Update credits display from session data
+      if (typeof currentUser.credits === 'number' && window.updateCreditsUI) {
+        window.updateCreditsUI(currentUser.credits);
+      }
+    }
+  }
+
+  // ─── Auto-refresh access token on 401 ─────────────────
+  // Wrap fetch for app code that calls protected endpoints later.
+  window.authFetch = async function (path, opts = {}) {
+    let res = await fetch(AUTH_API + path, {
+      ...opts,
+      headers: { ...(opts.headers || {}), 'Authorization': accessToken ? 'Bearer ' + accessToken : '' },
+      credentials: 'include',
+    });
+    if (res.status === 401) {
+      const refreshed = await tryRestoreSession();
+      if (!refreshed) { showAuth(); throw new Error('unauthenticated'); }
+      res = await fetch(AUTH_API + path, {
+        ...opts,
+        headers: { ...(opts.headers || {}), 'Authorization': 'Bearer ' + accessToken },
+        credentials: 'include',
+      });
+    }
+    return res;
+  };
+
+  // Public API for app code
+  window.auth = {
+    showLogin: () => { setMode('login'); showAuth(); },
+    showRegister: () => { setMode('register'); showAuth(); },
+    logout,
+    getUser: () => currentUser,
+    getAccessToken: () => accessToken,
+  };
+
+  // ─── DEV TOGGLE ───────────────────────────────────────
+  // Set to false to re-enable the login screen.
+  // (Auth backend code is kept intact; this just bypasses the gate so you can work on the dashboard.)
+  const AUTH_DISABLED = (window.AUTH_DISABLED === true); // default = enabled (login required)
+
+  // ─── Boot ─────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', async () => {
+    $('auth-form').addEventListener('submit', handleSubmit);
+    $('auth-toggle-link').addEventListener('click', () => setMode(authMode === 'login' ? 'register' : 'login'));
+    setMode('login');
+
+    if (AUTH_DISABLED) {
+      // Hide login UI completely; also hide the logout button on the topbar
+      const ov = $('auth-overlay'); if (ov) ov.style.display = 'none';
+      const lo = $('dash-logout-btn'); if (lo) lo.style.display = 'none';
+      return;
+    }
+
+    initGoogle();
+
+    // Hide dashboard immediately until we know the auth state — prevents flash of main menu
+    const dash = $('dashboard-view');
+    if (dash) dash.style.display = 'none';
+
+    const restored = await tryRestoreSession();
+    if (restored) {
+      renderUserBar();
+    } else {
+      // Force login: dashboard stays hidden, login screen shown
+      showAuth();
+    }
+  });
+})();
+</script>
+
+<!-- ============ TOP-UP MODAL ============ -->
+<div id="topup-overlay" class="topup-overlay" style="display:none;" onclick="if(event.target===this)closeTopupModal()">
+  <div class="topup-modal">
+    <button class="topup-modal-close" onclick="closeTopupModal()">✕</button>
+    <div class="topup-modal-header">
+      <div style="font-size:2.2rem;">⚡</div>
+      <h2>เติมเครดิตทำแผน</h2>
+      <p>ยอดคงเหลือ: <b id="topup-current-credits">—</b> แผน</p>
+    </div>
+    <div class="topup-modal-body">
+      <!-- Packages grid -->
+      <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">เลือกแพ็กเกจ</div>
+      <div class="topup-packages-grid" id="topup-packages-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Contact / payment info (shown after selecting a package) -->
+      <div id="topup-contact-box" class="topup-contact-box" style="display:none;">
+        <h4>📋 วิธีชำระเงิน</h4>
+        <div id="topup-payment-instructions">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Transaction history tab -->
+      <div style="margin-top:20px; border-top:1px solid #f3f4f6; padding-top:16px;">
+        <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">ประวัติเครดิต</div>
+        <div id="topup-history-list" class="topup-history-list">
+          <div style="font-size:.85rem; color:#9ca3af; text-align:center; padding:12px;">กำลังโหลด...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Top-up Modal Logic ────────────────────────────────────
+(function() {
+  let _selectedPkg = null;
+  let _packages = [];
+
+  async function loadPackagesAndBalance() {
+    try {
+      const [pkgRes, balRes] = await Promise.all([
+        window.authFetch ? window.authFetch('/api/credits/packages') : fetch('/api/credits/packages'),
+        window.authFetch ? window.authFetch('/api/credits/balance') : fetch('/api/credits/balance'),
+      ]);
+      if (pkgRes.ok) {
+        const data = await pkgRes.json();
+        _packages = data.packages || [];
+      }
+      if (balRes.ok) {
+        const data = await balRes.json();
+        updateCreditsUI(data.credits);
+      }
+    } catch(e) { console.error('topup load error', e); }
+  }
+
+  function updateCreditsUI(credits) {
+    // Topbar
+    const qtText = document.getElementById('dash-quota-text');
+    if (qtText) qtText.textContent = credits;
+    const qtFill = document.getElementById('dash-quota-fill');
+    if (qtFill) {
+      const max = Math.max(credits, 10);
+      qtFill.style.width = Math.min(100, (credits / max) * 100) + '%';
+    }
+    // Profile panel
+    const pqText = document.getElementById('profile-quota-text');
+    if (pqText) pqText.textContent = credits + ' แผน';
+    // Modal
+    const mc = document.getElementById('topup-current-credits');
+    if (mc) mc.textContent = credits;
+  }
+
+  function renderPackages() {
+    const grid = document.getElementById('topup-packages-grid');
+    if (!grid) return;
+    if (_packages.length === 0) {
+      grid.innerHTML = '<div style="color:#9ca3af;font-size:.85rem;text-align:center;padding:10px;grid-column:1/-1">กำลังโหลดแพ็กเกจ...</div>';
+      return;
+    }
+    grid.innerHTML = _packages.map(pkg => {
+      const perPlan = (pkg.price_thb / pkg.credits).toFixed(2);
+      const badge = pkg.badge ? `<div class="topup-pkg-badge">${pkg.badge}</div>` : '';
+      return `<div class="topup-pkg-card" data-pkg-id="${pkg.id}" onclick="window._selectPkg('${pkg.id}')">
+        ${badge}
+        <div class="pkg-credits">${pkg.credits}</div>
+        <div class="pkg-label">แผน</div>
+        <div class="pkg-price">฿${pkg.price_thb}</div>
+        <div class="pkg-per">${perPlan} บาท/แผน</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function renderHistory() {
+    const list = document.getElementById('topup-history-list');
+    if (!list) return;
+    try {
+      const res = window.authFetch
+        ? await window.authFetch('/api/credits/history?limit=10')
+        : await fetch('/api/credits/history?limit=10');
+      if (!res.ok) throw new Error('fetch failed');
+      const { history } = await res.json();
+      if (!history || history.length === 0) {
+        list.innerHTML = '<div style="font-size:.85rem;color:#9ca3af;text-align:center;padding:12px;">ยังไม่มีประวัติการใช้งาน</div>';
+        return;
+      }
+      const typeLabel = { topup:'เติมเครดิต', usage:'ใช้งาน AI', bonus:'โบนัสฟรี', manual_grant:'Admin เพิ่ม', manual_deduct:'Admin ปรับ', refund:'คืนเครดิต' };
+      list.innerHTML = history.map(t => {
+        const sign = t.amount > 0 ? '+' : '';
+        const cls  = t.amount > 0 ? 'plus' : 'minus';
+        const date = new Date(t.created_at).toLocaleDateString('th-TH', { day:'numeric', month:'short' });
+        const label = typeLabel[t.type] || t.type;
+        return `<div class="topup-history-item">
+          <div>
+            <div style="font-weight:600;color:#374151;">${label}</div>
+            <div style="font-size:.75rem;color:#9ca3af;">${t.note || ''} · ${date}</div>
+          </div>
+          <div class="topup-history-amt ${cls}">${sign}${t.amount} แผน</div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="font-size:.85rem;color:#9ca3af;text-align:center;padding:12px;">ไม่สามารถโหลดประวัติได้</div>';
+    }
+  }
+
+  window._selectPkg = function(pkgId) {
+    _selectedPkg = _packages.find(p => p.id === pkgId);
+    document.querySelectorAll('.topup-pkg-card').forEach(el => {
+      el.classList.toggle('selected', el.dataset.pkgId === pkgId);
+    });
+    if (!_selectedPkg) return;
+
+    // Show contact box with loading spinner, then auto-fetch QR
+    const box = document.getElementById('topup-contact-box');
+    const instr = document.getElementById('topup-payment-instructions');
+    if (box && instr) {
+      box.style.display = '';
+      instr.innerHTML = `<div style="text-align:center; padding:24px 0; color:#6b7280;">
+        <div style="font-size:1.8rem; margin-bottom:8px;">⏳</div>
+        <div style="font-size:.88rem;">กำลังโหลด QR...</div>
+      </div>`;
+      confirmTopup();
+    }
+  };
+
+  async function confirmTopup() {
+    if (!_selectedPkg) return;
+    try {
+      const res = window.authFetch
+        ? await window.authFetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) })
+        : await fetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) });
+      const data = await res.json();
+      const instr = document.getElementById('topup-payment-instructions');
+      if (data.mode === 'manual') {
+        const isStatic = data.qr_type === 'static';
+        const amountLabel = isStatic
+          ? `<div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; padding:12px; margin:10px 0; text-align:center;">
+               <div style="font-size:.75rem; color:#92400e; font-weight:600;">⚠️ กรุณาพิมพ์ยอดเงินเอง</div>
+               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${_selectedPkg.price_thb}.00</div>
+             </div>`
+          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${_selectedPkg.price_thb}.00</div>`;
+        const qr = data.qr_image
+          ? `<div style="text-align:center; margin:12px 0;">
+               <div style="background:white; padding:8px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">
+                 <img src="${data.qr_image}" alt="PromptPay QR" style="max-width:240px; width:100%; height:auto; display:block;">
+               </div>
+             </div>`
+          : (data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '');
+        let contact = '';
+        if (data.contact) {
+          const c = data.contact;
+          const isUrl = /^https?:\/\//i.test(c);
+          const isFb = /facebook\.com/i.test(c);
+          const icon = isFb ? '📘' : '📱';
+          const label = isFb ? 'Facebook Page' : (isUrl ? 'ติดต่อ' : c);
+          contact = isUrl
+            ? `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> <a href="${c}" target="_blank" rel="noopener" style="color:#1d4ed8; text-decoration:underline; font-weight:600;">${label}</a></p>`
+            : `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> ${c}</p>`;
+        }
+        const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
+        instr.innerHTML = `
+          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label}</b></p>
+          ${amountLabel}
+          ${qr}
+          ${contact}
+          <p style="font-size:.78rem; color:#6b7280; margin-top:8px;">${note}</p>`;
+      } else if (data.mode === 'omise' && data.qr_image) {
+        instr.innerHTML = `
+          <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>สแกน QR เพื่อชำระเงิน</b></p>
+          <img src="${data.qr_image}" alt="QR PromptPay" style="width:180px; display:block; margin:0 auto 10px;">
+          <p style="font-size:.82rem; color:#6b7280; text-align:center;">หลังโอนเงิน เครดิตจะเข้าอัตโนมัติภายใน 1 นาที</p>`;
+        // Start polling
+        startPolling(data.charge_id);
+      }
+    } catch(e) {
+      const instr = document.getElementById('topup-payment-instructions');
+      if (instr) instr.innerHTML = '<p style="color:#dc2626; text-align:center; padding:16px;">เกิดข้อผิดพลาด กรุณาลองใหม่</p>';
+    }
+  }
+
+  let _pollTimer = null;
+  function startPolling(chargeId) {
+    clearInterval(_pollTimer);
+    let tries = 0;
+    _pollTimer = setInterval(async () => {
+      tries++;
+      if (tries > 60) { clearInterval(_pollTimer); return; }
+      try {
+        const res = window.authFetch
+          ? await window.authFetch(`/api/credits/topup/status/${chargeId}`)
+          : await fetch(`/api/credits/topup/status/${chargeId}`);
+        const data = await res.json();
+        if (data.status === 'paid') {
+          clearInterval(_pollTimer);
+          updateCreditsUI(data.credits);
+          const instr = document.getElementById('topup-payment-instructions');
+          if (instr) instr.innerHTML = '<p style="color:#059669; font-weight:700; text-align:center;">✅ ชำระเงินสำเร็จ! เครดิตเพิ่มแล้ว</p>';
+          await renderHistory();
+        }
+      } catch(e) {}
+    }, 5000);
+  }
+
+  window.openTopupModal = async function() {
+    console.log('[topup] openTopupModal called');
+    const ov = document.getElementById('topup-overlay');
+    if (!ov) { console.error('[topup] overlay not found in DOM'); return; }
+    // Ensure modal is a direct child of <body> (escape any stacking-context traps)
+    if (ov.parentNode !== document.body) document.body.appendChild(ov);
+    _selectedPkg = null;
+    ov.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // Reset state
+    const box = document.getElementById('topup-contact-box'); if (box) box.style.display = 'none';
+    try {
+      await loadPackagesAndBalance();
+      renderPackages();
+      renderHistory();
+    } catch (e) {
+      console.error('[topup] error loading data:', e);
+    }
+  };
+  console.log('[topup] script loaded, openTopupModal =', typeof window.openTopupModal);
+
+  window.closeTopupModal = function() {
+    const ov = document.getElementById('topup-overlay');
+    if (ov) ov.style.display = 'none';
+    document.body.style.overflow = '';
+    clearInterval(_pollTimer);
+  };
+
+  // ─── Load credits on auth login event ─────────────────
+  window.addEventListener('auth:login', async () => {
+    try {
+      const res = await window.authFetch('/api/credits/balance');
+      if (res.ok) {
+        const { credits } = await res.json();
+        updateCreditsUI(credits);
+      }
+    } catch(e) {}
+  });
+
+  // Expose updateCreditsUI for external use (e.g. after AI call deducts credits)
+  window.updateCreditsUI = updateCreditsUI;
+})();
 </script>
 </body>
 </html>
