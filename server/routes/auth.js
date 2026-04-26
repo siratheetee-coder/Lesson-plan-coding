@@ -10,6 +10,7 @@ import {
   signAccessToken, signRefreshToken, verifyRefreshToken, hashToken, ttlToMs, TTL,
 } from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
+import { FREE_CREDITS_ON_REGISTER } from '../config/packages.js';
 
 const router = express.Router();
 
@@ -62,6 +63,7 @@ function publicUser(u) {
     emailVerified: !!u.email_verified,
     hasPassword: !!u.password_hash,
     hasGoogle: !!u.google_sub,
+    credits: u.credits ?? 0,
   };
 }
 
@@ -133,8 +135,14 @@ router.post('/register', registerLimiter, async (req, res) => {
       last_login_at: null,
       created_at: t,
       updated_at: t,
+      credits: FREE_CREDITS_ON_REGISTER,
     });
     const user = await db.findUserById(id);
+    // Give free bonus credits
+    if (FREE_CREDITS_ON_REGISTER > 0) {
+      await db.addCredits(id, FREE_CREDITS_ON_REGISTER, 'bonus',
+        `ฟรี ${FREE_CREDITS_ON_REGISTER} แผนแรก`, null, crypto.randomUUID());
+    }
     audit(id, 'register', { method: 'password', role }, req);
     res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
@@ -207,8 +215,14 @@ router.post('/google', loginLimiter, async (req, res) => {
         email_verified: email_verified ? 1 : 0,
         failed_attempts: 0, locked_until: null,
         last_login_at: t, created_at: t, updated_at: t,
+        credits: FREE_CREDITS_ON_REGISTER,
       });
       user = await db.findUserById(id);
+      // Give free bonus credits
+      if (FREE_CREDITS_ON_REGISTER > 0) {
+        await db.addCredits(id, FREE_CREDITS_ON_REGISTER, 'bonus',
+          `ฟรี ${FREE_CREDITS_ON_REGISTER} แผนแรก`, null, crypto.randomUUID());
+      }
       audit(id, 'register', { method: 'google', role }, req);
     } else if (!user.google_sub) {
       await db.updateUser(user.id, { google_sub: sub, email_verified: 1, updated_at: t, last_login_at: t });

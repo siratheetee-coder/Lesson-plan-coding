@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'node:crypto';
 import { db, now } from '../db.js';
 import { requireAdmin } from '../middleware/auth.js';
 
@@ -129,6 +130,50 @@ router.get('/audit', async (req, res) => {
     res.json({ log, limit, offset });
   } catch (e) {
     console.error('audit error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── Get user's credit balance + history ────────────────
+router.get('/users/:id/credits', async (req, res) => {
+  try {
+    const [credits, history] = await Promise.all([
+      db.getCredits(req.params.id),
+      db.getCreditTransactions(req.params.id, 50, 0),
+    ]);
+    res.json({ credits, history });
+  } catch (e) {
+    console.error('credits error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── Grant / deduct credits (admin manual adjustment) ───
+router.post('/users/:id/credits/grant', async (req, res) => {
+  try {
+    const { amount, note } = req.body || {};
+    if (!Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 10000) {
+      return res.status(400).json({ error: 'invalid_amount', message: 'amount ต้องเป็นจำนวนเต็ม ไม่เป็น 0 และไม่เกิน 10,000' });
+    }
+    const adminEmail = req.user?.email || req.user?.id;
+    const result = amount > 0
+      ? await db.addCredits(req.params.id, amount, 'manual_grant',
+          note || `Admin เพิ่มเครดิต โดย ${adminEmail}`, null, crypto.randomUUID())
+      : await db.deductCredits(req.params.id, Math.abs(amount), 'manual_deduct',
+          note || `Admin ลดเครดิต โดย ${adminEmail}`, null, crypto.randomUUID());
+
+    if (result.ok === false) {
+      return res.status(400).json({ error: 'insufficient_credits', message: 'เครดิตไม่พอสำหรับการหัก' });
+    }
+
+    await db.audit({
+      user_id: req.user.id, action: 'admin_grant_credits',
+      meta: JSON.stringify({ target: req.params.id, amount, note }),
+      ip: req.ip, created_at: now(),
+    });
+    res.json({ ok: true, credits: result.balance_after });
+  } catch (e) {
+    console.error('grant credits error', e);
     res.status(500).json({ error: 'server_error' });
   }
 });

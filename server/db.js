@@ -38,10 +38,13 @@ async function initPostgres() {
       locked_until    BIGINT,
       last_login_at   BIGINT,
       created_at      BIGINT NOT NULL,
-      updated_at      BIGINT NOT NULL
+      updated_at      BIGINT NOT NULL,
+      credits         INT NOT NULL DEFAULT 0
     );
-    -- Migrate older databases that may not have 'role' column yet
+    -- Migrate older databases
     ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'teacher';
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS credits INT NOT NULL DEFAULT 0;
+
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id          TEXT PRIMARY KEY,
       user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -53,6 +56,7 @@ async function initPostgres() {
       created_at  BIGINT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_refresh_user ON refresh_tokens(user_id);
+
     CREATE TABLE IF NOT EXISTS audit_log (
       id         SERIAL PRIMARY KEY,
       user_id    TEXT,
@@ -61,6 +65,18 @@ async function initPostgres() {
       ip         TEXT,
       created_at BIGINT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS credit_transactions (
+      id           TEXT PRIMARY KEY,
+      user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type         TEXT NOT NULL,
+      amount       INT NOT NULL,
+      balance_after INT NOT NULL,
+      ref_id       TEXT,
+      note         TEXT,
+      created_at   BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_credit_txn_user ON credit_transactions(user_id, created_at DESC);
   `);
   console.log('✓ PostgreSQL connected and schema ready');
 }
@@ -69,11 +85,11 @@ const pgDb = {
   async insertUser(u) {
     await pgPool.query(
       `INSERT INTO users (id,email,password_hash,display_name,google_sub,email_verified,
-        failed_attempts,locked_until,last_login_at,created_at,updated_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        failed_attempts,locked_until,last_login_at,created_at,updated_at,role,credits)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
       [u.id, u.email, u.password_hash, u.display_name, u.google_sub,
        u.email_verified, u.failed_attempts, u.locked_until, u.last_login_at,
-       u.created_at, u.updated_at]
+       u.created_at, u.updated_at, u.role || 'teacher', u.credits || 0]
     );
     return u;
   },
@@ -129,6 +145,84 @@ const pgDb = {
     );
   },
 
+  // ─── Credits ────────────────────────────────────────────
+  async getCredits(userId) {
+    const { rows } = await pgPool.query('SELECT credits FROM users WHERE id=$1', [userId]);
+    return rows[0]?.credits ?? 0;
+  },
+  async addCredits(userId, amount, type, note, refId, txnId) {
+    const client = await pgPool.connect();
+    try {
+      await client.query('BEGIN');
+      const { rows } = await client.query(
+        'UPDATE users SET credits = credits + $2 WHERE id=$1 RETURNING credits',
+        [userId, amount]
+      );
+      if (!rows[0]) throw new Error('user_not_found');
+      const balanceAfter = rows[0].credits;
+      const txn = {
+        id: txnId || crypto.randomUUID(),
+        user_id: userId, type, amount,
+        balance_after: balanceAfter,
+        ref_id: refId || null, note: note || null, created_at: now(),
+      };
+      await client.query(
+        `INSERT INTO credit_transactions (id,user_id,type,amount,balance_after,ref_id,note,created_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [txn.id, txn.user_id, txn.type, txn.amount, txn.balance_after,
+         txn.ref_id, txn.note, txn.created_at]
+      );
+      await client.query('COMMIT');
+      return { balance_after: balanceAfter, transaction: txn };
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  },
+  async deductCredits(userId, amount, type, note, refId, txnId) {
+    const client = await pgPool.connect();
+    try {
+      await client.query('BEGIN');
+      const { rows } = await client.query(
+        'UPDATE users SET credits = credits - $2 WHERE id=$1 AND credits >= $2 RETURNING credits',
+        [userId, amount]
+      );
+      if (!rows[0]) {
+        await client.query('ROLLBACK');
+        return { ok: false, error: 'insufficient_credits' };
+      }
+      const balanceAfter = rows[0].credits;
+      const txn = {
+        id: txnId || crypto.randomUUID(),
+        user_id: userId, type, amount: -amount,
+        balance_after: balanceAfter,
+        ref_id: refId || null, note: note || null, created_at: now(),
+      };
+      await client.query(
+        `INSERT INTO credit_transactions (id,user_id,type,amount,balance_after,ref_id,note,created_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [txn.id, txn.user_id, txn.type, txn.amount, txn.balance_after,
+         txn.ref_id, txn.note, txn.created_at]
+      );
+      await client.query('COMMIT');
+      return { ok: true, balance_after: balanceAfter, transaction: txn };
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  },
+  async getCreditTransactions(userId, limit = 20, offset = 0) {
+    const { rows } = await pgPool.query(
+      `SELECT * FROM credit_transactions WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
+    );
+    return rows;
+  },
+
   // ─── Admin queries ──────────────────────────────────────
   async listUsers({ limit = 50, offset = 0, search = '' } = {}) {
     const args = [];
@@ -139,7 +233,8 @@ const pgDb = {
     }
     args.push(limit); args.push(offset);
     const { rows } = await pgPool.query(
-      `SELECT id, email, display_name, role, google_sub IS NOT NULL AS has_google,
+      `SELECT id, email, display_name, role, credits,
+              google_sub IS NOT NULL AS has_google,
               password_hash IS NOT NULL AS has_password,
               email_verified, failed_attempts, locked_until, last_login_at, created_at
        FROM users ${where}
@@ -193,7 +288,7 @@ const pgDb = {
 //  JSON FILE MODE (local dev — no PostgreSQL needed)
 // ═══════════════════════════════════════════════════════════
 const dbPath = process.env.DB_PATH || './data/app.db.json';
-const initial = { users: [], refresh_tokens: [], audit_log: [] };
+const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [] };
 let state = initial;
 
 function loadJson() {
@@ -257,6 +352,44 @@ const jsonDb = {
   },
   async audit(entry) { state.audit_log.push(entry); saveJson(); },
 
+  // ─── Credits ────────────────────────────────────────────
+  async getCredits(userId) {
+    const u = state.users.find(x => x.id === userId);
+    return u?.credits ?? 0;
+  },
+  async addCredits(userId, amount, type, note, refId, txnId) {
+    const u = state.users.find(x => x.id === userId);
+    if (!u) throw new Error('user_not_found');
+    u.credits = (u.credits || 0) + amount;
+    const txn = {
+      id: txnId || crypto.randomUUID(),
+      user_id: userId, type, amount, balance_after: u.credits,
+      ref_id: refId || null, note: note || null, created_at: now(),
+    };
+    state.credit_transactions.push(txn);
+    saveJson();
+    return { balance_after: u.credits, transaction: txn };
+  },
+  async deductCredits(userId, amount, type, note, refId, txnId) {
+    const u = state.users.find(x => x.id === userId);
+    if (!u || (u.credits || 0) < amount) {
+      return { ok: false, error: 'insufficient_credits' };
+    }
+    u.credits = (u.credits || 0) - amount;
+    const txn = {
+      id: txnId || crypto.randomUUID(),
+      user_id: userId, type, amount: -amount, balance_after: u.credits,
+      ref_id: refId || null, note: note || null, created_at: now(),
+    };
+    state.credit_transactions.push(txn);
+    saveJson();
+    return { ok: true, balance_after: u.credits, transaction: txn };
+  },
+  async getCreditTransactions(userId, limit = 20, offset = 0) {
+    const arr = (state.credit_transactions || []).filter(t => t.user_id === userId);
+    return arr.sort((a, b) => b.created_at - a.created_at).slice(offset, offset + limit);
+  },
+
   async listUsers({ limit = 50, offset = 0, search = '' } = {}) {
     let arr = state.users;
     if (search) {
@@ -270,6 +403,7 @@ const jsonDb = {
       .map(u => ({
         id: u.id, email: u.email, display_name: u.display_name,
         role: u.role || 'teacher',
+        credits: u.credits || 0,
         has_google: !!u.google_sub, has_password: !!u.password_hash,
         email_verified: u.email_verified, failed_attempts: u.failed_attempts,
         locked_until: u.locked_until, last_login_at: u.last_login_at,
@@ -280,6 +414,7 @@ const jsonDb = {
   async deleteUser(id) {
     state.users = state.users.filter(u => u.id !== id);
     state.refresh_tokens = state.refresh_tokens.filter(t => t.user_id !== id);
+    state.credit_transactions = state.credit_transactions.filter(t => t.user_id !== id);
     saveJson();
   },
   async listAuditLog({ limit = 100, offset = 0, userId = null } = {}) {

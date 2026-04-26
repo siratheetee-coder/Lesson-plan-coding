@@ -1952,6 +1952,91 @@
   }
   .dash-logout-btn:hover { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
 
+  /* Top-up button */
+  .dash-topup-btn {
+    display: flex; align-items: center; gap: 4px;
+    padding: 7px 13px; border-radius: 8px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border: none;
+    font-family: inherit; font-size: .82rem; font-weight: 600;
+    cursor: pointer; transition: opacity .15s;
+    white-space: nowrap;
+  }
+  .dash-topup-btn:hover { opacity: .88; }
+  @media (max-width: 640px) { .dash-topup-btn { display: none; } }
+
+  /* ─── Top-up Modal ─── */
+  .topup-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    z-index: 4000; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .topup-modal {
+    background: white; border-radius: 20px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto; position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,.2);
+  }
+  .topup-modal-header {
+    padding: 28px 28px 18px; text-align: center;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    border-radius: 20px 20px 0 0;
+  }
+  .topup-modal-header h2 { margin: 8px 0 4px; font-size: 1.3rem; color: #3730a3; }
+  .topup-modal-header p  { margin: 0; font-size: .9rem; color: #6b7280; }
+  .topup-modal-body { padding: 20px 24px 28px; }
+  .topup-modal-close {
+    position: absolute; top: 14px; right: 16px;
+    background: rgba(255,255,255,.8); border: none; border-radius: 50%;
+    width: 32px; height: 32px; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    color: #6b7280; transition: background .15s;
+  }
+  .topup-modal-close:hover { background: white; color: #1f2937; }
+  .topup-packages-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 400px) { .topup-packages-grid { grid-template-columns: 1fr; } }
+  .topup-pkg-card {
+    border: 2px solid #e5e7eb; border-radius: 14px; padding: 16px 14px;
+    cursor: pointer; transition: all .15s; text-align: center; position: relative;
+    background: white;
+  }
+  .topup-pkg-card:hover { border-color: #7c3aed; background: #faf5ff; }
+  .topup-pkg-card.selected { border-color: #7c3aed; background: #f5f3ff; box-shadow: 0 0 0 3px #c4b5fd; }
+  .topup-pkg-card .pkg-credits { font-size: 1.6rem; font-weight: 800; color: #4c1d95; }
+  .topup-pkg-card .pkg-label   { font-size: .8rem; color: #6b7280; margin-bottom: 8px; }
+  .topup-pkg-card .pkg-price   { font-size: 1.1rem; font-weight: 700; color: #1f2937; }
+  .topup-pkg-card .pkg-per     { font-size: .72rem; color: #9ca3af; margin-top: 2px; }
+  .topup-pkg-badge {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white; font-size: .65rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .topup-contact-box {
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px;
+    padding: 16px 18px; margin-top: 12px;
+  }
+  .topup-contact-box h4 { margin: 0 0 10px; font-size: .9rem; color: #166534; }
+  .topup-contact-box p  { margin: 4px 0; font-size: .85rem; color: #374151; }
+  .topup-confirm-btn {
+    width: 100%; margin-top: 14px; padding: 13px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white; border: none; border-radius: 10px;
+    font-family: inherit; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .topup-confirm-btn:hover { opacity: .9; }
+  .topup-confirm-btn:disabled { opacity: .5; cursor: default; }
+  .topup-history-list { margin-top: 4px; }
+  .topup-history-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: .85rem;
+  }
+  .topup-history-item:last-child { border-bottom: none; }
+  .topup-history-amt.plus  { color: #059669; font-weight: 700; }
+  .topup-history-amt.minus { color: #dc2626; font-weight: 700; }
+
   /* Login as full page view */
   .auth-overlay {
     background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 50%, #fef3c7 100%);
@@ -1981,11 +2066,12 @@
       </div>
     </div>
     <div class="dash-topbar-right">
-      <div class="dash-quota" title="โควตาการสร้างแผนด้วย AI">
+      <div class="dash-quota" id="dash-quota-widget" title="เครดิต AI ที่เหลืออยู่ — คลิกเพื่อเติมเครดิต" onclick="openTopupModal()" style="cursor:pointer;">
         <span>⚡</span>
-        <span>เหลือ <b id="dash-quota-text">20/20</b> แผน</span>
-        <div class="dash-quota-bar"><span id="dash-quota-fill" style="width:100%;"></span></div>
+        <span>เหลือ <b id="dash-quota-text">—</b> แผน</span>
+        <div class="dash-quota-bar"><span id="dash-quota-fill" style="width:0%;"></span></div>
       </div>
+      <button class="dash-topup-btn" onclick="openTopupModal()" title="เติมเครดิต">+ เติมเครดิต</button>
       <div class="dash-avatar" id="dash-avatar" onclick="openProfileMenu()" title="โปรไฟล์">คณ</div>
       <button id="dash-logout-btn" class="dash-logout-btn" type="button" title="ออกจากระบบ">
         <span style="font-size:1rem">⏻</span><span>ออกจากระบบ</span>
@@ -2115,16 +2201,16 @@
                 style="width:100%; padding:10px 14px; border:1px solid #ddd6fe; border-radius:10px; font-family:inherit; font-size:0.9rem;">
             </div>
             <div>
-              <div style="font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">โควตาการสร้างแผน (ด้วย AI)</div>
+              <div style="font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">เครดิต AI</div>
               <div style="background:#f5f3ff; padding:14px; border-radius:10px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                  <span style="font-size:0.85rem; color:#5b21b6;">ใช้ไปแล้ว</span>
-                  <span id="profile-quota-text" style="font-size:0.85rem; font-weight:700; color:#5b21b6;">0 / 20 แผน</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                  <span style="font-size:0.85rem; color:#5b21b6;">⚡ เครดิตคงเหลือ</span>
+                  <span id="profile-quota-text" style="font-size:1.1rem; font-weight:800; color:#5b21b6;">— แผน</span>
                 </div>
-                <div style="background:white; height:8px; border-radius:999px; overflow:hidden;">
-                  <div id="profile-quota-fill" style="height:100%; background:linear-gradient(90deg,#7c3aed,#a78bfa); border-radius:999px; width:0%; transition:width 0.3s;"></div>
-                </div>
-                <div style="font-size:0.72rem; color:#6b7280; margin-top:8px;">โควตารีเซ็ตทุก 30 วัน · อัปเกรดเพื่อรับเพิ่ม</div>
+                <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
+                  ⚡ เติมเครดิต
+                </button>
+                <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 3 แผนแรก</div>
               </div>
             </div>
             <button onclick="saveProfile()" class="btn-primary" style="padding:10px 20px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer; align-self:flex-start;">
@@ -5811,17 +5897,10 @@ function saveProfileData(p) {
 
 function renderProfileUI() {
   const p = loadProfile();
-  const remaining = Math.max(0, p.quotaMax - p.quotaUsed);
-  const pct = p.quotaMax > 0 ? (remaining / p.quotaMax) * 100 : 0;
-  const usedPct = p.quotaMax > 0 ? (p.quotaUsed / p.quotaMax) * 100 : 0;
 
-  // Topbar
+  // Topbar name + avatar
   const nameEl = document.getElementById('dash-user-name');
   if (nameEl) nameEl.textContent = p.name;
-  const quotaTextEl = document.getElementById('dash-quota-text');
-  if (quotaTextEl) quotaTextEl.textContent = remaining + '/' + p.quotaMax;
-  const quotaFillEl = document.getElementById('dash-quota-fill');
-  if (quotaFillEl) quotaFillEl.style.width = pct + '%';
   const avatarEl = document.getElementById('dash-avatar');
   if (avatarEl) {
     const initial = (p.name || 'คณ').trim().charAt(0) || 'ค';
@@ -5831,10 +5910,7 @@ function renderProfileUI() {
   // Profile panel
   const profileInput = document.getElementById('profile-name-input');
   if (profileInput) profileInput.value = p.name;
-  const profileQuotaText = document.getElementById('profile-quota-text');
-  if (profileQuotaText) profileQuotaText.textContent = p.quotaUsed + ' / ' + p.quotaMax + ' แผน';
-  const profileQuotaFill = document.getElementById('profile-quota-fill');
-  if (profileQuotaFill) profileQuotaFill.style.width = usedPct + '%';
+  // Credits display is handled by updateCreditsUI (auth login event)
 }
 
 function saveProfile() {
@@ -6916,6 +6992,10 @@ window.renderUnitDashboard = renderUnitDashboard;
         const initial = (name[0] || '?').toUpperCase();
         avatar.textContent = initial;
       }
+      // Update credits display from session data
+      if (typeof currentUser.credits === 'number' && window.updateCreditsUI) {
+        window.updateCreditsUI(currentUser.credits);
+      }
     }
   }
 
@@ -6980,6 +7060,250 @@ window.renderUnitDashboard = renderUnitDashboard;
       showAuth();
     }
   });
+})();
+</script>
+
+<!-- ============ TOP-UP MODAL ============ -->
+<div id="topup-overlay" class="topup-overlay" style="display:none;" onclick="if(event.target===this)closeTopupModal()">
+  <div class="topup-modal">
+    <button class="topup-modal-close" onclick="closeTopupModal()">✕</button>
+    <div class="topup-modal-header">
+      <div style="font-size:2.2rem;">⚡</div>
+      <h2>เติมเครดิต AI</h2>
+      <p>ยอดคงเหลือ: <b id="topup-current-credits">—</b> แผน</p>
+    </div>
+    <div class="topup-modal-body">
+      <!-- Packages grid -->
+      <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">เลือกแพ็กเกจ</div>
+      <div class="topup-packages-grid" id="topup-packages-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Contact / payment info (shown after selecting a package) -->
+      <div id="topup-contact-box" class="topup-contact-box" style="display:none;">
+        <h4>📋 วิธีชำระเงิน</h4>
+        <div id="topup-payment-instructions">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <button id="topup-confirm-btn" class="topup-confirm-btn" style="display:none;" onclick="confirmTopup()">
+        ยืนยันการเติมเครดิต
+      </button>
+
+      <!-- Transaction history tab -->
+      <div style="margin-top:20px; border-top:1px solid #f3f4f6; padding-top:16px;">
+        <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">ประวัติเครดิต</div>
+        <div id="topup-history-list" class="topup-history-list">
+          <div style="font-size:.85rem; color:#9ca3af; text-align:center; padding:12px;">กำลังโหลด...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Top-up Modal Logic ────────────────────────────────────
+(function() {
+  let _selectedPkg = null;
+  let _packages = [];
+
+  async function loadPackagesAndBalance() {
+    try {
+      const [pkgRes, balRes] = await Promise.all([
+        window.authFetch ? window.authFetch('/api/credits/packages') : fetch('/api/credits/packages'),
+        window.authFetch ? window.authFetch('/api/credits/balance') : fetch('/api/credits/balance'),
+      ]);
+      if (pkgRes.ok) {
+        const data = await pkgRes.json();
+        _packages = data.packages || [];
+      }
+      if (balRes.ok) {
+        const data = await balRes.json();
+        updateCreditsUI(data.credits);
+      }
+    } catch(e) { console.error('topup load error', e); }
+  }
+
+  function updateCreditsUI(credits) {
+    // Topbar
+    const qtText = document.getElementById('dash-quota-text');
+    if (qtText) qtText.textContent = credits;
+    const qtFill = document.getElementById('dash-quota-fill');
+    if (qtFill) {
+      const max = Math.max(credits, 10);
+      qtFill.style.width = Math.min(100, (credits / max) * 100) + '%';
+    }
+    // Profile panel
+    const pqText = document.getElementById('profile-quota-text');
+    if (pqText) pqText.textContent = credits + ' แผน';
+    // Modal
+    const mc = document.getElementById('topup-current-credits');
+    if (mc) mc.textContent = credits;
+  }
+
+  function renderPackages() {
+    const grid = document.getElementById('topup-packages-grid');
+    if (!grid) return;
+    if (_packages.length === 0) {
+      grid.innerHTML = '<div style="color:#9ca3af;font-size:.85rem;text-align:center;padding:10px;grid-column:1/-1">กำลังโหลดแพ็กเกจ...</div>';
+      return;
+    }
+    grid.innerHTML = _packages.map(pkg => {
+      const perPlan = (pkg.price_thb / pkg.credits).toFixed(2);
+      const badge = pkg.badge ? `<div class="topup-pkg-badge">${pkg.badge}</div>` : '';
+      return `<div class="topup-pkg-card" data-pkg-id="${pkg.id}" onclick="window._selectPkg('${pkg.id}')">
+        ${badge}
+        <div class="pkg-credits">${pkg.credits}</div>
+        <div class="pkg-label">แผน</div>
+        <div class="pkg-price">฿${pkg.price_thb}</div>
+        <div class="pkg-per">${perPlan} บาท/แผน</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function renderHistory() {
+    const list = document.getElementById('topup-history-list');
+    if (!list) return;
+    try {
+      const res = window.authFetch
+        ? await window.authFetch('/api/credits/history?limit=10')
+        : await fetch('/api/credits/history?limit=10');
+      if (!res.ok) throw new Error('fetch failed');
+      const { history } = await res.json();
+      if (!history || history.length === 0) {
+        list.innerHTML = '<div style="font-size:.85rem;color:#9ca3af;text-align:center;padding:12px;">ยังไม่มีประวัติการใช้งาน</div>';
+        return;
+      }
+      const typeLabel = { topup:'เติมเครดิต', usage:'ใช้งาน AI', bonus:'โบนัสฟรี', manual_grant:'Admin เพิ่ม', manual_deduct:'Admin ปรับ', refund:'คืนเครดิต' };
+      list.innerHTML = history.map(t => {
+        const sign = t.amount > 0 ? '+' : '';
+        const cls  = t.amount > 0 ? 'plus' : 'minus';
+        const date = new Date(t.created_at).toLocaleDateString('th-TH', { day:'numeric', month:'short' });
+        const label = typeLabel[t.type] || t.type;
+        return `<div class="topup-history-item">
+          <div>
+            <div style="font-weight:600;color:#374151;">${label}</div>
+            <div style="font-size:.75rem;color:#9ca3af;">${t.note || ''} · ${date}</div>
+          </div>
+          <div class="topup-history-amt ${cls}">${sign}${t.amount} แผน</div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = '<div style="font-size:.85rem;color:#9ca3af;text-align:center;padding:12px;">ไม่สามารถโหลดประวัติได้</div>';
+    }
+  }
+
+  window._selectPkg = function(pkgId) {
+    _selectedPkg = _packages.find(p => p.id === pkgId);
+    document.querySelectorAll('.topup-pkg-card').forEach(el => {
+      el.classList.toggle('selected', el.dataset.pkgId === pkgId);
+    });
+    if (!_selectedPkg) return;
+
+    // Show payment info
+    const box = document.getElementById('topup-contact-box');
+    const instr = document.getElementById('topup-payment-instructions');
+    const confirmBtn = document.getElementById('topup-confirm-btn');
+    if (box && instr) {
+      box.style.display = '';
+      confirmBtn.style.display = '';
+      confirmBtn.textContent = `ยืนยัน — ${_selectedPkg.label} (฿${_selectedPkg.price_thb})`;
+      // Will be filled after calling init API
+    }
+  };
+
+  window.confirmTopup = async function() {
+    if (!_selectedPkg) return;
+    const btn = document.getElementById('topup-confirm-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'กำลังโหลด...'; }
+    try {
+      const res = window.authFetch
+        ? await window.authFetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) })
+        : await fetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) });
+      const data = await res.json();
+      const instr = document.getElementById('topup-payment-instructions');
+      if (data.mode === 'manual') {
+        const pp = data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '';
+        const contact = data.contact ? `<p>📱 <b>ติดต่อ:</b> ${data.contact}</p>` : '';
+        const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
+        instr.innerHTML = `
+          <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>แพ็กเกจ:</b> ${_selectedPkg.label} — ฿${_selectedPkg.price_thb}</p>
+          ${pp}${contact}
+          <p style="font-size:.82rem; color:#6b7280; margin-top:8px;">${note}</p>`;
+      } else if (data.mode === 'omise' && data.qr_image) {
+        instr.innerHTML = `
+          <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>สแกน QR เพื่อชำระเงิน</b></p>
+          <img src="${data.qr_image}" alt="QR PromptPay" style="width:180px; display:block; margin:0 auto 10px;">
+          <p style="font-size:.82rem; color:#6b7280; text-align:center;">หลังโอนเงิน เครดิตจะเข้าอัตโนมัติภายใน 1 นาที</p>`;
+        // Start polling
+        startPolling(data.charge_id);
+      }
+    } catch(e) {
+      const instr = document.getElementById('topup-payment-instructions');
+      if (instr) instr.innerHTML = '<p style="color:#dc2626;">เกิดข้อผิดพลาด กรุณาลองใหม่</p>';
+    } finally {
+      if (btn) { btn.disabled = false; }
+    }
+  };
+
+  let _pollTimer = null;
+  function startPolling(chargeId) {
+    clearInterval(_pollTimer);
+    let tries = 0;
+    _pollTimer = setInterval(async () => {
+      tries++;
+      if (tries > 60) { clearInterval(_pollTimer); return; }
+      try {
+        const res = window.authFetch
+          ? await window.authFetch(`/api/credits/topup/status/${chargeId}`)
+          : await fetch(`/api/credits/topup/status/${chargeId}`);
+        const data = await res.json();
+        if (data.status === 'paid') {
+          clearInterval(_pollTimer);
+          updateCreditsUI(data.credits);
+          const instr = document.getElementById('topup-payment-instructions');
+          if (instr) instr.innerHTML = '<p style="color:#059669; font-weight:700; text-align:center;">✅ ชำระเงินสำเร็จ! เครดิตเพิ่มแล้ว</p>';
+          await renderHistory();
+        }
+      } catch(e) {}
+    }, 5000);
+  }
+
+  window.openTopupModal = async function() {
+    const ov = document.getElementById('topup-overlay');
+    if (!ov) return;
+    _selectedPkg = null;
+    ov.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // Reset state
+    const box = document.getElementById('topup-contact-box'); if (box) box.style.display = 'none';
+    const btn = document.getElementById('topup-confirm-btn'); if (btn) btn.style.display = 'none';
+    await loadPackagesAndBalance();
+    renderPackages();
+    renderHistory();
+  };
+
+  window.closeTopupModal = function() {
+    const ov = document.getElementById('topup-overlay');
+    if (ov) ov.style.display = 'none';
+    document.body.style.overflow = '';
+    clearInterval(_pollTimer);
+  };
+
+  // ─── Load credits on auth login event ─────────────────
+  window.addEventListener('auth:login', async () => {
+    try {
+      const res = await window.authFetch('/api/credits/balance');
+      if (res.ok) {
+        const { credits } = await res.json();
+        updateCreditsUI(credits);
+      }
+    } catch(e) {}
+  });
+
+  // Expose updateCreditsUI for external use (e.g. after AI call deducts credits)
+  window.updateCreditsUI = updateCreditsUI;
 })();
 </script>
 </body>

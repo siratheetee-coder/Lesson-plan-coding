@@ -28,6 +28,7 @@ await initDb();
 
 const authRouter = (await import('./routes/auth.js')).default;
 const adminRouter = (await import('./routes/admin.js')).default;
+const creditsRouter = (await import('./routes/credits.js')).default;
 const { requireAuth } = await import('./middleware/auth.js');
 
 const app = express();
@@ -57,6 +58,7 @@ app.use((_req, res, next) => {
 app.get('/health', (_req, res) => res.json({ ok: true, time: Date.now() }));
 app.use('/auth', authRouter);
 app.use('/admin/api', adminRouter);
+app.use('/api/credits', creditsRouter);
 app.get('/api/whoami', requireAuth, (req, res) => res.json({ user: req.user }));
 
 // Serve frontend from project root
