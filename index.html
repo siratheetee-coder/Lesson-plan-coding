@@ -7103,6 +7103,7 @@ window.renderUnitDashboard = renderUnitDashboard;
 (function() {
   let _selectedPkg = null;
   let _packages = [];
+  let _qrAbort = null; // AbortController for in-flight QR request
 
   async function loadPackagesAndBalance() {
     try {
@@ -7197,7 +7198,11 @@ window.renderUnitDashboard = renderUnitDashboard;
     });
     if (!_selectedPkg) return;
 
-    // Show contact box with loading spinner, then auto-fetch QR
+    // Cancel any in-flight QR request from previous package selection
+    if (_qrAbort) { _qrAbort.abort(); }
+    _qrAbort = new AbortController();
+
+    // Show loading spinner immediately
     const box = document.getElementById('topup-contact-box');
     const instr = document.getElementById('topup-payment-instructions');
     if (box && instr) {
@@ -7206,16 +7211,19 @@ window.renderUnitDashboard = renderUnitDashboard;
         <div style="font-size:1.8rem; margin-bottom:8px;">⏳</div>
         <div style="font-size:.88rem;">กำลังโหลด QR...</div>
       </div>`;
-      confirmTopup();
+      confirmTopup(_selectedPkg, _qrAbort.signal);
     }
   };
 
-  async function confirmTopup() {
-    if (!_selectedPkg) return;
+  async function confirmTopup(pkg, signal) {
+    if (!pkg) return;
     try {
+      const opts = { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: pkg.id }), signal };
       const res = window.authFetch
-        ? await window.authFetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) })
-        : await fetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) });
+        ? await window.authFetch('/api/credits/topup/init', opts)
+        : await fetch('/api/credits/topup/init', opts);
+      // If aborted by a newer selection, silently discard
+      if (signal && signal.aborted) return;
       const data = await res.json();
       const instr = document.getElementById('topup-payment-instructions');
       if (data.mode === 'manual') {
@@ -7223,9 +7231,9 @@ window.renderUnitDashboard = renderUnitDashboard;
         const amountLabel = isStatic
           ? `<div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; padding:12px; margin:10px 0; text-align:center;">
                <div style="font-size:.75rem; color:#92400e; font-weight:600;">⚠️ กรุณาพิมพ์ยอดเงินเอง</div>
-               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${_selectedPkg.price_thb}.00</div>
+               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${pkg.price_thb}.00</div>
              </div>`
-          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${_selectedPkg.price_thb}.00</div>`;
+          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${pkg.price_thb}.00</div>`;
         const qr = data.qr_image
           ? `<div style="text-align:center; margin:12px 0;">
                <div style="background:white; padding:8px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">
@@ -7246,7 +7254,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         }
         const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
         instr.innerHTML = `
-          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label}</b></p>
+          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${pkg.label}</b></p>
           ${amountLabel}
           ${qr}
           ${contact}
@@ -7260,6 +7268,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         startPolling(data.charge_id);
       }
     } catch(e) {
+      if (e && e.name === 'AbortError') return; // cancelled by newer selection — ignore
       const instr = document.getElementById('topup-payment-instructions');
       if (instr) instr.innerHTML = '<p style="color:#dc2626; text-align:center; padding:16px;">เกิดข้อผิดพลาด กรุณาลองใหม่</p>';
     }
