@@ -1,0 +1,100 @@
+warning: in the working copy of 'index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/.env.example', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'server/routes/credits.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.claude/worktrees/recursing-rubin b/.claude/worktrees/recursing-rubin[m
+[1m--- a/.claude/worktrees/recursing-rubin[m
+[1m+++ b/.claude/worktrees/recursing-rubin[m
+[36m@@ -1 +1 @@[m
+[31m-Subproject commit adfa8a39f298b5964bb558afe7758af7819e1228[m
+[32m+[m[32mSubproject commit adfa8a39f298b5964bb558afe7758af7819e1228-dirty[m
+[1mdiff --git a/index.html b/index.html[m
+[1mindex a1f2a73..b86f5b4 100644[m
+[1m--- a/index.html[m
+[1m+++ b/index.html[m
+[36m@@ -7224,21 +7224,25 @@[m [mwindow.renderUnitDashboard = renderUnitDashboard;[m
+       const data = await res.json();[m
+       const instr = document.getElementById('topup-payment-instructions');[m
+       if (data.mode === 'manual') {[m
+[32m+[m[32m        const isStatic = data.qr_type === 'static';[m
+[32m+[m[32m        const amountLabel = isStatic[m
+[32m+[m[32m          ? `<div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; padding:12px; margin:10px 0; text-align:center;">[m
+[32m+[m[32m               <div style="font-size:.75rem; color:#92400e; font-weight:600;">⚠️ กรุณาพิมพ์ยอดเงินเอง</div>[m
+[32m+[m[32m               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${_selectedPkg.price_thb}.00</div>[m
+[32m+[m[32m             </div>`[m
+[32m+[m[32m          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${_selectedPkg.price_thb}.00</div>`;[m
+         const qr = data.qr_image[m
+           ? `<div style="text-align:center; margin:12px 0;">[m
+[31m-               <div style="background:white; padding:12px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">[m
+[31m-                 <div style="font-size:.7rem; color:#6b7280; margin-bottom:6px; font-weight:600;">📱 สแกน PromptPay QR</div>[m
+[31m-                 <img src="${data.qr_image}" alt="PromptPay QR" style="width:220px; height:220px; display:block;">[m
+[31m-                 <div style="font-size:.95rem; font-weight:800; color:#1a1f3a; margin-top:8px;">฿${_selectedPkg.price_thb}.00</div>[m
+[31m-                 ${data.promptpay_name ? `<div style="font-size:.72rem; color:#6b7280;">${data.promptpay_name}</div>` : ''}[m
+[31m-                 <div style="font-size:.7rem; color:#9ca3af; margin-top:2px;">PromptPay: ${data.promptpay}</div>[m
+[32m+[m[32m               <div style="background:white; padding:8px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">[m
+[32m+[m[32m                 <img src="${data.qr_image}" alt="PromptPay QR" style="max-width:240px; width:100%; height:auto; display:block;">[m
+                </div>[m
+              </div>`[m
+           : (data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '');[m
+[31m-        const contact = data.contact ? `<p style="margin-top:8px;">📱 <b>ส่งสลิปทาง:</b> ${data.contact}</p>` : '';[m
+[32m+[m[32m        const contact = data.contact ? `<p style="margin-top:10px;">📱 <b>ส่งสลิปทาง:</b> ${data.contact}</p>` : '';[m
+         const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';[m
+         instr.innerHTML = `[m
+[31m-          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label} — ฿${_selectedPkg.price_thb}</b></p>[m
+[32m+[m[32m          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label}</b></p>[m
+[32m+[m[32m          ${amountLabel}[m
+           ${qr}[m
+           ${contact}[m
+           <p style="font-size:.78rem; color:#6b7280; margin-top:8px;">${note}</p>`;[m
+[1mdiff --git a/server/.env.example b/server/.env.example[m
+[1mindex 463b845..d2990fd 100644[m
+[1m--- a/server/.env.example[m
+[1m+++ b/server/.env.example[m
+[36m@@ -37,8 +37,15 @@[m [mOMISE_SECRET_KEY=[m
+ # Contact shown to users in manual top-up mode[m
+ SUPPORT_LINE=@your_line_id[m
+ SUPPORT_EMAIL=support@yourdomain.com[m
+[31m-# PromptPay number (mobile / national ID / tax ID) — used to auto-generate QR code[m
+[31m-SUPPORT_PROMPTPAY=0812345678[m
+[31m-# Display name shown under the QR (your name or shop name)[m
+[31m-SUPPORT_PROMPTPAY_NAME=ครูสมชาย[m
+[32m+[m
+[32m+[m[32m# ── QR Image: choose ONE of these two methods ──[m
+[32m+[m[32m# Method 1 (RECOMMENDED for Thai QR Merchant): static image URL[m
+[32m+[m[32m# Save your QR image to project root and use relative path[m
+[32m+[m[32mSUPPORT_QR_IMAGE_URL=/qr-payment.png[m
+[32m+[m[32m#[m
+[32m+[m[32m# Method 2: PromptPay number (auto-generates QR with embedded amount)[m
+[32m+[m[32m# Only used if SUPPORT_QR_IMAGE_URL is empty[m
+[32m+[m[32mSUPPORT_PROMPTPAY=[m
+[32m+[m[32mSUPPORT_PROMPTPAY_NAME=[m
+[32m+[m
+ TOPUP_NOTE=สแกน QR เพื่อโอนเงิน แล้วส่งสลิป + email มาที่ LINE[m
+[1mdiff --git a/server/routes/credits.js b/server/routes/credits.js[m
+[1mindex 427765a..a63ced5 100644[m
+[1m--- a/server/routes/credits.js[m
+[1m+++ b/server/routes/credits.js[m
+[36m@@ -73,9 +73,12 @@[m [mrouter.post('/topup/init', async (req, res) => {[m
+ [m
+     if (!process.env.OMISE_SECRET_KEY) {[m
+       // ── Manual / contact mode (no payment gateway configured) ──[m
+[32m+[m[32m      // Priority: 1) Static QR image URL (e.g. merchant QR)  2) Dynamic generation from PromptPay number[m
+[32m+[m[32m      const staticQrUrl = process.env.SUPPORT_QR_IMAGE_URL || '';[m
+       const promptpayId = process.env.SUPPORT_PROMPTPAY || '';[m
+[31m-      let qrImage = null;[m
+[31m-      if (promptpayId) {[m
+[32m+[m[32m      let qrImage = staticQrUrl || null;[m
+[32m+[m[32m      let qrType = staticQrUrl ? 'static' : 'dynamic';[m
+[32m+[m[32m      if (!qrImage && promptpayId) {[m
+         qrImage = await generatePromptPayQR(promptpayId, pkg.price_thb);[m
+       }[m
+       return res.json({[m
+[36m@@ -84,7 +87,8 @@[m [mrouter.post('/topup/init', async (req, res) => {[m
+         contact: process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL || '',[m
+         promptpay: promptpayId,[m
+         promptpay_name: process.env.SUPPORT_PROMPTPAY_NAME || '',[m
+[31m-        qr_image: qrImage, // base64 data URL with embedded amount[m
+[32m+[m[32m        qr_image: qrImage,[m
+[32m+[m[32m        qr_type: qrType, // 'static' = user types amount; 'dynamic' = amount embedded[m
+         note: process.env.TOPUP_NOTE || 'กรุณาโอนเงินแล้วส่งสลิปมาที่ผู้ดูแลระบบ ระบุ email และจำนวนแผนที่ต้องการ',[m
+       });[m
+     }[m

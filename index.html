@@ -7069,7 +7069,7 @@ window.renderUnitDashboard = renderUnitDashboard;
     <button class="topup-modal-close" onclick="closeTopupModal()">✕</button>
     <div class="topup-modal-header">
       <div style="font-size:2.2rem;">⚡</div>
-      <h2>เติมเครดิต AI</h2>
+      <h2>เติมเครดิตทำแผน</h2>
       <p>ยอดคงเหลือ: <b id="topup-current-credits">—</b> แผน</p>
     </div>
     <div class="topup-modal-body">
@@ -7087,10 +7087,6 @@ window.renderUnitDashboard = renderUnitDashboard;
         </div>
       </div>
 
-      <button id="topup-confirm-btn" class="topup-confirm-btn" style="display:none;" onclick="confirmTopup()">
-        ยืนยันการเติมเครดิต
-      </button>
-
       <!-- Transaction history tab -->
       <div style="margin-top:20px; border-top:1px solid #f3f4f6; padding-top:16px;">
         <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">ประวัติเครดิต</div>
@@ -7107,6 +7103,7 @@ window.renderUnitDashboard = renderUnitDashboard;
 (function() {
   let _selectedPkg = null;
   let _packages = [];
+  let _qrAbort = null; // AbortController for in-flight QR request
 
   async function loadPackagesAndBalance() {
     try {
@@ -7201,26 +7198,32 @@ window.renderUnitDashboard = renderUnitDashboard;
     });
     if (!_selectedPkg) return;
 
-    // Show payment info
+    // Cancel any in-flight QR request from previous package selection
+    if (_qrAbort) { _qrAbort.abort(); }
+    _qrAbort = new AbortController();
+
+    // Show loading spinner immediately
     const box = document.getElementById('topup-contact-box');
     const instr = document.getElementById('topup-payment-instructions');
-    const confirmBtn = document.getElementById('topup-confirm-btn');
     if (box && instr) {
       box.style.display = '';
-      confirmBtn.style.display = '';
-      confirmBtn.textContent = `ยืนยัน — ${_selectedPkg.label} (฿${_selectedPkg.price_thb})`;
-      // Will be filled after calling init API
+      instr.innerHTML = `<div style="text-align:center; padding:24px 0; color:#6b7280;">
+        <div style="font-size:1.8rem; margin-bottom:8px;">⏳</div>
+        <div style="font-size:.88rem;">กำลังโหลด QR...</div>
+      </div>`;
+      confirmTopup(_selectedPkg, _qrAbort.signal);
     }
   };
 
-  window.confirmTopup = async function() {
-    if (!_selectedPkg) return;
-    const btn = document.getElementById('topup-confirm-btn');
-    if (btn) { btn.disabled = true; btn.textContent = 'กำลังโหลด...'; }
+  async function confirmTopup(pkg, signal) {
+    if (!pkg) return;
     try {
+      const opts = { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: pkg.id }), signal };
       const res = window.authFetch
-        ? await window.authFetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) })
-        : await fetch('/api/credits/topup/init', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ package_id: _selectedPkg.id }) });
+        ? await window.authFetch('/api/credits/topup/init', opts)
+        : await fetch('/api/credits/topup/init', opts);
+      // If aborted by a newer selection, silently discard
+      if (signal && signal.aborted) return;
       const data = await res.json();
       const instr = document.getElementById('topup-payment-instructions');
       if (data.mode === 'manual') {
@@ -7228,9 +7231,9 @@ window.renderUnitDashboard = renderUnitDashboard;
         const amountLabel = isStatic
           ? `<div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; padding:12px; margin:10px 0; text-align:center;">
                <div style="font-size:.75rem; color:#92400e; font-weight:600;">⚠️ กรุณาพิมพ์ยอดเงินเอง</div>
-               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${_selectedPkg.price_thb}.00</div>
+               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${pkg.price_thb}.00</div>
              </div>`
-          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${_selectedPkg.price_thb}.00</div>`;
+          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${pkg.price_thb}.00</div>`;
         const qr = data.qr_image
           ? `<div style="text-align:center; margin:12px 0;">
                <div style="background:white; padding:8px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">
@@ -7250,12 +7253,33 @@ window.renderUnitDashboard = renderUnitDashboard;
             : `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> ${c}</p>`;
         }
         const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
+        const slipUploader = `
+          <div style="margin-top:14px; padding-top:14px; border-top:1px dashed #e5e7eb;">
+            <div style="font-size:.85rem; font-weight:700; color:#1a1f3a; margin-bottom:6px; text-align:center;">
+              📤 อัพโหลดสลิปเพื่อรับเครดิตอัตโนมัติ
+            </div>
+            <div style="font-size:.72rem; color:#6b7280; text-align:center; margin-bottom:8px;">
+              ระบบตรวจสอบสลิปอัตโนมัติด้วย SlipOK เมื่อยืนยันแล้วเครดิตเข้าทันที
+            </div>
+            <input type="file" id="topup-slip-input" accept="image/*" style="display:none;" onchange="window._uploadSlip(event)">
+            <button onclick="document.getElementById('topup-slip-input').click()"
+                    class="topup-slip-btn"
+                    style="width:100%; padding:12px; border-radius:10px; border:2px dashed #6b7280;
+                           background:#f9fafb; cursor:pointer; font-size:.92rem; font-weight:600; color:#1a1f3a;
+                           transition:all .15s;"
+                    onmouseover="this.style.borderColor='#1a1f3a'; this.style.background='#f3f4f6';"
+                    onmouseout="this.style.borderColor='#6b7280'; this.style.background='#f9fafb';">
+              📷 เลือกรูปสลิป
+            </button>
+            <div id="topup-slip-status" style="margin-top:10px; font-size:.85rem;"></div>
+          </div>`;
         instr.innerHTML = `
-          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label}</b></p>
+          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${pkg.label}</b></p>
           ${amountLabel}
           ${qr}
           ${contact}
-          <p style="font-size:.78rem; color:#6b7280; margin-top:8px;">${note}</p>`;
+          <p style="font-size:.78rem; color:#6b7280; margin-top:8px;">${note}</p>
+          ${slipUploader}`;
       } else if (data.mode === 'omise' && data.qr_image) {
         instr.innerHTML = `
           <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>สแกน QR เพื่อชำระเงิน</b></p>
@@ -7265,10 +7289,56 @@ window.renderUnitDashboard = renderUnitDashboard;
         startPolling(data.charge_id);
       }
     } catch(e) {
+      if (e && e.name === 'AbortError') return; // cancelled by newer selection — ignore
       const instr = document.getElementById('topup-payment-instructions');
-      if (instr) instr.innerHTML = '<p style="color:#dc2626;">เกิดข้อผิดพลาด กรุณาลองใหม่</p>';
+      if (instr) instr.innerHTML = '<p style="color:#dc2626; text-align:center; padding:16px;">เกิดข้อผิดพลาด กรุณาลองใหม่</p>';
+    }
+  }
+
+  // ─── Slip upload (SlipOK auto-verify) ────────────────────
+  window._uploadSlip = async function(ev) {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file || !_selectedPkg) return;
+    const status = document.getElementById('topup-slip-status');
+    if (status) status.innerHTML = '<div style="color:#6b7280; text-align:center;">⏳ กำลังตรวจสอบสลิป...</div>';
+    try {
+      const fd = new FormData();
+      fd.append('slip', file);
+      fd.append('package_id', _selectedPkg.id);
+      const res = window.authFetch
+        ? await window.authFetch('/api/credits/topup/verify-slip', { method: 'POST', body: fd })
+        : await fetch('/api/credits/topup/verify-slip', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        if (status) {
+          status.innerHTML = `
+            <div style="background:#dcfce7; border:1.5px solid #16a34a; border-radius:10px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">✅</div>
+              <div style="font-weight:700; color:#166534;">ตรวจสอบสลิปสำเร็จ!</div>
+              <div style="font-size:.85rem; color:#166534; margin-top:4px;">
+                เครดิตเพิ่ม +${data.added} แผน · ยอดคงเหลือ ${data.credits} แผน
+              </div>
+            </div>`;
+        }
+        updateCreditsUI(data.credits);
+        renderHistory();
+        // Auto-close modal after 2 seconds
+        setTimeout(() => { if (typeof window.closeTopupModal === 'function') window.closeTopupModal(); }, 2200);
+      } else {
+        const msg = data.message || 'ตรวจสอบสลิปไม่สำเร็จ กรุณาลองใหม่';
+        if (status) {
+          status.innerHTML = `
+            <div style="background:#fee2e2; border:1.5px solid #dc2626; border-radius:10px; padding:10px; text-align:center;">
+              <div style="font-size:1.2rem;">❌</div>
+              <div style="font-weight:700; color:#991b1b; font-size:.9rem;">${msg}</div>
+            </div>`;
+        }
+      }
+    } catch (e) {
+      if (status) status.innerHTML = '<div style="color:#dc2626; text-align:center;">❌ เกิดข้อผิดพลาด กรุณาลองใหม่</div>';
     } finally {
-      if (btn) { btn.disabled = false; }
+      // Reset input so same file can be selected again
+      ev.target.value = '';
     }
   };
 
@@ -7306,7 +7376,6 @@ window.renderUnitDashboard = renderUnitDashboard;
     document.body.style.overflow = 'hidden';
     // Reset state
     const box = document.getElementById('topup-contact-box'); if (box) box.style.display = 'none';
-    const btn = document.getElementById('topup-confirm-btn'); if (btn) btn.style.display = 'none';
     try {
       await loadPackagesAndBalance();
       renderPackages();

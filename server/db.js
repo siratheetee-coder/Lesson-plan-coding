@@ -222,6 +222,12 @@ const pgDb = {
     );
     return rows;
   },
+  async findCreditTransactionByRefId(refId) {
+    if (!refId) return null;
+    const { rows } = await pgPool.query(
+      'SELECT * FROM credit_transactions WHERE ref_id=$1 LIMIT 1', [refId]);
+    return rows[0] || null;
+  },
 
   // ─── Admin queries ──────────────────────────────────────
   async listUsers({ limit = 50, offset = 0, search = '' } = {}) {
@@ -388,6 +394,10 @@ const jsonDb = {
   async getCreditTransactions(userId, limit = 20, offset = 0) {
     const arr = (state.credit_transactions || []).filter(t => t.user_id === userId);
     return arr.sort((a, b) => b.created_at - a.created_at).slice(offset, offset + limit);
+  },
+  async findCreditTransactionByRefId(refId) {
+    if (!refId) return null;
+    return (state.credit_transactions || []).find(t => t.ref_id === refId) || null;
   },
 
   async listUsers({ limit = 50, offset = 0, search = '' } = {}) {
