@@ -73,9 +73,12 @@ router.post('/topup/init', async (req, res) => {
 
     if (!process.env.OMISE_SECRET_KEY) {
       // ── Manual / contact mode (no payment gateway configured) ──
+      // Priority: 1) Static QR image URL (e.g. merchant QR)  2) Dynamic generation from PromptPay number
+      const staticQrUrl = process.env.SUPPORT_QR_IMAGE_URL || '';
       const promptpayId = process.env.SUPPORT_PROMPTPAY || '';
-      let qrImage = null;
-      if (promptpayId) {
+      let qrImage = staticQrUrl || null;
+      let qrType = staticQrUrl ? 'static' : 'dynamic';
+      if (!qrImage && promptpayId) {
         qrImage = await generatePromptPayQR(promptpayId, pkg.price_thb);
       }
       return res.json({
@@ -84,7 +87,8 @@ router.post('/topup/init', async (req, res) => {
         contact: process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL || '',
         promptpay: promptpayId,
         promptpay_name: process.env.SUPPORT_PROMPTPAY_NAME || '',
-        qr_image: qrImage, // base64 data URL with embedded amount
+        qr_image: qrImage,
+        qr_type: qrType, // 'static' = user types amount; 'dynamic' = amount embedded
         note: process.env.TOPUP_NOTE || 'กรุณาโอนเงินแล้วส่งสลิปมาที่ผู้ดูแลระบบ ระบุ email และจำนวนแผนที่ต้องการ',
       });
     }
