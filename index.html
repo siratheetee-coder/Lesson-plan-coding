@@ -1968,7 +1968,7 @@
   /* ─── Top-up Modal ─── */
   .topup-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,.55);
-    z-index: 4000; display: flex; align-items: center; justify-content: center;
+    z-index: 10100; display: flex; align-items: center; justify-content: center;
     padding: 20px;
   }
   .topup-modal {
@@ -7285,6 +7285,8 @@ window.renderUnitDashboard = renderUnitDashboard;
     console.log('[topup] openTopupModal called');
     const ov = document.getElementById('topup-overlay');
     if (!ov) { console.error('[topup] overlay not found in DOM'); return; }
+    // Ensure modal is a direct child of <body> (escape any stacking-context traps)
+    if (ov.parentNode !== document.body) document.body.appendChild(ov);
     _selectedPkg = null;
     ov.style.display = 'flex';
     document.body.style.overflow = 'hidden';
