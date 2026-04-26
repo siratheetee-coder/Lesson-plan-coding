@@ -84,7 +84,7 @@ router.post('/topup/init', async (req, res) => {
       return res.json({
         mode: 'manual',
         package: pkg,
-        contact: process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL || '',
+        contact: process.env.SUPPORT_FB || process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL || '',
         promptpay: promptpayId,
         promptpay_name: process.env.SUPPORT_PROMPTPAY_NAME || '',
         qr_image: qrImage,

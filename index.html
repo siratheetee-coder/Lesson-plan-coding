@@ -7238,7 +7238,17 @@ window.renderUnitDashboard = renderUnitDashboard;
                </div>
              </div>`
           : (data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '');
-        const contact = data.contact ? `<p style="margin-top:10px;">📱 <b>ส่งสลิปทาง:</b> ${data.contact}</p>` : '';
+        let contact = '';
+        if (data.contact) {
+          const c = data.contact;
+          const isUrl = /^https?:\/\//i.test(c);
+          const isFb = /facebook\.com/i.test(c);
+          const icon = isFb ? '📘' : '📱';
+          const label = isFb ? 'Facebook Page' : (isUrl ? 'ติดต่อ' : c);
+          contact = isUrl
+            ? `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> <a href="${c}" target="_blank" rel="noopener" style="color:#1d4ed8; text-decoration:underline; font-weight:600;">${label}</a></p>`
+            : `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> ${c}</p>`;
+        }
         const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
         instr.innerHTML = `
           <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label}</b></p>
