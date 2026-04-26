@@ -1,0 +1,24 @@
+# ─── Secrets ────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.local
+
+# ─── Dependencies ────────────────────────────────────────────
+node_modules/
+server/node_modules/
+
+# ─── Database (local dev) ────────────────────────────────────
+server/data/
+*.db
+*.db.json
+
+# ─── OS / Editor ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# ─── Claude worktree internals ───────────────────────────────
+.claude/settings.local.json
