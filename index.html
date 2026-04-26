@@ -7224,13 +7224,24 @@ window.renderUnitDashboard = renderUnitDashboard;
       const data = await res.json();
       const instr = document.getElementById('topup-payment-instructions');
       if (data.mode === 'manual') {
-        const pp = data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '';
-        const contact = data.contact ? `<p>📱 <b>ติดต่อ:</b> ${data.contact}</p>` : '';
+        const qr = data.qr_image
+          ? `<div style="text-align:center; margin:12px 0;">
+               <div style="background:white; padding:12px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">
+                 <div style="font-size:.7rem; color:#6b7280; margin-bottom:6px; font-weight:600;">📱 สแกน PromptPay QR</div>
+                 <img src="${data.qr_image}" alt="PromptPay QR" style="width:220px; height:220px; display:block;">
+                 <div style="font-size:.95rem; font-weight:800; color:#1a1f3a; margin-top:8px;">฿${_selectedPkg.price_thb}.00</div>
+                 ${data.promptpay_name ? `<div style="font-size:.72rem; color:#6b7280;">${data.promptpay_name}</div>` : ''}
+                 <div style="font-size:.7rem; color:#9ca3af; margin-top:2px;">PromptPay: ${data.promptpay}</div>
+               </div>
+             </div>`
+          : (data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '');
+        const contact = data.contact ? `<p style="margin-top:8px;">📱 <b>ส่งสลิปทาง:</b> ${data.contact}</p>` : '';
         const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
         instr.innerHTML = `
-          <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>แพ็กเกจ:</b> ${_selectedPkg.label} — ฿${_selectedPkg.price_thb}</p>
-          ${pp}${contact}
-          <p style="font-size:.82rem; color:#6b7280; margin-top:8px;">${note}</p>`;
+          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${_selectedPkg.label} — ฿${_selectedPkg.price_thb}</b></p>
+          ${qr}
+          ${contact}
+          <p style="font-size:.78rem; color:#6b7280; margin-top:8px;">${note}</p>`;
       } else if (data.mode === 'omise' && data.qr_image) {
         instr.innerHTML = `
           <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>สแกน QR เพื่อชำระเงิน</b></p>

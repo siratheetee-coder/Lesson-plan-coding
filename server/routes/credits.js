@@ -5,6 +5,26 @@ import { PACKAGES } from '../config/packages.js';
 
 const router = express.Router();
 
+// ─── PromptPay QR generator (lazy-loaded) ────────────────
+async function generatePromptPayQR(promptpayId, amountTHB) {
+  try {
+    const { default: generatePayload } = await import('promptpay-qr');
+    const { default: QRCode } = await import('qrcode');
+    const payload = generatePayload(promptpayId, { amount: amountTHB });
+    // Returns a base64 data URL (PNG)
+    const dataUrl = await QRCode.toDataURL(payload, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 320,
+      color: { dark: '#1a1f3a', light: '#ffffff' },
+    });
+    return dataUrl;
+  } catch (e) {
+    console.error('QR generation error', e);
+    return null;
+  }
+}
+
 // All credits routes require auth
 router.use(requireAuth);
 
@@ -53,11 +73,18 @@ router.post('/topup/init', async (req, res) => {
 
     if (!process.env.OMISE_SECRET_KEY) {
       // ── Manual / contact mode (no payment gateway configured) ──
+      const promptpayId = process.env.SUPPORT_PROMPTPAY || '';
+      let qrImage = null;
+      if (promptpayId) {
+        qrImage = await generatePromptPayQR(promptpayId, pkg.price_thb);
+      }
       return res.json({
         mode: 'manual',
         package: pkg,
         contact: process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL || '',
-        promptpay: process.env.SUPPORT_PROMPTPAY || '',
+        promptpay: promptpayId,
+        promptpay_name: process.env.SUPPORT_PROMPTPAY_NAME || '',
+        qr_image: qrImage, // base64 data URL with embedded amount
         note: process.env.TOPUP_NOTE || 'กรุณาโอนเงินแล้วส่งสลิปมาที่ผู้ดูแลระบบ ระบุ email และจำนวนแผนที่ต้องการ',
       });
     }
