@@ -1,9 +1,20 @@
 import express from 'express';
+import multer from 'multer';
 import { db, now } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 import { PACKAGES } from '../config/packages.js';
 
 const router = express.Router();
+
+// In-memory upload (max 5MB) — slips are forwarded straight to SlipOK, not stored on disk
+const slipUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!/^image\//.test(file.mimetype)) return cb(new Error('not_an_image'));
+    cb(null, true);
+  },
+});
 
 // ─── PromptPay QR generator (lazy-loaded) ────────────────
 async function generatePromptPayQR(promptpayId, amountTHB) {
@@ -154,6 +165,116 @@ router.get('/topup/status/:chargeId', async (req, res) => {
     res.json({ status: charge.status });
   } catch (e) {
     console.error('topup status error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── POST /api/credits/topup/verify-slip ─────────────────
+// User uploads slip image → forward to SlipOK → if valid, credit user
+// Body (multipart/form-data): slip (image file), package_id (string)
+router.post('/topup/verify-slip', slipUpload.single('slip'), async (req, res) => {
+  try {
+    const packageId = req.body?.package_id;
+    const pkg = PACKAGES.find(p => p.id === packageId);
+    if (!pkg) return res.status(400).json({ error: 'invalid_package' });
+    if (!req.file) return res.status(400).json({ error: 'no_slip_file', message: 'กรุณาอัพโหลดรูปสลิป' });
+
+    const apiKey = process.env.SLIPOK_API_KEY;
+    const branchId = process.env.SLIPOK_BRANCH_ID;
+    if (!apiKey || !branchId) {
+      return res.status(500).json({ error: 'slipok_not_configured', message: 'ระบบยังไม่ได้ตั้งค่า SlipOK' });
+    }
+
+    // ── Forward slip image to SlipOK ─────────────────────────
+    const fd = new FormData();
+    const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
+    fd.append('files', blob, req.file.originalname || 'slip.jpg');
+    fd.append('amount', String(pkg.price_thb));
+    fd.append('log', 'true');
+
+    const slipokRes = await fetch(`https://api.slipok.com/api/line/apikey/${branchId}`, {
+      method: 'POST',
+      headers: { 'x-authorization': apiKey },
+      body: fd,
+    });
+    const result = await slipokRes.json().catch(() => ({}));
+
+    if (!slipokRes.ok || !result?.success) {
+      const code = result?.code;
+      const msg = result?.message || 'ตรวจสอบสลิปไม่สำเร็จ';
+      // Map common SlipOK codes to friendly messages
+      const friendly = {
+        1010: 'สลิปนี้เคยถูกใช้แล้ว',
+        1011: 'รูปสลิปไม่ชัด หรือไม่ใช่สลิปโอนเงิน',
+        1012: 'ยอดเงินในสลิปไม่ตรงกับแพ็กเกจ',
+      }[code] || msg;
+      return res.status(400).json({ error: 'slipok_failed', code, message: friendly });
+    }
+
+    const data = result.data || {};
+
+    // ── Validate amount ─────────────────────────────────────
+    if (Number(data.amount) !== Number(pkg.price_thb)) {
+      return res.status(400).json({
+        error: 'amount_mismatch',
+        message: `ยอดในสลิป ฿${data.amount} ไม่ตรงกับแพ็กเกจ ฿${pkg.price_thb}`,
+      });
+    }
+
+    // ── Validate receiver account (last-4-digit suffix match) ─
+    const expected = (process.env.SLIPOK_RECEIVER_ACCOUNT || '').replace(/\D/g, '');
+    if (expected) {
+      const receiverDigits = (
+        data.receiver?.account?.value ||
+        data.receiver?.account?.bank?.account ||
+        data.receiver?.proxy?.value ||
+        ''
+      ).replace(/\D/g, '');
+      const tail = expected.slice(-4);
+      if (tail && !receiverDigits.includes(tail)) {
+        return res.status(400).json({
+          error: 'receiver_mismatch',
+          message: 'บัญชีผู้รับในสลิปไม่ตรงกับระบบ',
+        });
+      }
+    }
+
+    // ── Idempotency: reject if transRef already credited (any user) ─
+    if (!data.transRef) {
+      return res.status(400).json({ error: 'no_transref', message: 'ไม่พบเลขอ้างอิงในสลิป' });
+    }
+    const refId = `slipok:${data.transRef}`;
+    const existing = await db.findCreditTransactionByRefId(refId);
+    if (existing) {
+      return res.status(409).json({
+        error: 'slip_already_used',
+        message: 'สลิปนี้ถูกใช้เติมเครดิตไปแล้ว',
+      });
+    }
+
+    // ── Credit the user ─────────────────────────────────────
+    await db.addCredits(
+      req.user.id, pkg.credits, 'topup',
+      `ซื้อ ${pkg.credits} แผน (${pkg.id}) — สลิป ${data.transRef}`,
+      refId
+    );
+    const balance = await db.getCredits(req.user.id);
+
+    return res.json({
+      success: true,
+      credits: balance,
+      added: pkg.credits,
+      transRef: data.transRef,
+      amount: data.amount,
+    });
+  } catch (e) {
+    if (e?.message === 'not_an_image') {
+      return res.status(400).json({ error: 'not_an_image', message: 'กรุณาอัพโหลดเฉพาะไฟล์รูปภาพ' });
+    }
+    if (e?.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'file_too_large', message: 'ไฟล์ใหญ่เกินไป (สูงสุด 5MB)' });
+    }
+    console.error('verify-slip error', e);
     res.status(500).json({ error: 'server_error' });
   }
 });
