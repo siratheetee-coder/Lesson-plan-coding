@@ -7282,18 +7282,24 @@ window.renderUnitDashboard = renderUnitDashboard;
   }
 
   window.openTopupModal = async function() {
+    console.log('[topup] openTopupModal called');
     const ov = document.getElementById('topup-overlay');
-    if (!ov) return;
+    if (!ov) { console.error('[topup] overlay not found in DOM'); return; }
     _selectedPkg = null;
     ov.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     // Reset state
     const box = document.getElementById('topup-contact-box'); if (box) box.style.display = 'none';
     const btn = document.getElementById('topup-confirm-btn'); if (btn) btn.style.display = 'none';
-    await loadPackagesAndBalance();
-    renderPackages();
-    renderHistory();
+    try {
+      await loadPackagesAndBalance();
+      renderPackages();
+      renderHistory();
+    } catch (e) {
+      console.error('[topup] error loading data:', e);
+    }
   };
+  console.log('[topup] script loaded, openTopupModal =', typeof window.openTopupModal);
 
   window.closeTopupModal = function() {
     const ov = document.getElementById('topup-overlay');
