@@ -32,6 +32,7 @@ async function initPostgres() {
       password_hash   TEXT,
       display_name    TEXT,
       google_sub      TEXT UNIQUE,
+      role            TEXT DEFAULT 'teacher',
       email_verified  INTEGER DEFAULT 0,
       failed_attempts INTEGER DEFAULT 0,
       locked_until    BIGINT,
@@ -39,6 +40,8 @@ async function initPostgres() {
       created_at      BIGINT NOT NULL,
       updated_at      BIGINT NOT NULL
     );
+    -- Migrate older databases that may not have 'role' column yet
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'teacher';
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id          TEXT PRIMARY KEY,
       user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -125,6 +128,65 @@ const pgDb = {
        entry.ip, entry.created_at]
     );
   },
+
+  // ─── Admin queries ──────────────────────────────────────
+  async listUsers({ limit = 50, offset = 0, search = '' } = {}) {
+    const args = [];
+    let where = '';
+    if (search) {
+      args.push(`%${search}%`);
+      where = `WHERE email ILIKE $${args.length} OR display_name ILIKE $${args.length}`;
+    }
+    args.push(limit); args.push(offset);
+    const { rows } = await pgPool.query(
+      `SELECT id, email, display_name, role, google_sub IS NOT NULL AS has_google,
+              password_hash IS NOT NULL AS has_password,
+              email_verified, failed_attempts, locked_until, last_login_at, created_at
+       FROM users ${where}
+       ORDER BY created_at DESC
+       LIMIT $${args.length - 1} OFFSET $${args.length}`,
+      args
+    );
+    return rows;
+  },
+  async countUsers() {
+    const { rows } = await pgPool.query('SELECT COUNT(*)::int AS n FROM users');
+    return rows[0].n;
+  },
+  async deleteUser(id) {
+    await pgPool.query('DELETE FROM users WHERE id=$1', [id]);
+  },
+  async listAuditLog({ limit = 100, offset = 0, userId = null } = {}) {
+    const args = [];
+    let where = '';
+    if (userId) { args.push(userId); where = `WHERE user_id=$${args.length}`; }
+    args.push(limit); args.push(offset);
+    const { rows } = await pgPool.query(
+      `SELECT a.id, a.user_id, u.email, a.action, a.meta, a.ip, a.created_at
+       FROM audit_log a LEFT JOIN users u ON u.id = a.user_id ${where}
+       ORDER BY a.created_at DESC
+       LIMIT $${args.length - 1} OFFSET $${args.length}`,
+      args
+    );
+    return rows;
+  },
+  async stats() {
+    const dayMs = 24 * 60 * 60 * 1000;
+    const oneDayAgo = Date.now() - dayMs;
+    const sevenDaysAgo = Date.now() - 7 * dayMs;
+    const [{ rows: total }, { rows: today }, { rows: week }, { rows: locked }] = await Promise.all([
+      pgPool.query('SELECT COUNT(*)::int AS n FROM users'),
+      pgPool.query("SELECT COUNT(*)::int AS n FROM audit_log WHERE action='login_success' AND created_at > $1", [oneDayAgo]),
+      pgPool.query('SELECT COUNT(*)::int AS n FROM users WHERE created_at > $1', [sevenDaysAgo]),
+      pgPool.query('SELECT COUNT(*)::int AS n FROM users WHERE locked_until > $1', [Date.now()]),
+    ]);
+    return {
+      totalUsers: total[0].n,
+      loginsToday: today[0].n,
+      newUsersThisWeek: week[0].n,
+      lockedUsers: locked[0].n,
+    };
+  },
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -194,6 +256,51 @@ const jsonDb = {
     if (n) saveJson();
   },
   async audit(entry) { state.audit_log.push(entry); saveJson(); },
+
+  async listUsers({ limit = 50, offset = 0, search = '' } = {}) {
+    let arr = state.users;
+    if (search) {
+      const s = search.toLowerCase();
+      arr = arr.filter(u =>
+        (u.email || '').toLowerCase().includes(s) ||
+        (u.display_name || '').toLowerCase().includes(s));
+    }
+    return arr.slice().sort((a, b) => b.created_at - a.created_at)
+      .slice(offset, offset + limit)
+      .map(u => ({
+        id: u.id, email: u.email, display_name: u.display_name,
+        role: u.role || 'teacher',
+        has_google: !!u.google_sub, has_password: !!u.password_hash,
+        email_verified: u.email_verified, failed_attempts: u.failed_attempts,
+        locked_until: u.locked_until, last_login_at: u.last_login_at,
+        created_at: u.created_at,
+      }));
+  },
+  async countUsers() { return state.users.length; },
+  async deleteUser(id) {
+    state.users = state.users.filter(u => u.id !== id);
+    state.refresh_tokens = state.refresh_tokens.filter(t => t.user_id !== id);
+    saveJson();
+  },
+  async listAuditLog({ limit = 100, offset = 0, userId = null } = {}) {
+    let arr = state.audit_log;
+    if (userId) arr = arr.filter(a => a.user_id === userId);
+    const userById = Object.fromEntries(state.users.map(u => [u.id, u.email]));
+    return arr.slice().sort((a, b) => b.created_at - a.created_at)
+      .slice(offset, offset + limit)
+      .map(a => ({ ...a, email: userById[a.user_id] || null }));
+  },
+  async stats() {
+    const dayMs = 24 * 60 * 60 * 1000;
+    const oneDayAgo = Date.now() - dayMs;
+    const sevenDaysAgo = Date.now() - 7 * dayMs;
+    return {
+      totalUsers: state.users.length,
+      loginsToday: state.audit_log.filter(a => a.action === 'login_success' && a.created_at > oneDayAgo).length,
+      newUsersThisWeek: state.users.filter(u => u.created_at > sevenDaysAgo).length,
+      lockedUsers: state.users.filter(u => u.locked_until && u.locked_until > Date.now()).length,
+    };
+  },
 };
 
 // ─── Export a unified db object ───────────────────────────

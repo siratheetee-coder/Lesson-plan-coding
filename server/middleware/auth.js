@@ -12,3 +12,13 @@ export function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'invalid_token' });
   }
 }
+
+export function requireAdmin(req, res, next) {
+  requireAuth(req, res, (err) => {
+    if (err) return next(err);
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'forbidden', message: 'ต้องเป็น admin เท่านั้น' });
+    }
+    next();
+  });
+}

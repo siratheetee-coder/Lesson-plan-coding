@@ -14,7 +14,7 @@ if (!ACCESS_SECRET || !REFRESH_SECRET) {
 
 export function signAccessToken(user) {
   return jwt.sign(
-    { sub: user.id, email: user.email, role: 'teacher' },
+    { sub: user.id, email: user.email, role: user.role || 'teacher' },
     ACCESS_SECRET,
     { expiresIn: ACCESS_TTL }
   );

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel — Lesson Plan Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; }
+  body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f1f5f9; color: #1e293b; }
+  .topbar {
+    background: #1e293b; color: #fff; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar h1 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+  .topbar .right { display: flex; align-items: center; gap: 12px; font-size: .9rem; }
+  .topbar a, .topbar button {
+    color: #fff; background: rgba(255,255,255,.1); border: none;
+    padding: 6px 14px; border-radius: 6px; font-family: inherit; font-size: .85rem;
+    text-decoration: none; cursor: pointer;
+  }
+  .topbar a:hover, .topbar button:hover { background: rgba(255,255,255,.2); }
+
+  .container { max-width: 1280px; margin: 24px auto; padding: 0 24px; }
+
+  /* Stats cards */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: #fff; border-radius: 12px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .stat-card .label { color: #64748b; font-size: .85rem; margin-bottom: 6px; }
+  .stat-card .value { font-size: 2rem; font-weight: 700; color: #2563eb; }
+  .stat-card.warn .value { color: #dc2626; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid #e2e8f0; margin-bottom: 16px; }
+  .tab {
+    padding: 10px 20px; cursor: pointer; border: none; background: transparent;
+    font-family: inherit; font-size: .95rem; font-weight: 500; color: #64748b;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+  }
+  .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .tab:hover:not(.active) { color: #1e293b; }
+
+  /* Search */
+  .toolbar { display: flex; gap: 12px; margin-bottom: 14px; }
+  .toolbar input {
+    flex: 1; padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
+    font-family: inherit; font-size: .95rem;
+  }
+  .toolbar input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+
+  /* Tables */
+  .table-wrap { background: #fff; border-radius: 12px; overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th { background: #f8fafc; text-align: left; padding: 12px 14px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+  td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
+  tr:hover { background: #f8fafc; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: .75rem; font-weight: 500; }
+  .badge.admin { background: #fef3c7; color: #92400e; }
+  .badge.teacher { background: #dbeafe; color: #1e40af; }
+  .badge.locked { background: #fee2e2; color: #991b1b; }
+  .badge.google { background: #ecfdf5; color: #065f46; }
+
+  .row-actions { display: flex; gap: 6px; }
+  .btn {
+    padding: 5px 10px; border-radius: 6px; border: 1px solid #cbd5e1;
+    background: #fff; font-family: inherit; font-size: .8rem; cursor: pointer;
+  }
+  .btn:hover { background: #f1f5f9; }
+  .btn.danger { color: #b91c1c; border-color: #fecaca; }
+  .btn.danger:hover { background: #fef2f2; }
+  .btn.primary { color: #fff; background: #2563eb; border-color: #2563eb; }
+  .btn.primary:hover { background: #1d4ed8; }
+
+  .empty { text-align: center; padding: 40px; color: #94a3b8; }
+  .loading { text-align: center; padding: 40px; color: #64748b; }
+  .err { background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
+
+  /* Modal for user details */
+  .modal-bg { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .modal-bg.show { display: flex; }
+  .modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 720px; width: 90vw; max-height: 90vh; overflow: auto; }
+  .modal h3 { margin: 0 0 12px; }
+  .modal .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; font-size: .9rem; margin-bottom: 16px; }
+  .modal .kv b { color: #475569; font-weight: 500; }
+  .modal .close { float: right; cursor: pointer; color: #64748b; font-size: 1.4rem; line-height: 1; }
+  .modal h4 { margin: 16px 0 8px; font-size: .95rem; color: #475569; }
+  .modal pre { background: #f8fafc; padding: 8px; border-radius: 6px; font-size: .8rem; overflow: auto; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🛠️ Admin Panel</h1>
+  <div class="right">
+    <span id="me-info">—</span>
+    <a href="/">← กลับหน้าหลัก</a>
+    <button id="logout-btn">ออกจากระบบ</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="root">
+    <div class="loading">กำลังโหลด...</div>
+  </div>
+</div>
+
+<!-- User detail modal -->
+<div class="modal-bg" id="user-modal">
+  <div class="modal">
+    <span class="close" onclick="closeModal()">×</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let accessToken = null;
+let currentUser = null;
+let currentTab = 'users';
+
+const $ = (id) => document.getElementById(id);
+
+// ─── API helpers ─────────────────────────────────────────
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    method: opts.method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(accessToken ? { Authorization: 'Bearer ' + accessToken } : {}),
+    },
+    credentials: 'include',
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  let data = null;
+  try { data = await res.json(); } catch {}
+  if (!res.ok) {
+    const err = new Error(data?.message || data?.error || 'request_failed');
+    err.status = res.status; err.code = data?.error;
+    throw err;
+  }
+  return data;
+}
+
+async function refreshSession() {
+  const out = await api('/auth/refresh', { method: 'POST' });
+  accessToken = out.accessToken;
+  currentUser = out.user;
+  return out;
+}
+
+// ─── Boot ────────────────────────────────────────────────
+async function boot() {
+  try {
+    await refreshSession();
+  } catch {
+    document.body.innerHTML = '<div style="padding:40px;text-align:center"><h2>กรุณาเข้าสู่ระบบก่อน</h2><a href="/">→ ไปหน้า login</a></div>';
+    return;
+  }
+  if (currentUser.role !== 'admin') {
+    document.body.innerHTML = `<div style="padding:40px;text-align:center"><h2>⛔ Access Denied</h2><p>คุณไม่มีสิทธิ์เข้าหน้านี้ — ต้องเป็น admin</p><p><b>${currentUser.email}</b> (${currentUser.role})</p><a href="/">← กลับหน้าหลัก</a></div>`;
+    return;
+  }
+  $('me-info').textContent = '👤 ' + (currentUser.displayName || currentUser.email) + ' (admin)';
+  $('logout-btn').onclick = async () => {
+    await api('/auth/logout', { method: 'POST' }).catch(() => {});
+    location.href = '/';
+  };
+  renderApp();
+}
+
+// ─── Render ──────────────────────────────────────────────
+async function renderApp() {
+  const root = $('root');
+  root.innerHTML = '<div class="loading">กำลังโหลด stats...</div>';
+  let stats;
+  try { stats = await api('/admin/api/stats'); }
+  catch (e) { root.innerHTML = `<div class="err">โหลด stats ไม่ได้: ${e.message}</div>`; return; }
+
+  root.innerHTML = `
+    <div class="stats">
+      <div class="stat-card"><div class="label">ผู้ใช้ทั้งหมด</div><div class="value">${stats.totalUsers}</div></div>
+      <div class="stat-card"><div class="label">Login วันนี้</div><div class="value">${stats.loginsToday}</div></div>
+      <div class="stat-card"><div class="label">User ใหม่ 7 วัน</div><div class="value">${stats.newUsersThisWeek}</div></div>
+      <div class="stat-card ${stats.lockedUsers ? 'warn' : ''}"><div class="label">บัญชีถูกล็อก</div><div class="value">${stats.lockedUsers}</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab ${currentTab === 'users' ? 'active' : ''}" data-tab="users">👥 Users</button>
+      <button class="tab ${currentTab === 'audit' ? 'active' : ''}" data-tab="audit">📋 Audit Log</button>
+    </div>
+
+    <div id="tab-content"></div>
+  `;
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => { currentTab = b.dataset.tab; renderApp(); });
+
+  if (currentTab === 'users') renderUsers();
+  else renderAudit();
+}
+
+// ─── Users tab ───────────────────────────────────────────
+let userSearch = '';
+async function renderUsers() {
+  const c = $('tab-content');
+  c.innerHTML = `
+    <div class="toolbar">
+      <input id="search" placeholder="ค้นหา email หรือชื่อ..." value="${userSearch}" />
+    </div>
+    <div id="users-table"><div class="loading">กำลังโหลด...</div></div>
+  `;
+  $('search').oninput = debounce(() => { userSearch = $('search').value; loadUsers(); }, 300);
+  loadUsers();
+}
+
+let debounceTimer = null;
+function debounce(fn, ms) { return (...a) => { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn(...a), ms); }; }
+
+async function loadUsers() {
+  const wrap = $('users-table');
+  wrap.innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  try {
+    const { users, total } = await api('/admin/api/users?search=' + encodeURIComponent(userSearch));
+    if (!users.length) {
+      wrap.innerHTML = '<div class="empty">ไม่มีผู้ใช้</div>';
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Email</th><th>ชื่อ</th><th>Role</th><th>วิธี login</th>
+          <th>สมัคร</th><th>Login ล่าสุด</th><th>สถานะ</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td><a href="#" data-id="${u.id}" class="user-link">${escapeHtml(u.email)}</a></td>
+              <td>${escapeHtml(u.display_name || '—')}</td>
+              <td><span class="badge ${u.role}">${u.role}</span></td>
+              <td>${u.has_password ? '🔑' : ''} ${u.has_google ? '<span class="badge google">G</span>' : ''}</td>
+              <td>${fmtDate(u.created_at)}</td>
+              <td>${u.last_login_at ? fmtDate(u.last_login_at) : '—'}</td>
+              <td>${u.locked_until && u.locked_until > Date.now() ? '<span class="badge locked">🔒 ล็อก</span>' : '✓'}</td>
+              <td class="row-actions">
+                ${u.locked_until && u.locked_until > Date.now()
+                  ? `<button class="btn" onclick="unlockUser('${u.id}')">ปลดล็อก</button>`
+                  : `<button class="btn" onclick="lockUser('${u.id}')">ล็อก</button>`}
+                ${u.role === 'admin'
+                  ? `<button class="btn" onclick="changeRole('${u.id}','teacher')">ลด</button>`
+                  : `<button class="btn" onclick="changeRole('${u.id}','admin')">เลื่อนเป็น admin</button>`}
+                <button class="btn danger" onclick="deleteUser('${u.id}','${escapeHtml(u.email)}')">ลบ</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+      <p style="color:#64748b;font-size:.85rem;margin-top:8px">แสดง ${users.length} จากทั้งหมด ${total}</p>
+    `;
+    document.querySelectorAll('.user-link').forEach(a => {
+      a.onclick = (e) => { e.preventDefault(); openUserModal(a.dataset.id); };
+    });
+  } catch (e) {
+    wrap.innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+
+async function openUserModal(id) {
+  $('modal-body').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  $('user-modal').classList.add('show');
+  try {
+    const { user, auditLog } = await api('/admin/api/users/' + id);
+    $('modal-body').innerHTML = `
+      <h3>👤 ${escapeHtml(user.email)} <span class="close" onclick="closeModal()">×</span></h3>
+      <div class="kv">
+        <b>ID</b><code style="font-size:.8rem">${user.id}</code>
+        <b>Email</b>${escapeHtml(user.email)}
+        <b>ชื่อ</b>${escapeHtml(user.display_name || '—')}
+        <b>Role</b><span class="badge ${user.role}">${user.role}</span>
+        <b>Email verified</b>${user.email_verified ? '✓' : '—'}
+        <b>มีรหัสผ่าน</b>${user.password_hash ? '✓' : '—'}
+        <b>Google linked</b>${user.google_sub ? '✓' : '—'}
+        <b>Failed attempts</b>${user.failed_attempts || 0}
+        <b>Locked until</b>${user.locked_until ? fmtDate(user.locked_until) : '—'}
+        <b>Last login</b>${user.last_login_at ? fmtDate(user.last_login_at) : '—'}
+        <b>สมัครเมื่อ</b>${fmtDate(user.created_at)}
+      </div>
+      <h4>Activity (50 รายการล่าสุด)</h4>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Time</th><th>Action</th><th>IP</th><th>Detail</th></tr></thead>
+        <tbody>
+          ${auditLog.length ? auditLog.map(a => `
+            <tr>
+              <td style="white-space:nowrap">${fmtDate(a.created_at)}</td>
+              <td><code>${a.action}</code></td>
+              <td>${a.ip || '—'}</td>
+              <td><code style="font-size:.75rem">${escapeHtml(a.meta || '')}</code></td>
+            </tr>
+          `).join('') : '<tr><td colspan="4" class="empty">ไม่มีประวัติ</td></tr>'}
+        </tbody>
+      </table></div>
+    `;
+  } catch (e) {
+    $('modal-body').innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+function closeModal() { $('user-modal').classList.remove('show'); }
+
+async function lockUser(id) {
+  if (!confirm('ล็อกบัญชีนี้? user จะ login ไม่ได้จนกว่าจะปลดล็อก')) return;
+  try { await api('/admin/api/users/' + id + '/lock', { method: 'POST' }); loadUsers(); }
+  catch (e) { alert('ล็อกไม่สำเร็จ: ' + e.message); }
+}
+async function unlockUser(id) {
+  try { await api('/admin/api/users/' + id + '/unlock', { method: 'POST' }); loadUsers(); }
+  catch (e) { alert('ปลดล็อกไม่สำเร็จ: ' + e.message); }
+}
+async function changeRole(id, role) {
+  if (!confirm(`เปลี่ยน role เป็น "${role}"?`)) return;
+  try { await api('/admin/api/users/' + id + '/role', { method: 'POST', body: { role } }); loadUsers(); }
+  catch (e) { alert('เปลี่ยน role ไม่สำเร็จ: ' + e.message); }
+}
+async function deleteUser(id, email) {
+  if (!confirm(`⚠️ ลบ ${email} ถาวร? ข้อมูลทั้งหมดจะหาย ยกเลิกไม่ได้`)) return;
+  if (!confirm('แน่ใจอีกครั้ง? นี่คือการลบถาวร')) return;
+  try { await api('/admin/api/users/' + id, { method: 'DELETE' }); loadUsers(); }
+  catch (e) { alert('ลบไม่สำเร็จ: ' + e.message); }
+}
+
+// ─── Audit tab ───────────────────────────────────────────
+async function renderAudit() {
+  const c = $('tab-content');
+  c.innerHTML = '<div class="loading">กำลังโหลด audit log...</div>';
+  try {
+    const { log } = await api('/admin/api/audit');
+    if (!log.length) { c.innerHTML = '<div class="empty">ไม่มีกิจกรรม</div>'; return; }
+    c.innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr><th>Time</th><th>User</th><th>Action</th><th>IP</th><th>Detail</th></tr></thead>
+        <tbody>
+          ${log.map(a => `
+            <tr>
+              <td style="white-space:nowrap">${fmtDate(a.created_at)}</td>
+              <td>${escapeHtml(a.email || a.user_id || '—')}</td>
+              <td><code>${a.action}</code></td>
+              <td>${a.ip || '—'}</td>
+              <td><code style="font-size:.75rem">${escapeHtml(a.meta || '')}</code></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    `;
+  } catch (e) { c.innerHTML = `<div class="err">${e.message}</div>`; }
+}
+
+// ─── Utils ───────────────────────────────────────────────
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(typeof ts === 'string' ? +ts : ts);
+  return d.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+}
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+boot();
+</script>
+</body>
+</html>

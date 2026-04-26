@@ -32,7 +32,11 @@ const LOCKOUT_THRESHOLD = 5;
 const LOCKOUT_MS = 15 * 60 * 1000;
 
 function audit(userId, action, meta, req) {
-  db.audit({ user_id: userId || null, action, meta: meta || null, ip: req.ip || null, created_at: now() });
+  // Fire-and-forget; we don't wait on audit writes (avoids blocking the response)
+  Promise.resolve(db.audit({
+    user_id: userId || null, action, meta: meta || null,
+    ip: req.ip || null, created_at: now(),
+  })).catch(err => console.error('audit error', err));
 }
 
 function setRefreshCookie(res, token, remember) {
@@ -54,17 +58,33 @@ function publicUser(u) {
     id: u.id,
     email: u.email,
     displayName: u.display_name,
+    role: u.role || 'teacher',
     emailVerified: !!u.email_verified,
     hasPassword: !!u.password_hash,
     hasGoogle: !!u.google_sub,
   };
 }
 
-function issueSession(user, req, res, remember) {
+// Auto-promote users to admin if their email is in ADMIN_EMAILS env var
+// (comma-separated list, e.g. ADMIN_EMAILS=alice@example.com,bob@example.com)
+function shouldBeAdmin(email) {
+  const list = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  return list.includes(String(email || '').toLowerCase());
+}
+async function promoteIfAdminEmail(user) {
+  if (!user) return user;
+  if (user.role !== 'admin' && shouldBeAdmin(user.email)) {
+    await db.updateUser(user.id, { role: 'admin', updated_at: now() });
+    user.role = 'admin';
+  }
+  return user;
+}
+
+async function issueSession(user, req, res, remember) {
   const access = signAccessToken(user);
   const { token: refresh, jti } = signRefreshToken(user, { remember });
   const expiresAt = now() + ttlToMs(remember ? TTL.LONG : TTL.SHORT);
-  db.insertRefreshToken({
+  await db.insertRefreshToken({
     id: jti,
     user_id: user.id,
     token_hash: hashToken(refresh),
@@ -78,6 +98,13 @@ function issueSession(user, req, res, remember) {
   return { accessToken: access, user: publicUser(user) };
 }
 
+async function auditAsync(userId, action, meta, req) {
+  await db.audit({
+    user_id: userId || null, action,
+    meta: meta || null, ip: req.ip || null, created_at: now(),
+  });
+}
+
 // ─── POST /auth/register ────────────────────────────────
 router.post('/register', registerLimiter, async (req, res) => {
   try {
@@ -86,18 +113,20 @@ router.post('/register', registerLimiter, async (req, res) => {
     const policyError = validatePasswordPolicy(password);
     if (policyError) return res.status(400).json({ error: 'weak_password', message: policyError });
 
-    if (db.findUserByEmail(email)) {
+    if (await db.findUserByEmail(email)) {
       return res.status(409).json({ error: 'email_taken', message: 'อีเมลนี้ถูกใช้แล้ว' });
     }
     const hash = await hashPassword(password);
     const id = crypto.randomUUID();
     const t = now();
-    db.insertUser({
+    const role = shouldBeAdmin(email) ? 'admin' : 'teacher';
+    await db.insertUser({
       id,
       email: email.toLowerCase(),
       password_hash: hash,
       display_name: (displayName || '').trim() || null,
       google_sub: null,
+      role,
       email_verified: 0,
       failed_attempts: 0,
       locked_until: null,
@@ -105,9 +134,9 @@ router.post('/register', registerLimiter, async (req, res) => {
       created_at: t,
       updated_at: t,
     });
-    const user = db.findUserById(id);
-    audit(id, 'register', { method: 'password' }, req);
-    res.json(issueSession(user, req, res, !!remember));
+    const user = await db.findUserById(id);
+    audit(id, 'register', { method: 'password', role }, req);
+    res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
     console.error('register error', err);
     res.status(500).json({ error: 'server_error' });
@@ -121,7 +150,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     if (!validateEmail(email) || typeof password !== 'string') {
       return res.status(400).json({ error: 'invalid_credentials', message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
     }
-    const user = db.findUserByEmail(email);
+    const user = await db.findUserByEmail(email);
 
     if (user && user.locked_until && user.locked_until > now()) {
       return res.status(429).json({
@@ -135,14 +164,15 @@ router.post('/login', loginLimiter, async (req, res) => {
       if (user) {
         const attempts = (user.failed_attempts || 0) + 1;
         const lockUntil = attempts >= LOCKOUT_THRESHOLD ? now() + LOCKOUT_MS : null;
-        db.updateUser(user.id, { failed_attempts: attempts, locked_until: lockUntil, updated_at: now() });
+        await db.updateUser(user.id, { failed_attempts: attempts, locked_until: lockUntil, updated_at: now() });
         audit(user.id, 'login_failed', { attempts }, req);
       }
       return res.status(401).json({ error: 'invalid_credentials', message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
     }
-    db.updateUser(user.id, { failed_attempts: 0, locked_until: null, last_login_at: now(), updated_at: now() });
+    await db.updateUser(user.id, { failed_attempts: 0, locked_until: null, last_login_at: now(), updated_at: now() });
+    await promoteIfAdminEmail(user);
     audit(user.id, 'login_success', { method: 'password' }, req);
-    res.json(issueSession(user, req, res, !!remember));
+    res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
     console.error('login error', err);
     res.status(500).json({ error: 'server_error' });
@@ -166,28 +196,30 @@ router.post('/google', loginLimiter, async (req, res) => {
     const { sub, email, email_verified, name } = payload || {};
     if (!sub || !email) return res.status(400).json({ error: 'invalid_google_token' });
 
-    let user = db.findUserByGoogleSub(sub) || db.findUserByEmail(email);
+    let user = await db.findUserByGoogleSub(sub) || await db.findUserByEmail(email);
     const t = now();
     if (!user) {
       const id = crypto.randomUUID();
-      db.insertUser({
+      const role = shouldBeAdmin(email) ? 'admin' : 'teacher';
+      await db.insertUser({
         id, email: email.toLowerCase(), password_hash: null,
-        display_name: name || null, google_sub: sub,
+        display_name: name || null, google_sub: sub, role,
         email_verified: email_verified ? 1 : 0,
         failed_attempts: 0, locked_until: null,
         last_login_at: t, created_at: t, updated_at: t,
       });
-      user = db.findUserById(id);
-      audit(id, 'register', { method: 'google' }, req);
+      user = await db.findUserById(id);
+      audit(id, 'register', { method: 'google', role }, req);
     } else if (!user.google_sub) {
-      db.updateUser(user.id, { google_sub: sub, email_verified: 1, updated_at: t, last_login_at: t });
-      user = db.findUserById(user.id);
+      await db.updateUser(user.id, { google_sub: sub, email_verified: 1, updated_at: t, last_login_at: t });
+      user = await db.findUserById(user.id);
       audit(user.id, 'link_google', null, req);
     } else {
-      db.updateUser(user.id, { last_login_at: t, updated_at: t });
+      await db.updateUser(user.id, { last_login_at: t, updated_at: t });
     }
+    await promoteIfAdminEmail(user);
     audit(user.id, 'login_success', { method: 'google' }, req);
-    res.json(issueSession(user, req, res, !!remember));
+    res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
     console.error('google login error', err);
     res.status(401).json({ error: 'google_verification_failed' });
@@ -195,38 +227,38 @@ router.post('/google', loginLimiter, async (req, res) => {
 });
 
 // ─── POST /auth/refresh ─────────────────────────────────
-router.post('/refresh', (req, res) => {
+router.post('/refresh', async (req, res) => {
   const token = req.cookies?.refresh_token;
   if (!token) return res.status(401).json({ error: 'no_refresh_token' });
   try {
     const payload = verifyRefreshToken(token);
-    const row = db.findRefreshToken(payload.jti);
+    const row = await db.findRefreshToken(payload.jti);
     if (!row || row.revoked_at || row.expires_at < now()) {
       return res.status(401).json({ error: 'refresh_invalid' });
     }
     if (row.token_hash !== hashToken(token)) {
-      db.revokeAllUserTokens(payload.sub, now());
+      await db.revokeAllUserTokens(payload.sub, now());
       audit(payload.sub, 'refresh_token_mismatch', null, req);
       return res.status(401).json({ error: 'refresh_invalid' });
     }
-    const user = db.findUserById(payload.sub);
+    const user = await db.findUserById(payload.sub);
     if (!user) return res.status(401).json({ error: 'user_not_found' });
 
-    db.revokeRefreshToken(payload.jti, now());
+    await db.revokeRefreshToken(payload.jti, now());
     const remember = (row.expires_at - row.created_at) > ttlToMs(TTL.SHORT) + 1000;
-    res.json(issueSession(user, req, res, remember));
+    res.json(await issueSession(user, req, res, remember));
   } catch {
     return res.status(401).json({ error: 'refresh_invalid' });
   }
 });
 
 // ─── POST /auth/logout ──────────────────────────────────
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
   const token = req.cookies?.refresh_token;
   if (token) {
     try {
       const payload = verifyRefreshToken(token);
-      db.revokeRefreshToken(payload.jti, now());
+      await db.revokeRefreshToken(payload.jti, now());
       audit(payload.sub, 'logout', null, req);
     } catch { /* ignore */ }
   }
@@ -235,8 +267,8 @@ router.post('/logout', (req, res) => {
 });
 
 // ─── GET /auth/me ───────────────────────────────────────
-router.get('/me', requireAuth, (req, res) => {
-  const user = db.findUserById(req.user.id);
+router.get('/me', requireAuth, async (req, res) => {
+  const user = await db.findUserById(req.user.id);
   if (!user) return res.status(404).json({ error: 'not_found' });
   res.json({ user: publicUser(user) });
 });
@@ -247,14 +279,14 @@ router.post('/change-password', requireAuth, async (req, res) => {
     const { oldPassword, newPassword } = req.body || {};
     const policyError = validatePasswordPolicy(newPassword);
     if (policyError) return res.status(400).json({ error: 'weak_password', message: policyError });
-    const user = db.findUserById(req.user.id);
+    const user = await db.findUserById(req.user.id);
     if (user.password_hash) {
       const ok = await verifyPassword(oldPassword || '', user.password_hash);
       if (!ok) return res.status(401).json({ error: 'wrong_password' });
     }
     const hash = await hashPassword(newPassword);
-    db.updateUser(user.id, { password_hash: hash, updated_at: now() });
-    db.revokeAllUserTokens(user.id, now());
+    await db.updateUser(user.id, { password_hash: hash, updated_at: now() });
+    await db.revokeAllUserTokens(user.id, now());
     audit(user.id, 'change_password', null, req);
     res.json({ ok: true });
   } catch (e) {
