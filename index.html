@@ -4600,7 +4600,7 @@ function closeCompletenessModal() {
 }
 window.closeCompletenessModal = closeCompletenessModal;
 
-function generatePlan(format = 'pdf') {
+async function generatePlan(format = 'pdf') {
   // Pre-export completeness check
   if (!generatePlan._bypassCheck) {
     const issues = checkPlanCompleteness();
@@ -4612,7 +4612,96 @@ function generatePlan(format = 'pdf') {
       return;
     }
   }
+
+  // Credit charge — fail-closed: only proceed if backend confirms ok.
+  // Same lesson_hash = idempotent (PDF+DOCX of same lesson = 1 credit).
+  const charged = await chargeExportCredit(format);
+  if (!charged) return;
+
   return _doGeneratePlan(format);
+}
+
+// ─── Credit charging for lesson export ───────────────────
+async function _hashLessonForCharge() {
+  // Hash a stable subset of the lesson form so that re-exporting the same
+  // lesson (PDF after DOCX, etc.) reuses the same ref_id.
+  const fields = ['plan-number','subject-name','subject-group','class-level','semester',
+    'academic-year','teacher-name','unit-number','topic','key-concept','task-description'];
+  const obj = {};
+  fields.forEach(id => { const el = document.getElementById(id); if (el) obj[id] = el.value || ''; });
+  obj.indicators = [...document.querySelectorAll('#indicators-container .ind-btn.selected')]
+    .map(btn => btn.dataset.indId).sort();
+  ['k','p','a'].forEach(g => {
+    obj['obj_'+g] = [...document.querySelectorAll('#objectives-' + g + ' .obj-input')]
+      .map(el => el.value.trim()).filter(Boolean);
+  });
+  const json = JSON.stringify(obj);
+  if (window.crypto && window.crypto.subtle) {
+    const buf = new TextEncoder().encode(json);
+    const h = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  // Fallback hash if SubtleCrypto unavailable
+  let h = 0;
+  for (let i = 0; i < json.length; i++) h = ((h << 5) - h) + json.charCodeAt(i) | 0;
+  return 'fallback' + Math.abs(h).toString(36).padStart(10,'0');
+}
+
+async function chargeExportCredit(format) {
+  // If auth is disabled (dev/local), skip the charge entirely
+  if (typeof window.authFetch !== 'function') return true;
+  try {
+    const lesson_hash = await _hashLessonForCharge();
+    const res = await window.authFetch('/api/credits/charge-export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lesson_hash, format }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      if (typeof window.updateCreditsUI === 'function') window.updateCreditsUI(data.credits);
+      if (!data.already_charged) showExportToast(`✓ หัก 1 เครดิต · เหลือ ${data.credits} แผน`, 'ok');
+      else showExportToast(`♻️ Export ซ้ำ ไม่หักเครดิต · เหลือ ${data.credits} แผน`, 'info');
+      return true;
+    }
+    if (res.status === 402) {
+      showExportToast('❌ เครดิตไม่เพียงพอ กรุณาเติมเครดิต', 'err');
+      if (typeof window.openTopupModal === 'function') {
+        setTimeout(() => window.openTopupModal(), 600);
+      }
+      return false;
+    }
+    showExportToast('❌ ไม่สามารถยืนยันเครดิตได้ กรุณาลองใหม่', 'err');
+    return false;
+  } catch(e) {
+    console.error('chargeExportCredit failed', e);
+    showExportToast('❌ ขัดข้องเครือข่าย กรุณาลองใหม่', 'err');
+    return false;
+  }
+}
+
+function showExportToast(text, kind = 'ok') {
+  const colors = {
+    ok:   { bg:'#dcfce7', bd:'#16a34a', fg:'#166534' },
+    info: { bg:'#dbeafe', bd:'#2563eb', fg:'#1e3a8a' },
+    err:  { bg:'#fee2e2', bd:'#dc2626', fg:'#991b1b' },
+  }[kind] || { bg:'#f3f4f6', bd:'#6b7280', fg:'#1f2937' };
+  let el = document.getElementById('export-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'export-toast';
+    el.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); ' +
+      'padding:12px 20px; border-radius:10px; font-size:.9rem; font-weight:700; ' +
+      'box-shadow:0 8px 24px rgba(0,0,0,.15); z-index:11000; transition:opacity .25s;';
+    document.body.appendChild(el);
+  }
+  el.style.background = colors.bg;
+  el.style.border = `2px solid ${colors.bd}`;
+  el.style.color = colors.fg;
+  el.textContent = text;
+  el.style.opacity = '1';
+  clearTimeout(showExportToast._t);
+  showExportToast._t = setTimeout(() => { el.style.opacity = '0'; }, 3000);
 }
 
 function _doGeneratePlan(format = 'pdf') {

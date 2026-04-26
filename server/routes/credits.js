@@ -169,6 +169,51 @@ router.get('/topup/status/:chargeId', async (req, res) => {
   }
 });
 
+// ─── POST /api/credits/charge-export ─────────────────────
+// Charges 1 credit per unique lesson export (Pattern A: deduct first).
+// Idempotent: same lesson_hash → no double charge (so PDF + DOCX of the
+// same lesson costs 1 credit total, not 2). Editing the lesson changes
+// the hash and triggers a fresh charge.
+router.post('/charge-export', async (req, res) => {
+  try {
+    const { lesson_hash, format } = req.body || {};
+    if (!lesson_hash || typeof lesson_hash !== 'string' || lesson_hash.length < 8) {
+      return res.status(400).json({ error: 'invalid_lesson_hash' });
+    }
+    const cost = 1;
+    const refId = `export:${req.user.id}:${lesson_hash}`;
+
+    // Idempotency: if this lesson was already charged for this user → free re-export
+    const existing = await db.findCreditTransactionByRefId(refId);
+    if (existing) {
+      const balance = await db.getCredits(req.user.id);
+      return res.json({ ok: true, already_charged: true, credits: balance });
+    }
+
+    // Atomic deduct (rejects if balance < cost)
+    const result = await db.deductCredits(
+      req.user.id, cost, 'usage',
+      `Export แผน (${format || 'unknown'})`,
+      refId
+    );
+    if (!result.ok) {
+      return res.status(402).json({
+        error: 'insufficient_credits',
+        message: 'เครดิตไม่เพียงพอ กรุณาเติมเครดิต',
+      });
+    }
+    res.json({
+      ok: true,
+      already_charged: false,
+      credits: result.balance_after,
+      deducted: cost,
+    });
+  } catch (e) {
+    console.error('charge-export error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
 // ─── POST /api/credits/topup/verify-slip ─────────────────
 // User uploads slip image → forward to SlipOK → if valid, credit user
 // Body (multipart/form-data): slip (image file), package_id (string)
