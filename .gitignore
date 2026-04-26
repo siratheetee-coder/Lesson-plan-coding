@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Environment secrets — NEVER commit these
+.env
+server/.env
+
+# Database (local dev only)
+server/data/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
