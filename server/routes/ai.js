@@ -1,5 +1,6 @@
 // AI endpoints (Claude API integration).
-// Pattern: deduct first → call Claude → refund on failure.
+// AI calls are FREE — credits are only charged on lesson export (1 credit = 1 แผน).
+// Pattern (cost > 0 only): deduct first → call Claude → refund on failure.
 // Per-user rate limit + global ref_id idempotency.
 
 import express from 'express';
@@ -29,46 +30,72 @@ const aiLimiter = rateLimit({
   message: { error: 'rate_limited', message: 'เรียกใช้ AI ถี่เกินไป กรุณารอสักครู่' },
 });
 
-// ─── Generic handler with Pattern A (deduct → call → refund on fail) ─
+// ─── Generic handler ──────────────────────────────────────
+// cost = 0 → free AI call (no credit ledger entries)
+// cost > 0 → Pattern A: deduct first → call Claude → refund on failure
 async function handleAi(req, res, { kind, cost, generator }) {
   if (!isConfigured()) {
     return res.status(503).json({ error: 'claude_not_configured', message: 'ระบบ AI ยังไม่ได้ตั้งค่า' });
   }
   try {
-    const idemKey = req.body?.idempotency_key || crypto.randomUUID();
-    const refId = `ai:${kind}:${req.user.id}:${idemKey}`;
-    const existing = await db.findCreditTransactionByRefId(refId);
-    if (existing) {
-      return res.status(409).json({
-        error: 'duplicate_request',
-        message: 'คำขอนี้ถูกประมวลผลไปแล้ว กรุณาลองใหม่',
+    // ── Paid path: credit check + idempotency guard ──────
+    if (cost > 0) {
+      const idemKey = req.body?.idempotency_key || crypto.randomUUID();
+      const refId = `ai:${kind}:${req.user.id}:${idemKey}`;
+      const existing = await db.findCreditTransactionByRefId(refId);
+      if (existing) {
+        return res.status(409).json({
+          error: 'duplicate_request',
+          message: 'คำขอนี้ถูกประมวลผลไปแล้ว กรุณาลองใหม่',
+        });
+      }
+
+      const deduct = await db.deductCredits(
+        req.user.id, cost, 'usage',
+        `AI: ${kind}`, refId
+      );
+      if (!deduct.ok) {
+        return res.status(402).json({
+          error: 'insufficient_credits',
+          message: 'เครดิตไม่เพียงพอ กรุณาเติมเครดิต',
+        });
+      }
+
+      let result;
+      try {
+        result = await generator(req.body || {});
+      } catch (err) {
+        await db.addCredits(
+          req.user.id, cost, 'refund',
+          `คืนเครดิต — AI ${kind} ขัดข้อง (${err.code || err.message})`,
+          `refund:${refId}`
+        ).catch(() => {});
+        console.error(`[ai/${kind}] generation failed:`, err.message, err.raw || '');
+        return res.status(502).json({
+          error: 'claude_failed',
+          message: 'AI ขัดข้องชั่วคราว เครดิตได้คืนแล้ว กรุณาลองใหม่',
+        });
+      }
+
+      const balance = await db.getCredits(req.user.id);
+      return res.json({
+        ok: true,
+        data: result.data,
+        credits: balance,
+        deducted: cost,
+        idempotency_key: idemKey,
       });
     }
 
-    const deduct = await db.deductCredits(
-      req.user.id, cost, 'usage',
-      `AI: ${kind}`, refId
-    );
-    if (!deduct.ok) {
-      return res.status(402).json({
-        error: 'insufficient_credits',
-        message: 'เครดิตไม่เพียงพอ กรุณาเติมเครดิต',
-      });
-    }
-
+    // ── Free path: just call Claude, no ledger touch ─────
     let result;
     try {
       result = await generator(req.body || {});
     } catch (err) {
-      await db.addCredits(
-        req.user.id, cost, 'refund',
-        `คืนเครดิต — AI ${kind} ขัดข้อง (${err.code || err.message})`,
-        `refund:${refId}`
-      ).catch(() => {});
       console.error(`[ai/${kind}] generation failed:`, err.message, err.raw || '');
       return res.status(502).json({
         error: 'claude_failed',
-        message: 'AI ขัดข้องชั่วคราว เครดิตได้คืนแล้ว กรุณาลองใหม่',
+        message: 'AI ขัดข้องชั่วคราว กรุณาลองใหม่',
       });
     }
 
@@ -77,8 +104,8 @@ async function handleAi(req, res, { kind, cost, generator }) {
       ok: true,
       data: result.data,
       credits: balance,
-      deducted: cost,
-      idempotency_key: idemKey,
+      deducted: 0,
+      idempotency_key: null,
     });
   } catch (e) {
     console.error(`[ai/${kind}] handler error:`, e);
@@ -86,7 +113,7 @@ async function handleAi(req, res, { kind, cost, generator }) {
   }
 }
 
-const COST = 1; // 1 credit per AI call
+const COST = 0; // AI generation is FREE — 1 credit is charged only on export
 
 // ─── 6 AI endpoints ──────────────────────────────────────
 router.post('/generate-objectives', aiLimiter, (req, res) =>

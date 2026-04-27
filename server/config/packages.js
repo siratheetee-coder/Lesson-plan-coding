@@ -1,4 +1,5 @@
 // ─── Credit Packages ─────────────────────────────────────
+// 1 credit = 1 lesson plan export  (AI generation is always free)
 // price_thb is in Thai Baht (integer)
 export const PACKAGES = [
   { id: 'pack_10',  credits: 10,  price_thb: 49,  label: '10 แผน',  badge: null },
@@ -7,11 +8,18 @@ export const PACKAGES = [
   { id: 'pack_100', credits: 100, price_thb: 259, label: '100 แผน', badge: 'คุ้มที่สุด' },
 ];
 
-// ─── AI Feature Costs (credits per call) ─────────────────
+// ─── AI Feature Costs ─────────────────────────────────────
+// All AI generation calls are FREE (0 credits).
+// Credits are deducted only when the teacher exports a finished lesson plan.
 export const AI_COSTS = {
-  generate_rubric:  1,
-  generate_outline: 1,
+  generate_objectives:    0,
+  generate_concept:       0,
+  generate_media:         0,
+  generate_task:          0,
+  generate_activities:    0,
+  generate_passing_criteria: 0,
 };
 
 // ─── Free credits given on first registration ─────────────
-export const FREE_CREDITS_ON_REGISTER = 3;
+// 5 free exports so new teachers can finish 5 complete lesson plans before buying.
+export const FREE_CREDITS_ON_REGISTER = 5;
