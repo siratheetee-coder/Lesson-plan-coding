@@ -8,6 +8,8 @@
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
   * { box-sizing: border-box; }
   body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f1f5f9; color: #1e293b; }
+
+  /* ── Topbar ── */
   .topbar {
     background: #1e293b; color: #fff; padding: 14px 24px;
     display: flex; align-items: center; justify-content: space-between;
@@ -21,19 +23,21 @@
   }
   .topbar a:hover, .topbar button:hover { background: rgba(255,255,255,.2); }
 
-  .container { max-width: 1280px; margin: 24px auto; padding: 0 24px; }
+  .container { max-width: 1340px; margin: 24px auto; padding: 0 24px; }
 
-  /* Stats cards */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  /* ── Stats cards ── */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
   .stat-card {
-    background: #fff; border-radius: 12px; padding: 20px;
+    background: #fff; border-radius: 12px; padding: 18px 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,.06);
   }
-  .stat-card .label { color: #64748b; font-size: .85rem; margin-bottom: 6px; }
-  .stat-card .value { font-size: 2rem; font-weight: 700; color: #2563eb; }
+  .stat-card .label { color: #64748b; font-size: .8rem; margin-bottom: 4px; }
+  .stat-card .value { font-size: 1.9rem; font-weight: 700; color: #2563eb; }
+  .stat-card.green .value { color: #059669; }
+  .stat-card.amber .value { color: #d97706; }
   .stat-card.warn .value { color: #dc2626; }
 
-  /* Tabs */
+  /* ── Tabs ── */
   .tabs { display: flex; gap: 4px; border-bottom: 2px solid #e2e8f0; margin-bottom: 16px; }
   .tab {
     padding: 10px 20px; cursor: pointer; border: none; background: transparent;
@@ -43,51 +47,123 @@
   .tab.active { color: #2563eb; border-bottom-color: #2563eb; }
   .tab:hover:not(.active) { color: #1e293b; }
 
-  /* Search */
-  .toolbar { display: flex; gap: 12px; margin-bottom: 14px; }
+  /* ── Toolbar ── */
+  .toolbar { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
   .toolbar input {
-    flex: 1; padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
+    flex: 1; min-width: 220px; padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
     font-family: inherit; font-size: .95rem;
   }
   .toolbar input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
 
-  /* Tables */
+  /* ── Tables ── */
   .table-wrap { background: #fff; border-radius: 12px; overflow: auto; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-  th { background: #f8fafc; text-align: left; padding: 12px 14px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
-  td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th { background: #f8fafc; text-align: left; padding: 11px 14px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+  td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
   tr:hover { background: #f8fafc; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: .75rem; font-weight: 500; }
-  .badge.admin { background: #fef3c7; color: #92400e; }
-  .badge.teacher { background: #dbeafe; color: #1e40af; }
-  .badge.locked { background: #fee2e2; color: #991b1b; }
-  .badge.google { background: #ecfdf5; color: #065f46; }
 
-  .row-actions { display: flex; gap: 6px; }
+  /* ── Badges ── */
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: .73rem; font-weight: 600; }
+  .badge.admin   { background: #fef3c7; color: #92400e; }
+  .badge.teacher { background: #dbeafe; color: #1e40af; }
+  .badge.locked  { background: #fee2e2; color: #991b1b; }
+  .badge.google  { background: #ecfdf5; color: #065f46; }
+  .badge.ok      { background: #d1fae5; color: #065f46; }
+  .badge.usage   { background: #fee2e2; color: #991b1b; }
+  .badge.bonus   { background: #d1fae5; color: #065f46; }
+  .badge.topup   { background: #dbeafe; color: #1e40af; }
+  .badge.manual_grant  { background: #ede9fe; color: #5b21b6; }
+  .badge.manual_deduct { background: #fef3c7; color: #92400e; }
+  .badge.refund  { background: #f3f4f6; color: #374151; }
+
+  /* ── Buttons ── */
+  .row-actions { display: flex; gap: 5px; flex-wrap: wrap; }
   .btn {
     padding: 5px 10px; border-radius: 6px; border: 1px solid #cbd5e1;
-    background: #fff; font-family: inherit; font-size: .8rem; cursor: pointer;
+    background: #fff; font-family: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap;
   }
   .btn:hover { background: #f1f5f9; }
   .btn.danger { color: #b91c1c; border-color: #fecaca; }
   .btn.danger:hover { background: #fef2f2; }
   .btn.primary { color: #fff; background: #2563eb; border-color: #2563eb; }
   .btn.primary:hover { background: #1d4ed8; }
+  .btn.green { color: #fff; background: #059669; border-color: #059669; }
+  .btn.green:hover { background: #047857; }
+  .btn.purple { color: #fff; background: #7c3aed; border-color: #7c3aed; }
+  .btn.purple:hover { background: #6d28d9; }
+  .btn.sm { padding: 3px 8px; font-size: .75rem; }
 
-  .empty { text-align: center; padding: 40px; color: #94a3b8; }
-  .loading { text-align: center; padding: 40px; color: #64748b; }
-  .err { background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
+  /* ── Credits display ── */
+  .credit-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    color: #065f46; border-radius: 20px; padding: 3px 10px;
+    font-size: .82rem; font-weight: 700;
+  }
+  .credit-pill.low { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .credit-pill.zero { background: #f1f5f9; border-color: #cbd5e1; color: #64748b; }
 
-  /* Modal for user details */
-  .modal-bg { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: none; align-items: center; justify-content: center; z-index: 100; }
+  /* ── Empty / loading / error ── */
+  .empty   { text-align: center; padding: 48px; color: #94a3b8; }
+  .loading { text-align: center; padding: 48px; color: #64748b; }
+  .err     { background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin: 12px 0; }
+  .info    { background: #eff6ff; color: #1e40af; padding: 10px 14px; border-radius: 8px; margin: 10px 0; font-size: .88rem; }
+
+  /* ── Modals ── */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(15,23,42,.55);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+    padding: 20px;
+  }
   .modal-bg.show { display: flex; }
-  .modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 720px; width: 90vw; max-height: 90vh; overflow: auto; }
-  .modal h3 { margin: 0 0 12px; }
-  .modal .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; font-size: .9rem; margin-bottom: 16px; }
-  .modal .kv b { color: #475569; font-weight: 500; }
-  .modal .close { float: right; cursor: pointer; color: #64748b; font-size: 1.4rem; line-height: 1; }
-  .modal h4 { margin: 16px 0 8px; font-size: .95rem; color: #475569; }
-  .modal pre { background: #f8fafc; padding: 8px; border-radius: 6px; font-size: .8rem; overflow: auto; }
+  .modal {
+    background: #fff; border-radius: 16px; padding: 28px;
+    width: 100%; max-width: 760px; max-height: 90vh;
+    overflow: auto; position: relative;
+  }
+  .modal.sm { max-width: 440px; }
+  .modal h3 { margin: 0 0 16px; font-size: 1.15rem; }
+  .modal .close {
+    position: absolute; top: 16px; right: 18px;
+    cursor: pointer; color: #94a3b8; font-size: 1.5rem; line-height: 1;
+    background: none; border: none; padding: 0;
+  }
+  .modal .close:hover { color: #1e293b; }
+
+  /* kv grid for user detail */
+  .kv { display: grid; grid-template-columns: 150px 1fr; gap: 8px 12px; font-size: .88rem; margin-bottom: 16px; }
+  .kv b { color: #475569; font-weight: 500; }
+
+  /* credit section in modal */
+  .credit-section { background: #f8fafc; border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+  .credit-section h4 { margin: 0 0 12px; font-size: .92rem; color: #374151; }
+  .credit-balance-big {
+    font-size: 2.4rem; font-weight: 800; color: #059669;
+    line-height: 1; margin-bottom: 4px;
+  }
+  .credit-balance-big.low { color: #dc2626; }
+  .credit-balance-big.zero { color: #94a3b8; }
+
+  /* grant form */
+  .grant-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 14px; }
+  .grant-form .field { display: flex; flex-direction: column; gap: 4px; }
+  .grant-form label { font-size: .78rem; font-weight: 600; color: #475569; }
+  .grant-form input, .grant-form textarea {
+    padding: 8px 11px; border: 1px solid #cbd5e1; border-radius: 8px;
+    font-family: inherit; font-size: .88rem;
+  }
+  .grant-form input:focus, .grant-form textarea:focus {
+    outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+  }
+  .grant-form input[type=number] { width: 110px; }
+
+  /* txn history */
+  .txn-amount { font-weight: 700; }
+  .txn-amount.pos { color: #059669; }
+  .txn-amount.neg { color: #dc2626; }
+
+  pre { background: #f8fafc; padding: 8px; border-radius: 6px; font-size: .78rem; overflow: auto; }
 </style>
 </head>
 <body>
@@ -102,16 +178,22 @@
 </div>
 
 <div class="container">
-  <div id="root">
-    <div class="loading">กำลังโหลด...</div>
+  <div id="root"><div class="loading">กำลังโหลด...</div></div>
+</div>
+
+<!-- ── User detail modal ── -->
+<div class="modal-bg" id="user-modal">
+  <div class="modal">
+    <button class="close" onclick="closeUserModal()">×</button>
+    <div id="user-modal-body"></div>
   </div>
 </div>
 
-<!-- User detail modal -->
-<div class="modal-bg" id="user-modal">
-  <div class="modal">
-    <span class="close" onclick="closeModal()">×</span>
-    <div id="modal-body"></div>
+<!-- ── Grant credits modal ── -->
+<div class="modal-bg" id="grant-modal">
+  <div class="modal sm">
+    <button class="close" onclick="closeGrantModal()">×</button>
+    <div id="grant-modal-body"></div>
   </div>
 </div>
 
@@ -153,25 +235,21 @@ async function refreshSession() {
 
 // ─── Boot ────────────────────────────────────────────────
 async function boot() {
-  try {
-    await refreshSession();
-  } catch {
-    document.body.innerHTML = '<div style="padding:40px;text-align:center"><h2>กรุณาเข้าสู่ระบบก่อน</h2><a href="/">→ ไปหน้า login</a></div>';
+  try { await refreshSession(); }
+  catch {
+    document.body.innerHTML = '<div style="padding:60px;text-align:center"><h2>กรุณาเข้าสู่ระบบก่อน</h2><a href="/">→ ไปหน้า login</a></div>';
     return;
   }
   if (currentUser.role !== 'admin') {
-    document.body.innerHTML = `<div style="padding:40px;text-align:center"><h2>⛔ Access Denied</h2><p>คุณไม่มีสิทธิ์เข้าหน้านี้ — ต้องเป็น admin</p><p><b>${currentUser.email}</b> (${currentUser.role})</p><a href="/">← กลับหน้าหลัก</a></div>`;
+    document.body.innerHTML = `<div style="padding:60px;text-align:center"><h2>⛔ Access Denied</h2><p>คุณไม่มีสิทธิ์เข้าหน้านี้ — ต้องเป็น admin</p><p><b>${currentUser.email}</b> (${currentUser.role})</p><a href="/">← กลับหน้าหลัก</a></div>`;
     return;
   }
   $('me-info').textContent = '👤 ' + (currentUser.displayName || currentUser.email) + ' (admin)';
-  $('logout-btn').onclick = async () => {
-    await api('/auth/logout', { method: 'POST' }).catch(() => {});
-    location.href = '/';
-  };
+  $('logout-btn').onclick = async () => { await api('/auth/logout',{method:'POST'}).catch(()=>{}); location.href='/'; };
   renderApp();
 }
 
-// ─── Render ──────────────────────────────────────────────
+// ─── App shell ───────────────────────────────────────────
 async function renderApp() {
   const root = $('root');
   root.innerHTML = '<div class="loading">กำลังโหลด stats...</div>';
@@ -181,32 +259,59 @@ async function renderApp() {
 
   root.innerHTML = `
     <div class="stats">
-      <div class="stat-card"><div class="label">ผู้ใช้ทั้งหมด</div><div class="value">${stats.totalUsers}</div></div>
-      <div class="stat-card"><div class="label">Login วันนี้</div><div class="value">${stats.loginsToday}</div></div>
-      <div class="stat-card"><div class="label">User ใหม่ 7 วัน</div><div class="value">${stats.newUsersThisWeek}</div></div>
-      <div class="stat-card ${stats.lockedUsers ? 'warn' : ''}"><div class="label">บัญชีถูกล็อก</div><div class="value">${stats.lockedUsers}</div></div>
+      <div class="stat-card">
+        <div class="label">👥 ผู้ใช้ทั้งหมด</div>
+        <div class="value">${fmt(stats.totalUsers)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🔐 Login วันนี้</div>
+        <div class="value">${fmt(stats.loginsToday)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🆕 User ใหม่ 7 วัน</div>
+        <div class="value">${fmt(stats.newUsersThisWeek)}</div>
+      </div>
+      <div class="stat-card ${stats.lockedUsers ? 'warn' : ''}">
+        <div class="label">🔒 บัญชีถูกล็อก</div>
+        <div class="value">${fmt(stats.lockedUsers)}</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">⚡ เครดิตรวมในระบบ</div>
+        <div class="value">${fmt(stats.totalCreditsCirculating ?? '—')}</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="label">📄 Exports สัปดาห์นี้</div>
+        <div class="value">${fmt(stats.exportsThisWeek ?? '—')}</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">🎁 เครดิตแจก 7 วัน</div>
+        <div class="value">${fmt(stats.creditsGrantedThisWeek ?? '—')}</div>
+      </div>
     </div>
 
     <div class="tabs">
-      <button class="tab ${currentTab === 'users' ? 'active' : ''}" data-tab="users">👥 Users</button>
-      <button class="tab ${currentTab === 'audit' ? 'active' : ''}" data-tab="audit">📋 Audit Log</button>
+      <button class="tab ${currentTab==='users'?'active':''}"   data-tab="users">👥 Users</button>
+      <button class="tab ${currentTab==='credits'?'active':''}" data-tab="credits">⚡ Credits</button>
+      <button class="tab ${currentTab==='audit'?'active':''}"   data-tab="audit">📋 Audit Log</button>
     </div>
-
     <div id="tab-content"></div>
   `;
   document.querySelectorAll('.tab').forEach(b => b.onclick = () => { currentTab = b.dataset.tab; renderApp(); });
 
-  if (currentTab === 'users') renderUsers();
+  if (currentTab === 'users')   renderUsers();
+  else if (currentTab === 'credits') renderCredits();
   else renderAudit();
 }
 
-// ─── Users tab ───────────────────────────────────────────
+// ════════════════════════════════════════════════════════
+//  USERS TAB
+// ════════════════════════════════════════════════════════
 let userSearch = '';
 async function renderUsers() {
   const c = $('tab-content');
   c.innerHTML = `
     <div class="toolbar">
-      <input id="search" placeholder="ค้นหา email หรือชื่อ..." value="${userSearch}" />
+      <input id="search" placeholder="ค้นหา email หรือชื่อ..." value="${escapeAttr(userSearch)}" />
     </div>
     <div id="users-table"><div class="loading">กำลังโหลด...</div></div>
   `;
@@ -214,98 +319,363 @@ async function renderUsers() {
   loadUsers();
 }
 
-let debounceTimer = null;
-function debounce(fn, ms) { return (...a) => { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn(...a), ms); }; }
-
 async function loadUsers() {
   const wrap = $('users-table');
   wrap.innerHTML = '<div class="loading">กำลังโหลด...</div>';
   try {
     const { users, total } = await api('/admin/api/users?search=' + encodeURIComponent(userSearch));
-    if (!users.length) {
-      wrap.innerHTML = '<div class="empty">ไม่มีผู้ใช้</div>';
-      return;
-    }
+    if (!users.length) { wrap.innerHTML = '<div class="empty">ไม่พบผู้ใช้</div>'; return; }
     wrap.innerHTML = `
       <div class="table-wrap"><table>
         <thead><tr>
-          <th>Email</th><th>ชื่อ</th><th>Role</th><th>วิธี login</th>
-          <th>สมัคร</th><th>Login ล่าสุด</th><th>สถานะ</th><th></th>
+          <th>Email</th><th>ชื่อ</th><th>Role</th>
+          <th>Login</th><th>⚡ เครดิต</th>
+          <th>สมัคร</th><th>สถานะ</th><th></th>
         </tr></thead>
         <tbody>
           ${users.map(u => `
             <tr>
-              <td><a href="#" data-id="${u.id}" class="user-link">${escapeHtml(u.email)}</a></td>
+              <td><a href="#" data-id="${u.id}" class="user-link" style="color:#2563eb;text-decoration:none;">${escapeHtml(u.email)}</a></td>
               <td>${escapeHtml(u.display_name || '—')}</td>
               <td><span class="badge ${u.role}">${u.role}</span></td>
               <td>${u.has_password ? '🔑' : ''} ${u.has_google ? '<span class="badge google">G</span>' : ''}</td>
-              <td>${fmtDate(u.created_at)}</td>
-              <td>${u.last_login_at ? fmtDate(u.last_login_at) : '—'}</td>
-              <td>${u.locked_until && u.locked_until > Date.now() ? '<span class="badge locked">🔒 ล็อก</span>' : '✓'}</td>
+              <td>${creditPill(u.credits)}</td>
+              <td style="white-space:nowrap">${fmtDate(u.created_at)}</td>
+              <td>${isLocked(u) ? '<span class="badge locked">🔒 ล็อก</span>' : '<span class="badge ok">✓</span>'}</td>
               <td class="row-actions">
-                ${u.locked_until && u.locked_until > Date.now()
-                  ? `<button class="btn" onclick="unlockUser('${u.id}')">ปลดล็อก</button>`
-                  : `<button class="btn" onclick="lockUser('${u.id}')">ล็อก</button>`}
+                <button class="btn purple sm" onclick="openGrantModal('${u.id}','${escapeAttr(u.email)}',${u.credits || 0})">⚡ เครดิต</button>
+                ${isLocked(u)
+                  ? `<button class="btn sm" onclick="unlockUser('${u.id}')">ปลดล็อก</button>`
+                  : `<button class="btn sm" onclick="lockUser('${u.id}')">ล็อก</button>`}
                 ${u.role === 'admin'
-                  ? `<button class="btn" onclick="changeRole('${u.id}','teacher')">ลด</button>`
-                  : `<button class="btn" onclick="changeRole('${u.id}','admin')">เลื่อนเป็น admin</button>`}
-                <button class="btn danger" onclick="deleteUser('${u.id}','${escapeHtml(u.email)}')">ลบ</button>
+                  ? `<button class="btn sm" onclick="changeRole('${u.id}','teacher')">ลด role</button>`
+                  : `<button class="btn sm" onclick="changeRole('${u.id}','admin')">→ admin</button>`}
+                <button class="btn danger sm" onclick="deleteUser('${u.id}','${escapeAttr(u.email)}')">ลบ</button>
               </td>
             </tr>
           `).join('')}
         </tbody>
       </table></div>
-      <p style="color:#64748b;font-size:.85rem;margin-top:8px">แสดง ${users.length} จากทั้งหมด ${total}</p>
+      <p style="color:#64748b;font-size:.82rem;margin-top:8px">แสดง ${users.length} จากทั้งหมด ${total}</p>
     `;
-    document.querySelectorAll('.user-link').forEach(a => {
-      a.onclick = (e) => { e.preventDefault(); openUserModal(a.dataset.id); };
-    });
-  } catch (e) {
-    wrap.innerHTML = `<div class="err">${e.message}</div>`;
-  }
+    document.querySelectorAll('.user-link').forEach(a =>
+      a.onclick = (e) => { e.preventDefault(); openUserModal(a.dataset.id); }
+    );
+  } catch (e) { wrap.innerHTML = `<div class="err">${escapeHtml(e.message)}</div>`; }
 }
 
+// ════════════════════════════════════════════════════════
+//  CREDITS TAB
+// ════════════════════════════════════════════════════════
+let creditSearch = '';
+async function renderCredits() {
+  const c = $('tab-content');
+  c.innerHTML = `
+    <div class="info">⚡ เครดิตถูกหักเมื่อ Export แผนการสอน — AI generation ฟรีทั้งหมด · คลิกชื่อหรือปุ่ม "จัดการ" เพื่อดูประวัติและแก้ไขเครดิต</div>
+    <div class="toolbar">
+      <input id="credit-search" placeholder="ค้นหา email หรือชื่อ..." value="${escapeAttr(creditSearch)}" />
+      <button class="btn green" onclick="openGrantModal(null,null,0)">＋ เพิ่มเครดิต (เลือก user)</button>
+    </div>
+    <div id="credits-table"><div class="loading">กำลังโหลด...</div></div>
+  `;
+  $('credit-search').oninput = debounce(() => { creditSearch = $('credit-search').value; loadCredits(); }, 300);
+  loadCredits();
+}
+
+async function loadCredits() {
+  const wrap = $('credits-table');
+  wrap.innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  try {
+    const { users, total } = await api('/admin/api/users?search=' + encodeURIComponent(creditSearch) + '&limit=200');
+    // Sort by credits descending
+    users.sort((a, b) => (b.credits || 0) - (a.credits || 0));
+    if (!users.length) { wrap.innerHTML = '<div class="empty">ไม่พบผู้ใช้</div>'; return; }
+    wrap.innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>#</th><th>Email</th><th>ชื่อ</th>
+          <th>⚡ เครดิตคงเหลือ</th><th>สมัคร</th><th>Login ล่าสุด</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${users.map((u, i) => `
+            <tr>
+              <td style="color:#94a3b8;font-size:.78rem">${i + 1}</td>
+              <td><a href="#" data-id="${u.id}" class="credit-user-link" style="color:#2563eb;text-decoration:none;">${escapeHtml(u.email)}</a></td>
+              <td>${escapeHtml(u.display_name || '—')}</td>
+              <td>${creditPill(u.credits)}</td>
+              <td style="white-space:nowrap;font-size:.82rem">${fmtDate(u.created_at)}</td>
+              <td style="white-space:nowrap;font-size:.82rem">${u.last_login_at ? fmtDate(u.last_login_at) : '—'}</td>
+              <td class="row-actions">
+                <button class="btn purple sm" onclick="openGrantModal('${u.id}','${escapeAttr(u.email)}',${u.credits || 0})">⚡ จัดการ</button>
+                <button class="btn sm" onclick="openUserModal('${u.id}')">ดูประวัติ</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+      <p style="color:#64748b;font-size:.82rem;margin-top:8px">ทั้งหมด ${total} user</p>
+    `;
+    document.querySelectorAll('.credit-user-link').forEach(a =>
+      a.onclick = (e) => { e.preventDefault(); openUserModal(a.dataset.id); }
+    );
+  } catch (e) { wrap.innerHTML = `<div class="err">${escapeHtml(e.message)}</div>`; }
+}
+
+// ════════════════════════════════════════════════════════
+//  AUDIT LOG TAB
+// ════════════════════════════════════════════════════════
+async function renderAudit() {
+  const c = $('tab-content');
+  c.innerHTML = '<div class="loading">กำลังโหลด audit log...</div>';
+  try {
+    const { log } = await api('/admin/api/audit');
+    if (!log.length) { c.innerHTML = '<div class="empty">ไม่มีกิจกรรม</div>'; return; }
+    c.innerHTML = `
+      <div class="table-wrap"><table>
+        <thead><tr><th>เวลา</th><th>User</th><th>Action</th><th>IP</th><th>Detail</th></tr></thead>
+        <tbody>
+          ${log.map(a => `
+            <tr>
+              <td style="white-space:nowrap;font-size:.82rem">${fmtDate(a.created_at)}</td>
+              <td>${escapeHtml(a.email || a.user_id || '—')}</td>
+              <td><code style="font-size:.78rem">${escapeHtml(a.action)}</code></td>
+              <td>${a.ip || '—'}</td>
+              <td><code style="font-size:.72rem">${escapeHtml(a.meta || '')}</code></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    `;
+  } catch (e) { c.innerHTML = `<div class="err">${escapeHtml(e.message)}</div>`; }
+}
+
+// ════════════════════════════════════════════════════════
+//  USER DETAIL MODAL
+// ════════════════════════════════════════════════════════
 async function openUserModal(id) {
-  $('modal-body').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+  $('user-modal-body').innerHTML = '<div class="loading">กำลังโหลด...</div>';
   $('user-modal').classList.add('show');
   try {
-    const { user, auditLog } = await api('/admin/api/users/' + id);
-    $('modal-body').innerHTML = `
-      <h3>👤 ${escapeHtml(user.email)} <span class="close" onclick="closeModal()">×</span></h3>
+    const [{ user, auditLog }, { credits, history }] = await Promise.all([
+      api('/admin/api/users/' + id),
+      api('/admin/api/users/' + id + '/credits'),
+    ]);
+    $('user-modal-body').innerHTML = `
+      <h3>👤 ${escapeHtml(user.email)}</h3>
+
+      <!-- Credit section -->
+      <div class="credit-section">
+        <h4>⚡ เครดิต</h4>
+        <div class="credit-balance-big ${credits === 0 ? 'zero' : credits <= 2 ? 'low' : ''}">${credits}</div>
+        <div style="font-size:.82rem;color:#64748b;margin-bottom:14px;">เครดิตคงเหลือ</div>
+
+        <!-- Quick grant form -->
+        <div class="grant-form">
+          <div class="field">
+            <label>จำนวน (+ เพิ่ม / − ลด)</label>
+            <input type="number" id="modal-grant-amount" value="10" min="-9999" max="9999" style="width:110px">
+          </div>
+          <div class="field" style="flex:1;min-width:180px">
+            <label>หมายเหตุ (ไม่บังคับ)</label>
+            <input type="text" id="modal-grant-note" placeholder="เช่น แจกทดลองใช้ ชำระแล้ว...">
+          </div>
+          <button class="btn green" onclick="submitGrant('${user.id}','modal-grant-amount','modal-grant-note','modal-grant-result')">
+            ✓ ยืนยัน
+          </button>
+        </div>
+        <div id="modal-grant-result" style="margin-top:8px;font-size:.85rem;"></div>
+
+        <!-- Transaction history -->
+        <div style="margin-top:18px;">
+          <div style="font-size:.82rem;font-weight:600;color:#374151;margin-bottom:8px;">ประวัติธุรกรรม (50 รายการล่าสุด)</div>
+          ${history.length ? `
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>เวลา</th><th>ประเภท</th><th>จำนวน</th><th>คงเหลือ</th><th>หมายเหตุ</th></tr></thead>
+                <tbody>
+                  ${history.map(t => `
+                    <tr>
+                      <td style="white-space:nowrap;font-size:.78rem">${fmtDate(t.created_at)}</td>
+                      <td><span class="badge ${t.type}">${txnTypeLabel(t.type)}</span></td>
+                      <td class="txn-amount ${t.amount > 0 ? 'pos' : 'neg'}">${t.amount > 0 ? '+' : ''}${t.amount}</td>
+                      <td>${t.balance_after}</td>
+                      <td style="font-size:.8rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeAttr(t.note||'')}">${escapeHtml(t.note || '—')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : '<div style="font-size:.85rem;color:#94a3b8;padding:12px 0;">ไม่มีรายการ</div>'}
+        </div>
+      </div>
+
+      <!-- User info -->
       <div class="kv">
-        <b>ID</b><code style="font-size:.8rem">${user.id}</code>
+        <b>ID</b><code style="font-size:.78rem;word-break:break-all">${user.id}</code>
         <b>Email</b>${escapeHtml(user.email)}
         <b>ชื่อ</b>${escapeHtml(user.display_name || '—')}
         <b>Role</b><span class="badge ${user.role}">${user.role}</span>
         <b>Email verified</b>${user.email_verified ? '✓' : '—'}
         <b>มีรหัสผ่าน</b>${user.password_hash ? '✓' : '—'}
         <b>Google linked</b>${user.google_sub ? '✓' : '—'}
-        <b>Failed attempts</b>${user.failed_attempts || 0}
+        <b>Failed login</b>${user.failed_attempts || 0} ครั้ง
         <b>Locked until</b>${user.locked_until ? fmtDate(user.locked_until) : '—'}
         <b>Last login</b>${user.last_login_at ? fmtDate(user.last_login_at) : '—'}
         <b>สมัครเมื่อ</b>${fmtDate(user.created_at)}
       </div>
-      <h4>Activity (50 รายการล่าสุด)</h4>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Time</th><th>Action</th><th>IP</th><th>Detail</th></tr></thead>
-        <tbody>
-          ${auditLog.length ? auditLog.map(a => `
-            <tr>
-              <td style="white-space:nowrap">${fmtDate(a.created_at)}</td>
-              <td><code>${a.action}</code></td>
-              <td>${a.ip || '—'}</td>
-              <td><code style="font-size:.75rem">${escapeHtml(a.meta || '')}</code></td>
-            </tr>
-          `).join('') : '<tr><td colspan="4" class="empty">ไม่มีประวัติ</td></tr>'}
-        </tbody>
-      </table></div>
+
+      <!-- Audit log -->
+      <div style="font-size:.82rem;font-weight:600;color:#374151;margin-bottom:8px;">📋 กิจกรรม (50 รายการล่าสุด)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>เวลา</th><th>Action</th><th>IP</th><th>Detail</th></tr></thead>
+          <tbody>
+            ${auditLog.length ? auditLog.map(a => `
+              <tr>
+                <td style="white-space:nowrap;font-size:.78rem">${fmtDate(a.created_at)}</td>
+                <td><code style="font-size:.75rem">${escapeHtml(a.action)}</code></td>
+                <td>${a.ip || '—'}</td>
+                <td><code style="font-size:.72rem">${escapeHtml(a.meta || '')}</code></td>
+              </tr>
+            `).join('') : '<tr><td colspan="4" class="empty" style="padding:16px">ไม่มีประวัติ</td></tr>'}
+          </tbody>
+        </table>
+      </div>
     `;
   } catch (e) {
-    $('modal-body').innerHTML = `<div class="err">${e.message}</div>`;
+    $('user-modal-body').innerHTML = `<div class="err">${escapeHtml(e.message)}</div>`;
   }
 }
-function closeModal() { $('user-modal').classList.remove('show'); }
+function closeUserModal() { $('user-modal').classList.remove('show'); }
 
+// ════════════════════════════════════════════════════════
+//  GRANT CREDITS MODAL (standalone)
+// ════════════════════════════════════════════════════════
+let _grantTargetId = null;
+function openGrantModal(userId, email, currentCredits) {
+  _grantTargetId = userId;
+  const body = $('grant-modal-body');
+  body.innerHTML = `
+    <h3>⚡ จัดการเครดิต</h3>
+    ${userId ? `
+      <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;margin-bottom:16px;">
+        <div style="font-size:.82rem;color:#64748b;">ผู้ใช้</div>
+        <div style="font-weight:600;font-size:.95rem;">${escapeHtml(email)}</div>
+        <div style="margin-top:6px;">คงเหลือ: ${creditPill(currentCredits)}</div>
+      </div>
+    ` : `
+      <div style="margin-bottom:12px;">
+        <label style="font-size:.82rem;font-weight:600;color:#475569;display:block;margin-bottom:4px">เลือก User (email)</label>
+        <input id="grant-user-search" type="text" placeholder="พิมพ์ email..." style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:.9rem;">
+        <div id="grant-user-results" style="margin-top:6px;"></div>
+      </div>
+    `}
+    <div class="grant-form" style="flex-direction:column;gap:12px;">
+      <div class="field" style="width:100%">
+        <label>จำนวนเครดิต</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="gm-amount" value="10" min="-9999" max="9999" style="width:120px">
+          <div style="display:flex;gap:6px;">
+            <button class="btn sm green" onclick="$('gm-amount').value=10">+10</button>
+            <button class="btn sm green" onclick="$('gm-amount').value=40">+40</button>
+            <button class="btn sm green" onclick="$('gm-amount').value=60">+60</button>
+            <button class="btn sm green" onclick="$('gm-amount').value=100">+100</button>
+            <button class="btn sm danger" onclick="$('gm-amount').value=-10">−10</button>
+          </div>
+        </div>
+        <div style="font-size:.75rem;color:#64748b;margin-top:4px;">ค่าบวก = เพิ่มเครดิต, ค่าลบ = ลดเครดิต</div>
+      </div>
+      <div class="field" style="width:100%">
+        <label>หมายเหตุ (ไม่บังคับ)</label>
+        <input type="text" id="gm-note" placeholder="เช่น ชำระ PromptPay แล้ว, แก้ไขผิดพลาด...">
+      </div>
+      <button class="btn green" style="width:100%;padding:11px;font-size:.95rem;" onclick="submitGrantModal()">
+        ✓ ยืนยันการปรับเครดิต
+      </button>
+      <div id="gm-result" style="font-size:.85rem;"></div>
+    </div>
+  `;
+  $('grant-modal').classList.add('show');
+
+  // User search if no userId pre-selected
+  if (!userId) {
+    const inp = $('grant-user-search');
+    if (inp) inp.oninput = debounce(async () => {
+      const q = inp.value.trim();
+      if (!q) { $('grant-user-results').innerHTML = ''; return; }
+      try {
+        const { users } = await api('/admin/api/users?search=' + encodeURIComponent(q) + '&limit=6');
+        $('grant-user-results').innerHTML = users.length ? users.map(u => `
+          <div onclick="selectGrantUser('${u.id}','${escapeAttr(u.email)}',${u.credits||0})"
+               style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:.88rem;margin-bottom:4px;background:#fff;">
+            <b>${escapeHtml(u.email)}</b>
+            <span style="float:right">${creditPill(u.credits)}</span>
+          </div>
+        `).join('') : '<div style="color:#94a3b8;font-size:.85rem;padding:6px 0">ไม่พบ</div>';
+      } catch {}
+    }, 250);
+  }
+}
+
+function selectGrantUser(id, email, credits) {
+  _grantTargetId = id;
+  $('grant-user-search').value = email;
+  $('grant-user-results').innerHTML = `
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;font-size:.85rem;">
+      ✓ เลือกแล้ว: <b>${escapeHtml(email)}</b> — คงเหลือ ${creditPill(credits)}
+    </div>
+  `;
+}
+
+async function submitGrantModal() {
+  if (!_grantTargetId) { alert('กรุณาเลือก user ก่อน'); return; }
+  const amount = parseInt($('gm-amount').value);
+  const note   = ($('gm-note').value || '').trim();
+  const res    = $('gm-result');
+  if (!Number.isInteger(amount) || amount === 0) { res.textContent = '❌ จำนวนต้องไม่เป็น 0'; return; }
+  res.innerHTML = '<span style="color:#64748b">กำลังดำเนินการ...</span>';
+  try {
+    const { credits } = await api('/admin/api/users/' + _grantTargetId + '/credits/grant', {
+      method: 'POST', body: { amount, note },
+    });
+    res.innerHTML = `<span style="color:#059669">✓ สำเร็จ — เครดิตคงเหลือใหม่: <b>${credits}</b></span>`;
+    // Refresh the background table after 1s
+    setTimeout(() => {
+      closeGrantModal();
+      if (currentTab === 'users')   loadUsers();
+      else if (currentTab === 'credits') loadCredits();
+    }, 1200);
+  } catch (e) {
+    res.innerHTML = `<span style="color:#dc2626">❌ ${escapeHtml(e.message)}</span>`;
+  }
+}
+
+async function submitGrant(userId, amountId, noteId, resultId) {
+  const amount = parseInt($(amountId).value);
+  const note   = ($(noteId).value || '').trim();
+  const res    = $(resultId);
+  if (!Number.isInteger(amount) || amount === 0) { res.textContent = '❌ จำนวนต้องไม่เป็น 0'; return; }
+  res.innerHTML = '<span style="color:#64748b">กำลังดำเนินการ...</span>';
+  try {
+    const { credits } = await api('/admin/api/users/' + userId + '/credits/grant', {
+      method: 'POST', body: { amount, note },
+    });
+    res.innerHTML = `<span style="color:#059669">✓ สำเร็จ — เครดิตคงเหลือใหม่: <b>${credits}</b> แผน</span>`;
+    // Reload credit history section without closing modal
+    setTimeout(() => openUserModal(userId), 1000);
+  } catch (e) {
+    res.innerHTML = `<span style="color:#dc2626">❌ ${escapeHtml(e.message)}</span>`;
+  }
+}
+
+function closeGrantModal() {
+  $('grant-modal').classList.remove('show');
+  _grantTargetId = null;
+}
+
+// ════════════════════════════════════════════════════════
+//  USER ACTIONS
+// ════════════════════════════════════════════════════════
 async function lockUser(id) {
   if (!confirm('ล็อกบัญชีนี้? user จะ login ไม่ได้จนกว่าจะปลดล็อก')) return;
   try { await api('/admin/api/users/' + id + '/lock', { method: 'POST' }); loadUsers(); }
@@ -321,48 +691,52 @@ async function changeRole(id, role) {
   catch (e) { alert('เปลี่ยน role ไม่สำเร็จ: ' + e.message); }
 }
 async function deleteUser(id, email) {
-  if (!confirm(`⚠️ ลบ ${email} ถาวร? ข้อมูลทั้งหมดจะหาย ยกเลิกไม่ได้`)) return;
+  if (!confirm(`⚠️ ลบ ${email} ถาวร? ข้อมูลทั้งหมดจะหาย`)) return;
   if (!confirm('แน่ใจอีกครั้ง? นี่คือการลบถาวร')) return;
   try { await api('/admin/api/users/' + id, { method: 'DELETE' }); loadUsers(); }
   catch (e) { alert('ลบไม่สำเร็จ: ' + e.message); }
 }
 
-// ─── Audit tab ───────────────────────────────────────────
-async function renderAudit() {
-  const c = $('tab-content');
-  c.innerHTML = '<div class="loading">กำลังโหลด audit log...</div>';
-  try {
-    const { log } = await api('/admin/api/audit');
-    if (!log.length) { c.innerHTML = '<div class="empty">ไม่มีกิจกรรม</div>'; return; }
-    c.innerHTML = `
-      <div class="table-wrap"><table>
-        <thead><tr><th>Time</th><th>User</th><th>Action</th><th>IP</th><th>Detail</th></tr></thead>
-        <tbody>
-          ${log.map(a => `
-            <tr>
-              <td style="white-space:nowrap">${fmtDate(a.created_at)}</td>
-              <td>${escapeHtml(a.email || a.user_id || '—')}</td>
-              <td><code>${a.action}</code></td>
-              <td>${a.ip || '—'}</td>
-              <td><code style="font-size:.75rem">${escapeHtml(a.meta || '')}</code></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table></div>
-    `;
-  } catch (e) { c.innerHTML = `<div class="err">${e.message}</div>`; }
+// ════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════
+function isLocked(u) { return u.locked_until && u.locked_until > Date.now(); }
+
+function creditPill(n) {
+  const v = n || 0;
+  const cls = v === 0 ? 'zero' : v <= 2 ? 'low' : '';
+  return `<span class="credit-pill ${cls}">⚡ ${v}</span>`;
 }
 
-// ─── Utils ───────────────────────────────────────────────
+function txnTypeLabel(type) {
+  const map = {
+    usage: '−Export', bonus: '+ฟรี', topup: '+ซื้อ',
+    manual_grant: '+Admin', manual_deduct: '−Admin', refund: 'คืน',
+  };
+  return map[type] || type;
+}
+
 function fmtDate(ts) {
   if (!ts) return '—';
   const d = new Date(typeof ts === 'string' ? +ts : ts);
+  if (isNaN(d)) return '—';
   return d.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
 }
+
+function fmt(n) { return n == null ? '—' : Number(n).toLocaleString('th-TH'); }
+
 function escapeHtml(s) {
   if (s == null) return '';
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+function escapeAttr(s) { return escapeHtml(s); }
+
+let debounceTimer = null;
+function debounce(fn, ms) { return (...a) => { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fn(...a), ms); }; }
+
+// Close modals on backdrop click
+$('user-modal').addEventListener('click', e => { if (e.target === $('user-modal')) closeUserModal(); });
+$('grant-modal').addEventListener('click', e => { if (e.target === $('grant-modal')) closeGrantModal(); });
 
 boot();
 </script>

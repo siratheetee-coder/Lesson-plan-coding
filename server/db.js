@@ -275,17 +275,26 @@ const pgDb = {
     const dayMs = 24 * 60 * 60 * 1000;
     const oneDayAgo = Date.now() - dayMs;
     const sevenDaysAgo = Date.now() - 7 * dayMs;
-    const [{ rows: total }, { rows: today }, { rows: week }, { rows: locked }] = await Promise.all([
+    const [
+      { rows: total }, { rows: today }, { rows: week }, { rows: locked },
+      { rows: circulating }, { rows: exportsWeek }, { rows: grantsWeek },
+    ] = await Promise.all([
       pgPool.query('SELECT COUNT(*)::int AS n FROM users'),
       pgPool.query("SELECT COUNT(*)::int AS n FROM audit_log WHERE action='login_success' AND created_at > $1", [oneDayAgo]),
       pgPool.query('SELECT COUNT(*)::int AS n FROM users WHERE created_at > $1', [sevenDaysAgo]),
       pgPool.query('SELECT COUNT(*)::int AS n FROM users WHERE locked_until > $1', [Date.now()]),
+      pgPool.query('SELECT COALESCE(SUM(credits),0)::int AS n FROM users'),
+      pgPool.query("SELECT COUNT(*)::int AS n FROM credit_transactions WHERE type='usage' AND created_at > $1", [sevenDaysAgo]),
+      pgPool.query("SELECT COALESCE(SUM(amount),0)::int AS n FROM credit_transactions WHERE type IN ('manual_grant','bonus','topup') AND created_at > $1", [sevenDaysAgo]),
     ]);
     return {
       totalUsers: total[0].n,
       loginsToday: today[0].n,
       newUsersThisWeek: week[0].n,
       lockedUsers: locked[0].n,
+      totalCreditsCirculating: circulating[0].n,
+      exportsThisWeek: exportsWeek[0].n,
+      creditsGrantedThisWeek: grantsWeek[0].n,
     };
   },
 };
@@ -439,11 +448,17 @@ const jsonDb = {
     const dayMs = 24 * 60 * 60 * 1000;
     const oneDayAgo = Date.now() - dayMs;
     const sevenDaysAgo = Date.now() - 7 * dayMs;
+    const txns = state.credit_transactions || [];
     return {
       totalUsers: state.users.length,
       loginsToday: state.audit_log.filter(a => a.action === 'login_success' && a.created_at > oneDayAgo).length,
       newUsersThisWeek: state.users.filter(u => u.created_at > sevenDaysAgo).length,
       lockedUsers: state.users.filter(u => u.locked_until && u.locked_until > Date.now()).length,
+      totalCreditsCirculating: state.users.reduce((s, u) => s + (u.credits || 0), 0),
+      exportsThisWeek: txns.filter(t => t.type === 'usage' && t.created_at > sevenDaysAgo).length,
+      creditsGrantedThisWeek: txns
+        .filter(t => ['manual_grant','bonus','topup'].includes(t.type) && t.created_at > sevenDaysAgo)
+        .reduce((s, t) => s + (t.amount || 0), 0),
     };
   },
 };
