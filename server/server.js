@@ -29,6 +29,7 @@ await initDb();
 const authRouter = (await import('./routes/auth.js')).default;
 const adminRouter = (await import('./routes/admin.js')).default;
 const creditsRouter = (await import('./routes/credits.js')).default;
+const aiRouter = (await import('./routes/ai.js')).default;
 const { requireAuth } = await import('./middleware/auth.js');
 
 const app = express();
@@ -59,6 +60,7 @@ app.get('/health', (_req, res) => res.json({ ok: true, time: Date.now() }));
 app.use('/auth', authRouter);
 app.use('/admin/api', adminRouter);
 app.use('/api/credits', creditsRouter);
+app.use('/api/ai', aiRouter);
 app.get('/api/whoami', requireAuth, (req, res) => res.json({ user: req.user }));
 
 // Serve frontend from project root
@@ -81,5 +83,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log(`  DB:           ${process.env.DATABASE_URL ? 'PostgreSQL ✓' : 'JSON file (local dev)'}`);
   console.log(`  Google login: ${process.env.GOOGLE_CLIENT_ID ? 'enabled ✓' : 'disabled'}`);
+  console.log(`  Claude AI:    ${process.env.ANTHROPIC_API_KEY ? 'enabled ✓ (claude-opus-4-7)' : 'disabled (set ANTHROPIC_API_KEY)'}`);
+  console.log(`  SlipOK:       ${process.env.SLIPOK_API_KEY ? 'enabled ✓' : 'disabled'}`);
   console.log('');
 });
