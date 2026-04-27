@@ -77,6 +77,29 @@ async function initPostgres() {
       created_at   BIGINT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_credit_txn_user ON credit_transactions(user_id, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS lessons (
+      id           TEXT PRIMARY KEY,
+      user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      saved_at     BIGINT NOT NULL,
+      title        TEXT,
+      custom_title TEXT,
+      format       TEXT DEFAULT 'pdf',
+      fingerprint  TEXT,
+      data         TEXT NOT NULL DEFAULT '{}',
+      created_at   BIGINT NOT NULL,
+      updated_at   BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_lessons_user ON lessons(user_id, saved_at DESC);
+
+    CREATE TABLE IF NOT EXISTS units (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      data       TEXT NOT NULL DEFAULT '{}',
+      created_at BIGINT NOT NULL,
+      updated_at BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_units_user ON units(user_id, created_at DESC);
   `);
   console.log('✓ PostgreSQL connected and schema ready');
 }
@@ -297,13 +320,68 @@ const pgDb = {
       creditsGrantedThisWeek: grantsWeek[0].n,
     };
   },
+
+  // ─── Lessons ────────────────────────────────────────────
+  async listLessons(userId) {
+    const { rows } = await pgPool.query(
+      'SELECT * FROM lessons WHERE user_id=$1 ORDER BY saved_at DESC LIMIT 50',
+      [userId]
+    );
+    return rows.map(r => ({ ...JSON.parse(r.data || '{}'), _row: undefined,
+      id: r.id, savedAt: r.saved_at, title: r.title, customTitle: r.custom_title,
+      format: r.format, fingerprint: r.fingerprint,
+      data: JSON.parse(r.data || '{}'),
+    }));
+  },
+  async upsertLesson(userId, entry) {
+    const t = now();
+    await pgPool.query(
+      `INSERT INTO lessons (id,user_id,saved_at,title,custom_title,format,fingerprint,data,created_at,updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$9)
+       ON CONFLICT (id) DO UPDATE SET
+         saved_at=$3, title=$4, custom_title=$5, format=$6, fingerprint=$7, data=$8, updated_at=$9`,
+      [entry.id, userId, entry.savedAt || t, entry.title || null, entry.customTitle || null,
+       entry.format || 'pdf', entry.fingerprint || null, JSON.stringify(entry), t]
+    );
+  },
+  async patchLesson(userId, id, patch) {
+    await pgPool.query(
+      `UPDATE lessons SET title=$3, custom_title=$4, updated_at=$5
+       WHERE id=$1 AND user_id=$2`,
+      [id, userId, patch.title || null, patch.customTitle || null, now()]
+    );
+  },
+  async deleteLesson(userId, id) {
+    await pgPool.query('DELETE FROM lessons WHERE id=$1 AND user_id=$2', [id, userId]);
+  },
+
+  // ─── Units ──────────────────────────────────────────────
+  async listUnits(userId) {
+    const { rows } = await pgPool.query(
+      'SELECT * FROM units WHERE user_id=$1 ORDER BY created_at ASC',
+      [userId]
+    );
+    return rows.map(r => JSON.parse(r.data || '{}'));
+  },
+  async upsertUnit(userId, unit) {
+    const t = now();
+    await pgPool.query(
+      `INSERT INTO units (id,user_id,data,created_at,updated_at)
+       VALUES ($1,$2,$3,$4,$4)
+       ON CONFLICT (id) DO UPDATE SET data=$3, updated_at=$4`,
+      [unit.id, userId, JSON.stringify(unit), t]
+    );
+  },
+  async deleteUnit(userId, id) {
+    await pgPool.query('DELETE FROM units WHERE id=$1 AND user_id=$2', [id, userId]);
+  },
 };
 
 // ═══════════════════════════════════════════════════════════
 //  JSON FILE MODE (local dev — no PostgreSQL needed)
 // ═══════════════════════════════════════════════════════════
 const dbPath = process.env.DB_PATH || './data/app.db.json';
-const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [] };
+const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [], lessons: [], units: [] };
 let state = initial;
 
 function loadJson() {
@@ -460,6 +538,55 @@ const jsonDb = {
         .filter(t => ['manual_grant','bonus','topup'].includes(t.type) && t.created_at > sevenDaysAgo)
         .reduce((s, t) => s + (t.amount || 0), 0),
     };
+  },
+
+  // ─── Lessons ────────────────────────────────────────────
+  async listLessons(userId) {
+    return (state.lessons || [])
+      .filter(l => l.user_id === userId)
+      .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))
+      .slice(0, 50)
+      .map(({ user_id, ...entry }) => entry); // strip server-only field
+  },
+  async upsertLesson(userId, entry) {
+    if (!state.lessons) state.lessons = [];
+    const i = state.lessons.findIndex(l => l.id === entry.id && l.user_id === userId);
+    const record = { ...entry, user_id: userId };
+    if (i >= 0) state.lessons[i] = record;
+    else state.lessons.unshift(record);
+    saveJson();
+  },
+  async patchLesson(userId, id, patch) {
+    const l = (state.lessons || []).find(l => l.id === id && l.user_id === userId);
+    if (l) {
+      if ('title' in patch) l.title = patch.title;
+      if ('customTitle' in patch) l.customTitle = patch.customTitle;
+      saveJson();
+    }
+  },
+  async deleteLesson(userId, id) {
+    state.lessons = (state.lessons || []).filter(l => !(l.id === id && l.user_id === userId));
+    saveJson();
+  },
+
+  // ─── Units ──────────────────────────────────────────────
+  async listUnits(userId) {
+    return (state.units || [])
+      .filter(u => u.user_id === userId)
+      .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+      .map(({ user_id, ...unit }) => unit);
+  },
+  async upsertUnit(userId, unit) {
+    if (!state.units) state.units = [];
+    const i = state.units.findIndex(u => u.id === unit.id && u.user_id === userId);
+    const record = { ...unit, user_id: userId };
+    if (i >= 0) state.units[i] = record;
+    else state.units.push(record);
+    saveJson();
+  },
+  async deleteUnit(userId, id) {
+    state.units = (state.units || []).filter(u => !(u.id === id && u.user_id === userId));
+    saveJson();
   },
 };
 

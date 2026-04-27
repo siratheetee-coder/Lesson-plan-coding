@@ -26,10 +26,12 @@ await import('dotenv/config');
 const { initDb } = await import('./db.js');
 await initDb();
 
-const authRouter = (await import('./routes/auth.js')).default;
-const adminRouter = (await import('./routes/admin.js')).default;
+const authRouter    = (await import('./routes/auth.js')).default;
+const adminRouter   = (await import('./routes/admin.js')).default;
 const creditsRouter = (await import('./routes/credits.js')).default;
-const aiRouter = (await import('./routes/ai.js')).default;
+const aiRouter      = (await import('./routes/ai.js')).default;
+const lessonsRouter = (await import('./routes/lessons.js')).default;
+const unitsRouter   = (await import('./routes/units.js')).default;
 const { requireAuth } = await import('./middleware/auth.js');
 
 const app = express();
@@ -61,6 +63,8 @@ app.use('/auth', authRouter);
 app.use('/admin/api', adminRouter);
 app.use('/api/credits', creditsRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/lessons', lessonsRouter);
+app.use('/api/units', unitsRouter);
 app.get('/api/whoami', requireAuth, (req, res) => res.json({ user: req.user }));
 
 // Serve frontend from project root

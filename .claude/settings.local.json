@@ -43,7 +43,17 @@
       "Bash(python3)",
       "Bash(cp lesson-plan-generator.html lesson-plan-generator.html.bak)",
       "Bash(cp lesson-plan-generator.html \"../../../lesson-plan-generator.html\")",
-      "Bash(rm lesson-plan-generator.html.bak)"
+      "Bash(rm lesson-plan-generator.html.bak)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(node -e \"import\\('./routes/ai.js'\\).then\\(\\(\\)=>console.log\\('ai.js OK'\\)\\).catch\\(e=>{console.error\\('FAIL:',e.message\\); process.exit\\(1\\)}\\)\")",
+      "Bash(JWT_ACCESS_SECRET=x JWT_REFRESH_SECRET=y node -e \"import\\('./routes/ai.js'\\).then\\(\\(\\)=>console.log\\('ai.js OK'\\)\\).catch\\(e=>{console.error\\('FAIL:',e.message\\); process.exit\\(1\\)}\\); import\\('./utils/claude.js'\\).then\\(\\(\\)=>console.log\\('claude.js OK'\\)\\).catch\\(e=>{console.error\\('FAIL:',e.message\\); process.exit\\(1\\)}\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(JWT_ACCESS_SECRET=x JWT_REFRESH_SECRET=y node -e \"import\\('./server/utils/claude.js'\\).then\\(\\(\\)=>console.log\\('OK'\\)\\).catch\\(e=>{console.error\\(e\\);process.exit\\(1\\)}\\)\")",
+      "Bash(JWT_ACCESS_SECRET=x JWT_REFRESH_SECRET=y node -e \"Promise.all\\([import\\('./server/utils/claude.js'\\),import\\('./server/routes/ai.js'\\)]\\).then\\(\\(\\)=>console.log\\('OK'\\)\\).catch\\(e=>{console.error\\(e\\);process.exit\\(1\\)}\\)\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const html=fs.readFileSync\\('index.html','utf8'\\);const matches=html.match\\(/data-ai-kind=\\\\\"\\([^\\\\\"]+\\)\\\\\"/g\\)||[];console.log\\('AI buttons:',matches.length\\);console.log\\(matches.map\\(m=>m.replace\\(/data-ai-kind=|\\\\\"/g,''\\)\\).join\\(', '\\)\\);\")"
     ]
   }
 }

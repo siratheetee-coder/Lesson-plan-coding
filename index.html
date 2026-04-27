@@ -3677,18 +3677,55 @@ window.clearLessonDraft = clearDraft;
 const HISTORY_KEY = 'lpg:history:v1';
 const HISTORY_MAX = 30;
 
+// ── In-memory cache (populated from server on auth:login) ──
+let _hist = null; // null = not yet loaded from server
+
 function loadHistory() {
+  // If server data loaded, use it; else fall back to localStorage
+  if (_hist !== null) return _hist.filter(e => e && e.format !== 'draft');
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(arr)) return [];
-    // Completed plans only — filter out any legacy 'draft' entries (from pre-manual-save builds).
-    return arr.filter(e => e && e.format !== 'draft');
+    return Array.isArray(arr) ? arr.filter(e => e && e.format !== 'draft') : [];
   } catch (e) { return []; }
 }
-function writeHistory(arr) {
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, HISTORY_MAX))); }
-  catch (e) { console.warn('writeHistory failed:', e); }
+
+function writeHistory(newArr) {
+  const limited = newArr.filter(e => e && e.format !== 'draft').slice(0, HISTORY_MAX);
+  const prev = _hist ? _hist.slice() : loadHistory();
+  _hist = limited;
+  // Keep localStorage in sync as a local fallback
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(limited)); } catch(e) {}
+  // Async server sync (fire-and-forget)
+  if (typeof window.authFetch === 'function') _syncHistToServer(prev, limited);
+}
+
+function _syncHistToServer(prev, curr) {
+  const H = { 'Content-Type': 'application/json' };
+  const prevMap = new Map((prev || []).map(e => [e.id, e]));
+  const currMap = new Map((curr || []).map(e => [e.id, e]));
+  for (const [id, entry] of currMap) {
+    if (!prevMap.has(id)) {
+      // New entry — POST full object
+      window.authFetch('/api/lessons', { method: 'POST', headers: H, body: JSON.stringify(entry) })
+        .catch(err => console.warn('[hist sync] POST failed:', err));
+    } else {
+      // Check for title rename only (avoid POST on every re-render)
+      const old = prevMap.get(id);
+      if (old.customTitle !== entry.customTitle || old.title !== entry.title) {
+        window.authFetch('/api/lessons/' + id, {
+          method: 'PATCH', headers: H,
+          body: JSON.stringify({ title: entry.title, customTitle: entry.customTitle }),
+        }).catch(err => console.warn('[hist sync] PATCH failed:', err));
+      }
+    }
+  }
+  for (const [id] of prevMap) {
+    if (!currMap.has(id)) {
+      window.authFetch('/api/lessons/' + id, { method: 'DELETE' })
+        .catch(err => console.warn('[hist sync] DELETE failed:', err));
+    }
+  }
 }
 function buildHistoryTitle(data) {
   const f = data.fields || {};
@@ -3723,41 +3760,14 @@ function renameHistoryItem(id) {
   } else {
     delete entry.customTitle;
   }
-  entry.title = getLessonTitle(entry); // keep legacy `title` field in sync
-  // Write back — loadHistory may have filtered legacy drafts, but writing back with the filtered
-  // list is fine: drafts are already invalid. To be safe, merge with raw storage.
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    if (Array.isArray(arr)) {
-      const idx = arr.findIndex(e => e && e.id === id);
-      if (idx >= 0) {
-        arr[idx].customTitle = entry.customTitle;
-        arr[idx].title = entry.title;
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
-      } else {
-        writeHistory(hist);
-      }
-    } else {
-      writeHistory(hist);
-    }
-  } catch (e) {
-    writeHistory(hist);
-  }
+  entry.title = getLessonTitle(entry);
+  writeHistory(hist); // handles both localStorage + server sync
   // Refresh all places that display lesson titles
   if (typeof renderHistoryList === 'function') renderHistoryList();
-  if (typeof renderUnitDashboard === 'function') {
-    try { renderUnitDashboard(); } catch (e) {}
-  }
-  if (typeof renderUnitEditor === 'function') {
-    try { renderUnitEditor(); } catch (e) {}
-  }
-  if (typeof renderUnitList === 'function') {
-    try { renderUnitList(); } catch (e) {}
-  }
-  if (typeof renderRecentPlans === 'function') {
-    try { renderRecentPlans(); } catch (e) {}
-  }
+  if (typeof renderUnitDashboard === 'function') { try { renderUnitDashboard(); } catch(e){} }
+  if (typeof renderUnitEditor === 'function')    { try { renderUnitEditor(); } catch(e){} }
+  if (typeof renderUnitList === 'function')      { try { renderUnitList(); } catch(e){} }
+  if (typeof renderRecentPlans === 'function')   { try { renderRecentPlans(); } catch(e){} }
 }
 window.renameHistoryItem = renameHistoryItem;
 // Fingerprint identifies "the same lesson" across re-exports so a previously
@@ -6205,15 +6215,41 @@ function _newUnitId() {
   return 'unit-' + Date.now() + '-' + Math.random().toString(36).slice(2,7);
 }
 
-// ----- Data layer -----
+// ----- Data layer (in-memory cache + server sync) -----
+let _units = null; // null = not yet loaded from server
+
 function loadUnits() {
+  if (_units !== null) return _units.slice();
   try {
     const raw = localStorage.getItem(UNITS_KEY);
     return raw ? (JSON.parse(raw) || []) : [];
   } catch(e) { return []; }
 }
-function writeUnits(arr) {
-  try { localStorage.setItem(UNITS_KEY, JSON.stringify(arr)); } catch(e) {}
+
+function writeUnits(newArr) {
+  const prev = _units ? _units.slice() : loadUnits();
+  _units = newArr.slice();
+  try { localStorage.setItem(UNITS_KEY, JSON.stringify(_units)); } catch(e) {}
+  if (typeof window.authFetch === 'function') _syncUnitsToServer(prev, _units);
+}
+
+function _syncUnitsToServer(prev, curr) {
+  const H = { 'Content-Type': 'application/json' };
+  const prevMap = new Map((prev || []).map(u => [u.id, u]));
+  const currMap = new Map((curr || []).map(u => [u.id, u]));
+  for (const [id, unit] of currMap) {
+    const old = prevMap.get(id);
+    if (!old || JSON.stringify(old) !== JSON.stringify(unit)) {
+      window.authFetch('/api/units/' + id, { method: 'PUT', headers: H, body: JSON.stringify(unit) })
+        .catch(err => console.warn('[units sync] PUT failed:', err));
+    }
+  }
+  for (const [id] of prevMap) {
+    if (!currMap.has(id)) {
+      window.authFetch('/api/units/' + id, { method: 'DELETE' })
+        .catch(err => console.warn('[units sync] DELETE failed:', err));
+    }
+  }
 }
 function saveUnit(unit) {
   const arr = loadUnits();
@@ -7896,6 +7932,64 @@ window.renderUnitDashboard = renderUnitDashboard;
   // Expose updateCreditsUI for external use (e.g. after AI call deducts credits)
   window.updateCreditsUI = updateCreditsUI;
 })();
+
+// ─── Lessons + Units: load from server on login ──────────
+window.addEventListener('auth:login', async () => {
+  try {
+    const [lessonsRes, unitsRes] = await Promise.all([
+      window.authFetch('/api/lessons'),
+      window.authFetch('/api/units'),
+    ]);
+    if (lessonsRes.ok) {
+      const { lessons } = await lessonsRes.json();
+      if (lessons.length > 0) {
+        // Server has data — use it
+        _hist = lessons;
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(lessons)); } catch(e) {}
+      } else {
+        // Server empty — migrate from localStorage if data exists
+        const localLessons = (() => {
+          try {
+            const raw = localStorage.getItem(HISTORY_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            return Array.isArray(arr) ? arr.filter(e => e && e.format !== 'draft') : [];
+          } catch(e) { return []; }
+        })();
+        _hist = localLessons;
+        if (localLessons.length > 0) _syncHistToServer([], localLessons);
+      }
+    }
+    if (unitsRes.ok) {
+      const { units } = await unitsRes.json();
+      if (units.length > 0) {
+        _units = units;
+        try { localStorage.setItem(UNITS_KEY, JSON.stringify(units)); } catch(e) {}
+      } else {
+        const localUnits = (() => {
+          try {
+            const raw = localStorage.getItem(UNITS_KEY);
+            return raw ? (JSON.parse(raw) || []) : [];
+          } catch(e) { return []; }
+        })();
+        _units = localUnits;
+        if (localUnits.length > 0) _syncUnitsToServer([], localUnits);
+      }
+    }
+    // Refresh UI now that we have fresh server data
+    if (typeof renderHistoryList === 'function') { try { renderHistoryList(); } catch(e){} }
+    if (typeof renderUnitDashboard === 'function') { try { renderUnitDashboard(); } catch(e){} }
+    if (typeof renderUnitList === 'function') { try { renderUnitList(); } catch(e){} }
+    if (typeof renderRecentPlans === 'function') { try { renderRecentPlans(); } catch(e){} }
+  } catch(e) {
+    console.warn('[lessons/units] failed to load from server, using localStorage fallback:', e);
+  }
+});
+
+// ─── Clear in-memory state on logout ─────────────────────
+window.addEventListener('auth:logout', () => {
+  _hist = null;
+  _units = null;
+});
 </script>
 </body>
 </html>
