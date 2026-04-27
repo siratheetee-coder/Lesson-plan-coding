@@ -6955,12 +6955,14 @@ window.renderUnitDashboard = renderUnitDashboard;
       <label for="auth-email">อีเมล</label>
       <input id="auth-email" type="email" autocomplete="email" required />
 
-      <label for="auth-password">รหัสผ่าน</label>
-      <input id="auth-password" type="password" autocomplete="current-password" required minlength="8" />
+      <div id="auth-password-row">
+        <label for="auth-password">รหัสผ่าน</label>
+        <input id="auth-password" type="password" autocomplete="current-password" required minlength="8" />
+      </div>
 
-      <div class="auth-row">
+      <div class="auth-row" id="auth-remember-row">
         <label><input id="auth-remember" type="checkbox" checked /> จดจำการเข้าสู่ระบบ</label>
-        <a id="auth-forgot" style="color:#64748b;font-size:.85rem;cursor:pointer;display:none">ลืมรหัสผ่าน?</a>
+        <a id="auth-forgot" style="color:#7c3aed;font-size:.85rem;cursor:pointer;display:none">ลืมรหัสผ่าน?</a>
       </div>
 
       <div id="auth-error" class="auth-error"></div>
@@ -6991,7 +6993,7 @@ window.renderUnitDashboard = renderUnitDashboard;
   // ─── State ────────────────────────────────────────────
   let accessToken = null;
   let currentUser = null;
-  let authMode = 'login'; // 'login' | 'register'
+  let authMode = 'login'; // 'login' | 'register' | 'forgot'
 
   // ─── Helpers ──────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -7014,16 +7016,32 @@ window.renderUnitDashboard = renderUnitDashboard;
 
   function setMode(mode) {
     authMode = mode;
-    const isRegister = mode === 'register';
-    $('auth-title').textContent = isRegister ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
-    $('auth-subtitle').textContent = isRegister
-      ? 'สร้างบัญชีใหม่เพื่อเริ่มสร้างแผนการสอน'
-      : 'เข้าสู่ระบบเพื่อบันทึกแผนการสอนของคุณ';
-    $('auth-submit').textContent = isRegister ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
-    $('auth-name-row').style.display = isRegister ? 'block' : 'none';
+    const isForgot    = mode === 'forgot';
+    const isRegister  = mode === 'register';
+
+    $('auth-title').textContent    = isForgot ? 'ลืมรหัสผ่าน' : (isRegister ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ');
+    $('auth-subtitle').textContent = isForgot
+      ? 'กรอกอีเมลแล้วเราจะส่งลิงก์รีเซ็ตให้'
+      : (isRegister ? 'สร้างบัญชีใหม่เพื่อเริ่มสร้างแผนการสอน' : 'เข้าสู่ระบบเพื่อบันทึกแผนการสอนของคุณ');
+    $('auth-submit').textContent   = isForgot ? 'ส่งลิงก์รีเซ็ต' : (isRegister ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ');
+
+    // Show/hide fields
+    $('auth-name-row').style.display     = isRegister ? 'block' : 'none';
+    $('auth-password-row').style.display = isForgot   ? 'none'  : 'block';
+    $('auth-remember-row').style.display = isForgot   ? 'none'  : 'block';
+    $('auth-forgot').style.display       = mode === 'login' ? 'inline' : 'none';
+    $('auth-google-divider').style.display = isForgot ? 'none' : '';
+    $('auth-google-btn').style.display     = isForgot ? 'none' : '';
+
     $('auth-password').autocomplete = isRegister ? 'new-password' : 'current-password';
-    $('auth-toggle-text').textContent = isRegister ? 'มีบัญชีแล้ว?' : 'ยังไม่มีบัญชี?';
-    $('auth-toggle-link').textContent = isRegister ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+    // Toggle text
+    if (isForgot) {
+      $('auth-toggle-text').textContent = 'จำรหัสผ่านได้แล้ว?';
+      $('auth-toggle-link').textContent = 'เข้าสู่ระบบ';
+    } else {
+      $('auth-toggle-text').textContent = isRegister ? 'มีบัญชีแล้ว?' : 'ยังไม่มีบัญชี?';
+      $('auth-toggle-link').textContent = isRegister ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+    }
     clearError();
   }
 
@@ -7087,6 +7105,13 @@ window.renderUnitDashboard = renderUnitDashboard;
     btn.disabled = true;
     btn.textContent = 'กำลังประมวลผล...';
     try {
+      if (authMode === 'forgot') {
+        await api('/auth/forgot-password', { method: 'POST', skipAuth: true, body: { email } });
+        showError('📧 ส่งลิงก์รีเซ็ตแล้ว กรุณาตรวจสอบกล่องจดหมาย (ตรวจ Spam ด้วย)');
+        $('auth-error').style.background = '#d1fae5';
+        $('auth-error').style.color = '#065f46';
+        return; // stay on forgot form
+      }
       const path = authMode === 'register' ? '/auth/register' : '/auth/login';
       const body = authMode === 'register'
         ? { email, password, displayName, remember }
@@ -7097,7 +7122,7 @@ window.renderUnitDashboard = renderUnitDashboard;
       showError(err.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
     } finally {
       btn.disabled = false;
-      btn.textContent = authMode === 'register' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+      btn.textContent = authMode === 'forgot' ? 'ส่งลิงก์รีเซ็ต' : (authMode === 'register' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ');
     }
   }
 
@@ -7200,7 +7225,12 @@ window.renderUnitDashboard = renderUnitDashboard;
   // ─── Boot ─────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', async () => {
     $('auth-form').addEventListener('submit', handleSubmit);
-    $('auth-toggle-link').addEventListener('click', () => setMode(authMode === 'login' ? 'register' : 'login'));
+    $('auth-toggle-link').addEventListener('click', () => {
+      if (authMode === 'login')    setMode('register');
+      else if (authMode === 'register') setMode('login');
+      else setMode('login'); // forgot → login
+    });
+    $('auth-forgot').addEventListener('click', () => setMode('forgot'));
     setMode('login');
 
     if (AUTH_DISABLED) {
@@ -7226,6 +7256,29 @@ window.renderUnitDashboard = renderUnitDashboard;
   });
 })();
 </script>
+
+<!-- ============ RESET PASSWORD OVERLAY ============ -->
+<div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <h2 style="margin:0 0 6px;color:#1e293b;font-size:1.2rem;">🔑 ตั้งรหัสผ่านใหม่</h2>
+    <p style="color:#64748b;font-size:.9rem;margin:0 0 20px">กรอกรหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)</p>
+    <div id="reset-error" style="background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:8px;font-size:.88rem;margin-bottom:14px;display:none;"></div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:.85rem;font-weight:600;color:#475569;display:block;margin-bottom:5px">รหัสผ่านใหม่</label>
+      <input id="reset-password1" type="password" autocomplete="new-password" placeholder="อย่างน้อย 8 ตัวอักษร"
+             style="width:100%;padding:10px 13px;border:1.5px solid #cbd5e1;border-radius:9px;font-size:.95rem;font-family:inherit;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:.85rem;font-weight:600;color:#475569;display:block;margin-bottom:5px">ยืนยันรหัสผ่าน</label>
+      <input id="reset-password2" type="password" autocomplete="new-password" placeholder="กรอกรหัสผ่านอีกครั้ง"
+             style="width:100%;padding:10px 13px;border:1.5px solid #cbd5e1;border-radius:9px;font-size:.95rem;font-family:inherit;box-sizing:border-box;">
+    </div>
+    <button id="reset-submit-btn" onclick="submitResetPassword()"
+            style="width:100%;padding:12px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;">
+      ✓ บันทึกรหัสผ่านใหม่
+    </button>
+  </div>
+</div>
 
 <!-- ============ TOP-UP MODAL ============ -->
 <div id="topup-overlay" class="topup-overlay" style="display:none;" onclick="if(event.target===this)closeTopupModal()">
@@ -7990,6 +8043,159 @@ window.addEventListener('auth:logout', () => {
   _hist = null;
   _units = null;
 });
+</script>
+
+<!-- ============ EMAIL VERIFICATION + PASSWORD RESET ============ -->
+<script>
+// ─── Handle ?verify=TOKEN in URL (email verification link) ─
+(async function handleVerifyParam() {
+  const params = new URLSearchParams(location.search);
+  const token = params.get('verify');
+  if (!token) return;
+
+  // Remove token from URL so reload doesn't re-process
+  const clean = location.pathname + (params.size > 1 ? '?' + [...params.entries()].filter(([k]) => k !== 'verify').map(([k,v]) => k+'='+v).join('&') : '');
+  history.replaceState(null, '', clean);
+
+  // Show a floating toast while verifying
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;z-index:9999;font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+  toast.textContent = '⏳ กำลังยืนยันอีเมล...';
+  document.body.appendChild(toast);
+
+  try {
+    const res = await fetch('/auth/verify-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      toast.style.background = '#059669';
+      toast.textContent = '✓ ยืนยันอีเมลสำเร็จ! บัญชีของคุณได้รับการยืนยันแล้ว';
+      // Update local user state
+      if (window.currentUser) window.currentUser.emailVerified = true;
+      _removeVerifyBanner();
+    } else {
+      toast.style.background = '#dc2626';
+      toast.textContent = '✗ ' + (data.message || 'ลิงก์ยืนยันไม่ถูกต้องหรือหมดอายุ');
+    }
+  } catch {
+    toast.style.background = '#dc2626';
+    toast.textContent = '✗ เกิดข้อผิดพลาด กรุณาลองใหม่';
+  }
+  setTimeout(() => toast.remove(), 5000);
+})();
+
+// ─── Handle ?reset=TOKEN in URL (password reset link) ────
+(function handleResetParam() {
+  const params = new URLSearchParams(location.search);
+  const token = params.get('reset');
+  if (!token) return;
+
+  // Remove token from URL
+  const clean = location.pathname;
+  history.replaceState(null, '', clean);
+
+  // Store token for submit handler
+  window._resetToken = token;
+
+  // Show overlay (wait for DOM)
+  const show = () => {
+    const ov = document.getElementById('reset-overlay');
+    if (ov) { ov.style.display = 'flex'; }
+    else setTimeout(show, 100);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show);
+  else show();
+})();
+
+window.submitResetPassword = async function() {
+  const p1 = document.getElementById('reset-password1').value;
+  const p2 = document.getElementById('reset-password2').value;
+  const errEl = document.getElementById('reset-error');
+  const btn = document.getElementById('reset-submit-btn');
+
+  errEl.style.display = 'none';
+  if (!p1 || p1.length < 8) { errEl.textContent = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'; errEl.style.display = 'block'; return; }
+  if (p1 !== p2) { errEl.textContent = 'รหัสผ่านทั้งสองไม่ตรงกัน'; errEl.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'กำลังบันทึก...';
+  try {
+    const res = await fetch('/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: window._resetToken, password: p1 }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('reset-overlay').style.display = 'none';
+      // Show success toast
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:14px 24px;border-radius:10px;z-index:9999;font-size:.92rem;box-shadow:0 4px 20px rgba(0,0,0,.25)';
+      toast.textContent = '✓ รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+      // Open login form
+      if (window.auth) window.auth.showLogin();
+    } else {
+      errEl.textContent = data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✓ บันทึกรหัสผ่านใหม่';
+  }
+};
+
+// ─── Email verification banner (shown after login if not verified) ─
+function _removeVerifyBanner() {
+  document.getElementById('verify-banner')?.remove();
+}
+
+function _showVerifyBanner() {
+  if (document.getElementById('verify-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'verify-banner';
+  banner.style.cssText = 'background:#fefce8;border:1px solid #fde047;color:#854d0e;padding:10px 18px;font-size:.88rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50;';
+  banner.innerHTML = `
+    <span>📧 <b>โปรดยืนยันอีเมลของคุณ</b> — ตรวจสอบกล่องจดหมาย (รวม Spam)</span>
+    <button id="resend-verify-btn" style="padding:5px 13px;background:#7c3aed;color:#fff;border:none;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit">ส่งใหม่</button>
+    <button onclick="document.getElementById('verify-banner').remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#92400e;font-size:1.1rem;padding:0 4px;" title="ปิด">✕</button>
+  `;
+  document.body.prepend(banner);
+
+  document.getElementById('resend-verify-btn').addEventListener('click', async function() {
+    this.disabled = true; this.textContent = 'กำลังส่ง...';
+    try {
+      const res = await window.authFetch('/auth/resend-verification', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        this.textContent = '✓ ส่งแล้ว';
+        setTimeout(() => { this.disabled = false; this.textContent = 'ส่งใหม่'; }, 30000);
+      } else {
+        this.textContent = data.message || 'ล้มเหลว';
+        setTimeout(() => { this.disabled = false; this.textContent = 'ส่งใหม่'; }, 5000);
+      }
+    } catch {
+      this.textContent = 'ล้มเหลว';
+      setTimeout(() => { this.disabled = false; this.textContent = 'ส่งใหม่'; }, 5000);
+    }
+  });
+}
+
+window.addEventListener('auth:login', ({ detail }) => {
+  const user = detail?.user || window.currentUser;
+  if (user && !user.emailVerified && !user.hasGoogle) {
+    // Slight delay so dashboard renders first
+    setTimeout(_showVerifyBanner, 500);
+  }
+});
+window.addEventListener('auth:logout', _removeVerifyBanner);
 </script>
 </body>
 </html>

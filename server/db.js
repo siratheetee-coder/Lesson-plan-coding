@@ -78,6 +78,17 @@ async function initPostgres() {
     );
     CREATE INDEX IF NOT EXISTS idx_credit_txn_user ON credit_transactions(user_id, created_at DESC);
 
+    CREATE TABLE IF NOT EXISTS email_tokens (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type       TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at BIGINT NOT NULL,
+      used_at    BIGINT,
+      created_at BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_tokens_user ON email_tokens(user_id, type);
+
     CREATE TABLE IF NOT EXISTS lessons (
       id           TEXT PRIMARY KEY,
       user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -321,6 +332,29 @@ const pgDb = {
     };
   },
 
+  // ─── Email tokens ────────────────────────────────────────
+  async createEmailToken(userId, type, tokenHash, expiresAt) {
+    const id = crypto.randomUUID();
+    await pgPool.query(
+      `UPDATE email_tokens SET used_at=$1 WHERE user_id=$2 AND type=$3 AND used_at IS NULL`,
+      [now(), userId, type]
+    );
+    await pgPool.query(
+      `INSERT INTO email_tokens (id,user_id,type,token_hash,expires_at,used_at,created_at)
+       VALUES ($1,$2,$3,$4,$5,NULL,$6)`,
+      [id, userId, type, tokenHash, expiresAt, now()]
+    );
+    return id;
+  },
+  async findEmailToken(tokenHash) {
+    const { rows } = await pgPool.query(
+      'SELECT * FROM email_tokens WHERE token_hash=$1 LIMIT 1', [tokenHash]);
+    return rows[0] || null;
+  },
+  async useEmailToken(id) {
+    await pgPool.query('UPDATE email_tokens SET used_at=$2 WHERE id=$1', [id, now()]);
+  },
+
   // ─── Lessons ────────────────────────────────────────────
   async listLessons(userId) {
     const { rows } = await pgPool.query(
@@ -381,7 +415,7 @@ const pgDb = {
 //  JSON FILE MODE (local dev — no PostgreSQL needed)
 // ═══════════════════════════════════════════════════════════
 const dbPath = process.env.DB_PATH || './data/app.db.json';
-const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [], lessons: [], units: [] };
+const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [], email_tokens: [], lessons: [], units: [] };
 let state = initial;
 
 function loadJson() {
@@ -538,6 +572,26 @@ const jsonDb = {
         .filter(t => ['manual_grant','bonus','topup'].includes(t.type) && t.created_at > sevenDaysAgo)
         .reduce((s, t) => s + (t.amount || 0), 0),
     };
+  },
+
+  // ─── Email tokens ────────────────────────────────────────
+  async createEmailToken(userId, type, tokenHash, expiresAt) {
+    if (!state.email_tokens) state.email_tokens = [];
+    // Invalidate previous tokens of same type
+    state.email_tokens.forEach(t => {
+      if (t.user_id === userId && t.type === type && !t.used_at) t.used_at = now();
+    });
+    const id = crypto.randomUUID();
+    state.email_tokens.push({ id, user_id: userId, type, token_hash: tokenHash, expires_at: expiresAt, used_at: null, created_at: now() });
+    saveJson();
+    return id;
+  },
+  async findEmailToken(tokenHash) {
+    return (state.email_tokens || []).find(t => t.token_hash === tokenHash) || null;
+  },
+  async useEmailToken(id) {
+    const t = (state.email_tokens || []).find(x => x.id === id);
+    if (t) { t.used_at = now(); saveJson(); }
   },
 
   // ─── Lessons ────────────────────────────────────────────

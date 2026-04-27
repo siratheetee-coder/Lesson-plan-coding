@@ -11,6 +11,7 @@ import {
 } from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
 import { FREE_CREDITS_ON_REGISTER } from '../config/packages.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/mailer.js';
 
 const router = express.Router();
 
@@ -29,8 +30,31 @@ const registerLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const emailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.body?.email || req.ip,
+  message: { error: 'too_many_attempts', message: 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่' },
+});
+
 const LOCKOUT_THRESHOLD = 5;
 const LOCKOUT_MS = 15 * 60 * 1000;
+
+// ─── Email token helpers ─────────────────────────────────
+function makeRawToken() { return crypto.randomBytes(32).toString('hex'); }
+function hashRawToken(raw) { return crypto.createHash('sha256').update(raw).digest('hex'); }
+
+async function createAndSendVerification(user) {
+  const raw = makeRawToken();
+  const hash = hashRawToken(raw);
+  const expiresAt = now() + 24 * 60 * 60 * 1000; // 24h
+  await db.createEmailToken(user.id, 'verify_email', hash, expiresAt);
+  await sendVerificationEmail(user.email, raw).catch(err =>
+    console.error('[mailer] sendVerificationEmail failed:', err.message)
+  );
+}
 
 function audit(userId, action, meta, req) {
   // Fire-and-forget; we don't wait on audit writes (avoids blocking the response)
@@ -144,6 +168,8 @@ router.post('/register', registerLimiter, async (req, res) => {
         `ฟรี ${FREE_CREDITS_ON_REGISTER} แผนแรก`, null, crypto.randomUUID());
     }
     audit(id, 'register', { method: 'password', role }, req);
+    // Send verification email async — don't block the response
+    createAndSendVerification(user).catch(() => {});
     res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
     console.error('register error', err);
@@ -224,6 +250,7 @@ router.post('/google', loginLimiter, async (req, res) => {
           `ฟรี ${FREE_CREDITS_ON_REGISTER} แผนแรก`, null, crypto.randomUUID());
       }
       audit(id, 'register', { method: 'google', role }, req);
+      // Google sign-up: email already verified by Google
     } else if (!user.google_sub) {
       await db.updateUser(user.id, { google_sub: sub, email_verified: 1, updated_at: t, last_login_at: t });
       user = await db.findUserById(user.id);
@@ -305,6 +332,116 @@ router.post('/change-password', requireAuth, async (req, res) => {
     res.json({ ok: true });
   } catch (e) {
     console.error('change-password error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── POST /auth/resend-verification ─────────────────────
+router.post('/resend-verification', requireAuth, emailLimiter, async (req, res) => {
+  try {
+    const user = await db.findUserById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'not_found' });
+    if (user.email_verified) {
+      return res.status(400).json({ error: 'already_verified', message: 'อีเมลได้รับการยืนยันแล้ว' });
+    }
+    await createAndSendVerification(user);
+    audit(user.id, 'resend_verification', null, req);
+    res.json({ ok: true, message: 'ส่งอีเมลยืนยันแล้ว กรุณาตรวจสอบกล่องจดหมาย' });
+  } catch (e) {
+    console.error('resend-verification error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── POST /auth/verify-email ─────────────────────────────
+// Body: { token }  (the raw 64-char hex from the email link)
+router.post('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'missing_token' });
+    }
+    const hash = hashRawToken(token.trim());
+    const row = await db.findEmailToken(hash);
+
+    if (!row || row.type !== 'verify_email') {
+      return res.status(400).json({ error: 'invalid_token', message: 'ลิงก์ยืนยันไม่ถูกต้อง' });
+    }
+    if (row.used_at) {
+      return res.status(400).json({ error: 'token_used', message: 'ลิงก์นี้ถูกใช้ไปแล้ว' });
+    }
+    if (row.expires_at < now()) {
+      return res.status(400).json({ error: 'token_expired', message: 'ลิงก์หมดอายุแล้ว กรุณาขอส่งใหม่' });
+    }
+
+    await db.useEmailToken(row.id);
+    await db.updateUser(row.user_id, { email_verified: 1, updated_at: now() });
+    audit(row.user_id, 'email_verified', null, req);
+    res.json({ ok: true, message: 'ยืนยันอีเมลสำเร็จ' });
+  } catch (e) {
+    console.error('verify-email error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── POST /auth/forgot-password ─────────────────────────
+router.post('/forgot-password', emailLimiter, async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: 'invalid_email', message: 'อีเมลไม่ถูกต้อง' });
+    }
+    // Always respond with the same message to prevent email enumeration
+    const user = await db.findUserByEmail(email);
+    if (user) {
+      const raw = makeRawToken();
+      const hash = hashRawToken(raw);
+      const expiresAt = now() + 60 * 60 * 1000; // 1 hour
+      await db.createEmailToken(user.id, 'reset_password', hash, expiresAt);
+      await sendPasswordResetEmail(user.email, raw).catch(err =>
+        console.error('[mailer] sendPasswordResetEmail failed:', err.message)
+      );
+      audit(user.id, 'forgot_password', null, req);
+    }
+    // Same response regardless of whether email exists
+    res.json({ ok: true, message: 'หากอีเมลนี้มีในระบบ คุณจะได้รับลิงก์รีเซ็ตรหัสผ่านในไม่ช้า' });
+  } catch (e) {
+    console.error('forgot-password error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── POST /auth/reset-password ──────────────────────────
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body || {};
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'missing_token' });
+    }
+    const policyError = validatePasswordPolicy(password);
+    if (policyError) return res.status(400).json({ error: 'weak_password', message: policyError });
+
+    const hash = hashRawToken(token.trim());
+    const row = await db.findEmailToken(hash);
+
+    if (!row || row.type !== 'reset_password') {
+      return res.status(400).json({ error: 'invalid_token', message: 'ลิงก์ไม่ถูกต้อง' });
+    }
+    if (row.used_at) {
+      return res.status(400).json({ error: 'token_used', message: 'ลิงก์นี้ถูกใช้ไปแล้ว กรุณาขอรีเซ็ตใหม่' });
+    }
+    if (row.expires_at < now()) {
+      return res.status(400).json({ error: 'token_expired', message: 'ลิงก์หมดอายุแล้ว กรุณาขอรีเซ็ตใหม่' });
+    }
+
+    const newHash = await hashPassword(password);
+    await db.useEmailToken(row.id);
+    await db.updateUser(row.user_id, { password_hash: newHash, failed_attempts: 0, locked_until: null, updated_at: now() });
+    await db.revokeAllUserTokens(row.user_id, now()); // log out all sessions
+    audit(row.user_id, 'reset_password', null, req);
+    res.json({ ok: true, message: 'รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่' });
+  } catch (e) {
+    console.error('reset-password error', e);
     res.status(500).json({ error: 'server_error' });
   }
 });
