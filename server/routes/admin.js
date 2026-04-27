@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'node:crypto';
 import { db, now } from '../db.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { audit, ACTIONS } from '../utils/audit.js';
 
 const router = express.Router();
 
@@ -62,8 +63,7 @@ router.post('/users/:id/lock', async (req, res) => {
       updated_at: now(),
     });
     await db.revokeAllUserTokens(req.params.id, now());
-    await db.audit({ user_id: req.user.id, action: 'admin_lock_user',
-      meta: JSON.stringify({ target: req.params.id }), ip: req.ip, created_at: now() });
+    audit(req.user.id, ACTIONS.ADMIN_LOCK_USER, { target: req.params.id }, req);
     res.json({ ok: true });
   } catch (e) {
     console.error('lock error', e);
@@ -76,8 +76,7 @@ router.post('/users/:id/unlock', async (req, res) => {
     await db.updateUser(req.params.id, {
       locked_until: null, failed_attempts: 0, updated_at: now(),
     });
-    await db.audit({ user_id: req.user.id, action: 'admin_unlock_user',
-      meta: JSON.stringify({ target: req.params.id }), ip: req.ip, created_at: now() });
+    audit(req.user.id, ACTIONS.ADMIN_UNLOCK_USER, { target: req.params.id }, req);
     res.json({ ok: true });
   } catch (e) {
     console.error('unlock error', e);
@@ -96,8 +95,7 @@ router.post('/users/:id/role', async (req, res) => {
       return res.status(400).json({ error: 'cannot_demote_self' });
     }
     await db.updateUser(req.params.id, { role, updated_at: now() });
-    await db.audit({ user_id: req.user.id, action: 'admin_change_role',
-      meta: JSON.stringify({ target: req.params.id, role }), ip: req.ip, created_at: now() });
+    audit(req.user.id, ACTIONS.ADMIN_CHANGE_ROLE, { target: req.params.id, role }, req);
     res.json({ ok: true });
   } catch (e) {
     console.error('role error', e);
@@ -112,8 +110,7 @@ router.delete('/users/:id', async (req, res) => {
       return res.status(400).json({ error: 'cannot_delete_self' });
     }
     await db.deleteUser(req.params.id);
-    await db.audit({ user_id: req.user.id, action: 'admin_delete_user',
-      meta: JSON.stringify({ target: req.params.id }), ip: req.ip, created_at: now() });
+    audit(req.user.id, ACTIONS.ADMIN_DELETE_USER, { target: req.params.id }, req);
     res.json({ ok: true });
   } catch (e) {
     console.error('delete error', e);
@@ -166,11 +163,7 @@ router.post('/users/:id/credits/grant', async (req, res) => {
       return res.status(400).json({ error: 'insufficient_credits', message: 'เครดิตไม่พอสำหรับการหัก' });
     }
 
-    await db.audit({
-      user_id: req.user.id, action: 'admin_grant_credits',
-      meta: JSON.stringify({ target: req.params.id, amount, note }),
-      ip: req.ip, created_at: now(),
-    });
+    audit(req.user.id, ACTIONS.ADMIN_GRANT_CREDITS, { target: req.params.id, amount, note }, req);
     res.json({ ok: true, credits: result.balance_after });
   } catch (e) {
     console.error('grant credits error', e);

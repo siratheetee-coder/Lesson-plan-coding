@@ -332,6 +332,21 @@ const pgDb = {
     };
   },
 
+  // ─── Retention pruners ──────────────────────────────────
+  async pruneAuditLog(cutoff) {
+    const { rowCount } = await pgPool.query(
+      'DELETE FROM audit_log WHERE created_at < $1', [cutoff]);
+    return rowCount;
+  },
+  async pruneEmailTokens(now_) {
+    // Remove tokens that are either expired or used >24h ago
+    const dayAgo = now_ - 24 * 60 * 60 * 1000;
+    const { rowCount } = await pgPool.query(
+      'DELETE FROM email_tokens WHERE expires_at < $1 OR (used_at IS NOT NULL AND used_at < $2)',
+      [now_, dayAgo]);
+    return rowCount;
+  },
+
   // ─── Email tokens ────────────────────────────────────────
   async createEmailToken(userId, type, tokenHash, expiresAt) {
     const id = crypto.randomUUID();
@@ -572,6 +587,26 @@ const jsonDb = {
         .filter(t => ['manual_grant','bonus','topup'].includes(t.type) && t.created_at > sevenDaysAgo)
         .reduce((s, t) => s + (t.amount || 0), 0),
     };
+  },
+
+  // ─── Retention pruners ──────────────────────────────────
+  async pruneAuditLog(cutoff) {
+    const before = state.audit_log.length;
+    state.audit_log = state.audit_log.filter(a => a.created_at >= cutoff);
+    const removed = before - state.audit_log.length;
+    if (removed > 0) saveJson();
+    return removed;
+  },
+  async pruneEmailTokens(now_) {
+    if (!state.email_tokens) return 0;
+    const dayAgo = now_ - 24 * 60 * 60 * 1000;
+    const before = state.email_tokens.length;
+    state.email_tokens = state.email_tokens.filter(t =>
+      t.expires_at >= now_ && !(t.used_at && t.used_at < dayAgo)
+    );
+    const removed = before - state.email_tokens.length;
+    if (removed > 0) saveJson();
+    return removed;
   },
 
   // ─── Email tokens ────────────────────────────────────────

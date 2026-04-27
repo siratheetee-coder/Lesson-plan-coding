@@ -4,6 +4,7 @@
 import express from 'express';
 import { db } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
+import { limiters } from '../utils/limiters.js';
 
 const router = express.Router();
 router.use(requireAuth);
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
 
 // ─── POST /api/lessons — create or update a lesson ────────
 // Body: the full history entry object (id is client-generated)
-router.post('/', async (req, res) => {
+router.post('/', limiters.write, async (req, res) => {
   try {
     const entry = req.body;
     if (!entry?.id || typeof entry.id !== 'string') {
@@ -36,7 +37,7 @@ router.post('/', async (req, res) => {
 });
 
 // ─── PATCH /api/lessons/:id — rename only ─────────────────
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', limiters.write, async (req, res) => {
   try {
     const { title, customTitle } = req.body || {};
     await db.patchLesson(req.user.id, req.params.id, { title, customTitle });
@@ -48,7 +49,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // ─── DELETE /api/lessons/:id ───────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', limiters.write, async (req, res) => {
   try {
     await db.deleteLesson(req.user.id, req.params.id);
     res.json({ ok: true });

@@ -5,9 +5,10 @@
 
 import express from 'express';
 import crypto from 'node:crypto';
-import rateLimit from 'express-rate-limit';
 import { db } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
+import { limiters } from '../utils/limiters.js';
+import { audit, ACTIONS } from '../utils/audit.js';
 import {
   generateObjectives,
   generateConcept,
@@ -21,14 +22,7 @@ import {
 const router = express.Router();
 router.use(requireAuth);
 
-const aiLimiter = rateLimit({
-  windowMs: 60_000,
-  max: 15,
-  keyGenerator: (req) => req.user?.id || req.ip,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'rate_limited', message: 'เรียกใช้ AI ถี่เกินไป กรุณารอสักครู่' },
-});
+const aiLimiter = limiters.ai;
 
 // ─── Generic handler ──────────────────────────────────────
 // cost = 0 → free AI call (no credit ledger entries)
@@ -70,6 +64,7 @@ async function handleAi(req, res, { kind, cost, generator }) {
           `คืนเครดิต — AI ${kind} ขัดข้อง (${err.code || err.message})`,
           `refund:${refId}`
         ).catch(() => {});
+        audit(req.user.id, ACTIONS.AI_GENERATE_FAILED, { kind, code: err.code || err.message }, req);
         console.error(`[ai/${kind}] generation failed:`, err.message, err.raw || '');
         return res.status(502).json({
           error: 'claude_failed',
@@ -92,6 +87,7 @@ async function handleAi(req, res, { kind, cost, generator }) {
     try {
       result = await generator(req.body || {});
     } catch (err) {
+      audit(req.user.id, ACTIONS.AI_GENERATE_FAILED, { kind, code: err.code || err.message }, req);
       console.error(`[ai/${kind}] generation failed:`, err.message, err.raw || '');
       return res.status(502).json({
         error: 'claude_failed',

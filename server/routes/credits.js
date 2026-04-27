@@ -3,6 +3,8 @@ import multer from 'multer';
 import { db, now } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 import { PACKAGES } from '../config/packages.js';
+import { limiters } from '../utils/limiters.js';
+import { audit, ACTIONS } from '../utils/audit.js';
 
 const router = express.Router();
 
@@ -76,7 +78,7 @@ router.get('/packages', (_req, res) => {
 // Initiate a top-up request.
 // Mode: 'manual' if OMISE_SECRET_KEY not set (shows contact info).
 // Mode: 'omise'  if OMISE_SECRET_KEY is set (creates PromptPay QR charge).
-router.post('/topup/init', async (req, res) => {
+router.post('/topup/init', limiters.write, async (req, res) => {
   try {
     const { package_id } = req.body || {};
     const pkg = PACKAGES.find(p => p.id === package_id);
@@ -156,6 +158,9 @@ router.get('/topup/status/:chargeId', async (req, res) => {
             `ซื้อ ${credits} แผน (${charge.metadata?.package_id})`,
             charge.id
           );
+          audit(req.user.id, ACTIONS.TOPUP_SUCCESS, {
+            method: 'omise_poll', package_id: charge.metadata?.package_id, credits, charge_id: charge.id,
+          }, req);
         }
       }
       const balance = await db.getCredits(req.user.id);
@@ -174,7 +179,7 @@ router.get('/topup/status/:chargeId', async (req, res) => {
 // Idempotent: same lesson_hash → no double charge (so PDF + DOCX of the
 // same lesson costs 1 credit total, not 2). Editing the lesson changes
 // the hash and triggers a fresh charge.
-router.post('/charge-export', async (req, res) => {
+router.post('/charge-export', limiters.write, async (req, res) => {
   try {
     const { lesson_hash, format } = req.body || {};
     if (!lesson_hash || typeof lesson_hash !== 'string' || lesson_hash.length < 8) {
@@ -187,6 +192,7 @@ router.post('/charge-export', async (req, res) => {
     const existing = await db.findCreditTransactionByRefId(refId);
     if (existing) {
       const balance = await db.getCredits(req.user.id);
+      audit(req.user.id, ACTIONS.CREDIT_EXPORT_REUSE, { format, lesson_hash: lesson_hash.slice(0, 16) }, req);
       return res.json({ ok: true, already_charged: true, credits: balance });
     }
 
@@ -202,6 +208,7 @@ router.post('/charge-export', async (req, res) => {
         message: 'เครดิตไม่เพียงพอ กรุณาเติมเครดิต',
       });
     }
+    audit(req.user.id, ACTIONS.CREDIT_EXPORT_CHARGE, { format, balance_after: result.balance_after }, req);
     res.json({
       ok: true,
       already_charged: false,
@@ -217,7 +224,7 @@ router.post('/charge-export', async (req, res) => {
 // ─── POST /api/credits/topup/verify-slip ─────────────────
 // User uploads slip image → forward to SlipOK → if valid, credit user
 // Body (multipart/form-data): slip (image file), package_id (string)
-router.post('/topup/verify-slip', slipUpload.single('slip'), async (req, res) => {
+router.post('/topup/verify-slip', limiters.strict, slipUpload.single('slip'), async (req, res) => {
   try {
     const packageId = req.body?.package_id;
     const pkg = PACKAGES.find(p => p.id === packageId);
@@ -247,6 +254,7 @@ router.post('/topup/verify-slip', slipUpload.single('slip'), async (req, res) =>
     if (!slipokRes.ok || !result?.success) {
       const code = result?.code;
       const msg = result?.message || 'ตรวจสอบสลิปไม่สำเร็จ';
+      audit(req.user.id, ACTIONS.SLIP_REJECTED, { code, package_id: pkg.id, reason: msg }, req);
       // Map common SlipOK codes to friendly messages
       const friendly = {
         1010: 'สลิปนี้เคยถูกใช้แล้ว',
@@ -304,6 +312,10 @@ router.post('/topup/verify-slip', slipUpload.single('slip'), async (req, res) =>
       refId
     );
     const balance = await db.getCredits(req.user.id);
+    audit(req.user.id, ACTIONS.SLIP_VERIFIED, {
+      package_id: pkg.id, credits: pkg.credits, amount: data.amount, transRef: data.transRef,
+    }, req);
+    audit(req.user.id, ACTIONS.TOPUP_SUCCESS, { method: 'slip', package_id: pkg.id, credits: pkg.credits }, req);
 
     return res.json({
       success: true,
@@ -354,6 +366,7 @@ router.post('/topup/webhook', express.raw({ type: '*/*' }), async (req, res) => 
       `ซื้อ ${credits} แผน (${packageId || charge.id})`,
       charge.id
     );
+    audit(userId, ACTIONS.TOPUP_SUCCESS, { method: 'omise', package_id: packageId, credits, charge_id: charge.id }, req);
 
     console.log(`✓ Credits +${credits} → user ${userId} (charge ${charge.id})`);
     res.json({ ok: true });

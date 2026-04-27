@@ -33,6 +33,16 @@ const aiRouter      = (await import('./routes/ai.js')).default;
 const lessonsRouter = (await import('./routes/lessons.js')).default;
 const unitsRouter   = (await import('./routes/units.js')).default;
 const { requireAuth } = await import('./middleware/auth.js');
+const { limiters }   = await import('./utils/limiters.js');
+const { pruneAuditLog, pruneEmailTokens } = await import('./utils/audit.js');
+
+// ─── Retention cleanup on startup + every 24h ────────────
+async function runRetention() {
+  await pruneAuditLog(90);   // keep 90 days of audit log
+  await pruneEmailTokens();  // remove expired/used email tokens
+}
+runRetention().catch(err => console.warn('[retention] startup run failed:', err));
+setInterval(runRetention, 24 * 60 * 60 * 1000);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -59,13 +69,17 @@ app.use((_req, res, next) => {
 });
 
 app.get('/health', (_req, res) => res.json({ ok: true, time: Date.now() }));
-app.use('/auth', authRouter);
-app.use('/admin/api', adminRouter);
-app.use('/api/credits', creditsRouter);
-app.use('/api/ai', aiRouter);
-app.use('/api/lessons', lessonsRouter);
-app.use('/api/units', unitsRouter);
-app.get('/api/whoami', requireAuth, (req, res) => res.json({ user: req.user }));
+
+// Global last-line-of-defense limiter (300 req/min per IP) applied to ALL
+// API + auth routes. Per-route limiters (auth/email/ai/write/strict) are stricter
+// and enforced inside each router, but this catches anything we forget.
+app.use('/auth', limiters.global, authRouter);
+app.use('/admin/api', limiters.global, adminRouter);
+app.use('/api/credits', limiters.global, creditsRouter);
+app.use('/api/ai', limiters.global, aiRouter);
+app.use('/api/lessons', limiters.global, lessonsRouter);
+app.use('/api/units', limiters.global, unitsRouter);
+app.get('/api/whoami', limiters.global, requireAuth, (req, res) => res.json({ user: req.user }));
 
 // Serve frontend from project root
 const FRONTEND_DIR = path.resolve(__dirname, '..');

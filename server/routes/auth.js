@@ -1,6 +1,5 @@
 import express from 'express';
 import crypto from 'node:crypto';
-import rateLimit from 'express-rate-limit';
 import { OAuth2Client } from 'google-auth-library';
 import { db, now } from '../db.js';
 import {
@@ -12,32 +11,10 @@ import {
 import { requireAuth } from '../middleware/auth.js';
 import { FREE_CREDITS_ON_REGISTER } from '../config/packages.js';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/mailer.js';
+import { limiters } from '../utils/limiters.js';
+import { audit, ACTIONS } from '../utils/audit.js';
 
 const router = express.Router();
-
-// ─── Rate limiters ──────────────────────────────────────
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'too_many_attempts', message: 'พยายามล็อกอินบ่อยเกินไป กรุณารอสักครู่' },
-});
-const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-const emailLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.body?.email || req.ip,
-  message: { error: 'too_many_attempts', message: 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่' },
-});
 
 const LOCKOUT_THRESHOLD = 5;
 const LOCKOUT_MS = 15 * 60 * 1000;
@@ -54,14 +31,6 @@ async function createAndSendVerification(user) {
   await sendVerificationEmail(user.email, raw).catch(err =>
     console.error('[mailer] sendVerificationEmail failed:', err.message)
   );
-}
-
-function audit(userId, action, meta, req) {
-  // Fire-and-forget; we don't wait on audit writes (avoids blocking the response)
-  Promise.resolve(db.audit({
-    user_id: userId || null, action, meta: meta || null,
-    ip: req.ip || null, created_at: now(),
-  })).catch(err => console.error('audit error', err));
 }
 
 function setRefreshCookie(res, token, remember) {
@@ -124,15 +93,8 @@ async function issueSession(user, req, res, remember) {
   return { accessToken: access, user: publicUser(user) };
 }
 
-async function auditAsync(userId, action, meta, req) {
-  await db.audit({
-    user_id: userId || null, action,
-    meta: meta || null, ip: req.ip || null, created_at: now(),
-  });
-}
-
 // ─── POST /auth/register ────────────────────────────────
-router.post('/register', registerLimiter, async (req, res) => {
+router.post('/register', limiters.register, async (req, res) => {
   try {
     const { email, password, displayName, remember } = req.body || {};
     if (!validateEmail(email)) return res.status(400).json({ error: 'invalid_email', message: 'อีเมลไม่ถูกต้อง' });
@@ -167,7 +129,7 @@ router.post('/register', registerLimiter, async (req, res) => {
       await db.addCredits(id, FREE_CREDITS_ON_REGISTER, 'bonus',
         `ฟรี ${FREE_CREDITS_ON_REGISTER} แผนแรก`, null, crypto.randomUUID());
     }
-    audit(id, 'register', { method: 'password', role }, req);
+    audit(id, ACTIONS.REGISTER, { method: 'password', role }, req);
     // Send verification email async — don't block the response
     createAndSendVerification(user).catch(() => {});
     res.json(await issueSession(user, req, res, !!remember));
@@ -178,7 +140,7 @@ router.post('/register', registerLimiter, async (req, res) => {
 });
 
 // ─── POST /auth/login ───────────────────────────────────
-router.post('/login', loginLimiter, async (req, res) => {
+router.post('/login', limiters.auth, async (req, res) => {
   try {
     const { email, password, remember } = req.body || {};
     if (!validateEmail(email) || typeof password !== 'string') {
@@ -199,13 +161,13 @@ router.post('/login', loginLimiter, async (req, res) => {
         const attempts = (user.failed_attempts || 0) + 1;
         const lockUntil = attempts >= LOCKOUT_THRESHOLD ? now() + LOCKOUT_MS : null;
         await db.updateUser(user.id, { failed_attempts: attempts, locked_until: lockUntil, updated_at: now() });
-        audit(user.id, 'login_failed', { attempts }, req);
+        audit(user.id, ACTIONS.LOGIN_FAILED, { attempts }, req);
       }
       return res.status(401).json({ error: 'invalid_credentials', message: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
     }
     await db.updateUser(user.id, { failed_attempts: 0, locked_until: null, last_login_at: now(), updated_at: now() });
     await promoteIfAdminEmail(user);
-    audit(user.id, 'login_success', { method: 'password' }, req);
+    audit(user.id, ACTIONS.LOGIN_SUCCESS, { method: 'password' }, req);
     res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
     console.error('login error', err);
@@ -216,7 +178,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 // ─── POST /auth/google ──────────────────────────────────
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-router.post('/google', loginLimiter, async (req, res) => {
+router.post('/google', limiters.auth, async (req, res) => {
   try {
     const { credential, remember } = req.body || {};
     if (!credential) return res.status(400).json({ error: 'missing_credential' });
@@ -249,17 +211,17 @@ router.post('/google', loginLimiter, async (req, res) => {
         await db.addCredits(id, FREE_CREDITS_ON_REGISTER, 'bonus',
           `ฟรี ${FREE_CREDITS_ON_REGISTER} แผนแรก`, null, crypto.randomUUID());
       }
-      audit(id, 'register', { method: 'google', role }, req);
+      audit(id, ACTIONS.REGISTER, { method: 'google', role }, req);
       // Google sign-up: email already verified by Google
     } else if (!user.google_sub) {
       await db.updateUser(user.id, { google_sub: sub, email_verified: 1, updated_at: t, last_login_at: t });
       user = await db.findUserById(user.id);
-      audit(user.id, 'link_google', null, req);
+      audit(user.id, ACTIONS.LINK_GOOGLE, null, req);
     } else {
       await db.updateUser(user.id, { last_login_at: t, updated_at: t });
     }
     await promoteIfAdminEmail(user);
-    audit(user.id, 'login_success', { method: 'google' }, req);
+    audit(user.id, ACTIONS.LOGIN_SUCCESS, { method: 'google' }, req);
     res.json(await issueSession(user, req, res, !!remember));
   } catch (err) {
     console.error('google login error', err);
@@ -268,7 +230,7 @@ router.post('/google', loginLimiter, async (req, res) => {
 });
 
 // ─── POST /auth/refresh ─────────────────────────────────
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', limiters.auth, async (req, res) => {
   const token = req.cookies?.refresh_token;
   if (!token) return res.status(401).json({ error: 'no_refresh_token' });
   try {
@@ -279,7 +241,7 @@ router.post('/refresh', async (req, res) => {
     }
     if (row.token_hash !== hashToken(token)) {
       await db.revokeAllUserTokens(payload.sub, now());
-      audit(payload.sub, 'refresh_token_mismatch', null, req);
+      audit(payload.sub, ACTIONS.REFRESH_TOKEN_MISMATCH, null, req);
       return res.status(401).json({ error: 'refresh_invalid' });
     }
     const user = await db.findUserById(payload.sub);
@@ -300,7 +262,7 @@ router.post('/logout', async (req, res) => {
     try {
       const payload = verifyRefreshToken(token);
       await db.revokeRefreshToken(payload.jti, now());
-      audit(payload.sub, 'logout', null, req);
+      audit(payload.sub, ACTIONS.LOGOUT, null, req);
     } catch { /* ignore */ }
   }
   clearRefreshCookie(res);
@@ -328,7 +290,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
     const hash = await hashPassword(newPassword);
     await db.updateUser(user.id, { password_hash: hash, updated_at: now() });
     await db.revokeAllUserTokens(user.id, now());
-    audit(user.id, 'change_password', null, req);
+    audit(user.id, ACTIONS.CHANGE_PASSWORD, null, req);
     res.json({ ok: true });
   } catch (e) {
     console.error('change-password error', e);
@@ -337,7 +299,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
 });
 
 // ─── POST /auth/resend-verification ─────────────────────
-router.post('/resend-verification', requireAuth, emailLimiter, async (req, res) => {
+router.post('/resend-verification', requireAuth, limiters.email, async (req, res) => {
   try {
     const user = await db.findUserById(req.user.id);
     if (!user) return res.status(404).json({ error: 'not_found' });
@@ -345,7 +307,7 @@ router.post('/resend-verification', requireAuth, emailLimiter, async (req, res) 
       return res.status(400).json({ error: 'already_verified', message: 'อีเมลได้รับการยืนยันแล้ว' });
     }
     await createAndSendVerification(user);
-    audit(user.id, 'resend_verification', null, req);
+    audit(user.id, ACTIONS.RESEND_VERIFICATION, null, req);
     res.json({ ok: true, message: 'ส่งอีเมลยืนยันแล้ว กรุณาตรวจสอบกล่องจดหมาย' });
   } catch (e) {
     console.error('resend-verification error', e);
@@ -355,7 +317,7 @@ router.post('/resend-verification', requireAuth, emailLimiter, async (req, res) 
 
 // ─── POST /auth/verify-email ─────────────────────────────
 // Body: { token }  (the raw 64-char hex from the email link)
-router.post('/verify-email', async (req, res) => {
+router.post('/verify-email', limiters.strict, async (req, res) => {
   try {
     const { token } = req.body || {};
     if (!token || typeof token !== 'string') {
@@ -376,7 +338,7 @@ router.post('/verify-email', async (req, res) => {
 
     await db.useEmailToken(row.id);
     await db.updateUser(row.user_id, { email_verified: 1, updated_at: now() });
-    audit(row.user_id, 'email_verified', null, req);
+    audit(row.user_id, ACTIONS.EMAIL_VERIFIED, null, req);
     res.json({ ok: true, message: 'ยืนยันอีเมลสำเร็จ' });
   } catch (e) {
     console.error('verify-email error', e);
@@ -385,7 +347,7 @@ router.post('/verify-email', async (req, res) => {
 });
 
 // ─── POST /auth/forgot-password ─────────────────────────
-router.post('/forgot-password', emailLimiter, async (req, res) => {
+router.post('/forgot-password', limiters.email, async (req, res) => {
   try {
     const { email } = req.body || {};
     if (!validateEmail(email)) {
@@ -401,7 +363,7 @@ router.post('/forgot-password', emailLimiter, async (req, res) => {
       await sendPasswordResetEmail(user.email, raw).catch(err =>
         console.error('[mailer] sendPasswordResetEmail failed:', err.message)
       );
-      audit(user.id, 'forgot_password', null, req);
+      audit(user.id, ACTIONS.FORGOT_PASSWORD, null, req);
     }
     // Same response regardless of whether email exists
     res.json({ ok: true, message: 'หากอีเมลนี้มีในระบบ คุณจะได้รับลิงก์รีเซ็ตรหัสผ่านในไม่ช้า' });
@@ -412,7 +374,7 @@ router.post('/forgot-password', emailLimiter, async (req, res) => {
 });
 
 // ─── POST /auth/reset-password ──────────────────────────
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', limiters.strict, async (req, res) => {
   try {
     const { token, password } = req.body || {};
     if (!token || typeof token !== 'string') {
@@ -438,7 +400,7 @@ router.post('/reset-password', async (req, res) => {
     await db.useEmailToken(row.id);
     await db.updateUser(row.user_id, { password_hash: newHash, failed_attempts: 0, locked_until: null, updated_at: now() });
     await db.revokeAllUserTokens(row.user_id, now()); // log out all sessions
-    audit(row.user_id, 'reset_password', null, req);
+    audit(row.user_id, ACTIONS.RESET_PASSWORD, null, req);
     res.json({ ok: true, message: 'รีเซ็ตรหัสผ่านสำเร็จ กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่' });
   } catch (e) {
     console.error('reset-password error', e);

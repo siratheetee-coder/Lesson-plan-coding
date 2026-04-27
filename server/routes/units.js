@@ -4,6 +4,7 @@
 import express from 'express';
 import { db } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
+import { limiters } from '../utils/limiters.js';
 
 const router = express.Router();
 router.use(requireAuth);
@@ -21,7 +22,7 @@ router.get('/', async (req, res) => {
 
 // ─── PUT /api/units/:id — upsert a unit ───────────────────
 // Body: full unit object (id is client-generated)
-router.put('/:id', async (req, res) => {
+router.put('/:id', limiters.write, async (req, res) => {
   try {
     const unit = req.body;
     if (!unit?.id || unit.id !== req.params.id) {
@@ -36,7 +37,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // ─── DELETE /api/units/:id ─────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', limiters.write, async (req, res) => {
   try {
     await db.deleteUnit(req.user.id, req.params.id);
     res.json({ ok: true });
