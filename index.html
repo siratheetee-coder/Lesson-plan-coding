@@ -2609,12 +2609,17 @@
 
     <!-- Objectives -->
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="align-items:center;">
         <div class="card-icon icon-purple">✅</div>
-        <div>
+        <div style="flex:1;">
           <div class="card-title">จุดประสงค์การเรียนรู้</div>
           <div class="card-subtitle">เพิ่ม/แก้ไขจุดประสงค์ที่ต้องการ</div>
         </div>
+        <button type="button" class="ai-assist-btn" data-ai-kind="objectives" onclick="window._aiAssist('objectives')"
+                style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
+                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+          ✨ ให้ AI ช่วย (1 เครดิต)
+        </button>
       </div>
       <div class="obj-group">
         <div class="obj-group-label">🧠 ด้านความรู้ (K - Knowledge)</div>
@@ -2667,12 +2672,17 @@
   <!-- ===== STEP 3: Content & Media ===== -->
   <div class="step-content" id="step-3">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="align-items:center;">
         <div class="card-icon icon-orange">📖</div>
-        <div>
+        <div style="flex:1;">
           <div class="card-title">สาระสำคัญและสาระการเรียนรู้</div>
           <div class="card-subtitle">คำศัพท์ โครงสร้างประโยค และสาระสำคัญของบทเรียน</div>
         </div>
+        <button type="button" class="ai-assist-btn" data-ai-kind="concept" onclick="window._aiAssist('concept')"
+                style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
+                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+          ✨ ให้ AI ช่วย (1 เครดิต)
+        </button>
       </div>
 
       <div class="form-group">
@@ -2705,12 +2715,17 @@
 
     <!-- Media & Resources -->
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="align-items:center;">
         <div class="card-icon icon-orange">🖥️</div>
-        <div>
+        <div style="flex:1;">
           <div class="card-title">สื่อและแหล่งการเรียนรู้</div>
           <div class="card-subtitle">เพิ่มสื่อที่ใช้ในการสอน</div>
         </div>
+        <button type="button" class="ai-assist-btn" data-ai-kind="media" onclick="window._aiAssist('media')"
+                style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
+                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+          ✨ ให้ AI ช่วย (1 เครดิต)
+        </button>
       </div>
       <div id="media-container">
         <div class="media-row">
@@ -2772,7 +2787,14 @@
 
       <hr class="divider">
       <div class="form-group">
-        <label>ภาระชิ้นงาน (Task/Assignment)</label>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+          <label style="margin:0;">ภาระชิ้นงาน (Task/Assignment)</label>
+          <button type="button" class="ai-assist-btn" data-ai-kind="task" onclick="window._aiAssist('task')"
+                  style="padding:7px 12px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.78rem;
+                         background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+            ✨ ให้ AI ช่วย (1 เครดิต)
+          </button>
+        </div>
         <textarea id="task-description" rows="2" placeholder="พิมพ์รายละเอียดภาระชิ้นงาน..."></textarea>
       </div>
 
@@ -2830,10 +2852,10 @@
       <hr class="divider">
       <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:12px;">
         <p style="font-size:0.9rem; color:var(--gray-500); margin:0;">📝 กรอกรายละเอียดกิจกรรมแต่ละขั้น (แก้ไขได้ทั้งหมด)</p>
-        <button type="button" class="ai-assist-btn" data-ai-kind="outline" onclick="window._aiAssist('outline')"
+        <button type="button" class="ai-assist-btn" data-ai-kind="activities" onclick="window._aiAssist('activities')"
                 style="padding:9px 14px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.85rem;
                        background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25);">
-          ✨ ให้ AI ช่วยร่างกิจกรรม (1 เครดิต)
+          ✨ ให้ AI ช่วยร่างกิจกรรม 5 ขั้น (1 เครดิต)
         </button>
       </div>
 
@@ -2915,16 +2937,18 @@
           <div style="font-size:0.9rem; font-weight:600; color:#7c3aed;">
             📋 เลือกสิ่งที่ต้องการประเมิน — ระบบจะเติมวิธีการประเมินและแนบแบบประเมินในภาคผนวกให้อัตโนมัติ
           </div>
-          <button type="button" class="ai-assist-btn" data-ai-kind="rubric" onclick="window._aiAssist('rubric')"
-                  style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
-                         background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
-            ✨ ให้ AI ช่วยสร้าง Rubric (1 เครดิต)
-          </button>
         </div>
         <div id="rubric-picker" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px;"></div>
-        <div id="ai-rubric-output" style="margin-top:12px;"></div>
       </div>
 
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
+        <div style="font-size:.85rem; color:var(--gray-500);">📝 ระบบจะเติมแบบประเมินที่เลือกโดยอัตโนมัติ — กำหนดเกณฑ์ผ่านในคอลัมน์ขวา</div>
+        <button type="button" class="ai-assist-btn" data-ai-kind="passing_criteria" onclick="window._aiAssist('passing_criteria')"
+                style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
+                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+          ✨ ให้ AI ช่วยกำหนดเกณฑ์ผ่าน (1 เครดิต)
+        </button>
+      </div>
       <div style="overflow-x:auto;">
         <table class="assessment-table" id="assessment-table">
           <thead>
@@ -7203,38 +7227,232 @@ window.renderUnitDashboard = renderUnitDashboard;
 </div>
 
 <script>
-// ─── AI assist (Claude API) ────────────────────────────────
+// ─── AI assist (Claude API) — 6 generators ─────────────────
 (function() {
-  // Collect lightweight payload from the form for AI generation
-  function _collectAiPayload() {
-    const get = (id) => (document.getElementById(id) || {}).value || '';
-    const indicators = [...document.querySelectorAll('#indicators-container .ind-btn.selected')]
-      .map(b => b.textContent.trim()).filter(Boolean).slice(0, 12);
-    const objectives = {
-      k: [...document.querySelectorAll('#objectives-k .obj-input')].map(e => e.value.trim()).filter(Boolean),
-      p: [...document.querySelectorAll('#objectives-p .obj-input')].map(e => e.value.trim()).filter(Boolean),
-      a: [...document.querySelectorAll('#objectives-a .obj-input')].map(e => e.value.trim()).filter(Boolean),
-    };
+  const get = (id) => (document.getElementById(id) || {}).value || '';
+  const _selectedIndicators = () => [...document.querySelectorAll('#indicators-container .ind-btn.selected')]
+    .map(b => b.textContent.trim()).filter(Boolean);
+  const _selectedSkills21 = () => {
+    const ids = ['reading','writing','arith','critical','creativity','collab','comm','cross','computing','career','compassion'];
+    const out = [];
+    ids.forEach(s => { const cb = document.getElementById('sk-' + s); if (cb && cb.checked) out.push(cb.parentElement.textContent.trim()); });
+    return out;
+  };
+  const _selectedMethods = () => {
+    const ids = ['2w3p','clt','games','chant','roleplay','pbl'];
+    const out = [];
+    ids.forEach(m => { const cb = document.getElementById('method-' + m); if (cb && cb.checked) out.push(cb.parentElement.textContent.trim()); });
+    return out;
+  };
+  const _selectedAssessments = () => [...document.querySelectorAll('#assessment-table tbody tr')].map(tr => ({
+    what: (tr.querySelector('.assess-what') || {}).value || '',
+    how:  (tr.querySelector('.assess-how')  || {}).value || '',
+    rubric_key: tr.dataset.rubricKey || '',
+  })).filter(a => a.what);
+
+  function _basePayload() {
     return {
       subject: get('subject-name'),
       level: get('class-level'),
       topic: get('topic'),
-      key_concept: get('key-concept'),
-      task_description: get('task-description'),
+      semester: get('semester'),
       time_min: parseInt(get('total-time')) || 50,
-      indicators,
-      objectives,
+      indicators: _selectedIndicators(),
+      objectives: {
+        k: [...document.querySelectorAll('#objectives-k .obj-input')].map(e => e.value.trim()).filter(Boolean),
+        p: [...document.querySelectorAll('#objectives-p .obj-input')].map(e => e.value.trim()).filter(Boolean),
+        a: [...document.querySelectorAll('#objectives-a .obj-input')].map(e => e.value.trim()).filter(Boolean),
+      },
+      key_concept: get('key-concept'),
     };
   }
 
+  // ─── Per-kind config: prerequisites, payload extras, applier ───
+  const KINDS = {
+    objectives: {
+      label: 'จุดประสงค์',
+      prereq: () => _selectedIndicators().length ? null : 'กรุณาเลือกตัวชี้วัดอย่างน้อย 1 ข้อก่อน (ขั้นที่ 2)',
+      payload: () => _basePayload(),
+      apply: (data) => {
+        if (!data) return false;
+        const fillGroup = (group, items) => {
+          if (!Array.isArray(items)) return;
+          const container = document.getElementById('objectives-' + group);
+          if (!container) return;
+          // Clear existing empty rows but keep filled ones
+          const rows = [...container.querySelectorAll('.objective-row')];
+          const filled = rows.filter(r => r.querySelector('.obj-input')?.value.trim());
+          rows.forEach(r => { if (!filled.includes(r)) r.remove(); });
+          items.forEach(text => {
+            if (typeof window.addObjective === 'function') window.addObjective(group);
+            const newRows = container.querySelectorAll('.objective-row');
+            const last = newRows[newRows.length - 1];
+            const input = last?.querySelector('.obj-input');
+            if (input && !input.value.trim()) input.value = text;
+          });
+        };
+        fillGroup('k', data.k);
+        fillGroup('p', data.p);
+        fillGroup('a', data.a);
+        return true;
+      },
+    },
+
+    concept: {
+      label: 'สาระสำคัญ',
+      prereq: () => (get('topic') || get('subject-name')) ? null : 'กรุณากรอกหัวข้อในขั้นที่ 1 ก่อน',
+      payload: () => _basePayload(),
+      apply: (data) => {
+        if (!data) return false;
+        const kc = document.getElementById('key-concept');
+        if (data.key_concept && kc) {
+          if (!kc.value.trim() || confirm('สาระสำคัญมีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) {
+            kc.value = data.key_concept;
+          }
+        }
+        // Vocab
+        if (Array.isArray(data.vocab) && data.vocab.length) {
+          const vc = document.getElementById('vocab-container');
+          if (vc) {
+            // Remove empty existing rows
+            [...vc.querySelectorAll('.vocab-row')].forEach(r => {
+              const ins = r.querySelectorAll('input');
+              if (![...ins].some(i => i.value.trim())) r.remove();
+            });
+            data.vocab.forEach(v => {
+              if (typeof window.addVocab === 'function') window.addVocab();
+              const rows = vc.querySelectorAll('.vocab-row');
+              const last = rows[rows.length - 1];
+              if (last) {
+                const ins = last.querySelectorAll('input');
+                if (ins[0] && !ins[0].value.trim()) ins[0].value = v.word || '';
+                if (ins[1] && !ins[1].value.trim()) ins[1].value = v.meaning || '';
+              }
+            });
+          }
+        }
+        // Sentences
+        if (Array.isArray(data.sentences) && data.sentences.length) {
+          const sc = document.getElementById('sentences-container');
+          if (sc) {
+            [...sc.querySelectorAll('.sentence-row')].forEach(r => {
+              const inp = r.querySelector('.sent-input');
+              if (inp && !inp.value.trim()) r.remove();
+            });
+            data.sentences.forEach(s => {
+              if (typeof window.addSentence === 'function') window.addSentence();
+              const rows = sc.querySelectorAll('.sentence-row');
+              const last = rows[rows.length - 1];
+              const inp = last?.querySelector('.sent-input');
+              if (inp && !inp.value.trim()) inp.value = s;
+            });
+          }
+        }
+        return true;
+      },
+    },
+
+    media: {
+      label: 'สื่อและแหล่งการเรียนรู้',
+      prereq: () => (get('topic') || get('subject-name')) ? null : 'กรุณากรอกหัวข้อในขั้นที่ 1 ก่อน',
+      payload: () => _basePayload(),
+      apply: (data) => {
+        if (!Array.isArray(data?.media)) return false;
+        const mc = document.getElementById('media-container');
+        if (!mc) return false;
+        // Remove empty existing rows
+        [...mc.querySelectorAll('.media-row')].forEach(r => {
+          const inp = r.querySelector('.media-input');
+          if (inp && !inp.value.trim()) r.remove();
+        });
+        data.media.forEach(item => {
+          if (typeof window.addMedia === 'function') window.addMedia();
+          const rows = mc.querySelectorAll('.media-row');
+          const last = rows[rows.length - 1];
+          const inp = last?.querySelector('.media-input');
+          if (inp && !inp.value.trim()) inp.value = item;
+        });
+        return true;
+      },
+    },
+
+    task: {
+      label: 'ภาระชิ้นงาน',
+      prereq: () => _selectedSkills21().length ? null : 'กรุณาเลือกทักษะผู้เรียนในศตวรรษที่ 21 อย่างน้อย 1 ข้อก่อน',
+      payload: () => ({ ..._basePayload(), skills_21c: _selectedSkills21() }),
+      apply: (data) => {
+        if (!data?.task) return false;
+        const ta = document.getElementById('task-description');
+        if (!ta) return false;
+        if (!ta.value.trim() || confirm('ภาระชิ้นงานมีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) {
+          ta.value = data.task;
+          return true;
+        }
+        return false;
+      },
+    },
+
+    activities: {
+      label: 'กิจกรรม 5 ขั้น',
+      prereq: () => _selectedMethods().length ? null : 'กรุณาเลือกรูปแบบการจัดการเรียนรู้อย่างน้อย 1 ข้อก่อน',
+      payload: () => ({
+        ..._basePayload(),
+        learning_methods: _selectedMethods(),
+        skills_21c: _selectedSkills21(),
+        task: get('task-description'),
+      }),
+      apply: (data) => {
+        if (!Array.isArray(data?.activities)) return false;
+        const tbody = document.getElementById('activities-tbody');
+        if (!tbody) return false;
+        const rows = [...tbody.querySelectorAll('tr')];
+        const hasData = rows.some(tr => [...tr.querySelectorAll('input[type="text"], textarea')]
+          .some(e => e.value.trim() && !e.classList.contains('act-phase')));
+        if (hasData && !confirm('ตารางกิจกรรมมีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return false;
+        data.activities.slice(0, 5).forEach((a, i) => {
+          const row = rows[i];
+          if (!row) return;
+          const phase = row.querySelector('.act-phase');
+          const name = row.querySelector('.act-name');
+          const detail = row.querySelector('.act-detail');
+          const time = row.querySelector('.act-time');
+          if (phase && a.phase) phase.value = a.phase;
+          if (name) name.value = a.name || '';
+          if (detail) detail.value = a.detail || '';
+          if (time && a.time_min) time.value = a.time_min;
+        });
+        if (typeof window.updateTotalTime === 'function') window.updateTotalTime();
+        return true;
+      },
+    },
+
+    passing_criteria: {
+      label: 'เกณฑ์ผ่าน',
+      prereq: () => _selectedAssessments().length ? null : 'กรุณาเลือกแบบประเมินอย่างน้อย 1 รายการก่อน',
+      payload: () => ({ ..._basePayload(), assessments: _selectedAssessments() }),
+      apply: (data) => {
+        if (!Array.isArray(data?.criteria)) return false;
+        const rows = document.querySelectorAll('#assessment-table tbody tr');
+        let filled = 0;
+        rows.forEach((tr, i) => {
+          const c = tr.querySelector('.assess-criteria');
+          if (!c || !data.criteria[i]) return;
+          if (!c.value.trim() || confirm(`เกณฑ์ของ "${tr.querySelector('.assess-what')?.value || 'รายการ ' + (i+1)}" มีข้อมูลอยู่แล้ว เขียนทับหรือไม่?`)) {
+            c.value = data.criteria[i];
+            filled++;
+          }
+        });
+        return filled > 0;
+      },
+    },
+  };
+
   function _aiToast(msg, kind = 'ok') {
-    if (typeof window.showExportToast === 'function') {
-      return window.showExportToast(msg, kind);
-    }
+    if (typeof window.showExportToast === 'function') return window.showExportToast(msg, kind);
     alert(msg);
   }
 
-  function _setAiBtnLoading(kind, loading) {
+  function _setBtnLoading(kind, loading) {
     document.querySelectorAll(`.ai-assist-btn[data-ai-kind="${kind}"]`).forEach(b => {
       b.disabled = loading;
       b.style.opacity = loading ? '.6' : '1';
@@ -7248,87 +7466,30 @@ window.renderUnitDashboard = renderUnitDashboard;
     });
   }
 
-  function _renderRubricOutput(data) {
-    const out = document.getElementById('ai-rubric-output');
-    if (!out || !data?.criteria) return;
-    const rows = data.criteria.map(c => `
-      <div style="border:1px solid #e5e7eb; border-radius:10px; padding:12px; margin-bottom:8px; background:#fafafa;">
-        <div style="display:flex; justify-content:space-between; gap:8px; align-items:center; margin-bottom:6px;">
-          <div style="font-weight:700; color:#1a1f3a;">${c.name || ''}</div>
-          <div style="font-size:.78rem; color:#7c3aed; font-weight:700;">น้ำหนัก ${c.weight || 0}%</div>
-        </div>
-        ${[4,3,2,1].map(lv => `
-          <div style="display:flex; gap:8px; font-size:.85rem; padding:3px 0;">
-            <span style="font-weight:700; color:#7c3aed; min-width:24px;">${lv}</span>
-            <span style="color:#374151;">${(c.levels && c.levels[lv]) || '-'}</span>
-          </div>`).join('')}
-      </div>`).join('');
-    out.innerHTML = `
-      <div style="background:#f5f3ff; border:1.5px solid #c4b5fd; border-radius:12px; padding:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <div style="font-weight:800; color:#5b21b6;">✨ Rubric ที่ AI สร้างให้</div>
-          <button type="button" onclick="document.getElementById('ai-rubric-output').innerHTML=''"
-                  style="background:none; border:1px solid #d1d5db; border-radius:6px; padding:4px 10px; cursor:pointer; font-size:.78rem;">ปิด</button>
-        </div>
-        ${rows}
-        <div style="font-size:.74rem; color:#6b7280; margin-top:6px;">📌 คุณสามารถนำเกณฑ์เหล่านี้ไปใส่ในแบบประเมินที่ต้องการได้</div>
-      </div>`;
-  }
-
-  function _renderOutlineToTable(data) {
-    const tbody = document.getElementById('activities-tbody');
-    if (!tbody || !Array.isArray(data?.activities)) return false;
-    // Try to fill existing rows in order, prompting before overwrite if any row has data
-    const existingRows = tbody.querySelectorAll('tr');
-    const hasData = [...existingRows].some(tr => {
-      return [...tr.querySelectorAll('input[type="text"], textarea')].some(e => e.value.trim());
-    });
-    if (hasData) {
-      if (!confirm('ตารางกิจกรรมมีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return false;
-    }
-    data.activities.forEach((a, i) => {
-      const row = existingRows[i];
-      if (!row) return;
-      const inputs = row.querySelectorAll('input[type="text"], textarea, input[type="number"]');
-      // Heuristic: title input, description textarea, time number — find by type
-      const title = row.querySelector('input[type="text"]:not(.act-phase)');
-      const desc = row.querySelector('textarea');
-      const time = row.querySelector('input[type="number"]');
-      if (title) title.value = `${a.step || ''} — ${a.title || ''}`.trim().replace(/^—\s*/, '');
-      if (desc) desc.value = a.description || '';
-      if (time) time.value = a.time_min || 0;
-    });
-    return true;
-  }
-
   window._aiAssist = async function(kind) {
-    if (typeof window.authFetch !== 'function') {
-      return _aiToast('กรุณาเข้าสู่ระบบก่อนใช้ AI', 'err');
-    }
-    const payload = _collectAiPayload();
-    // Basic guard — Claude needs at least topic + level to do anything useful
-    if (!payload.topic && !payload.subject) {
-      return _aiToast('กรุณากรอกหัวข้อหรือวิชาก่อนใช้ AI', 'err');
-    }
-    _setAiBtnLoading(kind, true);
+    const cfg = KINDS[kind];
+    if (!cfg) return _aiToast('ไม่พบ AI สำหรับส่วนนี้', 'err');
+    if (typeof window.authFetch !== 'function') return _aiToast('กรุณาเข้าสู่ระบบก่อน', 'err');
+
+    const prereqMsg = cfg.prereq();
+    if (prereqMsg) return _aiToast('⚠️ ' + prereqMsg, 'err');
+
+    _setBtnLoading(kind, true);
     try {
-      const url = kind === 'rubric' ? '/api/ai/generate-rubric' : '/api/ai/generate-outline';
       const idemKey = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+      const url = '/api/ai/generate-' + kind.replace(/_/g, '-');
       const res = await window.authFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...payload, idempotency_key: idemKey }),
+        body: JSON.stringify({ ...cfg.payload(), idempotency_key: idemKey }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         if (typeof window.updateCreditsUI === 'function') window.updateCreditsUI(data.credits);
-        if (kind === 'rubric') {
-          _renderRubricOutput(data.data);
-          _aiToast(`✨ AI สร้าง Rubric สำเร็จ · หัก 1 เครดิต`, 'ok');
-        } else {
-          const filled = _renderOutlineToTable(data.data);
-          _aiToast(filled ? '✨ AI ร่างกิจกรรมเรียบร้อย · หัก 1 เครดิต' : '⚠️ ไม่ได้นำผลลัพธ์ไปใส่ตาราง', filled ? 'ok' : 'info');
-        }
+        const applied = cfg.apply(data.data);
+        _aiToast(applied
+          ? `✨ AI ${cfg.label} สำเร็จ · หัก 1 เครดิต`
+          : `⚠️ AI สร้างผลลัพธ์แล้วแต่ยังไม่ได้ใส่ในฟอร์ม`, applied ? 'ok' : 'info');
       } else if (res.status === 402) {
         _aiToast('❌ เครดิตไม่เพียงพอ กรุณาเติมเครดิต', 'err');
         if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 600);
@@ -7343,7 +7504,7 @@ window.renderUnitDashboard = renderUnitDashboard;
       console.error('[ai] error:', e);
       _aiToast('❌ ขัดข้องเครือข่าย', 'err');
     } finally {
-      _setAiBtnLoading(kind, false);
+      _setBtnLoading(kind, false);
     }
   };
 
@@ -7354,12 +7515,72 @@ window.renderUnitDashboard = renderUnitDashboard;
       const res = await fetcher('/api/ai/status');
       if (res.ok) {
         const { configured } = await res.json();
-        if (!configured) {
-          document.querySelectorAll('.ai-assist-btn').forEach(b => b.style.display = 'none');
-        }
+        if (!configured) document.querySelectorAll('.ai-assist-btn').forEach(b => b.style.display = 'none');
       }
     } catch(e) {}
   })();
+})();
+
+// ─── Sequential step navigation ───────────────────────────
+// Block jumping forward — must complete each step's required fields first.
+(function() {
+  const STEP_REQ = {
+    1: () => {
+      const required = ['plan-number','subject-name','class-level','semester','academic-year','teacher-name','topic'];
+      const missing = required.filter(id => !(document.getElementById(id) || {}).value?.trim?.());
+      return missing.length ? 'กรุณากรอกข้อมูลพื้นฐานในขั้นที่ 1 ให้ครบ (เลขแผน, วิชา, ระดับชั้น, ภาคเรียน, ปีการศึกษา, ครู, หัวข้อ)' : null;
+    },
+    2: () => {
+      const inds = document.querySelectorAll('#indicators-container .ind-btn.selected').length;
+      const objs = [...document.querySelectorAll('#objectives-k .obj-input, #objectives-p .obj-input, #objectives-a .obj-input')]
+        .filter(e => e.value.trim()).length;
+      if (!inds) return 'กรุณาเลือกตัวชี้วัดอย่างน้อย 1 ข้อในขั้นที่ 2';
+      if (!objs) return 'กรุณากรอกจุดประสงค์อย่างน้อย 1 ข้อในขั้นที่ 2';
+      return null;
+    },
+    3: () => {
+      const concept = (document.getElementById('key-concept') || {}).value?.trim?.();
+      if (!concept) return 'กรุณากรอกสาระสำคัญในขั้นที่ 3';
+      return null;
+    },
+    4: () => {
+      const filled = [...document.querySelectorAll('#activities-tbody .act-name')].filter(e => e.value.trim()).length;
+      if (!filled) return 'กรุณากรอกชื่อกิจกรรมอย่างน้อย 1 รายการในขั้นที่ 4';
+      return null;
+    },
+  };
+
+  // Wait until original goToStep is available, then wrap it
+  function _wrap() {
+    if (typeof window.goToStep !== 'function') return false;
+    const original = window.goToStep;
+    window.goToStep = function(target) {
+      const current = window.currentStep || 1;
+      // Allow going backward freely
+      if (target <= current) return original(target);
+      // Going forward — validate every step from current up to target-1
+      for (let s = current; s < target; s++) {
+        const validator = STEP_REQ[s];
+        if (validator) {
+          const err = validator();
+          if (err) {
+            if (typeof window.showExportToast === 'function') window.showExportToast('⚠️ ' + err, 'err');
+            else alert('⚠️ ' + err);
+            return original(s); // snap to incomplete step
+          }
+        }
+      }
+      return original(target);
+    };
+    return true;
+  }
+  if (!_wrap()) {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Try a couple of times in case scripts load late
+      let n = 0;
+      const tick = setInterval(() => { if (_wrap() || ++n > 20) clearInterval(tick); }, 100);
+    });
+  }
 })();
 </script>
 
