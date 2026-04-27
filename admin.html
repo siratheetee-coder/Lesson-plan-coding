@@ -164,6 +164,58 @@
   .txn-amount.neg { color: #dc2626; }
 
   pre { background: #f8fafc; padding: 8px; border-radius: 6px; font-size: .78rem; overflow: auto; }
+
+  /* ════════════════════ MOBILE ═══════════════════════════ */
+  @media (max-width: 768px) {
+    /* Prevent iOS zoom on input focus */
+    input, textarea, select { font-size: 16px !important; }
+    .container { margin: 14px auto; padding: 0 14px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat-card { padding: 12px 14px; }
+    .stat-card .value { font-size: 1.4rem; }
+    .stat-card .label { font-size: .72rem; }
+
+    /* Topbar shrinks */
+    .topbar { padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+    .topbar h1 { font-size: 1rem; }
+    .topbar .right { font-size: .8rem; gap: 6px; flex-wrap: wrap; }
+    .topbar .right > #me-info { display: none; }
+
+    /* Modal full-screen feel */
+    .modal { padding: 18px; border-radius: 12px; }
+    .modal h3 { font-size: 1rem; }
+    .kv { grid-template-columns: 110px 1fr; font-size: .82rem; }
+
+    /* Tab pills wrap nicely */
+    .tab { padding: 9px 13px; font-size: .85rem; }
+
+    /* Toolbar (search + actions) stacks */
+    .toolbar { flex-direction: column; }
+    .toolbar input { width: 100%; min-width: 0; }
+    .toolbar .btn { width: 100%; }
+
+    /* Tables: keep horizontal scroll, smaller font */
+    table { font-size: .8rem; }
+    th, td { padding: 8px 10px; }
+
+    /* Row actions wrap to a second line */
+    .row-actions { gap: 4px; }
+    .row-actions .btn { padding: 5px 8px; font-size: .72rem; }
+
+    /* Grant form stacks */
+    .grant-form { flex-direction: column; align-items: stretch; }
+    .grant-form .field { width: 100%; }
+    .grant-form input[type=number] { width: 100%; }
+  }
+
+  @media (max-width: 480px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Touch device tap targets */
+  @media (hover: none) and (pointer: coarse) {
+    button, .btn { min-height: 38px; }
+  }
 </style>
 </head>
 <body>

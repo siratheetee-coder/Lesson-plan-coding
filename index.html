@@ -2047,6 +2047,139 @@
     position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
     font-size: 1.1rem; font-weight: 600; color: #475569; letter-spacing: .5px;
   }
+
+  /* ════════════════════════════════════════════════════════
+     ▼ MOBILE UX (≤768px) — consolidated mobile rules
+     ════════════════════════════════════════════════════════ */
+
+  /* Hamburger button — hidden on desktop, shown ≤640px */
+  .dash-hamburger {
+    display: none;
+    width: 40px; height: 40px;
+    align-items: center; justify-content: center;
+    background: transparent; border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.4rem;
+    color: #475569;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .dash-hamburger:hover { background: #f1f5f9; }
+
+  /* Sidebar overlay backdrop (off-canvas mode) */
+  .dash-sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,.5);
+    z-index: 99;
+    animation: fadeIn .15s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+  @media (max-width: 768px) {
+    /* Prevent iOS Safari zoom-in when focusing inputs (anything <16px triggers it) */
+    input[type="text"], input[type="email"], input[type="password"],
+    input[type="number"], input[type="tel"], input[type="url"],
+    input[type="search"], input[type="date"], textarea, select {
+      font-size: 16px !important;
+    }
+
+    /* Tighter dashboard padding */
+    .dash-main { padding: 18px !important; }
+    .dash-welcome h1 { font-size: 1.4rem; }
+
+    /* Form container padding shrink */
+    .container { padding: 14px !important; }
+    .step-section { padding: 18px !important; }
+
+    /* AI assist button: full width on mobile (was inline-right of card title) */
+    .ai-assist-btn { width: 100% !important; margin-top: 6px; }
+    /* Their parent flex row stacks */
+    .step-section > div[style*="flex-wrap"] {
+      flex-direction: column;
+      align-items: stretch !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    /* ── Off-canvas sidebar ──────────────────────────────── */
+    .dash-sidebar {
+      position: fixed !important;
+      top: 0; bottom: 0; left: 0;
+      width: 240px !important;
+      padding: 20px 14px !important;
+      z-index: 100;
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+      box-shadow: 4px 0 24px rgba(0,0,0,.18);
+    }
+    .dash-sidebar.open { transform: translateX(0); }
+    .dash-sidebar .dash-nav-item {
+      justify-content: flex-start !important;
+      padding: 12px 14px !important;
+    }
+    .dash-sidebar .dash-nav-item .label { display: inline !important; }
+    .dash-sidebar-footer { display: block !important; }
+
+    /* Show hamburger */
+    .dash-hamburger { display: inline-flex; }
+
+    /* Topbar: hide branding, show hamburger only */
+    .dash-topbar { padding: 10px 14px; gap: 8px; }
+    .dash-topbar-left img { display: none; }
+    .dash-topbar-left .greeting { font-size: .92rem; }
+    .dash-topbar-left .greeting + div { display: none; } /* hide subtext */
+
+    /* Topbar right: drop logout text, keep icon */
+    .dash-logout-btn span:nth-child(2) { display: none; }
+    .dash-logout-btn { padding: 7px 9px !important; }
+
+    /* Main content full-width */
+    .dash-main { padding: 14px !important; }
+
+    /* Step indicator: smaller, scrollable */
+    .step-indicator { overflow-x: auto; padding-bottom: 4px; }
+    .step-indicator::-webkit-scrollbar { display: none; }
+
+    /* Nav buttons (prev/next) full-width stacked */
+    .nav-buttons {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .nav-buttons .btn { width: 100%; padding: 12px 20px; font-size: .95rem; }
+    .nav-right { width: 100%; justify-content: stretch; }
+    .nav-right .btn { flex: 1; }
+
+    /* Buttons larger touch target */
+    .btn { min-height: 44px; }
+  }
+
+  @media (max-width: 480px) {
+    /* Auth modal — viewport-friendly */
+    .auth-modal { padding: 20px !important; max-width: 100% !important; }
+    .auth-overlay::before { display: none; } /* hide branding to save vertical space */
+
+    /* Topup modal inner padding shrink */
+    .topup-modal-body { padding: 14px 16px 22px !important; }
+    .topup-modal-header { padding: 22px 18px 14px !important; }
+
+    /* Quota widget compact */
+    .dash-quota { font-size: .82rem; padding: 5px 10px; }
+
+    /* History modal cards */
+    .history-modal-card { padding: 16px !important; }
+
+    /* Smaller h1 on welcome */
+    .dash-welcome h1 { font-size: 1.2rem; }
+    .dash-section-title { font-size: .95rem; }
+  }
+
+  /* Improve tap-target hit area on touch devices regardless of width */
+  @media (hover: none) and (pointer: coarse) {
+    button, .btn, a[role="button"] { min-height: 40px; }
+  }
 </style>
 
 <!-- Google Identity Services (loaded only if configured) -->
@@ -2059,6 +2192,8 @@
   <!-- TOP BAR -->
   <div class="dash-topbar">
     <div class="dash-topbar-left">
+      <button class="dash-hamburger" id="dash-hamburger" type="button"
+              aria-label="เมนู" onclick="toggleSidebar()">☰</button>
       <img src="logo.png" alt="logo" onerror="this.style.display='none'" />
       <div>
         <div class="greeting">สวัสดี, <b id="dash-user-name">คุณครู</b> 👋</div>
@@ -2106,6 +2241,9 @@
         สื่อ ENG ที่จริงใจ<br>v1.0
       </div>
     </aside>
+
+    <!-- Off-canvas backdrop (mobile only) -->
+    <div class="dash-sidebar-overlay" id="dash-sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
     <!-- MAIN -->
     <main class="dash-main" id="dash-main-content">
@@ -6092,7 +6230,27 @@ function dashNav(key) {
   // Scroll main to top
   const main = document.getElementById('dash-main-content');
   if (main) main.scrollTop = 0;
+  // Mobile: auto-close sidebar after picking a nav item
+  toggleSidebar(false);
 }
+
+// ─── Mobile sidebar toggle ────────────────────────────────
+// `force`: true to open, false to close, undefined to toggle
+function toggleSidebar(force) {
+  const sidebar = document.querySelector('.dash-sidebar');
+  const overlay = document.getElementById('dash-sidebar-overlay');
+  if (!sidebar || !overlay) return;
+  const open = force === undefined ? !sidebar.classList.contains('open') : !!force;
+  sidebar.classList.toggle('open', open);
+  overlay.classList.toggle('open', open);
+  overlay.style.display = open ? 'block' : 'none';
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+window.toggleSidebar = toggleSidebar;
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') toggleSidebar(false);
+});
 
 // ----- Recent Works -----
 function formatRelTime(ts) {
