@@ -83,7 +83,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log(`  DB:           ${process.env.DATABASE_URL ? 'PostgreSQL ✓' : 'JSON file (local dev)'}`);
   console.log(`  Google login: ${process.env.GOOGLE_CLIENT_ID ? 'enabled ✓' : 'disabled'}`);
-  console.log(`  Claude AI:    ${process.env.ANTHROPIC_API_KEY ? 'enabled ✓ (claude-opus-4-7)' : 'disabled (set ANTHROPIC_API_KEY)'}`);
+  console.log(`  Claude AI:    ${process.env.ANTHROPIC_API_KEY ? 'enabled ✓ (claude-haiku-4-5)' : 'disabled (set ANTHROPIC_API_KEY)'}`);
   console.log(`  SlipOK:       ${process.env.SLIPOK_API_KEY ? 'enabled ✓' : 'disabled'}`);
   console.log('');
 });

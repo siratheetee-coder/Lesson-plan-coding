@@ -113,7 +113,7 @@ router.post('/generate-outline', aiLimiter, (req, res) =>
 // ─── GET /api/ai/status ──────────────────────────────────────
 // Lets the frontend check if AI features are available
 router.get('/status', (_req, res) => {
-  res.json({ configured: isConfigured(), model: 'claude-opus-4-7' });
+  res.json({ configured: isConfigured(), model: 'claude-haiku-4-5' });
 });
 
 export default router;

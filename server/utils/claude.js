@@ -13,7 +13,7 @@ function client() {
   return _client;
 }
 
-const MODEL = 'claude-opus-4-7';
+const MODEL = 'claude-haiku-4-5';
 
 // ─── Frozen system prompts (cacheable — no timestamps / UUIDs) ────
 const SYS_RUBRIC = `คุณคือผู้ช่วยครูไทยสำหรับสร้างเกณฑ์การประเมิน (Rubric) ของแผนการสอนตามหลักสูตรแกนกลางการศึกษาขั้นพื้นฐาน 2551 (ฉบับปรับปรุง 2560)
@@ -83,10 +83,10 @@ function _extractJson(text) {
 
 async function _callClaude({ system, payload }) {
   const c = client();
+  // Haiku 4.5 does not support adaptive thinking or the effort parameter
   const stream = await c.messages.stream({
     model: MODEL,
-    max_tokens: 8000,
-    thinking: { type: 'adaptive' },
+    max_tokens: 4000,
     system: [
       { type: 'text', text: system, cache_control: { type: 'ephemeral' } },
     ],
