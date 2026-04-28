@@ -16,6 +16,7 @@ import {
   generateTask,
   generateActivities,
   generatePassingCriteria,
+  generateAssessments,
   isConfigured,
 } from '../utils/claude.js';
 
@@ -129,6 +130,9 @@ router.post('/generate-activities', aiLimiter, (req, res) =>
 
 router.post('/generate-passing-criteria', aiLimiter, (req, res) =>
   handleAi(req, res, { kind: 'passing_criteria', cost: COST, generator: generatePassingCriteria }));
+
+router.post('/generate-assessments', aiLimiter, (req, res) =>
+  handleAi(req, res, { kind: 'assessments', cost: COST, generator: generateAssessments }));
 
 // ─── Status ──────────────────────────────────────────────
 router.get('/status', (_req, res) => {
