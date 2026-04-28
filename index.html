@@ -3778,10 +3778,123 @@ function saveDraft(explicit) {
     showSavedIndicator(data.savedAt, !!explicit);
   } catch (e) { console.warn('Draft save failed:', e); }
 }
+// Track which history entry the current draft is bound to (so a 2nd save
+// updates the same entry instead of creating duplicates).
+let _currentPlanId = null;
+
 function saveNow() {
+  // Always update the autosave draft first
   saveDraft(true);
+  // First save → ask for a plan name (with auto-generated placeholder).
+  // Subsequent saves → silently update the same history entry.
+  const snap = collectDraft();
+  const placeholder = buildHistoryTitle(snap);
+
+  // Re-bind to existing entry if user reopened a saved plan
+  if (!_currentPlanId) {
+    const fp = lessonFingerprint(snap);
+    if (fp.replace(/\|/g, '').trim()) {
+      const prior = loadHistory().find(e => e && lessonFingerprint(e.data) === fp);
+      if (prior) _currentPlanId = prior.id;
+    }
+  }
+
+  if (_currentPlanId) {
+    // Update existing entry in place
+    const hist = loadHistory();
+    const idx = hist.findIndex(e => e.id === _currentPlanId);
+    if (idx >= 0) {
+      hist[idx].data = snap;
+      hist[idx].savedAt = Date.now();
+      hist[idx].title = getLessonTitle(hist[idx]);
+      writeHistory(hist);
+      _showSaveToast('✅ บันทึกแผน "' + getLessonTitle(hist[idx]) + '" แล้ว');
+      return;
+    }
+    _currentPlanId = null; // entry was deleted — fall through to create
+  }
+
+  // First-time save — prompt for plan name
+  _openPlanNameModal(placeholder, (customName) => {
+    const entry = {
+      id: 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      savedAt: Date.now(),
+      format: 'docx',
+      title: placeholder,
+      data: snap,
+    };
+    if (customName && customName.trim() && customName.trim() !== placeholder) {
+      entry.customTitle = customName.trim();
+      entry.title = customName.trim();
+    }
+    const hist = loadHistory();
+    hist.unshift(entry);
+    writeHistory(hist);
+    _currentPlanId = entry.id;
+    _showSaveToast('✅ บันทึกแผน "' + getLessonTitle(entry) + '" แล้ว');
+  });
 }
 window.saveNow = saveNow;
+
+function _showSaveToast(text) {
+  const ind = (typeof ensureSaveIndicator === 'function') ? ensureSaveIndicator() : null;
+  if (!ind) return;
+  ind.textContent = text;
+  ind.style.background = '#dcfce7';
+  ind.style.borderColor = '#86efac';
+  ind.style.color = '#166534';
+  ind.style.opacity = '1';
+  clearTimeout(ind._fadeTimer);
+  ind._fadeTimer = setTimeout(() => { ind.style.opacity = '0.4'; }, 4000);
+}
+
+// ─── Plan-name modal ───────────────────────────────────────
+function _openPlanNameModal(placeholder, onSave) {
+  // Remove any prior instance
+  document.getElementById('plan-name-modal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'plan-name-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:24px 26px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:inherit;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="width:36px;height:36px;background:#ede9fe;color:#5b21b6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">💾</div>
+        <div style="font-size:1.05rem;font-weight:700;color:#1f2937;">ตั้งชื่อแผนการสอน</div>
+      </div>
+      <div style="font-size:.82rem;color:#6b7280;margin-bottom:14px;">ปล่อยว่างเพื่อใช้ชื่ออัตโนมัติด้านล่าง</div>
+      <input id="plan-name-input" type="text"
+        placeholder="${placeholder.replace(/"/g,'&quot;')}"
+        style="width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:.92rem;color:#1f2937;outline:none;box-sizing:border-box;">
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+        <button id="plan-name-cancel" type="button"
+          style="padding:9px 18px;background:#f3f4f6;color:#374151;border:none;border-radius:9px;font-family:inherit;font-weight:600;font-size:.88rem;cursor:pointer;">
+          ยกเลิก
+        </button>
+        <button id="plan-name-save" type="button"
+          style="padding:9px 22px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;border-radius:9px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;">
+          💾 บันทึก
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  const input = document.getElementById('plan-name-input');
+  setTimeout(() => input.focus(), 50);
+
+  function close() { modal.remove(); }
+  document.getElementById('plan-name-cancel').onclick = close;
+  document.getElementById('plan-name-save').onclick = () => {
+    const v = input.value.trim();
+    close();
+    onSave(v); // empty → use placeholder (auto title)
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('plan-name-save').click(); }
+    else if (e.key === 'Escape') { close(); }
+  });
+  // Click backdrop to cancel
+  modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+}
 function readDraft() {
   try {
     const raw = localStorage.getItem(DRAFT_KEY);
@@ -4002,6 +4115,8 @@ function applyHistoryItem(id) {
   if (!confirm('ต้องการใช้แผนนี้เป็นต้นแบบ? ข้อมูลในฟอร์มปัจจุบันจะถูกแทนที่')) return;
   try {
     applyDraft(hit.data);
+    // Bind to this history entry so subsequent "บันทึก" updates it in place
+    if (typeof _currentPlanId !== 'undefined') _currentPlanId = hit.id;
     saveDraft(true); // mark current draft as explicitly saved so reload doesn't bring banner
     closeHistoryModal();
     // Scroll to top of form
@@ -6260,6 +6375,11 @@ function resetSelectionsForNewPlan() {
     document.querySelectorAll('.ind-btn.selected, .chip.selected, .rubric-chip.selected, .pill.selected, .skill-chip.selected, .method-chip.selected')
       .forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('.ind-btn.active').forEach(el => el.classList.remove('active'));
+    // 2b. Label highlights (.checkbox-item.checked, .skills21-item.checked) —
+    //     the .checked class is added by toggleChecked() on the change event,
+    //     but programmatic uncheck doesn't fire change. Strip it manually.
+    document.querySelectorAll('.checkbox-item.checked, .skills21-item.checked')
+      .forEach(el => el.classList.remove('checked'));
     // 3. Reset AI session accumulator + snapshots if present
     if (window._aiSession) window._aiSession = {};
     if (window._aiSnapshots) window._aiSnapshots = {};
@@ -6271,6 +6391,8 @@ function resetSelectionsForNewPlan() {
 }
 
 function startNewPlan() {
+  // Unbind from any previously-saved plan so the next "บันทึก" creates a new entry
+  if (typeof _currentPlanId !== 'undefined') _currentPlanId = null;
   // Wipe the saved draft so we truly start fresh
   try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
   // Clear all chip selections + checkboxes
@@ -8979,50 +9101,10 @@ window.submitResetPassword = async function() {
   }
 };
 
-// ─── Email verification banner (shown after login if not verified) ─
-function _removeVerifyBanner() {
-  document.getElementById('verify-banner')?.remove();
-}
-
-function _showVerifyBanner() {
-  if (document.getElementById('verify-banner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'verify-banner';
-  banner.style.cssText = 'background:#fefce8;border:1px solid #fde047;color:#854d0e;padding:10px 18px;font-size:.88rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50;';
-  banner.innerHTML = `
-    <span>📧 <b>โปรดยืนยันอีเมลของคุณ</b> — ตรวจสอบกล่องจดหมาย (รวม Spam)</span>
-    <button id="resend-verify-btn" style="padding:5px 13px;background:#7c3aed;color:#fff;border:none;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit">ส่งใหม่</button>
-    <button onclick="document.getElementById('verify-banner').remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:#92400e;font-size:1.1rem;padding:0 4px;" title="ปิด">✕</button>
-  `;
-  document.body.prepend(banner);
-
-  document.getElementById('resend-verify-btn').addEventListener('click', async function() {
-    this.disabled = true; this.textContent = 'กำลังส่ง...';
-    try {
-      const res = await window.authFetch('/auth/resend-verification', { method: 'POST' });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        this.textContent = '✓ ส่งแล้ว';
-        setTimeout(() => { this.disabled = false; this.textContent = 'ส่งใหม่'; }, 30000);
-      } else {
-        this.textContent = data.message || 'ล้มเหลว';
-        setTimeout(() => { this.disabled = false; this.textContent = 'ส่งใหม่'; }, 5000);
-      }
-    } catch {
-      this.textContent = 'ล้มเหลว';
-      setTimeout(() => { this.disabled = false; this.textContent = 'ส่งใหม่'; }, 5000);
-    }
-  });
-}
-
-window.addEventListener('auth:login', ({ detail }) => {
-  const user = detail?.user || window.currentUser;
-  if (user && !user.emailVerified && !user.hasGoogle) {
-    // Slight delay so dashboard renders first
-    setTimeout(_showVerifyBanner, 500);
-  }
-});
-window.addEventListener('auth:logout', _removeVerifyBanner);
+// Email verification banner removed — feature disabled while SMTP is unconfigured.
+// (Re-enable by restoring the _showVerifyBanner / _removeVerifyBanner block.)
+// Make sure any banner that may be left in the DOM from older sessions gets cleaned up.
+document.getElementById('verify-banner')?.remove();
 </script>
 </body>
 </html>
