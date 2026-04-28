@@ -53,7 +53,15 @@
       "Bash(git push *)",
       "Bash(JWT_ACCESS_SECRET=x JWT_REFRESH_SECRET=y node -e \"import\\('./server/utils/claude.js'\\).then\\(\\(\\)=>console.log\\('OK'\\)\\).catch\\(e=>{console.error\\(e\\);process.exit\\(1\\)}\\)\")",
       "Bash(JWT_ACCESS_SECRET=x JWT_REFRESH_SECRET=y node -e \"Promise.all\\([import\\('./server/utils/claude.js'\\),import\\('./server/routes/ai.js'\\)]\\).then\\(\\(\\)=>console.log\\('OK'\\)\\).catch\\(e=>{console.error\\(e\\);process.exit\\(1\\)}\\)\")",
-      "Bash(node -e \"const fs=require\\('fs'\\);const html=fs.readFileSync\\('index.html','utf8'\\);const matches=html.match\\(/data-ai-kind=\\\\\"\\([^\\\\\"]+\\)\\\\\"/g\\)||[];console.log\\('AI buttons:',matches.length\\);console.log\\(matches.map\\(m=>m.replace\\(/data-ai-kind=|\\\\\"/g,''\\)\\).join\\(', '\\)\\);\")"
+      "Bash(node -e \"const fs=require\\('fs'\\);const html=fs.readFileSync\\('index.html','utf8'\\);const matches=html.match\\(/data-ai-kind=\\\\\"\\([^\\\\\"]+\\)\\\\\"/g\\)||[];console.log\\('AI buttons:',matches.length\\);console.log\\(matches.map\\(m=>m.replace\\(/data-ai-kind=|\\\\\"/g,''\\)\\).join\\(', '\\)\\);\")",
+      "Bash(node -e \"import\\('./package.json', {assert:{type:'json'}}\\).then\\(m => console.log\\(Object.keys\\(m.default.dependencies\\)\\)\\)\")",
+      "Bash(findstr /C:\"nodemailer\" /C:\"smtp\" /C:\"sendgrid\" /C:\"mailgun\" /C:\"resend\")",
+      "Bash(findstr /i \"nodemailer resend sendgrid mailgun smtp\")",
+      "Bash(node -e \"import\\('./routes/auth.js'\\).then\\(m => console.log\\('auth ok'\\)\\).catch\\(e => { console.error\\('FAIL:', e.message\\); process.exit\\(1\\) }\\)\")",
+      "Bash(node -e \"import\\('dotenv/config'\\).then\\(\\(\\) => import\\('./routes/auth.js'\\)\\).then\\(m => console.log\\('auth.js ok'\\)\\).catch\\(e => { console.error\\('FAIL:', e.message\\); process.exit\\(1\\) }\\)\")",
+      "Bash(node -e \"import\\('dotenv/config'\\).then\\(\\(\\) => Promise.all\\(['./routes/admin.js','./routes/credits.js','./routes/ai.js','./routes/lessons.js','./routes/units.js','./utils/limiters.js','./utils/audit.js'].map\\(p => import\\(p\\)\\)\\)\\).then\\(\\(\\) => console.log\\('all routes + utils ok'\\)\\).catch\\(e => { console.error\\('FAIL:', e.message\\); process.exit\\(1\\) }\\)\")",
+      "Bash(node --check server/utils/claude.js)",
+      "Bash(node -e \"const h=require\\('fs'\\).readFileSync\\('index.html','utf8'\\); const open=\\(h.match\\(/<script>/g\\)||[]\\).length; const close=\\(h.match\\(/<\\\\/script>/g\\)||[]\\).length; console.log\\('script open:',open,'close:',close\\);\")"
     ]
   }
 }

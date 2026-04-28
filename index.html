@@ -2351,6 +2351,17 @@
                 <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 5 แผนแรก · ใช้ AI ฟรีไม่จำกัด</div>
               </div>
             </div>
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">รูปแบบการเขียนของ AI</label>
+              <select id="profile-ai-style" style="width:100%; padding:10px 14px; border:1px solid #ddd6fe; border-radius:10px; font-family:inherit; font-size:0.9rem; background:white;">
+                <option value="">— ค่าเริ่มต้น (เป็นทางการ) —</option>
+                <option value="formal">📜 เป็นทางการ — ภาษาราชการ ตรงประเด็น</option>
+                <option value="semi">😊 กึ่งทางการ — อ่านง่าย เป็นมิตร</option>
+                <option value="concise">⚡ กระชับมาก — สั้น 1 บรรทัด/ข้อ</option>
+                <option value="detailed">📝 อธิบายละเอียด — มีบริบท + ตัวอย่าง</option>
+              </select>
+              <div style="font-size:0.72rem; color:#6b7280; margin-top:4px;">มีผลกับทุก AI generation จากนี้ไป</div>
+            </div>
             <button onclick="saveProfile()" class="btn-primary" style="padding:10px 20px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer; align-self:flex-start;">
               💾 บันทึกข้อมูล
             </button>
@@ -2636,6 +2647,16 @@
 
   <!-- ===== STEP 1: General Info ===== -->
   <div class="step-content active" id="step-1">
+    <!-- Generate Full Plan banner -->
+    <div class="ai-fullplan-card" data-ai-fullplan="1" style="margin-bottom:16px;background:linear-gradient(135deg,#ede9fe,#fdf4ff);border:1.5px dashed #7c3aed;border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;" onclick="window._generateFullPlan()" onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 22px rgba(124,58,237,.18)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+      <div style="font-size:2.2rem;">🚀</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:800;color:#5b21b6;font-size:1.05rem;">สร้างแผนทั้งหมดด้วย AI</div>
+        <div style="color:#6b21a8;font-size:.82rem;margin-top:2px;">ให้ AI สร้างทุกขั้นตามลำดับ — ขั้นถัดไปจะรู้ผลลัพธ์ของขั้นก่อนหน้า ทำให้แผน coherent และไม่ขัดแย้งกัน · ฟรี ไม่หักเครดิต</div>
+      </div>
+      <div style="background:#7c3aed;color:#fff;font-weight:700;padding:8px 16px;border-radius:10px;font-size:.88rem;white-space:nowrap;">เริ่มเลย →</div>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <div class="card-icon icon-blue">📋</div>
@@ -6161,11 +6182,12 @@ function loadProfile() {
       return {
         name: p.name || 'คุณครู',
         quotaUsed: Number(p.quotaUsed) || 0,
-        quotaMax: Number(p.quotaMax) || DEFAULT_QUOTA_MAX
+        quotaMax: Number(p.quotaMax) || DEFAULT_QUOTA_MAX,
+        aiStyle: p.aiStyle || ''
       };
     }
   } catch(e) {}
-  return { name: 'คุณครู', quotaUsed: 0, quotaMax: DEFAULT_QUOTA_MAX };
+  return { name: 'คุณครู', quotaUsed: 0, quotaMax: DEFAULT_QUOTA_MAX, aiStyle: '' };
 }
 function saveProfileData(p) {
   try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch(e) {}
@@ -6186,6 +6208,8 @@ function renderProfileUI() {
   // Profile panel
   const profileInput = document.getElementById('profile-name-input');
   if (profileInput) profileInput.value = p.name;
+  const styleSel = document.getElementById('profile-ai-style');
+  if (styleSel) styleSel.value = p.aiStyle || '';
   // Credits display is handled by updateCreditsUI (auth login event)
 }
 
@@ -6194,6 +6218,8 @@ function saveProfile() {
   const input = document.getElementById('profile-name-input');
   const newName = (input && input.value || '').trim() || 'คุณครู';
   p.name = newName;
+  const styleSel = document.getElementById('profile-ai-style');
+  p.aiStyle = (styleSel && styleSel.value) || '';
   saveProfileData(p);
   renderProfileUI();
   alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
@@ -7500,7 +7526,25 @@ window.renderUnitDashboard = renderUnitDashboard;
     rubric_key: tr.dataset.rubricKey || '',
   })).filter(a => a.what);
 
+  // Read ALL form data into one snapshot — every AI call sees full context
   function _basePayload() {
+    const vocab = [...document.querySelectorAll('#vocab-container .vocab-row')]
+      .map(r => {
+        const ins = r.querySelectorAll('input');
+        return { word: (ins[0]?.value || '').trim(), meaning: (ins[1]?.value || '').trim() };
+      }).filter(v => v.word || v.meaning);
+    const sentences = [...document.querySelectorAll('#sentences-container .sent-input')]
+      .map(e => e.value.trim()).filter(Boolean);
+    const media = [...document.querySelectorAll('#media-container .media-input')]
+      .map(e => e.value.trim()).filter(Boolean);
+    const activities = [...document.querySelectorAll('#activities-tbody tr')].map(tr => ({
+      phase: (tr.querySelector('.act-phase') || {}).value || '',
+      name:  (tr.querySelector('.act-name')  || {}).value || '',
+      detail:(tr.querySelector('.act-detail')|| {}).value || '',
+      time_min: parseInt((tr.querySelector('.act-time') || {}).value) || 0,
+    })).filter(a => a.name || a.detail);
+    const assessments = _selectedAssessments();
+
     return {
       subject: get('subject-name'),
       level: get('class-level'),
@@ -7514,7 +7558,78 @@ window.renderUnitDashboard = renderUnitDashboard;
         a: [...document.querySelectorAll('#objectives-a .obj-input')].map(e => e.value.trim()).filter(Boolean),
       },
       key_concept: get('key-concept'),
+      vocab, sentences, media, activities, assessments,
+      task: get('task-description'),
+      skills_21c: _selectedSkills21(),
+      learning_methods: _selectedMethods(),
     };
+  }
+
+  // ─── Layer 2: AI session accumulator ─────────────────────
+  // Stores last successful AI output per kind, sent with every subsequent call
+  // so Claude can stay coherent with prior decisions even if form was edited.
+  const _aiSession = {};
+
+  // ─── Layer 3: Coherence snapshots ────────────────────────
+  // Hash of "source" fields at the time AI generated content for each kind.
+  // If source fields change later → mark that kind's button as stale.
+  const _aiSnapshots = {};
+  const SOURCE_FIELDS = ['topic','subject-name','class-level','total-time','semester'];
+  function _sourceHash() {
+    return JSON.stringify({
+      basic: SOURCE_FIELDS.map(id => get(id)),
+      indicators: _selectedIndicators(),
+      skills: _selectedSkills21(),
+      methods: _selectedMethods(),
+      objectives: _basePayload().objectives,
+    });
+  }
+  function _renderCoherenceBadges() {
+    const cur = _sourceHash();
+    Object.keys(KINDS).forEach(kind => {
+      const stored = _aiSnapshots[kind];
+      const stale = stored && stored !== cur;
+      document.querySelectorAll(`.ai-assist-btn[data-ai-kind="${kind}"]`).forEach(btn => {
+        let badge = btn.parentElement?.querySelector(`.ai-stale-badge[data-for="${kind}"]`);
+        if (stale) {
+          if (!badge && btn.parentElement) {
+            badge = document.createElement('div');
+            badge.className = 'ai-stale-badge';
+            badge.dataset.for = kind;
+            badge.style.cssText = 'font-size:.78rem;color:#b45309;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:6px 10px;margin-top:6px;display:flex;align-items:center;gap:6px;';
+            badge.innerHTML = '⚠️ ข้อมูลพื้นฐานเปลี่ยนแล้ว — AI ขั้นนี้อาจไม่ตรง กดปุ่ม AI ด้านบนเพื่อสร้างใหม่';
+            btn.parentElement.insertBefore(badge, btn.nextSibling);
+          }
+        } else if (badge) {
+          badge.remove();
+        }
+      });
+    });
+  }
+  // Watch source fields + selectable lists for changes
+  function _attachSourceWatchers() {
+    SOURCE_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el._aiWatched) {
+        el._aiWatched = true;
+        el.addEventListener('input', _renderCoherenceBadges);
+        el.addEventListener('change', _renderCoherenceBadges);
+      }
+    });
+    // Selectable buttons / checkboxes: rely on click event bubbling
+    document.body.addEventListener('click', (e) => {
+      if (e.target.closest('.ind-btn, #skill-21c, #method-list, .skills-checks, .methods-checks') ||
+          e.target.matches('input[id^="sk-"], input[id^="method-"]')) {
+        setTimeout(_renderCoherenceBadges, 50);
+      }
+    }, true);
+    // Re-check on objective edits (input event delegation on form root)
+    document.body.addEventListener('input', (e) => {
+      if (e.target.matches('.obj-input')) {
+        clearTimeout(window._aiBadgeT);
+        window._aiBadgeT = setTimeout(_renderCoherenceBadges, 400);
+      }
+    });
   }
 
   // ─── Per-kind config: prerequisites, payload extras, applier ───
@@ -7716,47 +7831,188 @@ window.renderUnitDashboard = renderUnitDashboard;
     });
   }
 
-  window._aiAssist = async function(kind) {
+  // Read user's AI style preference from localStorage profile
+  function _aiStyle() {
+    try {
+      const p = JSON.parse(localStorage.getItem('lpg:profile:v1') || '{}');
+      return p.aiStyle || '';
+    } catch { return ''; }
+  }
+
+  // Internal worker — used by both _aiAssist and _generateFullPlan
+  async function _runAi(kind, { silent = false } = {}) {
     const cfg = KINDS[kind];
-    if (!cfg) return _aiToast('ไม่พบ AI สำหรับส่วนนี้', 'err');
-    if (typeof window.authFetch !== 'function') return _aiToast('กรุณาเข้าสู่ระบบก่อน', 'err');
-
+    if (!cfg) return { ok: false, reason: 'unknown_kind' };
+    if (typeof window.authFetch !== 'function') return { ok: false, reason: 'not_logged_in' };
     const prereqMsg = cfg.prereq();
-    if (prereqMsg) return _aiToast('⚠️ ' + prereqMsg, 'err');
+    if (prereqMsg) return { ok: false, reason: 'prereq', message: prereqMsg };
 
-    _setBtnLoading(kind, true);
+    if (!silent) _setBtnLoading(kind, true);
     try {
       const idemKey = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
       const url = '/api/ai/generate-' + kind.replace(/_/g, '-');
+      const body = {
+        ...cfg.payload(),
+        ai_session: { ..._aiSession },   // accumulator → coherence
+        style: _aiStyle(),               // writing style preset
+        idempotency_key: idemKey,
+      };
       const res = await window.authFetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...cfg.payload(), idempotency_key: idemKey }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok) {
         if (typeof window.updateCreditsUI === 'function') window.updateCreditsUI(data.credits);
-        const applied = cfg.apply(data.data);
-        _aiToast(applied
-          ? `✨ AI ${cfg.label} สำเร็จ · หัก 1 เครดิต`
-          : `⚠️ AI สร้างผลลัพธ์แล้วแต่ยังไม่ได้ใส่ในฟอร์ม`, applied ? 'ok' : 'info');
-      } else if (res.status === 402) {
-        _aiToast('❌ เครดิตไม่เพียงพอ กรุณาเติมเครดิต', 'err');
-        if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 600);
-      } else if (res.status === 503) {
-        _aiToast('❌ ระบบ AI ยังไม่พร้อมใช้งาน', 'err');
-      } else if (res.status === 429) {
-        _aiToast('⏳ เรียกใช้ AI ถี่เกินไป กรุณารอสักครู่', 'err');
-      } else {
-        _aiToast(data.message || '❌ AI ขัดข้อง กรุณาลองใหม่', 'err');
+        return { ok: true, data: data.data };
       }
-    } catch(e) {
-      console.error('[ai] error:', e);
-      _aiToast('❌ ขัดข้องเครือข่าย', 'err');
+      return { ok: false, reason: 'http_' + res.status, status: res.status, data };
+    } catch (e) {
+      return { ok: false, reason: 'network', error: e };
     } finally {
-      _setBtnLoading(kind, false);
+      if (!silent) _setBtnLoading(kind, false);
+    }
+  }
+
+  window._aiAssist = async function(kind) {
+    const cfg = KINDS[kind];
+    if (!cfg) return _aiToast('ไม่พบ AI สำหรับส่วนนี้', 'err');
+    if (typeof window.authFetch !== 'function') return _aiToast('กรุณาเข้าสู่ระบบก่อน', 'err');
+    const prereqMsg = cfg.prereq();
+    if (prereqMsg) return _aiToast('⚠️ ' + prereqMsg, 'err');
+
+    const r = await _runAi(kind);
+    if (r.ok) {
+      const applied = cfg.apply(r.data);
+      // Layer 2 + 3: remember AI's decision + snapshot source state
+      _aiSession[kind] = r.data;
+      _aiSnapshots[kind] = _sourceHash();
+      _renderCoherenceBadges();
+      _aiToast(applied
+        ? `✨ AI ${cfg.label} สำเร็จ — ฟรี ไม่หักเครดิต`
+        : `⚠️ AI สร้างผลลัพธ์แล้วแต่ยังไม่ได้ใส่ในฟอร์ม`, applied ? 'ok' : 'info');
+      return;
+    }
+    if (r.status === 402) {
+      _aiToast('❌ เครดิตไม่เพียงพอ กรุณาเติมเครดิต', 'err');
+      if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 600);
+    } else if (r.status === 503) {
+      _aiToast('❌ ระบบ AI ยังไม่พร้อมใช้งาน', 'err');
+    } else if (r.status === 429) {
+      _aiToast('⏳ เรียกใช้ AI ถี่เกินไป กรุณารอสักครู่', 'err');
+    } else if (r.reason === 'network') {
+      _aiToast('❌ ขัดข้องเครือข่าย', 'err');
+    } else {
+      _aiToast(r.data?.message || '❌ AI ขัดข้อง กรุณาลองใหม่', 'err');
     }
   };
+
+  // ─── Layer 4: Generate Full Plan ─────────────────────────
+  // Sequential pipeline — each step's result feeds into _aiSession before the next.
+  const FULL_PLAN_ORDER = [
+    { kind: 'objectives',       label: '① จุดประสงค์ K/P/A' },
+    { kind: 'concept',          label: '② สาระ + คำศัพท์ + ประโยค' },
+    { kind: 'media',            label: '③ สื่อและแหล่งการเรียนรู้' },
+    { kind: 'task',             label: '④ ภาระชิ้นงาน' },
+    { kind: 'activities',       label: '⑤ กิจกรรม 5 ขั้น' },
+    { kind: 'passing_criteria', label: '⑥ เกณฑ์ผ่าน' },
+  ];
+
+  function _ensureFullPlanModal() {
+    let m = document.getElementById('full-plan-overlay');
+    if (m) return m;
+    m = document.createElement('div');
+    m.id = 'full-plan-overlay';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px;';
+    m.innerHTML = `
+      <div style="background:#fff;border-radius:18px;max-width:480px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+        <div style="text-align:center;margin-bottom:18px;">
+          <div style="font-size:2.4rem;">🚀</div>
+          <h2 style="margin:6px 0 4px;font-size:1.25rem;color:#1f2937;font-weight:800;">AI กำลังสร้างแผนทั้งหมด</h2>
+          <p id="fp-subtitle" style="margin:0;color:#6b7280;font-size:.85rem;">กำลังประมวลผลตามลำดับ ขั้นถัดไปจะรู้ผลลัพธ์ของขั้นก่อนหน้า</p>
+        </div>
+        <div id="fp-steps" style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button id="fp-cancel-btn" style="padding:10px 18px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">ยกเลิก</button>
+          <button id="fp-close-btn" style="padding:10px 18px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;display:none;">เสร็จสิ้น</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    return m;
+  }
+
+  let _fpAborted = false;
+  function _fpRenderRow(idx, status) {
+    const row = document.querySelector(`#fp-steps [data-fp-row="${idx}"]`);
+    if (!row) return;
+    const icons = { pending:'⏸', running:'⏳', ok:'✅', skip:'⏭️', err:'❌' };
+    const colors = { pending:'#9ca3af', running:'#7c3aed', ok:'#059669', skip:'#d97706', err:'#dc2626' };
+    row.querySelector('.fp-icon').textContent = icons[status] || '⏸';
+    row.querySelector('.fp-icon').style.color = colors[status];
+    row.style.background = status === 'running' ? '#f5f3ff' : 'transparent';
+  }
+
+  window._generateFullPlan = async function() {
+    if (typeof window.authFetch !== 'function') return _aiToast('กรุณาเข้าสู่ระบบก่อน', 'err');
+    const overlay = _ensureFullPlanModal();
+    overlay.style.display = 'flex';
+    _fpAborted = false;
+
+    const stepsEl = document.getElementById('fp-steps');
+    stepsEl.innerHTML = FULL_PLAN_ORDER.map((s, i) => `
+      <div data-fp-row="${i}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:.92rem;color:#374151;">
+        <span class="fp-icon" style="font-size:1.1rem;width:22px;text-align:center;color:#9ca3af;">⏸</span>
+        <span>${s.label}</span>
+      </div>
+    `).join('');
+    document.getElementById('fp-close-btn').style.display = 'none';
+    document.getElementById('fp-cancel-btn').style.display = '';
+    document.getElementById('fp-cancel-btn').onclick = () => {
+      _fpAborted = true;
+      overlay.style.display = 'none';
+    };
+
+    let okCount = 0, skipCount = 0, errCount = 0;
+    for (let i = 0; i < FULL_PLAN_ORDER.length; i++) {
+      if (_fpAborted) break;
+      const { kind } = FULL_PLAN_ORDER[i];
+      const cfg = KINDS[kind];
+      const prereq = cfg.prereq();
+      if (prereq) {
+        _fpRenderRow(i, 'skip');
+        skipCount++;
+        continue;
+      }
+      _fpRenderRow(i, 'running');
+      const r = await _runAi(kind, { silent: true });
+      if (r.ok) {
+        cfg.apply(r.data);
+        _aiSession[kind] = r.data;
+        _aiSnapshots[kind] = _sourceHash();
+        _fpRenderRow(i, 'ok');
+        okCount++;
+      } else {
+        _fpRenderRow(i, 'err');
+        errCount++;
+        if (r.status === 402 || r.status === 503) break;  // hard stop
+      }
+    }
+
+    _renderCoherenceBadges();
+    document.getElementById('fp-subtitle').textContent =
+      `เสร็จสิ้น · สำเร็จ ${okCount} ขั้น · ข้าม ${skipCount} · ผิดพลาด ${errCount}`;
+    document.getElementById('fp-close-btn').style.display = '';
+    document.getElementById('fp-cancel-btn').style.display = 'none';
+    document.getElementById('fp-close-btn').onclick = () => { overlay.style.display = 'none'; };
+  };
+
+  // Initialize Layer 3 watchers + initial badge render
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _attachSourceWatchers);
+  } else {
+    _attachSourceWatchers();
+  }
 
   // Hide AI buttons if backend reports AI not configured
   (async () => {
@@ -7765,7 +8021,10 @@ window.renderUnitDashboard = renderUnitDashboard;
       const res = await fetcher('/api/ai/status');
       if (res.ok) {
         const { configured } = await res.json();
-        if (!configured) document.querySelectorAll('.ai-assist-btn').forEach(b => b.style.display = 'none');
+        if (!configured) {
+          document.querySelectorAll('.ai-assist-btn').forEach(b => b.style.display = 'none');
+          document.querySelectorAll('.ai-fullplan-card').forEach(b => b.style.display = 'none');
+        }
       }
     } catch(e) {}
   })();
