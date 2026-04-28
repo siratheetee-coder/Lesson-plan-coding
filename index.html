@@ -2638,25 +2638,14 @@
 
   <!-- STEPS NAV -->
   <div class="steps-nav">
-    <button class="step-btn active" onclick="goToStep(1)">① ข้อมูลทั่วไป</button>
-    <button class="step-btn" onclick="goToStep(2)">② ตัวชี้วัด &amp; จุดประสงค์</button>
-    <button class="step-btn" onclick="goToStep(3)">③ สาระ &amp; สื่อ</button>
-    <button class="step-btn" onclick="goToStep(4)">④ กิจกรรม</button>
-    <button class="step-btn" onclick="goToStep(5)">⑤ วัดผล &amp; สร้าง</button>
+    <button class="step-btn active" data-step="1" onclick="goToStep(1)">① ข้อมูลพื้นฐาน</button>
+    <button class="step-btn" data-step="2" onclick="goToStep(2)">② เลือก Framework</button>
+    <button class="step-btn" data-step="3" onclick="goToStep(3)">③ AI สร้าง + ตรวจ</button>
+    <button class="step-btn" data-step="5" onclick="goToStep(5)">④ Export</button>
   </div>
 
   <!-- ===== STEP 1: General Info ===== -->
   <div class="step-content active" id="step-1">
-    <!-- Generate Full Plan banner -->
-    <div class="ai-fullplan-card" data-ai-fullplan="1" style="margin-bottom:16px;background:linear-gradient(135deg,#ede9fe,#fdf4ff);border:1.5px dashed #7c3aed;border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;" onclick="window._generateFullPlan()" onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 22px rgba(124,58,237,.18)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-      <div style="font-size:2.2rem;">🚀</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:800;color:#5b21b6;font-size:1.05rem;">สร้างแผนทั้งหมดด้วย AI</div>
-        <div style="color:#6b21a8;font-size:.82rem;margin-top:2px;">ให้ AI สร้างทุกขั้นตามลำดับ — ขั้นถัดไปจะรู้ผลลัพธ์ของขั้นก่อนหน้า ทำให้แผน coherent และไม่ขัดแย้งกัน · ฟรี ไม่หักเครดิต</div>
-      </div>
-      <div style="background:#7c3aed;color:#fff;font-weight:700;padding:8px 16px;border-radius:10px;font-size:.88rem;white-space:nowrap;">เริ่มเลย →</div>
-    </div>
-
     <div class="card">
       <div class="card-header">
         <div class="card-icon icon-blue">📋</div>
@@ -2738,7 +2727,7 @@
         <div></div>
         <div class="nav-right">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
-          <button class="btn btn-next" onclick="goToStep(2)">ถัดไป: ตัวชี้วัด ➜</button>
+          <button class="btn btn-next" onclick="goToStep(2)">ถัดไป: เลือก Framework ➜</button>
         </div>
       </div>
     </div>
@@ -2822,7 +2811,7 @@
         <button class="btn btn-prev" onclick="goToStep(1)">← กลับ</button>
         <div class="nav-right">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
-          <button class="btn btn-next" onclick="goToStep(3)">ถัดไป: สาระ & สื่อ ➜</button>
+          <button class="btn btn-next" onclick="goToStep(3)">ถัดไป: AI สร้าง + ตรวจ ➜</button>
         </div>
       </div>
     </div>
@@ -2961,7 +2950,7 @@
         <button class="btn btn-prev" onclick="goToStep(2)">← กลับ</button>
         <div class="nav-right">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
-          <button class="btn btn-next" onclick="goToStep(4)">ถัดไป: กิจกรรม ➜</button>
+          <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: Export ➜</button>
         </div>
       </div>
     </div>
@@ -3151,7 +3140,7 @@
       <button class="btn-add" onclick="addAttachment()" style="margin-top:8px;">+ เพิ่มภาคผนวก</button>
 
       <div class="nav-buttons">
-        <button class="btn btn-prev" onclick="goToStep(4)">← กลับ</button>
+        <button class="btn btn-prev" onclick="goToStep(3)">← กลับ</button>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
           <button class="btn btn-generate" onclick="addCurrentPlanToUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">
@@ -3196,11 +3185,14 @@ let currentStep = 1;
 function goToStep(step) {
   document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.step-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('step-' + step).classList.add('active');
-  document.querySelectorAll('.step-btn')[step - 1].classList.add('active');
+  const target = document.getElementById('step-' + step);
+  if (target) target.classList.add('active');
+  // Use data-step attribute (4-step layout maps button index → step id)
+  const btn = document.querySelector(`.step-btn[data-step="${step}"]`);
+  if (btn) btn.classList.add('active');
   currentStep = step;
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (step === 4) updateTotalTime();
+  if (step === 3 || step === 4) updateTotalTime();
 }
 
 // ===== Toggle checkbox label =====
@@ -8089,7 +8081,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         const { configured } = await res.json();
         if (!configured) {
           document.querySelectorAll('.ai-assist-btn').forEach(b => b.style.display = 'none');
-          document.querySelectorAll('.ai-fullplan-card').forEach(b => b.style.display = 'none');
+          document.querySelectorAll('.ai-fullplan-card, .ai-fullplan-trigger').forEach(b => b.style.display = 'none');
         }
       }
     } catch(e) {}
@@ -8099,6 +8091,7 @@ window.renderUnitDashboard = renderUnitDashboard;
 // ─── Sequential step navigation ───────────────────────────
 // Block jumping forward — must complete each step's required fields first.
 (function() {
+  // 4-step layout: 1=basic info, 2=framework selections, 3=AI hub, 5=export (no step 4)
   const STEP_REQ = {
     1: () => {
       const required = ['plan-number','subject-name','class-level','semester','academic-year','teacher-name','topic'];
@@ -8107,22 +8100,11 @@ window.renderUnitDashboard = renderUnitDashboard;
     },
     2: () => {
       const inds = document.querySelectorAll('#indicators-container .ind-btn.selected').length;
-      const objs = [...document.querySelectorAll('#objectives-k .obj-input, #objectives-p .obj-input, #objectives-a .obj-input')]
-        .filter(e => e.value.trim()).length;
-      if (!inds) return 'กรุณาเลือกตัวชี้วัดอย่างน้อย 1 ข้อในขั้นที่ 2';
-      if (!objs) return 'กรุณากรอกจุดประสงค์อย่างน้อย 1 ข้อในขั้นที่ 2';
+      if (!inds) return 'กรุณาเลือกตัวชี้วัดอย่างน้อย 1 ข้อในขั้นที่ 2 (จำเป็นสำหรับ AI สร้างจุดประสงค์)';
       return null;
     },
-    3: () => {
-      const concept = (document.getElementById('key-concept') || {}).value?.trim?.();
-      if (!concept) return 'กรุณากรอกสาระสำคัญในขั้นที่ 3';
-      return null;
-    },
-    4: () => {
-      const filled = [...document.querySelectorAll('#activities-tbody .act-name')].filter(e => e.value.trim()).length;
-      if (!filled) return 'กรุณากรอกชื่อกิจกรรมอย่างน้อย 1 รายการในขั้นที่ 4';
-      return null;
-    },
+    3: () => null,  // Step 3 is AI hub — no manual fields required
+    4: () => null,  // Step 4 deprecated (hidden) — content moved to step 3
   };
 
   // Wait until original goToStep is available, then wrap it
@@ -8155,6 +8137,251 @@ window.renderUnitDashboard = renderUnitDashboard;
       let n = 0;
       const tick = setInterval(() => { if (_wrap() || ++n > 20) clearInterval(tick); }, 100);
     });
+  }
+})();
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// PHASE 2 — UI RESTRUCTURE TO 4-STEP LAYOUT
+// Runs once at startup. Idempotent. Safe to re-run.
+// Physical layout:
+//   Step 1: ข้อมูลพื้นฐาน (manual)         — unchanged
+//   Step 2: เลือก Framework (manual)       — indicators + 3R/8C + methods
+//   Step 3: AI สร้าง + ตรวจ                — objectives, concept, vocab, sentences,
+//                                              media, task, activities, assessments
+//   Step 5: Export only (relabeled "Step 4")
+// ═══════════════════════════════════════════════════════════════
+(function _restructureLayout() {
+  function run() {
+    const flag = 'data-restructured-v2';
+    const root = document.querySelector('.steps-nav');
+    if (!root || root.getAttribute(flag) === '1') return;
+
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+    const step4 = document.getElementById('step-4');
+    const step5 = document.getElementById('step-5');
+    if (!step2 || !step3 || !step4 || !step5) return;
+
+    // Helpers
+    const cards = (parent) => [...parent.querySelectorAll(':scope > .card')];
+    const findCard = (parent, selector) => cards(parent).find(c => c.querySelector(selector));
+    const navOf = (parent) => parent.querySelector('.nav-buttons');
+    const insertBeforeNav = (parent, node) => {
+      const nav = navOf(parent);
+      if (nav?.parentElement === parent) parent.insertBefore(node, nav);
+      else parent.appendChild(node);
+    };
+
+    try {
+      // ── 1. Move Objectives card from step-2 → step-3 ───────────
+      const objectivesCard = findCard(step2, '.objectives-container, .obj-group');
+      // The objectives card has the nav-buttons of step-2 inside it — extract them first
+      let step2Nav = null;
+      if (objectivesCard) {
+        step2Nav = objectivesCard.querySelector('.nav-buttons');
+        if (step2Nav) {
+          // Move step-2's nav-buttons to a new wrapper at end of step-2
+          step2.appendChild(step2Nav);
+        }
+      }
+
+      // ── 2. Find skills+task card in step-3 (merged), split into 2 ──
+      const skillsTaskCard = findCard(step3, '.skills-3rs');
+      let skillsCard = null, taskCard = null;
+      if (skillsTaskCard) {
+        // Find the boundary: <hr class="divider"> followed by task content
+        const taskInputArea = skillsTaskCard.querySelector('#task-description');
+        if (taskInputArea) {
+          // The task lives in a form-group + a possible hr/divider before it
+          const taskFormGroup = taskInputArea.closest('.form-group');
+          // Build a new task card
+          taskCard = document.createElement('div');
+          taskCard.className = 'card';
+          taskCard.innerHTML = `
+            <div class="card-header" style="align-items:center;">
+              <div class="card-icon icon-purple">📝</div>
+              <div style="flex:1;">
+                <div class="card-title">ภาระชิ้นงาน (Task / Assignment)</div>
+                <div class="card-subtitle">งานที่ผู้เรียนต้องทำเพื่อแสดงสิ่งที่เรียน</div>
+              </div>
+            </div>
+          `;
+          if (taskFormGroup) taskCard.appendChild(taskFormGroup);
+          // Remove residual <hr> immediately before the (now-moved) task form-group
+          const hrs = skillsTaskCard.querySelectorAll('hr.divider');
+          // Last hr is the one separating skills from task
+          if (hrs.length) hrs[hrs.length - 1].remove();
+        }
+        skillsCard = skillsTaskCard;  // remaining content = skills only
+      }
+
+      // ── 3. Split step-4 card (methods + activities) into 2 cards ───
+      const step4Card = step4.querySelector(':scope > .card');
+      let methodsCard = null, activitiesCard = null;
+      if (step4Card) {
+        const methodsFormGroup = step4Card.querySelector('#method-2w3p')?.closest('.form-group');
+        const activitiesContainer = step4Card.querySelector('.activities-container');
+        const oldHeader = step4Card.querySelector('.card-header');
+        const aiActBtn = step4Card.querySelector('[data-ai-kind="activities"]')?.closest('div');
+        const totalTimeRow = step4Card.querySelector('#total-time')?.closest('div')?.parentElement;
+        const step4Nav = step4Card.querySelector('.nav-buttons');
+
+        // Build methods card
+        if (methodsFormGroup) {
+          methodsCard = document.createElement('div');
+          methodsCard.className = 'card';
+          methodsCard.innerHTML = `
+            <div class="card-header">
+              <div class="card-icon icon-pink">🎮</div>
+              <div>
+                <div class="card-title">รูปแบบการจัดการเรียนรู้</div>
+                <div class="card-subtitle">เลือกวิธีการสอนที่เหมาะกับผู้เรียน</div>
+              </div>
+            </div>
+          `;
+          methodsCard.appendChild(methodsFormGroup);
+        }
+
+        // Build activities card
+        if (activitiesContainer) {
+          activitiesCard = document.createElement('div');
+          activitiesCard.className = 'card';
+          activitiesCard.innerHTML = `
+            <div class="card-header" style="align-items:center;">
+              <div class="card-icon icon-pink">🎮</div>
+              <div style="flex:1;">
+                <div class="card-title">กิจกรรมการเรียนรู้ 5 ขั้น</div>
+                <div class="card-subtitle">รายละเอียดกิจกรรมแต่ละขั้น (แก้ไขได้)</div>
+              </div>
+              <button type="button" class="ai-assist-btn" data-ai-kind="activities" onclick="window._aiAssist('activities')"
+                style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
+                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+                ✨ ให้ AI ช่วย (ฟรี)
+              </button>
+            </div>
+          `;
+          activitiesCard.appendChild(activitiesContainer);
+          // Append controls (add button + total time)
+          const addBtn = step4Card.querySelector('.btn-add[onclick*="addActivity"]');
+          if (addBtn) {
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;';
+            wrap.appendChild(addBtn);
+            const tt = step4Card.querySelector('#total-time');
+            if (tt) {
+              const ttBox = document.createElement('div');
+              ttBox.style.cssText = 'margin-left:auto;padding:8px 16px;background:var(--primary-light);color:var(--primary-dark);border-radius:8px;font-size:0.9rem;';
+              ttBox.innerHTML = '⏱️ รวมเวลา: <strong id="total-time">' + tt.textContent + '</strong> นาที';
+              tt.remove();
+              wrap.appendChild(ttBox);
+            }
+            activitiesCard.appendChild(wrap);
+          }
+        }
+
+        // Hide step-4 entirely (its content is now redistributed)
+        step4.style.display = 'none';
+        if (step4Nav) step4Nav.remove();
+      }
+
+      // ── 4. Move Assessment card from step-5 → step-3 ─────────────
+      const assessmentCard = findCard(step5, '#assessment-table');
+
+      // ── 5. Build AI Hub intro card for step-3 ────────────────────
+      const hubIntro = document.createElement('div');
+      hubIntro.className = 'card';
+      hubIntro.style.cssText = 'background:linear-gradient(135deg,#f5f3ff,#fdf4ff);border:1.5px dashed #7c3aed;';
+      hubIntro.innerHTML = `
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="font-size:2.4rem;">🚀</div>
+          <div style="flex:1;min-width:240px;">
+            <div style="font-weight:800;color:#5b21b6;font-size:1.1rem;">ขั้นนี้ AI ช่วยสร้างให้</div>
+            <div style="color:#6b21a8;font-size:.85rem;margin-top:3px;">
+              จุดประสงค์ K/P/A → สาระ/คำศัพท์/ประโยค → สื่อ → ภาระชิ้นงาน → กิจกรรม 5 ขั้น → แบบประเมิน + เกณฑ์
+              <br>กดปุ่มเดียวให้ AI สร้างทั้งหมด หรือกดที่การ์ดแต่ละส่วนเพื่อสร้างทีละขั้น
+            </div>
+          </div>
+          <button class="ai-fullplan-trigger ai-assist-btn" type="button" onclick="window._generateFullPlan()"
+            style="padding:12px 20px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);white-space:nowrap;">
+            🚀 สร้างทั้งหมดด้วย AI
+          </button>
+        </div>
+      `;
+
+      // ── 6. Reassemble step-3 in correct order ───────────────────
+      // Order: AI hub → objectives → concept → media → task → activities → assessments
+      const step3OldNav = navOf(step3);  // remove old (will rebuild)
+      // Pull all current step-3 children out (preserving instances)
+      const step3Children = [...step3.children];
+      step3.innerHTML = '';
+      step3.appendChild(hubIntro);
+      if (objectivesCard) step3.appendChild(objectivesCard);
+      // Re-add original step-3 cards in order: concept → media (skills+task already split)
+      step3Children.forEach(c => {
+        if (c === skillsCard || c === step3OldNav) return;  // skipped — moved or replaced
+        if (c.classList?.contains('card')) step3.appendChild(c);
+      });
+      if (taskCard) step3.appendChild(taskCard);
+      if (activitiesCard) step3.appendChild(activitiesCard);
+      if (assessmentCard) step3.appendChild(assessmentCard);
+
+      // Add step-3 nav buttons
+      const step3Nav = document.createElement('div');
+      step3Nav.className = 'nav-buttons';
+      step3Nav.innerHTML = `
+        <button class="btn btn-prev" onclick="goToStep(2)">← กลับ</button>
+        <div class="nav-right">
+          <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
+          <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: Export ➜</button>
+        </div>
+      `;
+      step3.appendChild(step3Nav);
+
+      // ── 7. Reassemble step-2 ─────────────────────────────────────
+      // Order: indicators (existing) → skills 3R/8C → methods → nav
+      if (skillsCard) step2.appendChild(skillsCard);
+      if (methodsCard) step2.appendChild(methodsCard);
+      // Step-2 nav (rebuild to be safe)
+      let step2NavExisting = navOf(step2);
+      if (!step2NavExisting) {
+        step2NavExisting = document.createElement('div');
+        step2NavExisting.className = 'nav-buttons';
+        step2NavExisting.innerHTML = `
+          <button class="btn btn-prev" onclick="goToStep(1)">← กลับ</button>
+          <div class="nav-right">
+            <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
+            <button class="btn btn-next" onclick="goToStep(3)">ถัดไป: AI สร้าง + ตรวจ ➜</button>
+          </div>
+        `;
+        step2.appendChild(step2NavExisting);
+      } else {
+        // Move existing nav to end
+        step2.appendChild(step2NavExisting);
+        const next = step2NavExisting.querySelector('.btn-next');
+        if (next) {
+          next.setAttribute('onclick', 'goToStep(3)');
+          next.textContent = 'ถัดไป: AI สร้าง + ตรวจ ➜';
+        }
+      }
+
+      // ── 8. Mark done ─────────────────────────────────────────────
+      root.setAttribute(flag, '1');
+
+      // Re-attach AI source watchers (Layer 3 badge tracking)
+      if (typeof window._renderCoherenceBadges === 'function') {
+        setTimeout(window._renderCoherenceBadges, 200);
+      }
+    } catch (e) {
+      console.error('[restructure] failed:', e);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    setTimeout(run, 0);
   }
 })();
 </script>
