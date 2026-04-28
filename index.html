@@ -3080,44 +3080,42 @@
         </div>
       </div>
 
-      <!-- AI Assessment Generator (primary path) -->
-      <div style="margin-bottom:14px; padding:14px 16px; background:linear-gradient(135deg,#f5f3ff,#fdf4ff); border:1.5px dashed #7c3aed; border-radius:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <div style="font-size:1.6rem;">✨</div>
-        <div style="flex:1; min-width:240px;">
-          <div style="font-weight:700; color:#5b21b6; font-size:.95rem;">ให้ AI เลือกแบบประเมินที่เหมาะสม</div>
-          <div style="font-size:.78rem; color:#6b21a8; margin-top:2px;">AI จะวิเคราะห์จุดประสงค์ + กิจกรรม + ภาระชิ้นงาน แล้วเลือกแบบประเมิน + กำหนดเกณฑ์ผ่านให้อัตโนมัติ</div>
+      <!-- AI Assessment Generator (primary) + Manual fallback in one card -->
+      <div style="margin-bottom:14px; padding:18px; background:linear-gradient(135deg,#f5f3ff,#fdf4ff); border:1.5px dashed #7c3aed; border-radius:12px;">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+          <div style="font-size:1.8rem;">✨</div>
+          <div style="flex:1; min-width:240px;">
+            <div style="font-weight:700; color:#5b21b6; font-size:1rem;">เลือกแบบประเมิน</div>
+            <div style="font-size:.8rem; color:#6b21a8; margin-top:3px;">ให้ AI วิเคราะห์จุดประสงค์ + กิจกรรม + ภาระชิ้นงาน เลือกแบบประเมินและกำหนดเกณฑ์ผ่าน หรือเลือกเองจาก preset</div>
+          </div>
         </div>
-        <button type="button" class="ai-assist-btn" data-ai-kind="assessments" onclick="window._aiAssist('assessments')"
-                style="padding:10px 16px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:.88rem;
-                       background:linear-gradient(135deg,#7c3aed,#5b21b6); color:#fff; box-shadow:0 4px 10px rgba(124,58,237,.3); white-space:nowrap;">
-          🚀 สร้างแบบประเมินด้วย AI
-        </button>
-      </div>
-
-      <!-- Manual rubric picker (fallback / power user) -->
-      <details style="margin-bottom:14px;">
-        <summary style="cursor:pointer; font-size:.85rem; color:#6b7280; font-weight:600; padding:8px 0;">⚙️ หรือเลือกแบบประเมินเอง (ขั้นสูง)</summary>
-        <div style="margin-top:8px; padding:12px; background:#faf5ff; border:1px solid #e9d5ff; border-radius:10px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="ai-assist-btn" data-ai-kind="assessments" onclick="window._aiAssist('assessments')"
+                  style="flex:1; min-width:220px; padding:12px 16px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:.92rem;
+                         background:linear-gradient(135deg,#7c3aed,#5b21b6); color:#fff; box-shadow:0 4px 10px rgba(124,58,237,.3);">
+            🚀 สร้างแบบประเมินด้วย AI
+          </button>
+          <button type="button" id="manual-rubric-toggle"
+                  style="flex:1; min-width:220px; padding:12px 16px; border:1.5px solid #7c3aed; border-radius:10px; cursor:pointer; font-weight:700; font-size:.92rem;
+                         background:#fff; color:#5b21b6;">
+            ⚙️ เลือกแบบประเมินเอง (ขั้นสูง)
+          </button>
+        </div>
+        <!-- Manual rubric picker (toggled) -->
+        <div id="manual-rubric-panel" style="display:none; margin-top:14px; padding:12px; background:#faf5ff; border:1px solid #e9d5ff; border-radius:10px;">
           <div style="font-size:.82rem; color:#7c3aed; margin-bottom:8px;">📋 เลือกสิ่งที่ต้องการประเมิน — ระบบจะเติมวิธีการประเมินและแนบแบบประเมินในภาคผนวกให้อัตโนมัติ</div>
           <div id="rubric-picker" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px;"></div>
         </div>
-      </details>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;">
-        <div style="font-size:.85rem; color:var(--gray-500);">📝 ตารางผลลัพธ์ — แก้ไข/ลบรายการได้ตามต้องการ</div>
-        <button type="button" class="ai-assist-btn" data-ai-kind="passing_criteria" onclick="window._aiAssist('passing_criteria')"
-                style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
-                       background:linear-gradient(135deg,#a855f7,#c084fc); color:#fff; box-shadow:0 2px 6px rgba(168,85,247,.25); white-space:nowrap;">
-          ✨ AI เติมเกณฑ์ผ่าน (รายการที่มีอยู่)
-        </button>
       </div>
+
+      <div style="font-size:.85rem; color:var(--gray-500); margin-bottom:8px;">📝 ตารางผลลัพธ์ — แก้ไข/ลบรายการได้ตามต้องการ</div>
       <div style="overflow-x:auto;">
         <table class="assessment-table" id="assessment-table">
           <thead>
             <tr>
-              <th style="width:180px;">สิ่งที่ประเมิน</th>
-              <th>วิธีการประเมิน</th>
-              <th style="width:200px;">เกณฑ์ผ่าน</th>
+              <th style="width:160px;">สิ่งที่ประเมิน</th>
+              <th style="width:200px;">วิธีการประเมิน</th>
+              <th style="min-width:340px;">เกณฑ์ผ่าน</th>
               <th style="width:40px;"></th>
             </tr>
           </thead>
@@ -4556,7 +4554,7 @@ function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = ''
   tr.innerHTML =
     `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..." ${locked ? 'readonly style="background:#faf5ff; font-weight:500;"' : ''}></td>` +
     `<td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..." ${locked ? 'readonly style="background:#faf5ff;"' : ''}></td>` +
-    `<td><input type="text" class="assess-criteria" placeholder="${CRITERIA_PLACEHOLDER}"></td>` +
+    `<td><textarea class="assess-criteria" rows="2" placeholder="${CRITERIA_PLACEHOLDER}" style="width:100%;min-height:60px;resize:vertical;font-family:inherit;font-size:.9rem;padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;"></textarea></td>` +
     `<td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeAssessmentRow(this)" title="ลบรายการนี้" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:16px;">✕</button></td>`;
   tr.querySelector('.assess-what').value = what;
   tr.querySelector('.assess-how').value = how;
@@ -8215,6 +8213,21 @@ window.renderUnitDashboard = renderUnitDashboard;
           if (hrs.length) hrs[hrs.length - 1].remove();
         }
         skillsCard = skillsTaskCard;  // remaining content = skills only
+        // Remove any leftover nav-buttons that lived inside the original merged card
+        skillsCard.querySelectorAll('.nav-buttons').forEach(n => n.remove());
+        // Remove orphan <hr.divider> right at the end
+        const trailingHrs = skillsCard.querySelectorAll(':scope > hr.divider');
+        if (trailingHrs.length) {
+          const last = trailingHrs[trailingHrs.length - 1];
+          // Only remove if there's nothing meaningful after it
+          let sib = last.nextElementSibling;
+          let hasMeaningful = false;
+          while (sib) {
+            if (sib.tagName !== 'HR' && !sib.classList?.contains('hint')) { hasMeaningful = true; break; }
+            sib = sib.nextElementSibling;
+          }
+          if (!hasMeaningful) last.remove();
+        }
       }
 
       // ── 3. Split step-4 card (methods + activities) into 2 cards ───
@@ -8294,21 +8307,38 @@ window.renderUnitDashboard = renderUnitDashboard;
       hubIntro.className = 'card';
       hubIntro.style.cssText = 'background:linear-gradient(135deg,#f5f3ff,#fdf4ff);border:1.5px dashed #7c3aed;';
       hubIntro.innerHTML = `
-        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
           <div style="font-size:2.4rem;">🚀</div>
           <div style="flex:1;min-width:240px;">
             <div style="font-weight:800;color:#5b21b6;font-size:1.1rem;">ขั้นนี้ AI ช่วยสร้างให้</div>
             <div style="color:#6b21a8;font-size:.85rem;margin-top:3px;">
               จุดประสงค์ K/P/A → สาระ/คำศัพท์/ประโยค → สื่อ → ภาระชิ้นงาน → กิจกรรม 5 ขั้น → แบบประเมิน + เกณฑ์
-              <br>กดปุ่มเดียวให้ AI สร้างทั้งหมด หรือกดที่การ์ดแต่ละส่วนเพื่อสร้างทีละขั้น
             </div>
           </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="ai-fullplan-trigger ai-assist-btn" type="button" onclick="window._generateFullPlan()"
-            style="padding:12px 20px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);white-space:nowrap;">
-            🚀 สร้างทั้งหมดด้วย AI
+            style="flex:1;min-width:240px;padding:14px 18px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">
+            ✨ ให้ AI สร้างเนื้อหาทั้งหมดที่เหลือ
+          </button>
+          <button type="button" id="hub-manual-btn"
+            style="flex:1;min-width:240px;padding:14px 18px;background:#fff;color:#5b21b6;border:1.5px solid #7c3aed;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;">
+            ✏️ สร้างเองทีละส่วน
           </button>
         </div>
       `;
+      // Manual button → smooth-scroll to the first AI section card (objectives)
+      setTimeout(() => {
+        const manualBtn = document.getElementById('hub-manual-btn');
+        if (manualBtn) {
+          manualBtn.addEventListener('click', () => {
+            // Scroll to next sibling of hubIntro inside step-3
+            const next = hubIntro.nextElementSibling;
+            if (next?.scrollIntoView) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            else window.scrollBy({ top: 500, behavior: 'smooth' });
+          });
+        }
+      }, 300);
 
       // ── 6. Reassemble step-3 in correct order ───────────────────
       // Order: AI hub → objectives → concept → media → task → activities → assessments
@@ -8384,6 +8414,24 @@ window.renderUnitDashboard = renderUnitDashboard;
     setTimeout(run, 0);
   }
 })();
+
+// ─── Manual rubric picker toggle ─────────────────────────
+document.addEventListener('click', (e) => {
+  if (e.target?.id === 'manual-rubric-toggle') {
+    const panel = document.getElementById('manual-rubric-panel');
+    const btn = e.target;
+    if (!panel) return;
+    const isOpen = panel.style.display !== 'none';
+    if (isOpen) {
+      panel.style.display = 'none';
+      btn.textContent = '⚙️ เลือกแบบประเมินเอง (ขั้นสูง)';
+    } else {
+      panel.style.display = '';
+      btn.textContent = '✕ ซ่อนตัวเลือกขั้นสูง';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+});
 </script>
 
 <script>

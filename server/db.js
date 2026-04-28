@@ -376,11 +376,19 @@ const pgDb = {
       'SELECT * FROM lessons WHERE user_id=$1 ORDER BY saved_at DESC LIMIT 50',
       [userId]
     );
-    return rows.map(r => ({ ...JSON.parse(r.data || '{}'), _row: undefined,
-      id: r.id, savedAt: r.saved_at, title: r.title, customTitle: r.custom_title,
-      format: r.format, fingerprint: r.fingerprint,
-      data: JSON.parse(r.data || '{}'),
-    }));
+    return rows.map(r => {
+      // r.data column stores the entire entry (includes its own .data form snapshot)
+      const stored = JSON.parse(r.data || '{}');
+      return {
+        ...stored,                                       // bring forward .data + any other client fields
+        id: r.id,
+        savedAt: r.saved_at,
+        title: r.title || stored.title || null,
+        customTitle: r.custom_title || stored.customTitle || null,
+        format: r.format || stored.format || 'pdf',
+        fingerprint: r.fingerprint || stored.fingerprint || null,
+      };
+    });
   },
   async upsertLesson(userId, entry) {
     const t = now();

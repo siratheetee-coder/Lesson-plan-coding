@@ -62,7 +62,8 @@
       "Bash(node -e \"import\\('dotenv/config'\\).then\\(\\(\\) => Promise.all\\(['./routes/admin.js','./routes/credits.js','./routes/ai.js','./routes/lessons.js','./routes/units.js','./utils/limiters.js','./utils/audit.js'].map\\(p => import\\(p\\)\\)\\)\\).then\\(\\(\\) => console.log\\('all routes + utils ok'\\)\\).catch\\(e => { console.error\\('FAIL:', e.message\\); process.exit\\(1\\) }\\)\")",
       "Bash(node --check server/utils/claude.js)",
       "Bash(node -e \"const h=require\\('fs'\\).readFileSync\\('index.html','utf8'\\); const open=\\(h.match\\(/<script>/g\\)||[]\\).length; const close=\\(h.match\\(/<\\\\/script>/g\\)||[]\\).length; console.log\\('script open:',open,'close:',close\\);\")",
-      "Bash(node --check server/routes/ai.js)"
+      "Bash(node --check server/routes/ai.js)",
+      "Bash(node --check server/db.js)"
     ]
   }
 }
