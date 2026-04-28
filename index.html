@@ -7429,12 +7429,28 @@ window.renderUnitDashboard = renderUnitDashboard;
   async function api(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
     if (accessToken && !opts.skipAuth) headers['Authorization'] = 'Bearer ' + accessToken;
-    const res = await fetch(AUTH_API + path, {
-      method: opts.method || 'GET',
-      headers,
-      credentials: 'include',     // send refresh cookie
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-    });
+    // Abort the request after 25s so a hanging server doesn't lock the UI forever.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), opts.timeout || 25_000);
+    let res;
+    try {
+      res = await fetch(AUTH_API + path, {
+        method: opts.method || 'GET',
+        headers,
+        credentials: 'include',     // send refresh cookie
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+        signal: ctrl.signal,
+      });
+    } catch (e) {
+      clearTimeout(timer);
+      if (e.name === 'AbortError') {
+        const err = new Error('คำขอใช้เวลานานเกินไป กรุณาลองใหม่');
+        err.code = 'timeout';
+        throw err;
+      }
+      throw e;
+    }
+    clearTimeout(timer);
     let data = null;
     try { data = await res.json(); } catch { /* no body */ }
     if (!res.ok) {

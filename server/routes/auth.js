@@ -388,7 +388,9 @@ router.post('/forgot-password', limiters.email, async (req, res) => {
       const hash = hashRawToken(raw);
       const expiresAt = now() + 60 * 60 * 1000; // 1 hour
       await db.createEmailToken(user.id, 'reset_password', hash, expiresAt);
-      await sendPasswordResetEmail(user.email, raw).catch(err =>
+      // Fire-and-forget: don't block the HTTP response on SMTP. A slow/broken
+      // mail server would otherwise hang the user's "กำลังรอประมวลผล..." button.
+      sendPasswordResetEmail(user.email, raw).catch(err =>
         console.error('[mailer] sendPasswordResetEmail failed:', err.message)
       );
       audit(user.id, ACTIONS.FORGOT_PASSWORD, null, req);

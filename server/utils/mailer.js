@@ -24,6 +24,10 @@ function getTransport() {
         pass: process.env.SMTP_PASS,
       },
       tls: { rejectUnauthorized: process.env.NODE_ENV === 'production' },
+      // Timeouts so a misconfigured SMTP doesn't hang the API response
+      connectionTimeout: 10_000, // 10s to open TCP
+      greetingTimeout:   10_000, // 10s for SMTP greeting
+      socketTimeout:     20_000, // 20s for full message
     });
   } else {
     // No SMTP configured: silent no-op (avoid console spam in production).
