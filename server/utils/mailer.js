@@ -1,9 +1,15 @@
 // Email sender — nodemailer with SMTP config from env.
-// If SMTP_HOST is not set, falls back to console-log (local dev, no actual sending).
+// If SMTP_HOST is not set, all email-sending becomes a no-op and `isEmailEnabled()`
+// returns false so callers can skip verification flows entirely.
 
 import nodemailer from 'nodemailer';
 
 let _transport = null;
+
+// Public flag: is real email sending wired up?
+export function isEmailEnabled() {
+  return !!process.env.SMTP_HOST;
+}
 
 function getTransport() {
   if (_transport) return _transport;
@@ -20,15 +26,17 @@ function getTransport() {
       tls: { rejectUnauthorized: process.env.NODE_ENV === 'production' },
     });
   } else {
-    // Dev fallback: log to console instead of sending
+    // No SMTP configured: silent no-op (avoid console spam in production).
+    // Set DEBUG_MAIL=1 in env to log would-be emails for local dev.
     _transport = {
       sendMail: async (opts) => {
-        console.log('\n📧 ─── [DEV MAIL - not sent] ───────────────────────────');
-        console.log(`   To:      ${opts.to}`);
-        console.log(`   Subject: ${opts.subject}`);
-        console.log(`   Text:    ${opts.text}`);
-        console.log('────────────────────────────────────────────────────────\n');
-        return { messageId: 'dev-' + Date.now() };
+        if (process.env.DEBUG_MAIL === '1') {
+          console.log('\n📧 ─── [DEV MAIL - not sent] ───────────────────────────');
+          console.log(`   To:      ${opts.to}`);
+          console.log(`   Subject: ${opts.subject}`);
+          console.log('────────────────────────────────────────────────────────\n');
+        }
+        return { messageId: 'noop-' + Date.now(), skipped: true };
       },
     };
   }

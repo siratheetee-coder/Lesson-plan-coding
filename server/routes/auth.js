@@ -10,7 +10,7 @@ import {
 } from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
 import { FREE_CREDITS_ON_REGISTER } from '../config/packages.js';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/mailer.js';
+import { sendVerificationEmail, sendPasswordResetEmail, isEmailEnabled } from '../utils/mailer.js';
 import { limiters } from '../utils/limiters.js';
 import { audit, ACTIONS } from '../utils/audit.js';
 
@@ -24,6 +24,13 @@ function makeRawToken() { return crypto.randomBytes(32).toString('hex'); }
 function hashRawToken(raw) { return crypto.createHash('sha256').update(raw).digest('hex'); }
 
 async function createAndSendVerification(user) {
+  // Email not configured → auto-verify the user instead of sending a token they can never receive.
+  if (!isEmailEnabled()) {
+    if (!user.email_verified) {
+      await db.updateUser(user.id, { email_verified: 1, updated_at: now() });
+    }
+    return;
+  }
   const raw = makeRawToken();
   const hash = hashRawToken(raw);
   const expiresAt = now() + 24 * 60 * 60 * 1000; // 24h
@@ -115,7 +122,7 @@ router.post('/register', limiters.register, async (req, res) => {
       display_name: (displayName || '').trim() || null,
       google_sub: null,
       role,
-      email_verified: 0,
+      email_verified: isEmailEnabled() ? 0 : 1,
       failed_attempts: 0,
       locked_until: null,
       last_login_at: null,
@@ -269,6 +276,15 @@ router.post('/logout', async (req, res) => {
   res.json({ ok: true });
 });
 
+// ─── GET /auth/config ──────────────────────────────────
+// Public endpoint: lets the frontend know which auth features are wired.
+router.get('/config', (_req, res) => {
+  res.json({
+    emailEnabled: isEmailEnabled(),
+    googleEnabled: !!process.env.GOOGLE_CLIENT_ID,
+  });
+});
+
 // ─── GET /auth/me ───────────────────────────────────────
 router.get('/me', requireAuth, async (req, res) => {
   const user = await db.findUserById(req.user.id);
@@ -301,6 +317,12 @@ router.post('/change-password', requireAuth, async (req, res) => {
 // ─── POST /auth/resend-verification ─────────────────────
 router.post('/resend-verification', requireAuth, limiters.email, async (req, res) => {
   try {
+    if (!isEmailEnabled()) {
+      return res.status(503).json({
+        error: 'email_disabled',
+        message: 'ระบบส่งอีเมลยังไม่ได้ตั้งค่า — บัญชีของคุณถูกยืนยันให้อัตโนมัติแล้ว',
+      });
+    }
     const user = await db.findUserById(req.user.id);
     if (!user) return res.status(404).json({ error: 'not_found' });
     if (user.email_verified) {
@@ -349,6 +371,12 @@ router.post('/verify-email', limiters.strict, async (req, res) => {
 // ─── POST /auth/forgot-password ─────────────────────────
 router.post('/forgot-password', limiters.email, async (req, res) => {
   try {
+    if (!isEmailEnabled()) {
+      return res.status(503).json({
+        error: 'email_disabled',
+        message: 'ระบบส่งอีเมลยังไม่ได้ตั้งค่า กรุณาติดต่อผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่าน',
+      });
+    }
     const { email } = req.body || {};
     if (!validateEmail(email)) {
       return res.status(400).json({ error: 'invalid_email', message: 'อีเมลไม่ถูกต้อง' });

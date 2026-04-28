@@ -2256,7 +2256,7 @@
 
         <div class="dash-section-title">สร้างแผนใหม่</div>
         <div class="dash-actions">
-          <button class="dash-action-card" onclick="openFormView()">
+          <button class="dash-action-card" onclick="startNewPlan()">
             <div class="dash-action-icon purple">➕</div>
             <div class="dash-action-title">สร้างแผนรายคาบ</div>
             <div class="dash-action-sub">Single Lesson Plan — แผนการจัดการเรียนรู้ 1 คาบ พร้อม Export DOCX</div>
@@ -2288,7 +2288,7 @@
             <h1>📚 คลังแผนการสอนของฉัน</h1>
             <p>แผนทั้งหมดที่เคยสร้างและบันทึกไว้</p>
           </div>
-          <button onclick="openFormView()"
+          <button onclick="startNewPlan()"
             style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:12px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.95rem; font-weight:600; box-shadow:0 4px 12px rgba(124,58,237,0.3); white-space:nowrap;">
             ✨ สร้างแผนรายคาบ
           </button>
@@ -2639,7 +2639,7 @@
   <!-- STEPS NAV -->
   <div class="steps-nav">
     <button class="step-btn active" data-step="1" onclick="goToStep(1)">① ข้อมูลพื้นฐาน</button>
-    <button class="step-btn" data-step="2" onclick="goToStep(2)">② เลือกเนื้อหาี่ต้องการ</button>
+    <button class="step-btn" data-step="2" onclick="goToStep(2)">② เลือกเนื้อหาที่ต้องการ</button>
     <button class="step-btn" data-step="3" onclick="goToStep(3)">③ AI สร้าง + ตรวจ</button>
     <button class="step-btn" data-step="5" onclick="goToStep(5)">④ สร้างไฟล์ Word DOCX</button>
   </div>
@@ -2950,7 +2950,7 @@
         <button class="btn btn-prev" onclick="goToStep(2)">← กลับ</button>
         <div class="nav-right">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
-          <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: Export ➜</button>
+          <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: Export เป็น Word DOCX ➜</button>
         </div>
       </div>
     </div>
@@ -3793,9 +3793,18 @@ function clearDraft() {
   const el = document.getElementById('save-indicator');
   if (el) el.textContent = '';
 }
+function _toMs(ts) {
+  if (ts == null || ts === '') return 0;
+  if (typeof ts === 'number' && isFinite(ts)) return ts;
+  const d = new Date(ts);
+  const n = d.getTime();
+  return isFinite(n) ? n : 0;
+}
 function formatTime(ts) {
+  const ms = _toMs(ts);
+  if (!ms) return '';
   try {
-    return new Date(ts).toLocaleString('th-TH', {
+    return new Date(ms).toLocaleString('th-TH', {
       hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'
     });
   } catch { return ''; }
@@ -6236,6 +6245,55 @@ function openFormView() {
   document.body.style.overflow = '';
   window.scrollTo(0, 0);
 }
+
+// Reset all selections (chips, checkboxes) when starting a fresh plan from dashboard.
+// Does NOT clear text inputs — those are still draft-restored via loadDraft().
+function resetSelectionsForNewPlan() {
+  try {
+    // 1. Native checkboxes / radios
+    document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => {
+      // Skip checkboxes inside modals that aren't part of the form
+      if (el.closest('#roster-modal')) return;
+      el.checked = false;
+    });
+    // 2. Chip-style buttons that use .selected / .active class
+    document.querySelectorAll('.ind-btn.selected, .chip.selected, .rubric-chip.selected, .pill.selected, .skill-chip.selected, .method-chip.selected')
+      .forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('.ind-btn.active').forEach(el => el.classList.remove('active'));
+    // 3. Reset AI session accumulator + snapshots if present
+    if (window._aiSession) window._aiSession = {};
+    if (window._aiSnapshots) window._aiSnapshots = {};
+    // 4. Re-render coherence badges (they should now be cleared)
+    if (typeof window._renderCoherenceBadges === 'function') {
+      try { window._renderCoherenceBadges(); } catch(e){}
+    }
+  } catch(e) { console.warn('resetSelectionsForNewPlan failed', e); }
+}
+
+function startNewPlan() {
+  // Wipe the saved draft so we truly start fresh
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+  // Clear all chip selections + checkboxes
+  resetSelectionsForNewPlan();
+  // Reset all text inputs / textareas / selects to empty
+  try {
+    const form = document.getElementById('lesson-form') || document;
+    form.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea').forEach(el => {
+      if (el.closest('#roster-modal')) return;
+      el.value = '';
+    });
+    form.querySelectorAll('select').forEach(el => {
+      if (el.closest('#roster-modal')) return;
+      el.selectedIndex = 0;
+    });
+  } catch(e) {}
+  // Reset to step 1
+  if (typeof window.goToStep === 'function') {
+    try { window.goToStep(1); } catch(e) {}
+  }
+  openFormView();
+}
+window.startNewPlan = startNewPlan;
 function openDashboardView() {
   document.getElementById('dashboard-view').style.display = 'flex';
   renderProfileUI();
@@ -6283,8 +6341,9 @@ document.addEventListener('keydown', e => {
 
 // ----- Recent Works -----
 function formatRelTime(ts) {
-  if (!ts) return '';
-  const diff = Date.now() - ts;
+  const ms = (typeof _toMs === 'function') ? _toMs(ts) : (typeof ts === 'number' ? ts : new Date(ts).getTime());
+  if (!ms || !isFinite(ms)) return '';
+  const diff = Date.now() - ms;
   const min = Math.floor(diff / 60000);
   if (min < 1) return 'เมื่อสักครู่';
   if (min < 60) return min + ' นาทีที่แล้ว';
@@ -6292,7 +6351,7 @@ function formatRelTime(ts) {
   if (hr < 24) return hr + ' ชม.ที่แล้ว';
   const d = Math.floor(hr / 24);
   if (d < 7) return d + ' วันที่แล้ว';
-  const date = new Date(ts);
+  const date = new Date(ms);
   return date.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' });
 }
 
@@ -7008,7 +7067,8 @@ function exportUnitDocx() {
     const title = getLessonTitle(h) || f['plan-name'] || f['subject-name'] || ('แผน #' + (i+1));
     const cls = f['class-level'] || '-';
     const unitNo = f['unit-number'] || '-';
-    const d = h.savedAt ? new Date(h.savedAt).toLocaleDateString('th-TH') : '-';
+    const _ms = _toMs(h.savedAt);
+    const d = _ms ? new Date(_ms).toLocaleDateString('th-TH') : '-';
     const cells = [
       [String(i+1), 700, 'center'],
       [title, 4000, 'left'],
@@ -7182,6 +7242,17 @@ window.renderUnitDashboard = renderUnitDashboard;
   let currentUser = null;
   let authMode = 'login'; // 'login' | 'register' | 'forgot'
 
+  // Fetch which auth features are wired (email/google). Stash on window so other
+  // scripts can react. Default: assume both enabled until we know otherwise.
+  window._authConfig = window._authConfig || { emailEnabled: true, googleEnabled: true };
+  fetch('/auth/config').then(r => r.ok ? r.json() : null).then(cfg => {
+    if (cfg) {
+      window._authConfig = cfg;
+      // Re-apply current mode so the forgot-password link visibility updates
+      try { setMode(authMode); } catch(e) {}
+    }
+  }).catch(() => {});
+
   // ─── Helpers ──────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
   const overlay = $('auth-overlay');
@@ -7216,7 +7287,8 @@ window.renderUnitDashboard = renderUnitDashboard;
     $('auth-name-row').style.display     = isRegister ? 'block' : 'none';
     $('auth-password-row').style.display = isForgot   ? 'none'  : 'block';
     $('auth-remember-row').style.display = isForgot   ? 'none'  : 'block';
-    $('auth-forgot').style.display       = mode === 'login' ? 'inline' : 'none';
+    // Hide "forgot password?" link when email isn't configured (link is useless without email)
+    $('auth-forgot').style.display       = (mode === 'login' && window._authConfig?.emailEnabled !== false) ? 'inline' : 'none';
     $('auth-google-divider').style.display = isForgot ? 'none' : '';
     $('auth-google-btn').style.display     = isForgot ? 'none' : '';
 
@@ -8361,7 +8433,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         <button class="btn btn-prev" onclick="goToStep(2)">← กลับ</button>
         <div class="nav-right">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
-          <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: Export ➜</button>
+          <button class="btn btn-next" onclick="goToStep(5)">ถัดไป: Export เป็น Word DOCX ➜</button>
         </div>
       `;
       step3.appendChild(step3Nav);
