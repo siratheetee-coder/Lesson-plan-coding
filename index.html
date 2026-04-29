@@ -5765,6 +5765,23 @@ function exportAsDocx(data) {
       xml = xml.substring(0, pStart) + standardXML + xml.substring(pEnd);
     }
 
+    // === Generic bullet-list replacer: replace the entire <w:p> containing the
+    // placeholder with one <w:p> per non-empty item. Keeps a single empty bullet
+    // paragraph if the user provided nothing, so the layout doesn't collapse.
+    const replaceWithBullets = (placeholder, items) => {
+      const idx = xml.indexOf(placeholder);
+      if (idx < 0) return;
+      const cleaned = (items || []).map(s => (s || '').toString().trim()).filter(Boolean);
+      const block = cleaned.length ? cleaned.map(bulletPara).join('') : bulletPara('');
+      const pStart = xml.lastIndexOf('<w:p ', idx);
+      const pEnd = xml.indexOf('</w:p>', idx) + '</w:p>'.length;
+      xml = xml.substring(0, pStart) + block + xml.substring(pEnd);
+    };
+
+    // Bullet-list placeholders (one item per bullet) — สื่อ + ประโยค
+    replaceWithBullets('{material}',         media);
+    replaceWithBullets('{sentence_pattern}', sentences);
+
     // === Vocabulary: clone the template row for every 3 entries ===
     // Template has ONE <w:tr> containing 3 pairs of (vocab_X, meaning_X) cells.
     // If user provides more than 3 words, append more rows with the same layout.
@@ -5828,8 +5845,8 @@ function exportAsDocx(data) {
       teacher_name:           '...................................................',
       standard:               '',  // replaced inline below
       key_content:            safe(d.keyConcept),
-      sentence_pattern:       safe(sentences.join('  ')),
-      material:               safe(media.join('  |  ')),
+      sentence_pattern:       '',  // replaced inline below as bullet paragraphs
+      material:               '',  // replaced inline below as bullet paragraphs
       check_reading:          chk(allSkills3r[0].checked),
       check_writing:          chk(allSkills3r[1].checked),
       check_arithmetic:       chk(allSkills3r[2].checked),
@@ -8146,18 +8163,27 @@ window.renderUnitDashboard = renderUnitDashboard;
         if (!Array.isArray(data?.media)) return false;
         const mc = document.getElementById('media-container');
         if (!mc) return false;
-        // Remove empty existing rows
-        [...mc.querySelectorAll('.media-row')].forEach(r => {
+        // Detect if user already entered any non-empty media — confirm overwrite
+        const existingRows = [...mc.querySelectorAll('.media-row')];
+        const hasUserData = existingRows.some(r => {
           const inp = r.querySelector('.media-input');
-          if (inp && !inp.value.trim()) r.remove();
+          return inp && inp.value.trim();
         });
+        if (hasUserData && !confirm('รายการสื่อและแหล่งการเรียนรู้มีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return false;
+        // Clear ALL existing rows (whether empty or filled)
+        existingRows.forEach(r => r.remove());
+        // Add fresh rows for each AI-generated item
         data.media.forEach(item => {
           if (typeof window.addMedia === 'function') window.addMedia();
           const rows = mc.querySelectorAll('.media-row');
           const last = rows[rows.length - 1];
           const inp = last?.querySelector('.media-input');
-          if (inp && !inp.value.trim()) inp.value = item;
+          if (inp) inp.value = item;
         });
+        // Always keep at least one row so user can add more manually
+        if (!mc.querySelector('.media-row') && typeof window.addMedia === 'function') {
+          window.addMedia();
+        }
         return true;
       },
     },
