@@ -7550,7 +7550,24 @@ window.renderUnitDashboard = renderUnitDashboard;
     overlay.classList.add('show');
     const dash = $('dashboard-view');
     if (dash) dash.style.display = 'none';
-    setTimeout(() => $('auth-email').focus(), 50);
+    // Prefill email if "remember me" was used previously. Browser's password
+    // manager handles the password autofill via autocomplete attributes.
+    try {
+      const remembered = localStorage.getItem('lpg:remembered-email') || '';
+      const emailEl = $('auth-email');
+      const rememberEl = $('auth-remember');
+      if (remembered && emailEl && !emailEl.value) {
+        emailEl.value = remembered;
+        if (rememberEl) rememberEl.checked = true;
+      }
+    } catch(e) {}
+    // Focus password if email already pre-filled, otherwise focus email
+    setTimeout(() => {
+      const emailEl = $('auth-email');
+      const pwEl = $('auth-password');
+      if (emailEl?.value && pwEl) pwEl.focus();
+      else emailEl?.focus();
+    }, 50);
   }
   function hideAuth() {
     overlay.classList.remove('show');
@@ -7629,10 +7646,24 @@ window.renderUnitDashboard = renderUnitDashboard;
     return data;
   }
 
+  // localStorage key for "remember me" — only stores the email so the field
+  // is pre-filled on next visit. Passwords are NEVER stored here; we rely on
+  // the browser's built-in password manager (autocomplete="current-password").
+  const REMEMBER_KEY = 'lpg:remembered-email';
+
   function applySession({ accessToken: at, user }) {
     accessToken = at;
     currentUser = user;
     window.currentUser = user;
+    // Persist email when "remember me" is checked, otherwise clear it
+    try {
+      const email = $('auth-email')?.value?.trim();
+      if (email && $('auth-remember')?.checked) {
+        localStorage.setItem(REMEMBER_KEY, email);
+      } else {
+        localStorage.removeItem(REMEMBER_KEY);
+      }
+    } catch(e) {}
     window.dispatchEvent(new CustomEvent('auth:login', { detail: { user } }));
     hideAuth();
     renderUserBar();
@@ -9422,6 +9453,270 @@ window.submitResetPassword = async function() {
 // (Re-enable by restoring the _showVerifyBanner / _removeVerifyBanner block.)
 // Make sure any banner that may be left in the DOM from older sessions gets cleaned up.
 document.getElementById('verify-banner')?.remove();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     REUSABLE 3D PROMO POPUP TEMPLATE
+     ───────────────────────────────────────────────────────────────
+     Call: window.showPromoPopup({
+       id:       'unique-key',          // localStorage dismissal key
+       icon:     '🎉',                  // big emoji
+       gradient: '...',                 // optional bg gradient (default purple→pink)
+       title:    'หัวข้อ',
+       lines:    ['ข้อความบรรทัด 1', 'ข้อความบรรทัด 2'],
+       cta:      'ใช้เลย!',             // primary button label
+       secondary: 'ปิด',                // optional secondary button
+       onCta:    () => { ... },         // optional click handler
+       once:     true,                  // if true, only shows once per `id`
+     });
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  // Inject styles once
+  function injectStyles() {
+    if (document.getElementById('promo-popup-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'promo-popup-styles';
+    s.textContent = `
+      @keyframes promoFade { from { opacity:0 } to { opacity:1 } }
+      @keyframes promoPop {
+        0%   { opacity:0; transform:translateY(40px) scale(.85) rotateX(20deg); }
+        60%  { transform:translateY(-8px) scale(1.04) rotateX(-3deg); }
+        100% { opacity:1; transform:translateY(0) scale(1) rotateX(0); }
+      }
+      @keyframes promoBounce {
+        0%,100% { transform:translateY(0) rotate(-6deg); }
+        50%     { transform:translateY(-10px) rotate(6deg); }
+      }
+      @keyframes promoShine {
+        0%   { transform:translateX(-100%) skewX(-20deg); }
+        100% { transform:translateX(220%) skewX(-20deg); }
+      }
+      @keyframes promoSparkle {
+        0%,100% { opacity:0; transform:scale(.4) rotate(0); }
+        50%     { opacity:1; transform:scale(1) rotate(180deg); }
+      }
+      .promo-pop-overlay {
+        position:fixed; inset:0; z-index:11500; padding:18px;
+        background:rgba(15,23,42,.6); backdrop-filter:blur(8px);
+        display:flex; align-items:center; justify-content:center;
+        animation:promoFade .25s ease-out;
+      }
+      .promo-pop-card {
+        position:relative; max-width:480px; width:100%;
+        border-radius:24px; padding:38px 32px 28px; text-align:center;
+        font-family:inherit; color:#fff; overflow:hidden;
+        transform-style:preserve-3d;
+        animation:promoPop .45s cubic-bezier(.34,1.56,.64,1);
+        box-shadow:
+          0 30px 80px -20px rgba(91,33,182,.55),
+          0 14px 40px rgba(0,0,0,.18),
+          inset 0 1px 0 rgba(255,255,255,.35);
+      }
+      .promo-pop-card::before {
+        content:""; position:absolute; top:0; left:0; right:0; height:50%;
+        background:linear-gradient(180deg, rgba(255,255,255,.2), transparent);
+        pointer-events:none;
+      }
+      .promo-pop-card::after {
+        content:""; position:absolute; top:-50%; left:0; width:60%; height:200%;
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+        animation:promoShine 2.8s ease-in-out infinite;
+        pointer-events:none;
+      }
+      .promo-pop-icon {
+        display:inline-flex; align-items:center; justify-content:center;
+        width:96px; height:96px; border-radius:50%; margin-bottom:14px;
+        background:linear-gradient(145deg,#fde68a,#f59e0b);
+        font-size:2.8rem; position:relative; z-index:1;
+        box-shadow:
+          0 16px 32px -8px rgba(245,158,11,.5),
+          inset 0 -5px 10px rgba(180,83,9,.4),
+          inset 0 5px 10px rgba(255,255,255,.5);
+        animation:promoBounce 2.2s ease-in-out infinite;
+      }
+      .promo-pop-sparkle {
+        position:absolute; font-size:1.4rem; pointer-events:none;
+        animation:promoSparkle 1.6s ease-in-out infinite;
+      }
+      .promo-pop-title {
+        font-size:1.45rem; font-weight:800; margin:0 0 12px;
+        letter-spacing:-.02em; text-shadow:0 2px 8px rgba(0,0,0,.15);
+        position:relative; z-index:1;
+      }
+      .promo-pop-line {
+        font-size:1rem; line-height:1.55; margin:6px 0;
+        opacity:.95; position:relative; z-index:1;
+      }
+      .promo-pop-line b { color:#fde68a; }
+      .promo-pop-actions {
+        display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+        margin-top:20px; position:relative; z-index:1;
+      }
+      .promo-pop-btn {
+        font-family:inherit; font-weight:700; font-size:.95rem;
+        padding:13px 24px; border-radius:13px; cursor:pointer; border:none;
+        transition:transform .12s, box-shadow .12s;
+      }
+      .promo-pop-btn:hover { transform:translateY(-2px); }
+      .promo-pop-btn:active { transform:translateY(1px); }
+      .promo-pop-btn.cta {
+        background:linear-gradient(180deg,#fff 0%,#f3f4f6 100%); color:#5b21b6;
+        box-shadow:
+          0 6px 0 rgba(0,0,0,.12),
+          0 10px 24px rgba(0,0,0,.2),
+          inset 0 1px 0 rgba(255,255,255,.9);
+      }
+      .promo-pop-btn.cta:hover {
+        box-shadow:
+          0 8px 0 rgba(0,0,0,.12),
+          0 14px 30px rgba(0,0,0,.25),
+          inset 0 1px 0 rgba(255,255,255,.9);
+      }
+      .promo-pop-btn.secondary {
+        background:rgba(255,255,255,.18); color:#fff;
+        border:1.5px solid rgba(255,255,255,.4);
+        backdrop-filter:blur(4px);
+      }
+      .promo-pop-btn.secondary:hover { background:rgba(255,255,255,.28); }
+      .promo-pop-close {
+        position:absolute; top:14px; right:14px; width:34px; height:34px;
+        border-radius:50%; border:none; cursor:pointer;
+        background:rgba(255,255,255,.2); color:#fff; font-size:1.1rem;
+        display:flex; align-items:center; justify-content:center;
+        z-index:2; transition:background .15s;
+      }
+      .promo-pop-close:hover { background:rgba(255,255,255,.35); }
+    `;
+    document.head.appendChild(s);
+  }
+
+  function makeSparkles(host) {
+    const positions = [
+      { top:'8%',  left:'12%', delay:'0s'   },
+      { top:'18%', right:'10%', delay:'.4s' },
+      { top:'68%', left:'8%',  delay:'.8s'  },
+      { top:'78%', right:'14%', delay:'1.2s' },
+    ];
+    positions.forEach(p => {
+      const sp = document.createElement('span');
+      sp.className = 'promo-pop-sparkle';
+      sp.textContent = '✨';
+      Object.assign(sp.style, p, { animationDelay: p.delay });
+      host.appendChild(sp);
+    });
+  }
+
+  window.showPromoPopup = function (opts) {
+    opts = opts || {};
+    const id    = opts.id || 'default';
+    const once  = opts.once !== false;
+    const dismissKey = 'lpg:promo-dismiss:' + id;
+    if (once && localStorage.getItem(dismissKey) === '1') return false;
+
+    injectStyles();
+    document.getElementById('promo-pop-overlay-' + id)?.remove();
+
+    const ov = document.createElement('div');
+    ov.id = 'promo-pop-overlay-' + id;
+    ov.className = 'promo-pop-overlay';
+
+    const card = document.createElement('div');
+    card.className = 'promo-pop-card';
+    const grad = opts.gradient
+      || 'linear-gradient(135deg,#7c3aed 0%,#a855f7 50%,#ec4899 100%)';
+    card.style.background = grad;
+
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'promo-pop-close';
+    closeBtn.title = 'ปิด';
+    closeBtn.textContent = '✕';
+    card.appendChild(closeBtn);
+
+    // Sparkles
+    makeSparkles(card);
+
+    // Icon
+    const ic = document.createElement('div');
+    ic.className = 'promo-pop-icon';
+    ic.textContent = opts.icon || '🎉';
+    card.appendChild(ic);
+
+    // Title
+    const h = document.createElement('h2');
+    h.className = 'promo-pop-title';
+    h.textContent = opts.title || '';
+    card.appendChild(h);
+
+    // Lines (each may contain HTML like <b>)
+    (opts.lines || []).forEach(text => {
+      const p = document.createElement('p');
+      p.className = 'promo-pop-line';
+      p.innerHTML = text;
+      card.appendChild(p);
+    });
+
+    // Buttons
+    const actions = document.createElement('div');
+    actions.className = 'promo-pop-actions';
+    if (opts.secondary) {
+      const sb = document.createElement('button');
+      sb.className = 'promo-pop-btn secondary';
+      sb.textContent = opts.secondary;
+      sb.onclick = () => finish(false);
+      actions.appendChild(sb);
+    }
+    const cta = document.createElement('button');
+    cta.className = 'promo-pop-btn cta';
+    cta.textContent = opts.cta || 'รับทราบ';
+    cta.onclick = () => finish(true);
+    actions.appendChild(cta);
+    card.appendChild(actions);
+
+    ov.appendChild(card);
+    document.body.appendChild(ov);
+
+    function finish(viaCta) {
+      if (once) localStorage.setItem(dismissKey, '1');
+      ov.remove();
+      document.removeEventListener('keydown', onKey);
+      if (viaCta && typeof opts.onCta === 'function') {
+        try { opts.onCta(); } catch(e) {}
+      }
+    }
+    closeBtn.onclick = () => finish(false);
+    ov.addEventListener('click', e => { if (e.target === ov) finish(false); });
+    function onKey(e) {
+      if (e.key === 'Escape') finish(false);
+      else if (e.key === 'Enter') finish(true);
+    }
+    document.addEventListener('keydown', onKey);
+    return true;
+  };
+
+  // ─── Launch promo: show once after first login per browser ──
+  function showLaunchPromo() {
+    window.showPromoPopup({
+      id: 'launch-2026',
+      icon: '🎉',
+      title: 'โปรโมชั่นเปิดตัว!',
+      lines: [
+        'สมัครรับฟรีทันที <b>10 เครดิต</b>',
+        'สร้างแผนด้วย AI ฟรี <b>10 แผน</b>',
+        'แพ็กเกจถัดๆ ไป<b>ลดมากกว่า 50%</b>',
+      ],
+      cta: '✨ เริ่มใช้งานเลย!',
+      secondary: 'ปิด',
+      once: true,
+    });
+  }
+
+  window.addEventListener('auth:login', () => {
+    // Slight delay so dashboard finishes rendering before the modal pops
+    setTimeout(showLaunchPromo, 700);
+  });
+})();
 </script>
 </body>
 </html>
