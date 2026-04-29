@@ -102,6 +102,17 @@ app.listen(PORT, () => {
   console.log(`  DB:           ${process.env.DATABASE_URL ? 'PostgreSQL ✓' : 'JSON file (local dev)'}`);
   console.log(`  Google login: ${process.env.GOOGLE_CLIENT_ID ? 'enabled ✓' : 'disabled'}`);
   console.log(`  Claude AI:    ${process.env.ANTHROPIC_API_KEY ? 'enabled ✓ (claude-haiku-4-5)' : 'disabled (set ANTHROPIC_API_KEY)'}`);
+  const emailMode = process.env.RESEND_API_KEY ? 'Resend HTTP API ✓'
+    : process.env.SMTP_HOST ? `SMTP (${process.env.SMTP_HOST}) ✓`
+    : 'disabled — set RESEND_API_KEY or SMTP_HOST';
+  console.log(`  Email:        ${emailMode}`);
   console.log(`  SlipOK:       ${process.env.SLIPOK_API_KEY ? 'enabled ✓' : 'disabled'}`);
+  // Topup payment configuration summary
+  const tpModes = [];
+  if (process.env.OMISE_SECRET_KEY) tpModes.push('Omise');
+  if (process.env.SLIPOK_API_KEY)   tpModes.push('SlipOK');
+  if (process.env.SUPPORT_QR_IMAGE_URL || process.env.SUPPORT_PROMPTPAY) tpModes.push('Manual-QR');
+  if (process.env.SUPPORT_FB || process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL) tpModes.push('Manual-Contact');
+  console.log(`  Topup:        ${tpModes.length ? tpModes.join(' + ') + ' ✓' : '⚠️  NOT CONFIGURED — set SUPPORT_FB/SUPPORT_QR_IMAGE_URL/SUPPORT_PROMPTPAY at minimum'}`);
   console.log('');
 });

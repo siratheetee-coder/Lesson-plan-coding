@@ -74,6 +74,28 @@ router.get('/packages', (_req, res) => {
   res.json({ packages: PACKAGES });
 });
 
+// ─── GET /api/credits/topup/config ───────────────────────
+// Tells the frontend which payment paths are wired up so the modal can
+// hide irrelevant UI (e.g. don't show slip-upload if SlipOK isn't configured).
+router.get('/topup/config', (_req, res) => {
+  const omise   = !!process.env.OMISE_SECRET_KEY;
+  const slipok  = !!(process.env.SLIPOK_API_KEY && process.env.SLIPOK_BRANCH_ID);
+  const qr      = !!(process.env.SUPPORT_QR_IMAGE_URL || process.env.SUPPORT_PROMPTPAY);
+  const contact = !!(process.env.SUPPORT_FB || process.env.SUPPORT_LINE || process.env.SUPPORT_EMAIL);
+  res.json({
+    omise,        // auto PromptPay charge + webhook
+    slipok,       // user-uploaded slip → auto-credit on verify
+    qr,           // a QR image is shown in manual mode
+    contact,      // a support channel is shown in manual mode
+    ready: omise || slipok || qr || contact, // any path at all
+    support: {
+      fb:    process.env.SUPPORT_FB    || null,
+      line:  process.env.SUPPORT_LINE  || null,
+      email: process.env.SUPPORT_EMAIL || null,
+    },
+  });
+});
+
 // ─── POST /api/credits/topup/init ────────────────────────
 // Initiate a top-up request.
 // Mode: 'manual' if OMISE_SECRET_KEY not set (shows contact info).
@@ -234,7 +256,10 @@ router.post('/topup/verify-slip', limiters.strict, slipUpload.single('slip'), as
     const apiKey = process.env.SLIPOK_API_KEY;
     const branchId = process.env.SLIPOK_BRANCH_ID;
     if (!apiKey || !branchId) {
-      return res.status(500).json({ error: 'slipok_not_configured', message: 'ระบบยังไม่ได้ตั้งค่า SlipOK' });
+      return res.status(503).json({
+        error: 'slipok_not_configured',
+        message: 'ระบบตรวจสอบสลิปอัตโนมัติยังไม่พร้อม กรุณาติดต่อผู้ดูแลเพื่อเติมเครดิตด้วยตนเอง',
+      });
     }
 
     // ── Forward slip image to SlipOK ─────────────────────────

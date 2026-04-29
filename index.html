@@ -8647,12 +8647,14 @@ document.addEventListener('click', (e) => {
   let _selectedPkg = null;
   let _packages = [];
   let _qrAbort = null; // AbortController for in-flight QR request
+  let _topupConfig = { omise:false, slipok:false, qr:false, contact:false, ready:true, support:{} };
 
   async function loadPackagesAndBalance() {
     try {
-      const [pkgRes, balRes] = await Promise.all([
+      const [pkgRes, balRes, cfgRes] = await Promise.all([
         window.authFetch ? window.authFetch('/api/credits/packages') : fetch('/api/credits/packages'),
-        window.authFetch ? window.authFetch('/api/credits/balance') : fetch('/api/credits/balance'),
+        window.authFetch ? window.authFetch('/api/credits/balance')  : fetch('/api/credits/balance'),
+        window.authFetch ? window.authFetch('/api/credits/topup/config') : fetch('/api/credits/topup/config'),
       ]);
       if (pkgRes.ok) {
         const data = await pkgRes.json();
@@ -8661,6 +8663,9 @@ document.addEventListener('click', (e) => {
       if (balRes.ok) {
         const data = await balRes.json();
         updateCreditsUI(data.credits);
+      }
+      if (cfgRes.ok) {
+        _topupConfig = await cfgRes.json();
       }
     } catch(e) { console.error('topup load error', e); }
   }
@@ -8796,7 +8801,9 @@ document.addEventListener('click', (e) => {
             : `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> ${c}</p>`;
         }
         const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
-        const slipUploader = `
+        // Slip uploader is only useful if SlipOK is configured on the backend.
+        // Otherwise it just produces a 500 error → hide it.
+        const slipUploader = _topupConfig.slipok ? `
           <div style="margin-top:14px; padding-top:14px; border-top:1px dashed #e5e7eb;">
             <div style="font-size:.85rem; font-weight:700; color:#1a1f3a; margin-bottom:6px; text-align:center;">
               📤 อัพโหลดสลิปเพื่อรับเครดิตอัตโนมัติ
@@ -8815,7 +8822,20 @@ document.addEventListener('click', (e) => {
               📷 เลือกรูปสลิป
             </button>
             <div id="topup-slip-status" style="margin-top:10px; font-size:.85rem;"></div>
-          </div>`;
+          </div>` : '';
+
+        // No QR + no contact + no SlipOK → show a clear "not ready" state instead of empty silence
+        if (!data.qr_image && !data.contact && !_topupConfig.slipok) {
+          instr.innerHTML = `
+            <div style="text-align:center; padding:18px 12px;">
+              <div style="font-size:2.2rem; margin-bottom:8px;">🛠️</div>
+              <p style="font-weight:700; color:#1a1f3a; margin-bottom:6px;">ระบบเติมเครดิตยังไม่พร้อม</p>
+              <p style="font-size:.85rem; color:#6b7280; line-height:1.5;">
+                กรุณาติดต่อผู้ดูแลระบบเพื่อเติมเครดิตด้วยตนเอง
+              </p>
+            </div>`;
+          return;
+        }
         instr.innerHTML = `
           <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${pkg.label}</b></p>
           ${amountLabel}
