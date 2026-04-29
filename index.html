@@ -7643,6 +7643,14 @@ window.renderUnitDashboard = renderUnitDashboard;
     const dash = $('dashboard-view');
     if (dash) dash.style.display = 'none';
 
+    // If a password-reset token is in the URL (or was just stripped by the
+    // reset-overlay handler), defer auth UI — the user is mid-flow, not trying
+    // to log in. handleResetParam() runs at script parse and strips the param
+    // before this DOM-ready callback fires, so check both sources.
+    const hasResetToken = window._resetToken
+      || new URLSearchParams(location.search).get('reset');
+    if (hasResetToken) return;
+
     const restored = await tryRestoreSession();
     if (restored) {
       renderUserBar();
@@ -7655,7 +7663,7 @@ window.renderUnitDashboard = renderUnitDashboard;
 </script>
 
 <!-- ============ RESET PASSWORD OVERLAY ============ -->
-<div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:200;align-items:center;justify-content:center;padding:20px;">
+<div id="reset-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:10000;align-items:center;justify-content:center;padding:20px;">
   <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
     <h2 style="margin:0 0 6px;color:#1e293b;font-size:1.2rem;">🔑 ตั้งรหัสผ่านใหม่</h2>
     <p style="color:#64748b;font-size:.9rem;margin:0 0 20px">กรอกรหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)</p>
@@ -9085,10 +9093,19 @@ window.addEventListener('auth:logout', () => {
   // Store token for submit handler
   window._resetToken = token;
 
-  // Show overlay (wait for DOM)
+  // Show overlay (wait for DOM) and hide everything underneath so the form
+  // doesn't peek through behind the reset modal.
   const show = () => {
     const ov = document.getElementById('reset-overlay');
-    if (ov) { ov.style.display = 'flex'; }
+    if (ov) {
+      ov.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      // Hide dashboard + main form area until reset is done
+      const dash = document.getElementById('dashboard-view');
+      if (dash) dash.style.display = 'none';
+      const main = document.querySelector('.container');
+      if (main) main.style.visibility = 'hidden';
+    }
     else setTimeout(show, 100);
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show);
