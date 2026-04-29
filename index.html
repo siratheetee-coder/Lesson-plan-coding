@@ -1467,6 +1467,37 @@
   }
   .dash-recent-badge.pdf  { background: #fee2e2; color: #991b1b; }
   .dash-recent-badge.docx { background: #dbeafe; color: #1e40af; }
+  /* Library list — bigger cards, full plan name visible (no truncation) */
+  #dash-library-list {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+  }
+  #dash-library-list .dash-recent-card {
+    padding: 20px 22px;
+    gap: 10px;
+    min-height: 140px;
+  }
+  #dash-library-list .dash-recent-title {
+    font-size: 1.02rem;
+    line-height: 1.5;
+    -webkit-line-clamp: unset;
+    display: block;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+    white-space: normal;
+  }
+  #dash-library-list .dash-recent-meta {
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-top: 4px;
+  }
+  #dash-library-list .dash-recent-badge {
+    font-size: 0.74rem;
+    padding: 2px 8px;
+  }
+
   .dash-recent-empty {
     grid-column: 1 / -1;
     text-align: center;
@@ -7057,8 +7088,13 @@ function removeUnitLesson(historyId) {
   renderUnitDashboard();
 }
 function openLessonFromUnit(historyId) {
-  // Open the lesson plan in form view using history item
-  if (typeof applyHistoryItem === 'function') {
+  // Open the saved plan for in-place editing (NOT as template — that would duplicate).
+  // editLessonPlan binds _currentPlanId to the existing entry so the next
+  // "บันทึก" updates it instead of creating a new history record.
+  if (typeof editLessonPlan === 'function') {
+    editLessonPlan(historyId);
+  } else if (typeof applyHistoryItem === 'function') {
+    // Fallback (older builds without editLessonPlan)
     openFormView();
     setTimeout(() => applyHistoryItem(historyId), 80);
   }
@@ -8277,12 +8313,93 @@ window.renderUnitDashboard = renderUnitDashboard;
     }
   }
 
+  // ─── 3D credit-warning popup ─────────────────────────────
+  // Shows once per session by default; user can opt to never see again.
+  function _confirmAiUse() {
+    return new Promise(resolve => {
+      // Skip if user dismissed permanently
+      if (localStorage.getItem('lpg:ai-warning-dismiss') === '1') return resolve(true);
+      // Skip if already confirmed in this tab session
+      if (window._aiWarnedThisSession) return resolve(true);
+      // Build modal
+      document.getElementById('ai-credit-warning-overlay')?.remove();
+      const ov = document.createElement('div');
+      ov.id = 'ai-credit-warning-overlay';
+      ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:11000;padding:18px;animation:aiwFade .2s ease-out';
+      ov.innerHTML = `
+        <style>
+          @keyframes aiwFade { from { opacity:0 } to { opacity:1 } }
+          @keyframes aiwPop  { 0% { opacity:0; transform:translateY(20px) scale(.92) rotateX(15deg) } 60% { transform:translateY(-4px) scale(1.02) rotateX(-2deg) } 100% { opacity:1; transform:translateY(0) scale(1) rotateX(0) } }
+          @keyframes aiwCoin { 0%,100% { transform:translateY(0) rotate(-8deg) } 50% { transform:translateY(-8px) rotate(8deg) } }
+          .aiw-btn { font-family:inherit; font-weight:700; font-size:.95rem; padding:13px 22px; border-radius:12px; cursor:pointer; transition:transform .12s, box-shadow .12s; border:none; }
+          .aiw-btn:hover { transform:translateY(-2px); }
+          .aiw-btn:active { transform:translateY(1px); }
+          .aiw-btn.primary { background:linear-gradient(180deg,#a78bfa 0%, #7c3aed 50%, #5b21b6 100%); color:#fff;
+            box-shadow: 0 6px 0 #4c1d95, 0 10px 24px rgba(124,58,237,.4), inset 0 1px 0 rgba(255,255,255,.4); }
+          .aiw-btn.primary:hover { box-shadow: 0 8px 0 #4c1d95, 0 14px 30px rgba(124,58,237,.5), inset 0 1px 0 rgba(255,255,255,.4); }
+          .aiw-btn.primary:active { box-shadow: 0 2px 0 #4c1d95, 0 4px 10px rgba(124,58,237,.3), inset 0 1px 0 rgba(255,255,255,.3); }
+          .aiw-btn.secondary { background:linear-gradient(180deg,#f9fafb 0%, #e5e7eb 100%); color:#374151;
+            box-shadow: 0 4px 0 #9ca3af, 0 6px 16px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.8); border:1px solid #d1d5db; }
+          .aiw-btn.secondary:hover { box-shadow: 0 6px 0 #9ca3af, 0 8px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.8); }
+          .aiw-btn.secondary:active { box-shadow: 0 1px 0 #9ca3af, 0 2px 6px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6); }
+        </style>
+        <div style="background:linear-gradient(165deg,#ffffff 0%,#faf5ff 100%);border-radius:22px;max-width:460px;width:100%;
+                    padding:32px 30px 26px;font-family:inherit;text-align:center;
+                    box-shadow:0 30px 80px -20px rgba(91,33,182,.5),0 12px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.8);
+                    transform-style:preserve-3d;animation:aiwPop .35s cubic-bezier(.34,1.56,.64,1)">
+          <div style="display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;
+                      background:linear-gradient(145deg,#fde68a,#f59e0b);border-radius:50%;margin-bottom:14px;
+                      box-shadow:0 14px 30px -8px rgba(245,158,11,.5),inset 0 -4px 8px rgba(180,83,9,.4),inset 0 4px 8px rgba(255,255,255,.5);
+                      animation:aiwCoin 2.4s ease-in-out infinite;font-size:2.4rem;">💰</div>
+          <h2 style="font-size:1.32rem;font-weight:800;color:#1f2937;margin:0 0 8px;letter-spacing:-.02em;">ใช้ AI สร้างเนื้อหา?</h2>
+          <p style="font-size:.95rem;color:#4b5563;margin:0 0 6px;line-height:1.55;">
+            การใช้ <b style="color:#7c3aed;">AI สร้าง</b> จะคิด <b style="color:#dc2626;">1 เครดิต</b>
+          </p>
+          <p style="font-size:.88rem;color:#6b7280;margin:0 0 20px;line-height:1.55;">
+            แต่หาก<b style="color:#059669;">สร้างเอง</b>จะไม่เสียเครดิตเลย
+          </p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+            <button id="aiw-cancel" class="aiw-btn secondary">ยกเลิก</button>
+            <button id="aiw-confirm" class="aiw-btn primary">✨ ใช้ AI</button>
+          </div>
+          <label style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:.78rem;color:#6b7280;cursor:pointer;user-select:none;">
+            <input type="checkbox" id="aiw-dont-ask" style="cursor:pointer;accent-color:#7c3aed;">
+            <span>ไม่ต้องแสดงการแจ้งเตือนนี้อีก</span>
+          </label>
+        </div>`;
+      document.body.appendChild(ov);
+      const finish = (ok) => {
+        const dontAsk = document.getElementById('aiw-dont-ask')?.checked;
+        if (ok) {
+          window._aiWarnedThisSession = true;
+          if (dontAsk) localStorage.setItem('lpg:ai-warning-dismiss', '1');
+        }
+        ov.remove();
+        resolve(ok);
+      };
+      document.getElementById('aiw-confirm').onclick = () => finish(true);
+      document.getElementById('aiw-cancel').onclick  = () => finish(false);
+      ov.addEventListener('click', e => { if (e.target === ov) finish(false); });
+      // Esc to cancel, Enter to confirm
+      const onKey = (e) => {
+        if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); finish(false); }
+        else if (e.key === 'Enter') { document.removeEventListener('keydown', onKey); finish(true); }
+      };
+      document.addEventListener('keydown', onKey);
+    });
+  }
+  window._confirmAiUse = _confirmAiUse;
+
   window._aiAssist = async function(kind) {
     const cfg = KINDS[kind];
     if (!cfg) return _aiToast('ไม่พบ AI สำหรับส่วนนี้', 'err');
     if (typeof window.authFetch !== 'function') return _aiToast('กรุณาเข้าสู่ระบบก่อน', 'err');
     const prereqMsg = cfg.prereq();
     if (prereqMsg) return _aiToast('⚠️ ' + prereqMsg, 'err');
+
+    // Show 3D credit-cost warning before firing AI (skipped if dismissed)
+    const ok = await _confirmAiUse();
+    if (!ok) return;
 
     const r = await _runAi(kind);
     if (r.ok) {
@@ -8357,6 +8474,9 @@ window.renderUnitDashboard = renderUnitDashboard;
 
   window._generateFullPlan = async function() {
     if (typeof window.authFetch !== 'function') return _aiToast('กรุณาเข้าสู่ระบบก่อน', 'err');
+    // Same credit-cost warning gate before firing the full-plan pipeline
+    const ok = await _confirmAiUse();
+    if (!ok) return;
     const overlay = _ensureFullPlanModal();
     overlay.style.display = 'flex';
     _fpAborted = false;
