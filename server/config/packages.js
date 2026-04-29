@@ -24,4 +24,4 @@ export const AI_COSTS = {
 
 // ─── Free credits given on first registration ─────────────
 // 5 free exports so new teachers can finish 5 complete lesson plans before buying.
-export const FREE_CREDITS_ON_REGISTER = 5;
+export const FREE_CREDITS_ON_REGISTER = 10;

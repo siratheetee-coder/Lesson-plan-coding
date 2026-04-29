@@ -5540,8 +5540,10 @@ function exportAsDocx(data) {
     // and merge all those <w:t> contents into the first one, stripping out
     // any intermediate <w:t>...</w:t> and <w:proofErr .../> markers in between.
     function fixBrokenPlaceholders(xmlStr) {
-      // Repeat until no more broken placeholders found (handles multiple in same para)
-      for (let pass = 0; pass < 20; pass++) {
+      // Repeat until no more broken placeholders found (handles multiple in same para).
+      // Loop limit must be high enough for templates with many split placeholders —
+      // each pass fixes exactly ONE placeholder, so a doc with 50+ placeholders needs 50+ passes.
+      for (let pass = 0; pass < 1000; pass++) {
         // Regex: <w:t...>text_with_{_but_no_}</w:t> ... <w:t...>text_with_}</w:t>
         const re = /<w:t\b[^>]*>([^<]*\{[^}<]*)<\/w:t>([\s\S]*?)<w:t\b[^>]*>([^<]*\}[^<]*)<\/w:t>/;
         const m = xmlStr.match(re);
