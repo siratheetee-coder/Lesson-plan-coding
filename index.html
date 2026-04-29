@@ -8078,21 +8078,29 @@ window.renderUnitDashboard = renderUnitDashboard;
       payload: () => _basePayload(),
       apply: (data) => {
         if (!data) return false;
+        // Detect if user has any existing objectives across K/P/A — confirm overwrite once
+        const hasUserData = ['k','p','a'].some(g => {
+          const c = document.getElementById('objectives-' + g);
+          return c && [...c.querySelectorAll('.obj-input')].some(i => i.value.trim());
+        });
+        if (hasUserData && !confirm('จุดประสงค์มีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return false;
         const fillGroup = (group, items) => {
           if (!Array.isArray(items)) return;
           const container = document.getElementById('objectives-' + group);
           if (!container) return;
-          // Clear existing empty rows but keep filled ones
-          const rows = [...container.querySelectorAll('.objective-row')];
-          const filled = rows.filter(r => r.querySelector('.obj-input')?.value.trim());
-          rows.forEach(r => { if (!filled.includes(r)) r.remove(); });
+          // Clear ALL existing rows
+          [...container.querySelectorAll('.objective-row')].forEach(r => r.remove());
           items.forEach(text => {
             if (typeof window.addObjective === 'function') window.addObjective(group);
             const newRows = container.querySelectorAll('.objective-row');
             const last = newRows[newRows.length - 1];
             const input = last?.querySelector('.obj-input');
-            if (input && !input.value.trim()) input.value = text;
+            if (input) input.value = text;
           });
+          // Always keep at least one empty row so user can add more manually
+          if (!container.querySelector('.objective-row') && typeof window.addObjective === 'function') {
+            window.addObjective(group);
+          }
         };
         fillGroup('k', data.k);
         fillGroup('p', data.p);
@@ -8108,48 +8116,44 @@ window.renderUnitDashboard = renderUnitDashboard;
       apply: (data) => {
         if (!data) return false;
         const kc = document.getElementById('key-concept');
-        if (data.key_concept && kc) {
-          if (!kc.value.trim() || confirm('สาระสำคัญมีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) {
-            kc.value = data.key_concept;
-          }
+        const vc = document.getElementById('vocab-container');
+        const sc = document.getElementById('sentences-container');
+        // Detect ANY existing user data across the 3 sub-sections — one combined prompt
+        const hasKey = !!(kc && kc.value.trim());
+        const hasVocab = !!(vc && [...vc.querySelectorAll('.vocab-row input')].some(i => i.value.trim()));
+        const hasSent  = !!(sc && [...sc.querySelectorAll('.sent-input')].some(i => i.value.trim()));
+        if ((hasKey || hasVocab || hasSent)
+            && !confirm('สาระสำคัญ / คำศัพท์ / ประโยคมีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) {
+          return false;
         }
-        // Vocab
-        if (Array.isArray(data.vocab) && data.vocab.length) {
-          const vc = document.getElementById('vocab-container');
-          if (vc) {
-            // Remove empty existing rows
-            [...vc.querySelectorAll('.vocab-row')].forEach(r => {
-              const ins = r.querySelectorAll('input');
-              if (![...ins].some(i => i.value.trim())) r.remove();
-            });
-            data.vocab.forEach(v => {
-              if (typeof window.addVocab === 'function') window.addVocab();
-              const rows = vc.querySelectorAll('.vocab-row');
-              const last = rows[rows.length - 1];
-              if (last) {
-                const ins = last.querySelectorAll('input');
-                if (ins[0] && !ins[0].value.trim()) ins[0].value = v.word || '';
-                if (ins[1] && !ins[1].value.trim()) ins[1].value = v.meaning || '';
-              }
-            });
-          }
+        // Key concept (always overwrite — confirmed above)
+        if (data.key_concept && kc) kc.value = data.key_concept;
+        // Vocab — clear ALL then repopulate
+        if (Array.isArray(data.vocab) && vc) {
+          [...vc.querySelectorAll('.vocab-row')].forEach(r => r.remove());
+          data.vocab.forEach(v => {
+            if (typeof window.addVocab === 'function') window.addVocab();
+            const rows = vc.querySelectorAll('.vocab-row');
+            const last = rows[rows.length - 1];
+            if (last) {
+              const ins = last.querySelectorAll('input');
+              if (ins[0]) ins[0].value = v.word || '';
+              if (ins[1]) ins[1].value = v.meaning || '';
+            }
+          });
+          if (!vc.querySelector('.vocab-row') && typeof window.addVocab === 'function') window.addVocab();
         }
-        // Sentences
-        if (Array.isArray(data.sentences) && data.sentences.length) {
-          const sc = document.getElementById('sentences-container');
-          if (sc) {
-            [...sc.querySelectorAll('.sentence-row')].forEach(r => {
-              const inp = r.querySelector('.sent-input');
-              if (inp && !inp.value.trim()) r.remove();
-            });
-            data.sentences.forEach(s => {
-              if (typeof window.addSentence === 'function') window.addSentence();
-              const rows = sc.querySelectorAll('.sentence-row');
-              const last = rows[rows.length - 1];
-              const inp = last?.querySelector('.sent-input');
-              if (inp && !inp.value.trim()) inp.value = s;
-            });
-          }
+        // Sentences — clear ALL then repopulate
+        if (Array.isArray(data.sentences) && sc) {
+          [...sc.querySelectorAll('.sentence-row')].forEach(r => r.remove());
+          data.sentences.forEach(s => {
+            if (typeof window.addSentence === 'function') window.addSentence();
+            const rows = sc.querySelectorAll('.sentence-row');
+            const last = rows[rows.length - 1];
+            const inp = last?.querySelector('.sent-input');
+            if (inp) inp.value = s;
+          });
+          if (!sc.querySelector('.sentence-row') && typeof window.addSentence === 'function') window.addSentence();
         }
         return true;
       },
