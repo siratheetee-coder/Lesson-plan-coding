@@ -2293,6 +2293,30 @@
             ✨ สร้างแผนรายคาบ
           </button>
         </div>
+        <!-- Search + filters -->
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center;">
+          <div style="flex:1; min-width:240px; position:relative;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; pointer-events:none;">🔎</span>
+            <input id="library-search" type="text" placeholder="ค้นหาจากชื่อแผน วิชา หัวข้อ ระดับชั้น..."
+              oninput="renderLibraryList()"
+              style="width:100%; padding:11px 14px 11px 38px; border:1.5px solid #e5e7eb; border-radius:10px; font-family:inherit; font-size:0.92rem; outline:none; background:#fff; box-sizing:border-box;"
+              onfocus="this.style.borderColor='#7c3aed';"
+              onblur="this.style.borderColor='#e5e7eb';">
+          </div>
+          <select id="library-filter-class"
+            onchange="renderLibraryList()"
+            style="padding:11px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-family:inherit; font-size:0.9rem; background:#fff; cursor:pointer; min-width:140px;">
+            <option value="">ทุกระดับชั้น</option>
+          </select>
+          <select id="library-filter-sort"
+            onchange="renderLibraryList()"
+            style="padding:11px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-family:inherit; font-size:0.9rem; background:#fff; cursor:pointer; min-width:160px;">
+            <option value="newest">ใหม่ → เก่า</option>
+            <option value="oldest">เก่า → ใหม่</option>
+            <option value="title">เรียงชื่อ A-Z</option>
+          </select>
+        </div>
+        <div id="dash-library-count" style="font-size:0.82rem; color:#6b7280; margin-bottom:8px;"></div>
         <div class="dash-recent" id="dash-library-list"></div>
       </div>
 
@@ -6488,16 +6512,25 @@ function buildRecentCard(e) {
   const fmt = (e.format || 'docx').toLowerCase();
   const badgeText = fmt === 'pdf' ? 'PDF' : 'DOCX';
   const badgeClass = fmt === 'pdf' ? 'pdf' : 'docx';
-  const when = formatRelTime(e.ts || e.timestamp || 0);
-  const cls = (e.data && e.data.classLevel) || '';
+  // Prefer the actual saved timestamp (savedAt) over the legacy `ts`
+  const when = formatRelTime(e.savedAt || e.ts || e.timestamp || 0);
+  const f = (e.data && e.data.fields) || {};
+  const cls = f['class-level'] || (e.data && e.data.classLevel) || '';
+  const subj = f['subject-name'] || '';
   return (
-    '<div class="dash-recent-card" style="position:relative;" onclick="loadRecentPlan(\'' + e.id + '\')">' +
-      '<button onclick="event.stopPropagation(); renameHistoryItem(\'' + e.id + '\')" ' +
-        'title="เปลี่ยนชื่อแผน" ' +
-        'style="position:absolute; top:8px; right:8px; background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">✏️</button>' +
-      '<div class="dash-recent-title" style="padding-right:32px;">' + escapeHtmlDash(title) + '</div>' +
+    '<div class="dash-recent-card" style="position:relative;" onclick="editLessonPlan(\'' + e.id + '\')">' +
+      '<div style="position:absolute; top:8px; right:8px; display:flex; gap:6px;">' +
+        '<button onclick="event.stopPropagation(); renameHistoryItem(\'' + e.id + '\')" title="เปลี่ยนชื่อแผน" ' +
+          'style="background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">✏️</button>' +
+        '<button onclick="event.stopPropagation(); applyHistoryItem(\'' + e.id + '\')" title="ใช้เป็นต้นแบบ (สร้างแผนใหม่จากแผนนี้)" ' +
+          'style="background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.78rem; display:flex; align-items:center; justify-content:center;">📋</button>' +
+        '<button onclick="event.stopPropagation(); deleteHistoryItem(\'' + e.id + '\'); renderLibraryList(); renderRecentWorks();" title="ลบแผนนี้" ' +
+          'style="background:#fef2f2; color:#991b1b; border:1px solid #fecaca; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">🗑</button>' +
+      '</div>' +
+      '<div class="dash-recent-title" style="padding-right:96px;">' + escapeHtmlDash(title) + '</div>' +
       '<div class="dash-recent-meta">' +
         '<span class="dash-recent-badge ' + badgeClass + '">' + badgeText + '</span>' +
+        (subj ? '<span>' + escapeHtmlDash(subj) + '</span><span>·</span>' : '') +
         (cls ? '<span>' + escapeHtmlDash(cls) + '</span><span>·</span>' : '') +
         '<span>' + escapeHtmlDash(when) + '</span>' +
       '</div>' +
@@ -6526,6 +6559,8 @@ function renderLibraryList() {
   const box = document.getElementById('dash-library-list');
   if (!box) return;
   const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const countEl = document.getElementById('dash-library-count');
+
   if (!hist.length) {
     box.innerHTML =
       '<div class="dash-recent-empty">' +
@@ -6533,19 +6568,115 @@ function renderLibraryList() {
         '<div style="font-weight:600; color:#6b7280;">คลังของคุณยังว่างอยู่</div>' +
         '<div style="font-size:0.82rem; margin-top:4px;">เมื่อคุณสร้างแผนและ Export จะถูกบันทึกเข้าคลังโดยอัตโนมัติ</div>' +
       '</div>';
+    if (countEl) countEl.textContent = '';
     return;
   }
-  box.innerHTML = hist.map(buildRecentCard).join('');
+
+  // Populate class-level filter options from existing history (only do it once
+  // per render — checks current option count vs. unique classes seen)
+  const classSel = document.getElementById('library-filter-class');
+  if (classSel) {
+    const seen = new Set();
+    hist.forEach(e => {
+      const f = (e.data && e.data.fields) || {};
+      const c = (f['class-level'] || e.data?.classLevel || '').trim();
+      if (c) seen.add(c);
+    });
+    const desired = ['', ...Array.from(seen).sort()];
+    const current = Array.from(classSel.options).map(o => o.value);
+    if (JSON.stringify(desired) !== JSON.stringify(current)) {
+      const prev = classSel.value;
+      classSel.innerHTML = desired.map(c =>
+        `<option value="${c.replace(/"/g,'&quot;')}">${c || 'ทุกระดับชั้น'}</option>`
+      ).join('');
+      classSel.value = desired.includes(prev) ? prev : '';
+    }
+  }
+
+  // Apply filters
+  const q = (document.getElementById('library-search')?.value || '').trim().toLowerCase();
+  const cls = document.getElementById('library-filter-class')?.value || '';
+  const sort = document.getElementById('library-filter-sort')?.value || 'newest';
+
+  let filtered = hist.filter(e => {
+    const f = (e.data && e.data.fields) || {};
+    if (cls) {
+      const ec = (f['class-level'] || e.data?.classLevel || '').trim();
+      if (ec !== cls) return false;
+    }
+    if (q) {
+      const hay = [
+        getLessonTitle(e),
+        f['subject-name'], f['subject-code'], f['topic'],
+        f['unit-number'], f['class-level'], f['teacher-name'],
+        f['plan-number'], f['plan-name'],
+      ].filter(Boolean).join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sort === 'oldest') {
+    filtered = filtered.slice().sort((a, b) => (_toMs(a.savedAt) - _toMs(b.savedAt)));
+  } else if (sort === 'title') {
+    filtered = filtered.slice().sort((a, b) => getLessonTitle(a).localeCompare(getLessonTitle(b), 'th'));
+  } else {
+    filtered = filtered.slice().sort((a, b) => (_toMs(b.savedAt) - _toMs(a.savedAt)));
+  }
+
+  if (countEl) {
+    countEl.textContent = (q || cls)
+      ? `พบ ${filtered.length} จาก ${hist.length} แผน`
+      : `ทั้งหมด ${hist.length} แผน`;
+  }
+
+  if (!filtered.length) {
+    box.innerHTML =
+      '<div class="dash-recent-empty">' +
+        '<div style="font-size:2.2rem; margin-bottom:6px;">🔍</div>' +
+        '<div style="font-weight:600; color:#6b7280;">ไม่พบแผนที่ตรงกับเงื่อนไข</div>' +
+        '<div style="font-size:0.82rem; margin-top:4px;">ลองเปลี่ยนคำค้น หรือล้างตัวกรอง</div>' +
+      '</div>';
+    return;
+  }
+  box.innerHTML = filtered.map(buildRecentCard).join('');
 }
 
-function loadRecentPlan(id) {
-  if (typeof applyHistoryItem === 'function') {
-    // applyHistoryItem has a confirm() dialog and scrolls the form
+// Open a saved plan into the form for in-place editing.
+// Distinct from "use as template" (applyHistoryItem) — this binds to the
+// existing entry so the next "บันทึก" updates it instead of creating a new one.
+function editLessonPlan(id) {
+  const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const entry = hist.find(e => e.id === id);
+  if (!entry) return;
+  try {
+    if (typeof applyDraft === 'function') applyDraft(entry.data);
+    if (typeof _currentPlanId !== 'undefined') _currentPlanId = entry.id;
+    if (typeof saveDraft === 'function') saveDraft(true);
     openFormView();
-    setTimeout(() => applyHistoryItem(id), 80);
-  } else {
-    openFormView();
+    if (typeof window.goToStep === 'function') {
+      try { window.goToStep(1); } catch(e) {}
+    }
+    // Toast
+    const ind = (typeof ensureSaveIndicator === 'function') ? ensureSaveIndicator() : null;
+    if (ind) {
+      ind.textContent = '✏️ เปิดแผน "' + getLessonTitle(entry) + '" เพื่อแก้ไข';
+      ind.style.background = '#dbeafe';
+      ind.style.borderColor = '#93c5fd';
+      ind.style.color = '#1e40af';
+      ind.style.opacity = '1';
+      clearTimeout(ind._fadeTimer);
+      ind._fadeTimer = setTimeout(() => { ind.style.opacity = '0.4'; }, 4000);
+    }
+  } catch(e) {
+    alert('เปิดแผนไม่สำเร็จ: ' + e.message);
   }
+}
+window.editLessonPlan = editLessonPlan;
+
+function loadRecentPlan(id) {
+  // Default action when clicking a recent card → open for editing
+  editLessonPlan(id);
 }
 
 // Expose
@@ -8705,11 +8836,24 @@ document.addEventListener('click', (e) => {
     grid.innerHTML = _packages.map(pkg => {
       const perPlan = (pkg.price_thb / pkg.credits).toFixed(2);
       const badge = pkg.badge ? `<div class="topup-pkg-badge">${pkg.badge}</div>` : '';
+      // Launch-promo: show crossed-out original price + savings %
+      let priceBlock;
+      if (pkg.price_original && pkg.price_original > pkg.price_thb) {
+        const off = Math.round((1 - pkg.price_thb / pkg.price_original) * 100);
+        priceBlock = `
+          <div style="display:flex; align-items:baseline; gap:6px; justify-content:center; flex-wrap:wrap;">
+            <span style="font-size:.85rem; color:#9ca3af; text-decoration:line-through; text-decoration-thickness:2px; text-decoration-color:#dc2626;">฿${pkg.price_original}</span>
+            <span class="pkg-price" style="color:#dc2626;">฿${pkg.price_thb}</span>
+          </div>
+          <div style="display:inline-block; background:#fef2f2; color:#dc2626; font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:99px; margin-top:4px;">-${off}%</div>`;
+      } else {
+        priceBlock = `<div class="pkg-price">฿${pkg.price_thb}</div>`;
+      }
       return `<div class="topup-pkg-card" data-pkg-id="${pkg.id}" onclick="window._selectPkg('${pkg.id}')">
         ${badge}
         <div class="pkg-credits">${pkg.credits}</div>
         <div class="pkg-label">แผน</div>
-        <div class="pkg-price">฿${pkg.price_thb}</div>
+        ${priceBlock}
         <div class="pkg-per">${perPlan} บาท/แผน</div>
       </div>`;
     }).join('');

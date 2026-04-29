@@ -1,11 +1,13 @@
 // ─── Credit Packages ─────────────────────────────────────
 // 1 credit = 1 lesson plan export  (AI generation is always free)
-// price_thb is in Thai Baht (integer)
+// price_thb     = ราคาขายจริง (charged amount)
+// price_original = ราคาก่อนลด (shown crossed-out for "launch promo" framing)
+//                  ปล่อย null ถ้าไม่อยากแสดงราคาขีดฆ่า
 export const PACKAGES = [
-  { id: 'pack_10',  credits: 10,  price_thb: 49,  label: '10 แผน',  badge: null },
-  { id: 'pack_40',  credits: 40,  price_thb: 129, label: '40 แผน',  badge: 'ยอดนิยม' },
-  { id: 'pack_60',  credits: 60,  price_thb: 169, label: '60 แผน',  badge: null },
-  { id: 'pack_100', credits: 100, price_thb: 259, label: '100 แผน', badge: 'คุ้มที่สุด' },
+  { id: 'pack_10',  credits: 10,  price_thb: 49,  price_original: 89,  label: '10 แผน',  badge: '🎉 เปิดตัว' },
+  { id: 'pack_40',  credits: 40,  price_thb: 129, price_original: 249, label: '40 แผน',  badge: 'ยอดนิยม' },
+  { id: 'pack_60',  credits: 60,  price_thb: 169, price_original: 329, label: '60 แผน',  badge: null },
+  { id: 'pack_100', credits: 100, price_thb: 259, price_original: 499, label: '100 แผน', badge: 'คุ้มที่สุด' },
 ];
 
 // ─── AI Feature Costs ─────────────────────────────────────
