@@ -2601,11 +2601,16 @@
     </div>
     <div class="header-left">
       <button id="form-back-btn" type="button" onclick="backFromFormView()">← กลับหน้าแรก</button>
-      <div id="unit-context-banner" style="display:none; margin:8px 0 4px; padding:10px 14px; background:linear-gradient(135deg,#ede9fe,#ddd6fe); border:1px solid #c4b5fd; border-radius:10px; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div id="unit-context-banner" style="margin:8px 0 4px; padding:10px 14px; background:linear-gradient(135deg,#ede9fe,#ddd6fe); border:1px solid #c4b5fd; border-radius:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <span style="font-size:1.1rem;">📚</span>
-        <span style="font-size:0.88rem; color:#4c1d95;">กำลังสร้างแผนสำหรับหน่วย: <b id="unit-context-title">—</b></span>
-        <span style="margin-left:auto; font-size:0.78rem; color:#6d28d9; background:#fff; padding:4px 10px; border-radius:999px; border:1px solid #ddd6fe;">
-          ✨ กด Export เพื่อบันทึกแผนและเพิ่มเข้าหน่วยอัตโนมัติ
+        <span style="font-size:0.88rem; color:#4c1d95; font-weight:600;">หน่วยการเรียนรู้:</span>
+        <select id="lesson-unit-select" onchange="onUnitBindingChange(this.value)"
+          style="font-family:inherit; font-size:0.86rem; padding:6px 10px; border-radius:8px; border:1px solid #c4b5fd; background:#fff; color:#4c1d95; min-width:240px; cursor:pointer;">
+          <option value="">— ไม่ผูกหน่วย (แผนเดี่ยว) —</option>
+        </select>
+        <span id="unit-position-info" style="font-size:0.78rem; color:#6d28d9; background:#fff; padding:4px 10px; border-radius:999px; border:1px solid #ddd6fe; display:none;"></span>
+        <span id="unit-coherence-info" style="margin-left:auto; font-size:0.78rem; color:#475569; display:none;">
+          🤖 <span id="unit-coherence-text">AI จะอ้างอิงแผนพี่น้องในหน่วยนี้</span>
         </span>
       </div>
       <div class="badge">ภาษาต่างประเทศ · ระดับประถมศึกษา–มัธยมศึกษา</div>
@@ -3644,6 +3649,8 @@ const CHECKBOX_IDS = [
 
 function collectDraft() {
   const data = { savedAt: Date.now(), version: 1, fields: {}, checks: {} };
+  // Phase 1 — persist unit binding so AI gets context even after reload
+  if (typeof _activeUnitId !== 'undefined') data.unitId = _activeUnitId || null;
   TEXT_FIELD_IDS.forEach(id => {
     const el = document.getElementById(id);
     if (el) data.fields[id] = el.value;
@@ -3719,6 +3726,14 @@ function hasMeaningfulData(d) {
 
 function applyDraft(data) {
   if (!data) return;
+  // Phase 1 — restore unit binding (set _activeUnitId + sync dropdown)
+  if (typeof data.unitId !== 'undefined' && typeof _activeUnitId !== 'undefined') {
+    _activeUnitId = data.unitId || null;
+    try {
+      if (data.unitId) localStorage.setItem(ACTIVE_UNIT_KEY, data.unitId);
+      else             localStorage.removeItem(ACTIVE_UNIT_KEY);
+    } catch(e) {}
+  }
   // Text/select fields
   Object.entries(data.fields || {}).forEach(([id, v]) => {
     const el = document.getElementById(id);
@@ -3865,6 +3880,9 @@ function applyDraft(data) {
     const restoredKeys = savedAssessments.map(a => a.rubricKey).filter(Boolean);
     setSelectedRubrics(restoredKeys);
   }
+  // Phase 1 — sync the unit dropdown + position info with the restored binding
+  if (typeof refreshUnitDropdown === 'function')   refreshUnitDropdown();
+  if (typeof updateUnitPositionInfo === 'function') updateUnitPositionInfo();
 }
 
 let _saveTimer = null;
@@ -6549,6 +6567,9 @@ function openFormView() {
   document.getElementById('dashboard-view').style.display = 'none';
   document.body.style.overflow = '';
   window.scrollTo(0, 0);
+  // Sync unit dropdown with current state every time the form opens
+  if (typeof refreshUnitDropdown === 'function')   refreshUnitDropdown();
+  if (typeof updateUnitPositionInfo === 'function') updateUnitPositionInfo();
 }
 
 // Reset all selections (chips, checkboxes) when starting a fresh plan from dashboard.
@@ -7281,22 +7302,83 @@ function prefillLessonFormFromUnit(u) {
   }
 }
 
+// ─── Unit binding dropdown — always visible, lets user pick/switch/clear ───
+function refreshUnitDropdown() {
+  const sel = document.getElementById('lesson-unit-select');
+  if (!sel) return;
+  const units = (typeof loadUnits === 'function') ? loadUnits() : [];
+  const sorted = [...units].sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  const cur = _activeUnitId || '';
+  sel.innerHTML = '<option value="">— ไม่ผูกหน่วย (แผนเดี่ยว) —</option>' +
+    sorted.map(u => {
+      const n = (u.lessonIds || []).length;
+      const safe = (s) => (s || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const label = `📚 ${safe(u.title || '(ยังไม่ตั้งชื่อ)')} · ${n} แผน`;
+      return `<option value="${safe(u.id)}"${u.id === cur ? ' selected' : ''}>${label}</option>`;
+    }).join('');
+}
+
 function showUnitContextBanner() {
-  const unit = _activeUnitId ? getUnitById(_activeUnitId) : null;
-  const banner = document.getElementById('unit-context-banner');
-  const titleEl = document.getElementById('unit-context-title');
-  if (!banner || !titleEl) return;
-  if (unit && unit.title) {
-    banner.style.display = 'flex';
-    titleEl.textContent = unit.title;
-  } else {
-    banner.style.display = 'none';
-  }
+  // Banner is always visible now — refresh dropdown + position info
+  refreshUnitDropdown();
+  updateUnitPositionInfo();
 }
 function hideUnitContextBanner() {
-  const banner = document.getElementById('unit-context-banner');
-  if (banner) banner.style.display = 'none';
+  // Kept for backward compat — just clear the position info
+  updateUnitPositionInfo();
 }
+
+// Compute "Lesson 3/5 — AI จะอ้างอิง 2 แผนก่อนหน้า"
+function updateUnitPositionInfo() {
+  const posEl = document.getElementById('unit-position-info');
+  const coEl  = document.getElementById('unit-coherence-info');
+  const coTxt = document.getElementById('unit-coherence-text');
+  if (!posEl || !coEl) return;
+  if (!_activeUnitId) {
+    posEl.style.display = 'none';
+    coEl.style.display = 'none';
+    return;
+  }
+  const ctx = (typeof _buildUnitContext === 'function') ? _buildUnitContext(_activeUnitId, _currentPlanId) : null;
+  if (!ctx) {
+    posEl.style.display = 'none';
+    coEl.style.display = 'none';
+    return;
+  }
+  const { index, total } = ctx.lesson_position;
+  posEl.textContent = `แผนที่ ${index} จาก ${total}`;
+  posEl.style.display = '';
+  const priorN = ctx.prior_lessons.length;
+  const upN    = ctx.upcoming_lessons.length;
+  coEl.style.display = '';
+  if (priorN === 0 && upN === 0) {
+    coTxt.textContent = 'แผนแรกของหน่วยนี้ — AI จะวาง progression ให้เริ่มต้น';
+  } else {
+    const parts = [];
+    if (priorN) parts.push(`อ้างอิง ${priorN} แผนก่อนหน้า`);
+    if (upN)    parts.push(`เตรียมพื้นฐานให้ ${upN} แผนถัดไป`);
+    coTxt.textContent = '🤖 AI จะ ' + parts.join(' + ');
+  }
+}
+
+// User changes the dropdown
+function onUnitBindingChange(unitId) {
+  if (!unitId) {
+    _activeUnitId = null;
+    try { localStorage.removeItem(ACTIVE_UNIT_KEY); } catch(e) {}
+  } else {
+    const unit = getUnitById(unitId);
+    if (!unit) return;
+    _activeUnitId = unitId;
+    try { localStorage.setItem(ACTIVE_UNIT_KEY, unitId); } catch(e) {}
+  }
+  updateUnitPositionInfo();
+  // Persist binding into the current draft so reload preserves it
+  try { if (typeof saveDraft === 'function') saveDraft(false); } catch(e) {}
+}
+window.onUnitBindingChange = onUnitBindingChange;
+window.refreshUnitDropdown = refreshUnitDropdown;
+window.updateUnitPositionInfo = updateUnitPositionInfo;
 
 // Let user pick a unit to attach this plan to. The actual link is created on Export.
 function addCurrentPlanToUnit() {
@@ -8082,6 +8164,75 @@ window.renderUnitDashboard = renderUnitDashboard;
   })).filter(a => a.what);
 
   // Read ALL form data into one snapshot — every AI call sees full context
+  // ─── Unit-level coherence context (Phase 1) ─────────────
+  // Returns `null` if no active unit. Otherwise a compact summary of sibling
+  // lessons (sorted by unitNo + planNo) so AI can reason about progression.
+  function _buildUnitContext(unitId, currentLessonId) {
+    if (!unitId) return null;
+    const unit = (typeof getUnitById === 'function') ? getUnitById(unitId) : null;
+    if (!unit) return null;
+    const allLessons = (typeof loadHistory === 'function') ? loadHistory() : [];
+    const unitLessonIds = unit.lessonIds || [];
+    const lessons = unitLessonIds.map(id => allLessons.find(h => h.id === id)).filter(Boolean);
+
+    // Sort by (unitNo, planNo) ascending — lesson order within the unit
+    lessons.sort((a, b) => {
+      const u = (parseInt(a.data?.unitNo) || 0) - (parseInt(b.data?.unitNo) || 0);
+      if (u !== 0) return u;
+      return (parseInt(a.data?.planNo) || 0) - (parseInt(b.data?.planNo) || 0);
+    });
+
+    // Where does the current lesson sit?
+    let curIdx = currentLessonId ? lessons.findIndex(l => l.id === currentLessonId) : -1;
+    // Treat an unsaved current lesson as "after the last saved one"
+    if (curIdx < 0) curIdx = lessons.length;
+    const total = Math.max(lessons.length, curIdx + 1);
+
+    // Compact summary helper — keep token usage low
+    const summarize = (entry) => {
+      const d = entry?.data || {};
+      const objLine = (label, arr) => (arr || []).slice(0, 2).join(' / ');
+      return {
+        plan_no: d.planNo || '',
+        topic: d.topic || '',
+        key_concept: (d.keyConcept || '').toString().trim().slice(0, 200),
+        vocab: (d.vocab || []).slice(0, 8).map(v => v && v.word).filter(Boolean),
+        sentences: (d.sentences || []).slice(0, 3).filter(Boolean),
+        objectives_brief: [
+          'K: ' + objLine('K', d.objectives?.k),
+          'P: ' + objLine('P', d.objectives?.p),
+          'A: ' + objLine('A', d.objectives?.a),
+        ].join(' | '),
+        activities_outline: (d.activities || [])
+          .slice(0, 5)
+          .map(a => ((a.phase || '') + ': ' + (a.name || '')).trim())
+          .filter(s => s !== ':')
+          .join(' → '),
+        task_brief: (d.taskDesc || '').toString().trim().slice(0, 200),
+      };
+    };
+
+    // Cap to last 3 prior + next 2 upcoming to keep tokens reasonable
+    const prior = lessons.slice(Math.max(0, curIdx - 3), curIdx).map(summarize);
+    const upcoming = lessons.slice(curIdx + 1, curIdx + 3).map(summarize);
+
+    return {
+      unit_meta: {
+        title:       unit.title || '',
+        unit_no:     unit.unitNo || '',
+        subject:     unit.subjectName || unit.subjectGroup || '',
+        level:       unit.classLevel || '',
+        total_hours: unit.totalHours || '',
+        semester:    unit.semester || '',
+        year:        unit.year || '',
+      },
+      lesson_position: { index: curIdx + 1, total },
+      prior_lessons: prior,
+      upcoming_lessons: upcoming,
+    };
+  }
+  window._buildUnitContext = _buildUnitContext;
+
   function _basePayload() {
     const vocab = [...document.querySelectorAll('#vocab-container .vocab-row')]
       .map(r => {
@@ -8100,7 +8251,7 @@ window.renderUnitDashboard = renderUnitDashboard;
     })).filter(a => a.name || a.detail);
     const assessments = _selectedAssessments();
 
-    return {
+    const payload = {
       subject: get('subject-name'),
       level: get('class-level'),
       topic: get('topic'),
@@ -8118,6 +8269,12 @@ window.renderUnitDashboard = renderUnitDashboard;
       skills_21c: _selectedSkills21(),
       learning_methods: _selectedMethods(),
     };
+    // Unit-level coherence context (only when bound to a unit)
+    const unitId = (typeof _activeUnitId !== 'undefined') ? _activeUnitId : null;
+    const curId  = (typeof _currentPlanId !== 'undefined') ? _currentPlanId : null;
+    const uctx = _buildUnitContext(unitId, curId);
+    if (uctx) payload.unit_context = uctx;
+    return payload;
   }
 
   // ─── Layer 2: AI session accumulator ─────────────────────
