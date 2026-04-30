@@ -3835,18 +3835,35 @@ function applyDraft(data) {
     });
     updateTotalTime();
   }
-  // Assessments: start empty by default — do not restore prior assessments or rubric selections from drafts
-  // (preserve K/P/A section header rows; only remove data rows)
+  // Assessments: clear data rows (preserve K/P/A section headers) then restore from saved data
   document.querySelectorAll('#assessment-table tbody tr.assess-row').forEach(tr => tr.remove());
+  const savedAssessments = Array.isArray(data.assessments) ? data.assessments : [];
+  savedAssessments.forEach(a => {
+    if (typeof window.buildAssessmentRow !== 'function') return;
+    const dom = (typeof _normDomain === 'function')
+      ? _normDomain(a.domain || (window.RUBRIC_DOMAIN && window.RUBRIC_DOMAIN[a.rubricKey]) || 'P')
+      : (a.domain || 'P');
+    const targetTbody = document.querySelector(`#assessment-table tbody[data-domain="${dom}"]`);
+    if (!targetTbody) return;
+    const tr = window.buildAssessmentRow({
+      what:      a.what || '',
+      how:       a.how || '',
+      criteria:  a.criteria || '',
+      rubricKey: a.rubricKey || '',
+      domain:    dom,
+    });
+    targetTbody.appendChild(tr);
+  });
   // Attachments
   const attc = document.getElementById('attachment-container');
   if (attc) {
     attc.innerHTML = '';
     (data.attachments || []).forEach(a => addAttachment(a.title || '', a.content || '', a.images || []));
   }
-  // Rubric chips: keep all unchecked by default (do not auto-mark from saved drafts)
+  // Rubric chips: re-check chips for any rubricKey we just restored above
   if (document.getElementById('rubric-picker')) {
-    setSelectedRubrics([]);
+    const restoredKeys = savedAssessments.map(a => a.rubricKey).filter(Boolean);
+    setSelectedRubrics(restoredKeys);
   }
 }
 
@@ -5883,13 +5900,20 @@ function exportAsDocx(data) {
       let rowTemplate = xml.substring(spanStart, xml.indexOf('</w:tr>', aIdx) + '</w:tr>'.length);
       // Mark the stage label cell with a unique token we can replace per activity
       rowTemplate = rowTemplate.replace('>นำเข้าสู่บทเรียน<', '>{{STAGE_LABEL}}<');
+      // Helper: escape detail text + convert "\n" to Word soft line breaks (<w:br/>)
+      // so numbered AI output ("1. ...\n2. ...\n3. ...") renders as multi-line
+      // bullets inside the table cell instead of one long paragraph.
+      const detailToXml = txt => {
+        const lines = (txt || '').toString().split(/\r?\n/);
+        return lines.map(esc).join('</w:t><w:br/><w:t xml:space="preserve">');
+      };
       let activityRowsXML = '';
       const userActs = activities.length ? activities : [{ phase:'', name:'', detail:'', time:'' }];
       userActs.forEach(a => {
         let row = rowTemplate
           .split('{{STAGE_LABEL}}').join(esc(a.phase || ''))
           .split('{activity_name_a}').join(esc(a.name || ''))
-          .split('{activity_details_a}').join(esc(a.detail || ''))
+          .split('{activity_details_a}').join(detailToXml(a.detail || ''))
           .split('{activity_time_a}').join(esc(String(a.time || '')));
         activityRowsXML += row;
       });
@@ -8561,6 +8585,64 @@ window.renderUnitDashboard = renderUnitDashboard;
   }
   window._confirmAiUse = _confirmAiUse;
 
+  // ─── 3D post-AI review reminder ─────────────────────────
+  // Shown ONCE after the first successful AI generation per session, reminding
+  // teachers that AI output may have errors and should be reviewed. Skippable
+  // permanently via "ไม่ต้องแสดงอีก" checkbox.
+  function _showAiReviewWarning() {
+    if (localStorage.getItem('lpg:ai-review-dismiss') === '1') return;
+    if (window._aiReviewedThisSession) return;
+    window._aiReviewedThisSession = true;
+    document.getElementById('ai-review-warning-overlay')?.remove();
+    const ov = document.createElement('div');
+    ov.id = 'ai-review-warning-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:11000;padding:18px;animation:aiwFade .2s ease-out';
+    ov.innerHTML = `
+      <style>
+        @keyframes airShake { 0%,100% { transform:rotate(-6deg) } 50% { transform:rotate(6deg) } }
+      </style>
+      <div style="background:linear-gradient(165deg,#ffffff 0%,#fef3c7 100%);border-radius:22px;max-width:480px;width:100%;
+                  padding:32px 30px 26px;font-family:inherit;text-align:center;
+                  box-shadow:0 30px 80px -20px rgba(180,83,9,.5),0 12px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.8);
+                  transform-style:preserve-3d;animation:aiwPop .35s cubic-bezier(.34,1.56,.64,1)">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;
+                    background:linear-gradient(145deg,#fbbf24,#d97706);border-radius:50%;margin-bottom:14px;
+                    box-shadow:0 14px 30px -8px rgba(217,119,6,.5),inset 0 -5px 10px rgba(146,64,14,.45),inset 0 5px 10px rgba(255,255,255,.55);
+                    font-size:2.8rem;line-height:1;">
+          <span style="display:inline-block;animation:airShake 1.6s ease-in-out infinite;">⚠️</span>
+        </div>
+        <h2 style="font-size:1.35rem;font-weight:800;color:#78350f;margin:0 0 10px;letter-spacing:-.02em;">โปรดตรวจทานเนื้อหา</h2>
+        <p style="font-size:.96rem;color:#451a03;margin:0 0 8px;line-height:1.6;">
+          AI <b style="color:#b45309;">อาจสร้างเนื้อหาที่ไม่ถูกต้อง</b> หรือไม่ตรงกับบริบทของห้องเรียนได้
+        </p>
+        <p style="font-size:.92rem;color:#57534e;margin:0 0 20px;line-height:1.6;">
+          แนะนำให้ <b style="color:#059669;">ตรวจทานและแก้ไข</b>ผลลัพธ์ของ AI ก่อนนำไปใช้สอนทุกครั้ง
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
+          <button id="airw-ok" class="aiw-btn primary" style="background:linear-gradient(180deg,#fbbf24 0%, #d97706 50%, #92400e 100%);box-shadow:0 6px 0 #78350f,0 10px 24px rgba(217,119,6,.4),inset 0 1px 0 rgba(255,255,255,.4);">✓ เข้าใจแล้ว ขอบคุณ</button>
+        </div>
+        <label style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:.78rem;color:#78716c;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="airw-dont-ask" style="cursor:pointer;accent-color:#d97706;">
+          <span>ไม่ต้องแสดงการแจ้งเตือนนี้อีก</span>
+        </label>
+      </div>`;
+    document.body.appendChild(ov);
+    const close = () => {
+      if (document.getElementById('airw-dont-ask')?.checked) {
+        localStorage.setItem('lpg:ai-review-dismiss', '1');
+      }
+      ov.remove();
+      document.removeEventListener('keydown', onKey);
+    };
+    document.getElementById('airw-ok').onclick = close;
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    const onKey = (e) => {
+      if (e.key === 'Escape' || e.key === 'Enter') close();
+    };
+    document.addEventListener('keydown', onKey);
+  }
+  window._showAiReviewWarning = _showAiReviewWarning;
+
   window._aiAssist = async function(kind) {
     const cfg = KINDS[kind];
     if (!cfg) return _aiToast('ไม่พบ AI สำหรับส่วนนี้', 'err');
@@ -8582,6 +8664,8 @@ window.renderUnitDashboard = renderUnitDashboard;
       _aiToast(applied
         ? `✨ AI ${cfg.label} สำเร็จ — ฟรี ไม่หักเครดิต`
         : `⚠️ AI สร้างผลลัพธ์แล้วแต่ยังไม่ได้ใส่ในฟอร์ม`, applied ? 'ok' : 'info');
+      // Post-AI review reminder (shown once per session, after content is in form)
+      if (applied) setTimeout(() => _showAiReviewWarning(), 600);
       return;
     }
     if (r.status === 402) {
@@ -8697,7 +8781,11 @@ window.renderUnitDashboard = renderUnitDashboard;
       `เสร็จสิ้น · สำเร็จ ${okCount} ขั้น · ข้าม ${skipCount} · ผิดพลาด ${errCount}`;
     document.getElementById('fp-close-btn').style.display = '';
     document.getElementById('fp-cancel-btn').style.display = 'none';
-    document.getElementById('fp-close-btn').onclick = () => { overlay.style.display = 'none'; };
+    document.getElementById('fp-close-btn').onclick = () => {
+      overlay.style.display = 'none';
+      // Show review reminder after closing the full-plan progress modal
+      if (okCount > 0) setTimeout(() => _showAiReviewWarning(), 350);
+    };
   };
 
   // Initialize Layer 3 watchers + initial badge render
