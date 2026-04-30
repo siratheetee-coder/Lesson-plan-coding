@@ -859,11 +859,26 @@
     border: 1px solid var(--gray-200);
     vertical-align: top;
   }
-  .assessment-table tr:nth-child(even) td { background: #f0fdf4; }
+  .assessment-table tbody tr:nth-of-type(even):not(.assess-section-header) td { background: #f0fdf4; }
   .assessment-table input[type="text"], .assessment-table textarea {
     padding: 6px 10px;
     font-size: 0.85rem;
   }
+  /* Section header rows (K / P / A) inside the assessment table */
+  .assessment-table tr.assess-section-header td {
+    background: linear-gradient(90deg, #eef2ff, #ede9fe);
+    color: #1e1b4b;
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 10px 14px;
+    border-top: 2px solid #c7d2fe;
+    letter-spacing: .01em;
+  }
+  .assessment-table tbody[data-domain="K"] tr.assess-section-header td { background: linear-gradient(90deg,#dbeafe,#bfdbfe); color:#1e3a8a; border-top-color:#93c5fd; }
+  .assessment-table tbody[data-domain="P"] tr.assess-section-header td { background: linear-gradient(90deg,#fef3c7,#fde68a); color:#78350f; border-top-color:#fcd34d; }
+  .assessment-table tbody[data-domain="A"] tr.assess-section-header td { background: linear-gradient(90deg,#dcfce7,#bbf7d0); color:#14532d; border-top-color:#86efac; }
+  .assess-add-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .assess-add-row button { flex:1 1 200px; }
 
   /* Preview */
   #preview-section {
@@ -3163,7 +3178,7 @@
         </div>
       </div>
 
-      <div style="font-size:.85rem; color:var(--gray-500); margin-bottom:8px;">📝 ตารางผลลัพธ์ — แก้ไข/ลบรายการได้ตามต้องการ</div>
+      <div style="font-size:.85rem; color:var(--gray-500); margin-bottom:8px;">📝 ตารางผลลัพธ์ — แต่ละรายการจะถูกจัดเข้าด้าน K/P/A ตามจุดประสงค์ — แก้ไข/ลบได้ตามต้องการ</div>
       <div style="overflow-x:auto;">
         <table class="assessment-table" id="assessment-table">
           <thead>
@@ -3174,10 +3189,22 @@
               <th style="width:40px;"></th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody data-domain="K">
+            <tr class="assess-section-header"><td colspan="4">📘 ด้านความรู้ (Knowledge: K)</td></tr>
+          </tbody>
+          <tbody data-domain="P">
+            <tr class="assess-section-header"><td colspan="4">🎯 ด้านทักษะ/กระบวนการ (Process/Skill: P)</td></tr>
+          </tbody>
+          <tbody data-domain="A">
+            <tr class="assess-section-header"><td colspan="4">💚 ด้านเจตคติ (Attitude: A)</td></tr>
+          </tbody>
         </table>
       </div>
-      <button class="btn-add" onclick="addAssessment()" style="margin-top:8px;">+ เพิ่มรายการประเมิน (กำหนดเอง)</button>
+      <div class="assess-add-row">
+        <button class="btn-add" onclick="addAssessment('K')">+ เพิ่มในด้านความรู้ (K)</button>
+        <button class="btn-add" onclick="addAssessment('P')">+ เพิ่มในด้านทักษะ (P)</button>
+        <button class="btn-add" onclick="addAssessment('A')">+ เพิ่มในด้านเจตคติ (A)</button>
+      </div>
     </div>
 
     <!-- ภาคผนวก -->
@@ -3650,13 +3677,14 @@ function collectDraft() {
       time:       (tr.querySelector('.act-time') || {}).value || '10',
     };
   });
-  data.assessments = [...document.querySelectorAll('#assessment-table tbody tr')].map(tr => ({
+  data.assessments = [...document.querySelectorAll('#assessment-table tbody tr.assess-row')].map(tr => ({
     what:      (tr.querySelector('.assess-what') || {}).value || '',
     how:       (tr.querySelector('.assess-how') || {}).value || '',
     criteria:  (tr.querySelector('.assess-criteria') || {}).value || '',
     rubricKey: tr.dataset.rubricKey || '',
+    domain:    tr.dataset.domain || 'P',
   }));
-  data.rubrics = [...document.querySelectorAll('#assessment-table tbody tr[data-rubric-key]')].map(tr => tr.dataset.rubricKey);
+  data.rubrics = [...document.querySelectorAll('#assessment-table tbody tr.assess-row[data-rubric-key]')].map(tr => tr.dataset.rubricKey);
   data.attachments = [...document.querySelectorAll('#attachment-container .attachment-row')].map(row => ({
     title:   (row.querySelector('.attach-title') || {}).value || '',
     content: (row.querySelector('.attach-content') || {}).value || '',
@@ -3808,10 +3836,8 @@ function applyDraft(data) {
     updateTotalTime();
   }
   // Assessments: start empty by default — do not restore prior assessments or rubric selections from drafts
-  const asb = document.querySelector('#assessment-table tbody');
-  if (asb) {
-    asb.innerHTML = '';
-  }
+  // (preserve K/P/A section header rows; only remove data rows)
+  document.querySelectorAll('#assessment-table tbody tr.assess-row').forEach(tr => tr.remove());
   // Attachments
   const attc = document.getElementById('attachment-container');
   if (attc) {
@@ -4694,6 +4720,25 @@ const RUBRIC_TYPES = [
   ]},
 ];
 
+// Mapping: rubric key -> default K/P/A domain
+// K = ความรู้ (knowledge), P = ทักษะ/กระบวนการ (process/skill), A = เจตคติ (attitude/desired)
+const RUBRIC_DOMAIN = {
+  listening:  'P',  // ทักษะการฟัง
+  speaking:   'P',  // ทักษะการพูด
+  reading:    'P',  // ทักษะการอ่าน
+  writing:    'P',  // ทักษะการเขียน
+  work:       'P',  // ตรวจชิ้นงาน
+  competency: 'P',  // สมรรถนะผู้เรียน
+  behavior:   'A',  // พฤติกรรม
+  desired:    'A',  // คุณลักษณะอันพึงประสงค์
+};
+function _normDomain(d) {
+  const u = (d || '').toString().trim().toUpperCase();
+  return (u === 'K' || u === 'P' || u === 'A') ? u : 'P';
+}
+window._normDomain = _normDomain;
+window.RUBRIC_DOMAIN = RUBRIC_DOMAIN;
+
 // Mapping: rubric key -> default assessment method text
 const RUBRIC_METHODS = {
   listening: 'สังเกตและประเมินการฟังโดยใช้แบบประเมินการฟัง (ภาคผนวก)',
@@ -4723,9 +4768,13 @@ function renderRubricPicker() {
 }
 
 window.buildAssessmentRow = buildAssessmentRow;
-function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = '' } = {}) {
+function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = '', domain = '' } = {}) {
   const tr = document.createElement('tr');
+  tr.classList.add('assess-row');
   if (rubricKey) tr.dataset.rubricKey = rubricKey;
+  // Resolve domain: explicit arg > rubric default > 'P'
+  const dom = _normDomain(domain || RUBRIC_DOMAIN[rubricKey] || 'P');
+  tr.dataset.domain = dom;
   const locked = !!rubricKey;
   tr.innerHTML =
     `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..." ${locked ? 'readonly style="background:#faf5ff; font-weight:500;"' : ''}></td>` +
@@ -4739,23 +4788,26 @@ function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = ''
 }
 
 window.onRubricChipToggle = onRubricChipToggle;
-function onRubricChipToggle(key, checked) {
-  const tbody = document.querySelector('#assessment-table tbody');
+function onRubricChipToggle(key, checked, domainOverride) {
   const chipLabel = document.querySelector(`label[data-rubric-chip="${key}"]`);
   if (chipLabel) chipLabel.style.background = checked ? '#ede9fe' : '#fff';
-  if (!tbody) return;
-  const existing = tbody.querySelector(`tr[data-rubric-key="${key}"]`);
+  // Find existing row anywhere in the table
+  const existing = document.querySelector(`#assessment-table tbody tr[data-rubric-key="${key}"]`);
   if (checked) {
     if (existing) return;
     const rubric = RUBRIC_TYPES.find(r => r.key === key);
     if (!rubric) return;
+    const dom = _normDomain(domainOverride || RUBRIC_DOMAIN[key] || 'P');
+    const targetTbody = document.querySelector(`#assessment-table tbody[data-domain="${dom}"]`);
+    if (!targetTbody) return;
     const tr = buildAssessmentRow({
       what: rubric.label,
       how: RUBRIC_METHODS[key] || '',
       criteria: '',
       rubricKey: key,
+      domain: dom,
     });
-    tbody.appendChild(tr);
+    targetTbody.appendChild(tr);
   } else {
     if (existing) existing.remove();
   }
@@ -4875,10 +4927,11 @@ function removeActivity(btn) {
   }
 }
 
-function addAssessment() {
-  const tbody = document.querySelector('#assessment-table tbody');
+function addAssessment(domain = 'P') {
+  const dom = _normDomain(domain);
+  const tbody = document.querySelector(`#assessment-table tbody[data-domain="${dom}"]`);
   if (!tbody) return;
-  tbody.appendChild(buildAssessmentRow());
+  tbody.appendChild(buildAssessmentRow({ domain: dom }));
 }
 
 // ===== Generate Plan =====
@@ -5220,11 +5273,16 @@ function _doGeneratePlan(format = 'pdf') {
 
   // Assessment
   const assessments = [];
-  document.querySelectorAll('#assessment-table tbody tr').forEach(tr => {
+  document.querySelectorAll('#assessment-table tbody tr.assess-row').forEach(tr => {
     const w = tr.querySelector('.assess-what');
     const h = tr.querySelector('.assess-how');
     const c = tr.querySelector('.assess-criteria');
-    if (w && w.value.trim()) assessments.push({ what: w.value.trim(), how: h ? h.value.trim() : '', criteria: c ? c.value.trim() : '' });
+    if (w && w.value.trim()) assessments.push({
+      what:     w.value.trim(),
+      how:      h ? h.value.trim() : '',
+      criteria: c ? c.value.trim() : '',
+      domain:   tr.dataset.domain || 'P',
+    });
   });
 
   // ===== Build HTML =====
@@ -5408,12 +5466,21 @@ function _doGeneratePlan(format = 'pdf') {
             </tr>
           </thead>
           <tbody>
-            ${assessments.map(a => `
-              <tr>
-                <td style="font-weight:600;">${a.what}</td>
-                <td>${a.how}</td>
-                <td>${a.criteria}</td>
-              </tr>`).join('')}
+            ${[
+              { dom:'K', label:'📘 ด้านความรู้ (K)' },
+              { dom:'P', label:'🎯 ด้านทักษะ/กระบวนการ (P)' },
+              { dom:'A', label:'💚 ด้านเจตคติ (A)' },
+            ].map(g => {
+              const items = assessments.filter(a => ((a.domain||'P').toUpperCase()) === g.dom);
+              if (!items.length) return '';
+              return `<tr><td colspan="3" style="background:#eef2ff;font-weight:700;color:#1e1b4b;">${g.label}</td></tr>` +
+                items.map(a => `
+                  <tr>
+                    <td style="font-weight:600;">${a.what}</td>
+                    <td>${a.how}</td>
+                    <td>${a.criteria}</td>
+                  </tr>`).join('');
+            }).join('')}
           </tbody>
         </table>
       </div>
@@ -5829,6 +5896,35 @@ function exportAsDocx(data) {
       xml = xml.substring(0, spanStart) + activityRowsXML + xml.substring(spanEnd);
     }
 
+    // === K/P/A assessments: replace each {assessment_X_method/criteria}
+    // paragraph with bullet paragraphs (one per item in that domain) ===
+    const domainOf = a => ((a && a.domain) || 'P').toString().toUpperCase();
+    const byDomain = { K: [], P: [], A: [] };
+    (assessments || []).forEach(a => {
+      const dom = domainOf(a);
+      if (byDomain[dom]) byDomain[dom].push(a);
+    });
+    const replaceWithBulletsAt = (placeholder, items) => {
+      const idx = xml.indexOf(placeholder);
+      if (idx < 0) return;
+      const cleaned = (items || []).map(s => (s || '').toString().trim()).filter(Boolean);
+      const block = cleaned.length ? cleaned.map(bulletPara).join('') : bulletPara('');
+      const pStart = xml.lastIndexOf('<w:p ', idx);
+      const pEnd = xml.indexOf('</w:p>', idx) + '</w:p>'.length;
+      xml = xml.substring(0, pStart) + block + xml.substring(pEnd);
+    };
+    ['K','P','A'].forEach(dom => {
+      const list = byDomain[dom];
+      const methodLines  = list.map(a => {
+        const what = (a.what || '').trim();
+        const how  = (a.how  || '').trim();
+        return what && how ? `${what} — ${how}` : (what || how);
+      });
+      const criteriaLines = list.map(a => (a.criteria || '').trim());
+      replaceWithBulletsAt(`{assessment_${dom.toLowerCase()}_method}`, methodLines);
+      replaceWithBulletsAt(`{assessment_${dom.toLowerCase()}_criteria}`, criteriaLines);
+    });
+
     // Build placeholder → value map
     const ph = {
       plan_number:            safe(d.planNo),
@@ -5866,12 +5962,8 @@ function exportAsDocx(data) {
       check_roleplay:         chk(document.getElementById('method-roleplay').checked),
       // activity_* placeholders are handled dynamically above (per user row).
       total_time:             safe(String(totalTime)),
-      assessment_k_method:    safe((assessments[0]||{}).how||''),
-      assessment_k_criteria:  safe((assessments[0]||{}).criteria||''),
-      assessment_p_method:    safe((assessments[1]||{}).how||''),
-      assessment_p_criteria:  safe((assessments[1]||{}).criteria||''),
-      assessment_a_method:    safe((assessments[2]||{}).how||''),
-      assessment_a_criteria:  safe((assessments[2]||{}).criteria||''),
+      // assessment_X_method/criteria placeholders are replaced inline above
+      // (per-domain bullet paragraphs grouped by K/P/A).
       principal_name:         '...................................................',
       sign_date_teacher:      '',
       sign_date_principal:    '',
@@ -7958,10 +8050,11 @@ window.renderUnitDashboard = renderUnitDashboard;
     ids.forEach(m => { const cb = document.getElementById('method-' + m); if (cb && cb.checked) out.push(cb.parentElement.textContent.trim()); });
     return out;
   };
-  const _selectedAssessments = () => [...document.querySelectorAll('#assessment-table tbody tr')].map(tr => ({
+  const _selectedAssessments = () => [...document.querySelectorAll('#assessment-table tbody tr.assess-row')].map(tr => ({
     what: (tr.querySelector('.assess-what') || {}).value || '',
     how:  (tr.querySelector('.assess-how')  || {}).value || '',
     rubric_key: tr.dataset.rubricKey || '',
+    domain: tr.dataset.domain || 'P',
   })).filter(a => a.what);
 
   // Read ALL form data into one snapshot — every AI call sees full context
@@ -8254,38 +8347,53 @@ window.renderUnitDashboard = renderUnitDashboard;
       payload: () => _basePayload(),
       apply: (data) => {
         if (!Array.isArray(data?.items) || !data.items.length) return false;
-        const tbody = document.querySelector('#assessment-table tbody');
-        if (!tbody) return false;
-        // Confirm overwrite if there's existing data
-        const hasRows = tbody.children.length > 0;
+        const tbodies = document.querySelectorAll('#assessment-table tbody');
+        if (!tbodies.length) return false;
+        // Detect existing user data (any row with .assess-row class)
+        const hasRows = !!document.querySelector('#assessment-table tbody tr.assess-row');
         if (hasRows && !confirm('ตารางประเมินมีรายการอยู่แล้ว ต้องการให้ AI สร้างใหม่ทั้งหมดหรือไม่?')) return false;
-        // Reset
-        tbody.innerHTML = '';
+        // Reset: clear ALL .assess-row rows from each tbody (preserve section headers)
+        document.querySelectorAll('#assessment-table tbody tr.assess-row').forEach(tr => tr.remove());
         document.querySelectorAll('#rubric-picker .rubric-chk').forEach(cb => {
           cb.checked = false;
           const lbl = cb.closest('label');
           if (lbl) lbl.style.background = '#fff';
         });
-        // Apply each item
+        // Apply each AI item — route to the correct K/P/A tbody
         data.items.forEach(item => {
-          if (item.rubric_key && typeof window.onRubricChipToggle === 'function') {
+          // Pick domain: explicit > rubric default > 'P'
+          const dom = (typeof window._normDomain === 'function' ? window._normDomain : (x => (['K','P','A'].includes((x||'').toUpperCase()) ? x.toUpperCase() : 'P')))(
+            item.domain || RUBRIC_DOMAIN[item.rubric_key] || 'P'
+          );
+          const targetTbody = document.querySelector(`#assessment-table tbody[data-domain="${dom}"]`);
+          if (!targetTbody) return;
+          if (item.rubric_key) {
+            // Tick chip
             const cb = document.querySelector(`.rubric-chk[data-rubric-key="${item.rubric_key}"]`);
             if (cb) {
               cb.checked = true;
               const lbl = cb.closest('label');
               if (lbl) lbl.style.background = '#ede9fe';
-              window.onRubricChipToggle(item.rubric_key, true);
-              const tr = tbody.querySelector(`tr[data-rubric-key="${item.rubric_key}"]`);
-              const c = tr?.querySelector('.assess-criteria');
-              if (c) c.value = item.criteria || '';
+            }
+            const rubric = RUBRIC_TYPES.find(r => r.key === item.rubric_key);
+            if (rubric) {
+              const tr = window.buildAssessmentRow({
+                what: rubric.label,
+                how: RUBRIC_METHODS[item.rubric_key] || item.how || '',
+                criteria: item.criteria || '',
+                rubricKey: item.rubric_key,
+                domain: dom,
+              });
+              targetTbody.appendChild(tr);
             }
           } else if (item.what && typeof window.buildAssessmentRow === 'function') {
             const tr = window.buildAssessmentRow({
               what: item.what,
               how: item.how || '',
               criteria: item.criteria || '',
+              domain: dom,
             });
-            tbody.appendChild(tr);
+            targetTbody.appendChild(tr);
           }
         });
         return true;
