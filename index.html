@@ -2547,7 +2547,7 @@
             <div style="margin-top:24px; padding:16px 18px; background:linear-gradient(135deg,#fef3c7,#fde68a); border:1px solid #fcd34d; border-radius:12px;">
               <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
                 <span style="font-size:1.2rem;">🎯</span>
-                <h4 style="margin:0; color:#78350f; font-size:1rem;">Story Arc — ภาพรวมของหน่วย (สำหรับ AI)</h4>
+                <h4 style="margin:0; color:#78350f; font-size:1rem;">ให้ AI ร่างภาพรวมของหน่วยให้ไหม?</h4>
                 <button type="button" class="ai-assist-btn" onclick="window._aiDraftUnitArc()"
                   data-ai-kind="unit_arc"
                   style="margin-left:auto; padding:6px 12px; font-size:.8rem; border-radius:8px; border:none; cursor:pointer; font-family:inherit; font-weight:600;
@@ -2558,21 +2558,21 @@
               <div style="font-size:.8rem; color:#78350f; margin-bottom:14px;">ฟิลด์ในส่วนนี้จะถูกส่งให้ AI เป็นบริบทเวลาสร้างแผนรายคาบในหน่วยนี้ — เพื่อให้แต่ละแผนสอดคล้องและต่อยอดกัน</div>
               <div class="unit-field-grid">
                 <div class="unit-field full">
-                  <label>🎨 Theme ของหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(สรุปธีมในประโยคเดียว)</span></label>
+                  <label>🎨Theme ของหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(สรุปธีมในประโยคเดียว)</span></label>
                   <input type="text" id="ue-theme" placeholder="เช่น Daily Routines and Time Telling, My Family Members and Relationships">
                 </div>
                 <div class="unit-field full">
-                  <label>💡 Big Idea / เป้าหมายปลายทาง <span style="font-weight:400; color:#78716c; font-size:.78rem;">(2-3 บรรทัด — ผู้เรียนจะทำอะไรได้เมื่อจบหน่วย)</span></label>
+                  <label>💡เป้าหมายปลายทาง <span style="font-weight:400; color:#78716c; font-size:.78rem;">(ผู้เรียนจะทำอะไรได้เมื่อจบหน่วย)</span></label>
                   <textarea id="ue-bigIdea" rows="3" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:.9rem; resize:vertical;"
                     placeholder="เช่น ผู้เรียนสามารถเล่ากิจวัตรประจำวันของตนเองได้ ใช้ present simple tense ระบุเวลา และเขียน paragraph 5-7 ประโยคเล่ากิจวัตรของตน"></textarea>
                 </div>
                 <div class="unit-field full">
-                  <label>📚 คลังคำศัพท์ของหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(คำหลักที่จะใช้ตลอดหน่วย — แยกด้วยจุลภาค หรือขึ้นบรรทัดใหม่)</span></label>
+                  <label>📚 คลังคำศัพท์ของหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(คำศัพท์ที่จะใช้วนอยู่ในหน่วยการเรียนรู้)</span></label>
                   <textarea id="ue-vocabBank" rows="3" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:.9rem; resize:vertical;"
                     placeholder="wake up, brush teeth, take a shower, eat breakfast, go to school, do homework, watch TV, go to bed"></textarea>
                 </div>
                 <div class="unit-field full">
-                  <label>🪜 Progression <span style="font-weight:400; color:#78716c; font-size:.78rem;">(ลำดับการสอนในหน่วย — optional)</span></label>
+                  <label>🪜 ลำดับกิจกรรมในหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(ลำดับการสอนในหน่วย)</span></label>
                   <textarea id="ue-progression" rows="3" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:.9rem; resize:vertical;"
                     placeholder="L1: เรียนคำศัพท์กิจวัตรพื้นฐาน + ฟัง&#10;L2: ฝึกพูดบทสนทนา 'What time do you...?'&#10;L3: เขียนบรรยายกิจวัตรประจำวันของตนเอง"></textarea>
                 </div>
@@ -2588,7 +2588,7 @@
           <!-- STEP 2: เริ่มสร้างแผน -->
           <div class="unit-step-panel" data-ustep="2" style="display:none;">
             <h3>② สร้างแผนการจัดการเรียนรู้รายคาบ</h3>
-            <div class="step-help">กดปุ่มด้านล่างเพื่อไปยังระบบสร้างแผนรายคาบ — ข้อมูลหน่วยจะถูกกรอกให้โดยอัตโนมัติ เมื่อสร้างแผนเสร็จ กดปุ่ม "เพิ่มแผนนี้ในหน่วยการเรียนรู้" ที่ด้านบนของฟอร์ม</div>
+            <div class="step-help">กดปุ่มด้านล่างเพื่อไปยังระบบสร้างแผนรายคาบ โดยข้อมูลหน่วยจะถูกกรอกให้โดยอัตโนมัติ เมื่อสร้างแผนเสร็จ</div>
             <!-- Phase 5: AI Unit Outliner — generate outline for ALL lessons in one click -->
             <div style="background:linear-gradient(135deg,#fef3c7,#fde68a); border:2px solid #fbbf24; border-radius:14px; padding:24px 22px; margin:16px 0; position:relative; overflow:hidden;">
               <div style="position:absolute; top:8px; right:10px; background:#dc2626; color:white; font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:999px;">PRO • 2 เครดิต</div>
@@ -2596,13 +2596,13 @@
                 <div style="font-size:2.2rem;">🪄</div>
                 <div>
                   <div style="font-size:1.05rem; font-weight:700; color:#78350f;">ให้ AI ร่างทั้งหน่วยในครั้งเดียว</div>
-                  <div style="font-size:0.82rem; color:#92400e; margin-top:2px;">AI จะออกแบบโครงทั้ง N แผน ให้สอดคล้องและต่อยอดตาม Big Idea ของหน่วย — แล้วสร้างเป็น draft ทุกแผนในระบบทันที</div>
+                  <div style="font-size:0.82rem; color:#92400e; margin-top:2px;">AI จะร่างแผนทั้งหน่วยการเรียนรู้ให้สอดคล้องกับเป้าหมายปลายทาง</div>
                 </div>
               </div>
               <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px;">
                 <label style="font-size:0.85rem; color:#78350f; font-weight:600;">จำนวนแผน:</label>
                 <input type="number" id="ue-outline-count" min="3" max="10" placeholder="auto" style="width:90px; padding:6px 10px; border:1px solid #fbbf24; border-radius:8px; font-family:inherit; font-size:0.9rem;">
-                <span style="font-size:0.78rem; color:#92400e;">(เว้นว่าง = AI คำนวณจาก total_hours)</span>
+                <span style="font-size:0.78rem; color:#92400e;">(ถ้าเว้นว่าง AI จะคำนวณจากจำนวนคาบรวมของหน่วย)</span>
                 <button type="button" onclick="window._aiOutlineUnit()"
                   style="margin-left:auto; background:linear-gradient(135deg,#d97706,#92400e); color:white; border:none; padding:11px 22px; font-size:0.95rem; font-weight:700; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(217,119,6,.3);">
                   🪄 ร่างทั้งหน่วย (2 เครดิต)
@@ -7750,7 +7750,7 @@ window._aiDraftUnitArc = async function() {
   const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
   const title = get('ue-title');
   if (!title) {
-    alert('กรุณาตั้งชื่อหน่วย (ue-title) ก่อน เพื่อให้ AI ร่าง Story Arc ได้ถูกต้อง');
+    alert('กรุณาตั้งชื่อหน่วย (ue-title) ก่อน เพื่อให้ AI ร่างโครงสร้างหน่วยการเรียนรู้ได้ถูกต้อง');
     return;
   }
   if (typeof window._confirmAiUse === 'function') {
