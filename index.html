@@ -2542,6 +2542,43 @@
                 <input type="text" id="ue-teacher" placeholder="ชื่อ-นามสกุล ครูผู้สอน">
               </div>
             </div>
+
+            <!-- Phase 2: Story Arc fields — give AI a "north star" for the unit -->
+            <div style="margin-top:24px; padding:16px 18px; background:linear-gradient(135deg,#fef3c7,#fde68a); border:1px solid #fcd34d; border-radius:12px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="font-size:1.2rem;">🎯</span>
+                <h4 style="margin:0; color:#78350f; font-size:1rem;">Story Arc — ภาพรวมของหน่วย (สำหรับ AI)</h4>
+                <button type="button" class="ai-assist-btn" onclick="window._aiDraftUnitArc()"
+                  data-ai-kind="unit_arc"
+                  style="margin-left:auto; padding:6px 12px; font-size:.8rem; border-radius:8px; border:none; cursor:pointer; font-family:inherit; font-weight:600;
+                         background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25);">
+                  ✨ ให้ AI ช่วยร่าง (ฟรี)
+                </button>
+              </div>
+              <div style="font-size:.8rem; color:#78350f; margin-bottom:14px;">ฟิลด์ในส่วนนี้จะถูกส่งให้ AI เป็นบริบทเวลาสร้างแผนรายคาบในหน่วยนี้ — เพื่อให้แต่ละแผนสอดคล้องและต่อยอดกัน</div>
+              <div class="unit-field-grid">
+                <div class="unit-field full">
+                  <label>🎨 Theme ของหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(สรุปธีมในประโยคเดียว)</span></label>
+                  <input type="text" id="ue-theme" placeholder="เช่น Daily Routines and Time Telling, My Family Members and Relationships">
+                </div>
+                <div class="unit-field full">
+                  <label>💡 Big Idea / เป้าหมายปลายทาง <span style="font-weight:400; color:#78716c; font-size:.78rem;">(2-3 บรรทัด — ผู้เรียนจะทำอะไรได้เมื่อจบหน่วย)</span></label>
+                  <textarea id="ue-bigIdea" rows="3" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:.9rem; resize:vertical;"
+                    placeholder="เช่น ผู้เรียนสามารถเล่ากิจวัตรประจำวันของตนเองได้ ใช้ present simple tense ระบุเวลา และเขียน paragraph 5-7 ประโยคเล่ากิจวัตรของตน"></textarea>
+                </div>
+                <div class="unit-field full">
+                  <label>📚 คลังคำศัพท์ของหน่วย <span style="font-weight:400; color:#78716c; font-size:.78rem;">(คำหลักที่จะใช้ตลอดหน่วย — แยกด้วยจุลภาค หรือขึ้นบรรทัดใหม่)</span></label>
+                  <textarea id="ue-vocabBank" rows="3" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:.9rem; resize:vertical;"
+                    placeholder="wake up, brush teeth, take a shower, eat breakfast, go to school, do homework, watch TV, go to bed"></textarea>
+                </div>
+                <div class="unit-field full">
+                  <label>🪜 Progression <span style="font-weight:400; color:#78716c; font-size:.78rem;">(ลำดับการสอนในหน่วย — optional)</span></label>
+                  <textarea id="ue-progression" rows="3" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:.9rem; resize:vertical;"
+                    placeholder="L1: เรียนคำศัพท์กิจวัตรพื้นฐาน + ฟัง&#10;L2: ฝึกพูดบทสนทนา 'What time do you...?'&#10;L3: เขียนบรรยายกิจวัตรประจำวันของตนเอง"></textarea>
+                </div>
+              </div>
+            </div>
+
             <div class="unit-step-footer">
               <span></span>
               <button class="unit-step-next" onclick="goUnitStep(2)">ถัดไป →</button>
@@ -2552,11 +2589,32 @@
           <div class="unit-step-panel" data-ustep="2" style="display:none;">
             <h3>② สร้างแผนการจัดการเรียนรู้รายคาบ</h3>
             <div class="step-help">กดปุ่มด้านล่างเพื่อไปยังระบบสร้างแผนรายคาบ — ข้อมูลหน่วยจะถูกกรอกให้โดยอัตโนมัติ เมื่อสร้างแผนเสร็จ กดปุ่ม "เพิ่มแผนนี้ในหน่วยการเรียนรู้" ที่ด้านบนของฟอร์ม</div>
-            <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe); border:1px dashed #c4b5fd; border-radius:14px; padding:32px 24px; text-align:center; margin:16px 0;">
-              <div style="font-size:3rem; margin-bottom:8px;">📝</div>
-              <div style="font-size:1.1rem; font-weight:700; color:#5b21b6; margin-bottom:6px;">พร้อมสร้างแผนรายคาบสำหรับหน่วยนี้</div>
-              <div style="font-size:0.88rem; color:#6b7280; margin-bottom:18px;">คลิกเพื่อเปิดระบบสร้างแผน พร้อมข้อมูลหัวแผนที่กรอกไว้</div>
-              <button onclick="startLessonForUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:12px 28px; font-size:1rem; font-weight:600; border-radius:12px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(91,33,182,0.25);">
+            <!-- Phase 5: AI Unit Outliner — generate outline for ALL lessons in one click -->
+            <div style="background:linear-gradient(135deg,#fef3c7,#fde68a); border:2px solid #fbbf24; border-radius:14px; padding:24px 22px; margin:16px 0; position:relative; overflow:hidden;">
+              <div style="position:absolute; top:8px; right:10px; background:#dc2626; color:white; font-size:0.68rem; font-weight:700; padding:3px 9px; border-radius:999px;">PRO • 2 เครดิต</div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                <div style="font-size:2.2rem;">🪄</div>
+                <div>
+                  <div style="font-size:1.05rem; font-weight:700; color:#78350f;">ให้ AI ร่างทั้งหน่วยในครั้งเดียว</div>
+                  <div style="font-size:0.82rem; color:#92400e; margin-top:2px;">AI จะออกแบบโครงทั้ง N แผน ให้สอดคล้องและต่อยอดตาม Big Idea ของหน่วย — แล้วสร้างเป็น draft ทุกแผนในระบบทันที</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px;">
+                <label style="font-size:0.85rem; color:#78350f; font-weight:600;">จำนวนแผน:</label>
+                <input type="number" id="ue-outline-count" min="3" max="10" placeholder="auto" style="width:90px; padding:6px 10px; border:1px solid #fbbf24; border-radius:8px; font-family:inherit; font-size:0.9rem;">
+                <span style="font-size:0.78rem; color:#92400e;">(เว้นว่าง = AI คำนวณจาก total_hours)</span>
+                <button type="button" onclick="window._aiOutlineUnit()"
+                  style="margin-left:auto; background:linear-gradient(135deg,#d97706,#92400e); color:white; border:none; padding:11px 22px; font-size:0.95rem; font-weight:700; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(217,119,6,.3);">
+                  🪄 ร่างทั้งหน่วย (2 เครดิต)
+                </button>
+              </div>
+            </div>
+
+            <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe); border:1px dashed #c4b5fd; border-radius:14px; padding:24px; text-align:center; margin:16px 0;">
+              <div style="font-size:2.4rem; margin-bottom:6px;">📝</div>
+              <div style="font-size:1rem; font-weight:700; color:#5b21b6; margin-bottom:4px;">หรือสร้างแผนทีละแผนเอง</div>
+              <div style="font-size:0.84rem; color:#6b7280; margin-bottom:14px;">เปิดระบบสร้างแผนแบบปกติ — ข้อมูลหัวแผนจะถูกกรอกให้อัตโนมัติ</div>
+              <button onclick="startLessonForUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:11px 24px; font-size:0.95rem; font-weight:600; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(91,33,182,0.2);">
                 ➕ เริ่มสร้างแผนรายคาบใหม่
               </button>
             </div>
@@ -7090,6 +7148,11 @@ function applyUnitToForm(u) {
   set('ue-year', u.year);
   set('ue-totalHours', u.totalHours);
   set('ue-teacher', u.teacher);
+  // Phase 2 — Story Arc fields
+  set('ue-theme', u.theme);
+  set('ue-bigIdea', u.bigIdea);
+  set('ue-vocabBank', u.vocabBank);
+  set('ue-progression', u.progression);
   const td = document.getElementById('ue-title-display');
   if (td) td.textContent = (u.title || '').trim() || 'หน่วยการเรียนรู้ใหม่';
 }
@@ -7109,6 +7172,11 @@ function collectCurrentUnitFromForm() {
   _currentUnit.year = get('ue-year').trim();
   _currentUnit.totalHours = get('ue-totalHours').trim();
   _currentUnit.teacher = get('ue-teacher').trim();
+  // Phase 2 — Story Arc fields
+  _currentUnit.theme       = get('ue-theme').trim();
+  _currentUnit.bigIdea     = get('ue-bigIdea').trim();
+  _currentUnit.vocabBank   = get('ue-vocabBank').trim();
+  _currentUnit.progression = get('ue-progression').trim();
   const td = document.getElementById('ue-title-display');
   if (td) td.textContent = _currentUnit.title || 'หน่วยการเรียนรู้ใหม่';
 }
@@ -7676,6 +7744,333 @@ function onUnitClassChange(val) {
     }
   } catch(e) {}
 })();
+// ─── Phase 2: AI helper for Unit Story Arc ──────────────
+// Reads unit metadata from form → calls /api/ai/generate-unit-arc → fills Story Arc fields
+window._aiDraftUnitArc = async function() {
+  const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const title = get('ue-title');
+  if (!title) {
+    alert('กรุณาตั้งชื่อหน่วย (ue-title) ก่อน เพื่อให้ AI ร่าง Story Arc ได้ถูกต้อง');
+    return;
+  }
+  if (typeof window._confirmAiUse === 'function') {
+    const ok = await window._confirmAiUse();
+    if (!ok) return;
+  }
+  // Detect existing data — confirm overwrite
+  const hasExisting = ['ue-theme','ue-bigIdea','ue-vocabBank','ue-progression']
+    .some(id => get(id));
+  if (hasExisting && !confirm('Story Arc มีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return;
+
+  const btn = document.querySelector('[data-ai-kind="unit_arc"]');
+  if (btn) { btn._origText = btn._origText || btn.textContent; btn.textContent = '⏳ AI กำลังคิด...'; btn.disabled = true; btn.style.opacity = '.6'; }
+  try {
+    const payload = {
+      unit_title: title,
+      unit_no: get('ue-unitNo'),
+      subject: get('ue-subjectName') || get('ue-subjectGroup'),
+      level: get('ue-classLevel'),
+      total_hours: get('ue-totalHours'),
+      semester: get('ue-semester'),
+    };
+    const idemKey = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+    const res = await window.authFetch('/api/ai/generate-unit-arc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, idempotency_key: idemKey }),
+    });
+    const r = await res.json().catch(() => ({}));
+    if (!res.ok || !r.ok) {
+      const msg = r.message || 'AI ขัดข้อง กรุณาลองใหม่';
+      if (typeof window.showExportToast === 'function') window.showExportToast('❌ ' + msg, 'err');
+      else alert('❌ ' + msg);
+      return;
+    }
+    const d = r.data || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    set('ue-theme', d.theme || '');
+    set('ue-bigIdea', d.big_idea || '');
+    set('ue-vocabBank', Array.isArray(d.vocab_bank) ? d.vocab_bank.join(', ') : (d.vocab_bank || ''));
+    set('ue-progression', d.progression || '');
+    if (typeof window.showExportToast === 'function') window.showExportToast('✨ AI ร่าง Story Arc ให้แล้ว — ฟรี ไม่หักเครดิต', 'ok');
+    if (typeof window._showAiReviewWarning === 'function') setTimeout(() => window._showAiReviewWarning(), 600);
+  } catch (e) {
+    alert('❌ ขัดข้องเครือข่าย: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.textContent = btn._origText || '✨ ให้ AI ช่วยร่าง (ฟรี)'; btn.disabled = false; btn.style.opacity = '1'; }
+  }
+};
+
+// ─── Phase 5: AI Unit Outliner ──────────────────────────
+// One paid call (2 credits) → AI drafts the WHOLE unit (N lessons) → user reviews
+// → click "Create all" → N lesson drafts auto-saved + linked to the unit.
+window._aiOutlineUnit = async function() {
+  if (!_currentUnit) {
+    alert('กรุณาเปิด Unit Editor ก่อน');
+    return;
+  }
+  // Persist any in-progress edits before reading
+  if (typeof collectCurrentUnitFromForm === 'function') collectCurrentUnitFromForm();
+  if (!_currentUnit.title) {
+    alert('กรุณาตั้งชื่อหน่วยและกรอก Story Arc (อย่างน้อย Big Idea) ก่อนใช้ AI ร่างทั้งหน่วย');
+    return;
+  }
+  if (!_currentUnit.bigIdea) {
+    if (!confirm('ยังไม่ได้กรอก Big Idea — แนะนำให้กรอกก่อนเพื่อผลลัพธ์ที่ดีที่สุด\n\nต้องการกดต่อไปโดยให้ AI เดาเองหรือไม่?')) return;
+  }
+
+  // Confirm + cost dialogue
+  if (typeof window._confirmAiUse === 'function') {
+    const ok = await window._confirmAiUse();
+    if (!ok) return;
+  }
+  const proceed = confirm(
+    '🪄 AI จะร่างโครงแผนทั้งหน่วย (จะเสีย 2 เครดิต)\n\n' +
+    '• AI จะดู: ชื่อหน่วย, Big Idea, vocab bank, progression\n' +
+    '• ผลลัพธ์: โครงแผน 3-8 แผน — ดูตัวอย่างก่อนสร้างจริง\n' +
+    '• กดสร้างแล้ว → จะเพิ่มเป็น draft ในระบบ ครูเปิดเติมรายละเอียดต่อได้\n\n' +
+    'ดำเนินการต่อ?'
+  );
+  if (!proceed) return;
+
+  const btn = event && event.target;
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ AI กำลังร่าง...'; btn.style.opacity = '.6'; }
+
+  try {
+    const countInput = document.getElementById('ue-outline-count');
+    const requestedCount = countInput && countInput.value ? parseInt(countInput.value) : null;
+
+    // Build vocab_bank array from textarea
+    const vocabBankArr = (_currentUnit.vocabBank || '')
+      .split(/[,\n]/).map(s => s.trim()).filter(Boolean);
+
+    const payload = {
+      unit_title:   _currentUnit.title,
+      unit_no:      _currentUnit.unitNo || '',
+      subject:      _currentUnit.subjectName || _currentUnit.subjectGroup || '',
+      level:        _currentUnit.classLevel || '',
+      total_hours:  _currentUnit.totalHours || '',
+      semester:     _currentUnit.semester || '',
+      year:         _currentUnit.year || '',
+      theme:        _currentUnit.theme || '',
+      big_idea:     _currentUnit.bigIdea || '',
+      vocab_bank:   vocabBankArr,
+      progression:  _currentUnit.progression || '',
+      lesson_count: requestedCount || null,
+      idempotency_key: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
+    };
+
+    const res = await window.authFetch('/api/ai/generate-unit-outline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const r = await res.json().catch(() => ({}));
+
+    if (!res.ok || !r.ok) {
+      const msg = r.message || 'AI ขัดข้อง กรุณาลองใหม่';
+      if (res.status === 402) {
+        alert('❌ เครดิตไม่เพียงพอ (ต้องการ 2 เครดิต) กรุณาเติมเครดิต');
+        if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 600);
+      } else {
+        alert('❌ ' + msg);
+      }
+      return;
+    }
+
+    // Update credit display
+    if (typeof window.updateCreditsUI === 'function') window.updateCreditsUI(r.credits);
+
+    const outline = r.data || {};
+    const lessons = Array.isArray(outline.lessons) ? outline.lessons : [];
+    if (!lessons.length) {
+      alert('❌ AI ไม่ได้ส่งโครงแผนกลับมา กรุณาลองใหม่');
+      return;
+    }
+
+    // Show preview modal
+    _showOutlinePreviewModal(outline, lessons);
+
+  } catch (e) {
+    alert('❌ ขัดข้องเครือข่าย: ' + (e.message || e));
+  } finally {
+    if (btn) { btn.textContent = origText || '🪄 ร่างทั้งหน่วย (2 เครดิต)'; btn.disabled = false; btn.style.opacity = '1'; }
+  }
+};
+
+// Preview modal — list all proposed lessons with checkboxes; user can deselect any before creating
+function _showOutlinePreviewModal(outline, lessons) {
+  document.getElementById('unit-outline-preview-modal')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'unit-outline-preview-modal';
+  ov.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:11500; padding:18px;';
+  const esc = s => (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  ov.innerHTML = `
+    <div style="background:#fff; border-radius:16px; max-width:780px; width:100%; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 30px 80px -20px rgba(15,23,42,.4);">
+      <div style="padding:20px 24px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <div style="font-size:1.2rem; font-weight:800; color:#78350f; display:flex; align-items:center; gap:8px;">
+            🪄 โครงแผนทั้งหน่วยที่ AI ร่างให้
+          </div>
+          <div style="font-size:0.85rem; color:#6b7280; margin-top:4px;">
+            ${lessons.length} แผน · ติ๊กเลือกที่ต้องการสร้าง · ครูเปิดแก้ไขรายละเอียดได้ภายหลัง
+          </div>
+        </div>
+        <button onclick="document.getElementById('unit-outline-preview-modal').remove()"
+          style="background:transparent; border:none; font-size:1.4rem; color:#9ca3af; cursor:pointer; padding:4px 10px;">✕</button>
+      </div>
+      <div id="outline-list-body" style="padding:14px 20px; overflow-y:auto; flex:1;">
+        ${lessons.map((l, i) => `
+          <label style="display:block; background:#fef3c7; border:1px solid #fbbf24; border-radius:12px; padding:14px 16px; margin-bottom:10px; cursor:pointer;">
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <input type="checkbox" class="outline-pick" data-i="${i}" checked style="margin-top:4px; width:18px; height:18px; cursor:pointer; accent-color:#d97706;">
+              <div style="flex:1;">
+                <div style="display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:6px;">
+                  <span style="background:#d97706; color:white; padding:3px 10px; border-radius:999px; font-size:0.78rem; font-weight:700;">L${l.plan_no || (i+1)}</span>
+                  <span style="font-weight:700; color:#1f2937; font-size:1rem;">${esc(l.topic || '(ไม่มีหัวข้อ)')}</span>
+                  <span style="font-size:0.78rem; color:#92400e;">⏱ ${l.hours || '?'} ชั่วโมง</span>
+                </div>
+                <div style="font-size:0.86rem; color:#374151; line-height:1.55; margin-bottom:6px;">${esc(l.key_concept || '')}</div>
+                ${(l.objectives_k && l.objectives_k.length) || (l.objectives_p && l.objectives_p.length) || (l.objectives_a && l.objectives_a.length) ? `
+                  <div style="font-size:0.78rem; color:#475569; margin-bottom:6px;">
+                    🎯 <b>K:</b> ${(l.objectives_k||[]).slice(0,1).map(esc).join(', ') || '—'}
+                    · <b>P:</b> ${(l.objectives_p||[]).slice(0,1).map(esc).join(', ') || '—'}
+                    · <b>A:</b> ${(l.objectives_a||[]).slice(0,1).map(esc).join(', ') || '—'}
+                  </div>
+                ` : ''}
+                ${l.vocab_focus && l.vocab_focus.length ? `
+                  <div style="font-size:0.78rem; color:#475569; margin-bottom:4px;">
+                    📚 <b>Vocab:</b> ${l.vocab_focus.map(v => `<code style="background:#fff; padding:2px 6px; border-radius:4px; border:1px solid #fde68a;">${esc(v)}</code>`).join(' ')}
+                  </div>
+                ` : ''}
+                ${l.key_activities && l.key_activities.length ? `
+                  <div style="font-size:0.78rem; color:#475569;">
+                    ⚡ <b>กิจกรรมหลัก:</b> ${l.key_activities.slice(0,3).map(esc).join(' · ')}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </label>
+        `).join('')}
+      </div>
+      <div style="padding:14px 24px; border-top:1px solid #e5e7eb; display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <div style="font-size:0.82rem; color:#6b7280;">
+          ✅ AI ใช้เครดิตแล้ว 2 เครดิต — สร้าง draft ฟรี ไม่หักเครดิตเพิ่ม
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button onclick="document.getElementById('unit-outline-preview-modal').remove()"
+            style="background:#f3f4f6; color:#374151; border:1px solid #d1d5db; padding:10px 18px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:600;">
+            ยกเลิก
+          </button>
+          <button onclick="window._createOutlinedLessons()"
+            style="background:linear-gradient(135deg,#d97706,#92400e); color:white; border:none; padding:10px 22px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:700; box-shadow:0 4px 12px rgba(217,119,6,.3);">
+            ✨ สร้างแผนตามที่เลือก
+          </button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  // Stash outline so the create button can read it
+  window._outlinePending = { outline, lessons };
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+}
+
+// On confirm — create one history entry per selected lesson + link all to the unit
+window._createOutlinedLessons = function() {
+  const pending = window._outlinePending;
+  if (!pending || !_currentUnit) return;
+
+  // Read which lessons are checked
+  const picks = [...document.querySelectorAll('.outline-pick:checked')].map(cb => parseInt(cb.dataset.i));
+  if (!picks.length) {
+    alert('กรุณาเลือกอย่างน้อย 1 แผน');
+    return;
+  }
+
+  // Make sure unit is saved first (so its ID is stable)
+  if (!_currentUnit.id) _currentUnit.id = (typeof _newUnitId === 'function') ? _newUnitId() : ('unit-' + Date.now());
+  saveUnit(_currentUnit);
+
+  const allHist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const newHist = allHist.slice();
+  const newIds = [];
+
+  picks.forEach(i => {
+    const o = pending.lessons[i];
+    if (!o) return;
+    const id = 'plan-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    const d = {
+      planNo:    String(o.plan_no || ''),
+      unitNo:    _currentUnit.unitNo || '',
+      unitName:  _currentUnit.title || '',
+      unitHours: _currentUnit.totalHours || '',
+      subject:   _currentUnit.subjectName || _currentUnit.subjectGroup || '',
+      code:      _currentUnit.subjectCode || '',
+      classLevel: _currentUnit.classLevel || '',
+      semester:  _currentUnit.semester || '',
+      year:      _currentUnit.year || '',
+      topic:     o.topic || '',
+      keyConcept: o.key_concept || '',
+      objectives: {
+        k: Array.isArray(o.objectives_k) ? o.objectives_k : [],
+        p: Array.isArray(o.objectives_p) ? o.objectives_p : [],
+        a: Array.isArray(o.objectives_a) ? o.objectives_a : [],
+      },
+      vocab:     (o.vocab_focus || []).map(w => ({ word: w, meaning: '' })),
+      sentences: [],
+      media:     [],
+      activities: [],
+      taskDesc:  '',
+      indicators: [],
+      rubrics:   [],
+      assessments: [],
+      attachments: [],
+      // Bind to unit so reopening loads unit context
+      unitId:    _currentUnit.id,
+    };
+    const entry = {
+      id,
+      title: 'แผนการสอนที่ ' + (o.plan_no || (i+1)) + ' — ' + (o.topic || ''),
+      data: d,
+      format: 'pdf',
+      savedAt: Date.now(),
+      createdAt: Date.now(),
+    };
+    newHist.unshift(entry);
+    newIds.push(id);
+  });
+
+  // Persist history
+  if (typeof writeHistory === 'function') writeHistory(newHist);
+
+  // Link new lessons into unit
+  _currentUnit.lessonIds = (_currentUnit.lessonIds || []).concat(newIds);
+  saveUnit(_currentUnit);
+
+  // Close preview
+  document.getElementById('unit-outline-preview-modal')?.remove();
+  window._outlinePending = null;
+
+  // Toast
+  const ind = (typeof ensureSaveIndicator === 'function') ? ensureSaveIndicator() : null;
+  if (ind) {
+    ind.textContent = `✨ สร้าง ${newIds.length} แผนพร้อมเชื่อมกับหน่วยแล้ว — เปิดแก้ไขจากแท็บ ③ Dashboard`;
+    ind.style.background = '#fef3c7';
+    ind.style.borderColor = '#fbbf24';
+    ind.style.color = '#78350f';
+    ind.style.opacity = '1';
+    clearTimeout(ind._fadeTimer);
+    ind._fadeTimer = setTimeout(() => { ind.style.opacity = '0.4'; }, 5000);
+  } else {
+    alert(`✨ สร้าง ${newIds.length} แผนพร้อมเชื่อมกับหน่วยแล้ว — เปิดแก้ไขจากแท็บ ③ Dashboard`);
+  }
+
+  // Jump to step 3 dashboard so user sees the new lessons
+  if (typeof goUnitStep === 'function') setTimeout(() => goUnitStep(3), 300);
+};
+
 window.syncUnitTitleDisplay = syncUnitTitleDisplay;
 window.onUnitClassChange = onUnitClassChange;
 window.openUnitEditor = openUnitEditor;
@@ -8188,20 +8583,25 @@ window.renderUnitDashboard = renderUnitDashboard;
     if (curIdx < 0) curIdx = lessons.length;
     const total = Math.max(lessons.length, curIdx + 1);
 
-    // Compact summary helper — keep token usage low
-    const summarize = (entry) => {
+    // ─── Phase 3: Tiered summarization (token budget control) ───
+    // - "full"    → most-recent prior lesson + next upcoming (~1.5-2K tokens each)
+    // - "medium"  → 2-3 lessons away (~600-800 tokens each)
+    // - "minimal" → 4+ lessons away (~80-120 tokens each — topic only)
+    const objLine = (arr) => (arr || []).slice(0, 2).join(' / ');
+
+    const summarizeFull = (entry) => {
       const d = entry?.data || {};
-      const objLine = (label, arr) => (arr || []).slice(0, 2).join(' / ');
       return {
+        detail_level: 'full',
         plan_no: d.planNo || '',
         topic: d.topic || '',
         key_concept: (d.keyConcept || '').toString().trim().slice(0, 200),
         vocab: (d.vocab || []).slice(0, 8).map(v => v && v.word).filter(Boolean),
         sentences: (d.sentences || []).slice(0, 3).filter(Boolean),
         objectives_brief: [
-          'K: ' + objLine('K', d.objectives?.k),
-          'P: ' + objLine('P', d.objectives?.p),
-          'A: ' + objLine('A', d.objectives?.a),
+          'K: ' + objLine(d.objectives?.k),
+          'P: ' + objLine(d.objectives?.p),
+          'A: ' + objLine(d.objectives?.a),
         ].join(' | '),
         activities_outline: (d.activities || [])
           .slice(0, 5)
@@ -8212,11 +8612,66 @@ window.renderUnitDashboard = renderUnitDashboard;
       };
     };
 
-    // Cap to last 3 prior + next 2 upcoming to keep tokens reasonable
-    const prior = lessons.slice(Math.max(0, curIdx - 3), curIdx).map(summarize);
-    const upcoming = lessons.slice(curIdx + 1, curIdx + 3).map(summarize);
+    const summarizeMedium = (entry) => {
+      const d = entry?.data || {};
+      return {
+        detail_level: 'medium',
+        plan_no: d.planNo || '',
+        topic: d.topic || '',
+        vocab_top: (d.vocab || []).slice(0, 5).map(v => v && v.word).filter(Boolean),
+        objectives_brief: [
+          'K: ' + objLine(d.objectives?.k),
+          'P: ' + objLine(d.objectives?.p),
+        ].join(' | '),
+        activities_top: (d.activities || [])
+          .slice(0, 3)
+          .map(a => (a.name || '').trim())
+          .filter(Boolean)
+          .join(' / '),
+      };
+    };
 
-    return {
+    const summarizeMinimal = (entry) => {
+      const d = entry?.data || {};
+      return {
+        detail_level: 'minimal',
+        plan_no: d.planNo || '',
+        topic: d.topic || '',
+      };
+    };
+
+    // Tier each prior/upcoming lesson by distance from current
+    const allPrior    = lessons.slice(0, curIdx);
+    const allUpcoming = lessons.slice(curIdx + 1);
+
+    const prior = [];
+    allPrior.forEach((lesson, i) => {
+      const distance = allPrior.length - i;          // 1 = most recent prior
+      if (distance === 1)      prior.push(summarizeFull(lesson));
+      else if (distance <= 3)  prior.push(summarizeMedium(lesson));
+      else if (distance <= 8)  prior.push(summarizeMinimal(lesson));
+      // distance > 8 → drop entirely (extreme cap for huge units)
+    });
+
+    const upcoming = [];
+    allUpcoming.forEach((lesson, i) => {
+      if (i === 0)            upcoming.push(summarizeFull(lesson));
+      else if (i <= 2)        upcoming.push(summarizeMedium(lesson));
+      else if (i <= 5)        upcoming.push(summarizeMinimal(lesson));
+      // beyond 5 ahead → drop
+    });
+
+    // Optional rough token estimate (chars/4 heuristic) for debugging
+    const _estTokens = (obj) => Math.round(JSON.stringify(obj).length / 4);
+
+    // Parse vocab bank (comma OR newline separated → array)
+    const vocabBankArr = (unit.vocabBank || '')
+      .split(/[,\n]/)
+      .map(s => s.trim())
+      .filter(Boolean)
+      .slice(0, 30); // cap to keep payload reasonable
+
+    const ctx = {
       unit_meta: {
         title:       unit.title || '',
         unit_no:     unit.unitNo || '',
@@ -8225,11 +8680,28 @@ window.renderUnitDashboard = renderUnitDashboard;
         total_hours: unit.totalHours || '',
         semester:    unit.semester || '',
         year:        unit.year || '',
+        // Phase 2 — Story Arc (only included if non-empty)
+        theme:       (unit.theme || '').toString().trim() || undefined,
+        big_idea:    (unit.bigIdea || '').toString().trim() || undefined,
+        vocab_bank:  vocabBankArr.length ? vocabBankArr : undefined,
+        progression: (unit.progression || '').toString().trim() || undefined,
       },
       lesson_position: { index: curIdx + 1, total },
       prior_lessons: prior,
       upcoming_lessons: upcoming,
     };
+
+    // Phase 3 — meta info: token estimate + dropped-lessons note for AI
+    const droppedPrior    = Math.max(0, allPrior.length - prior.length);
+    const droppedUpcoming = Math.max(0, allUpcoming.length - upcoming.length);
+    if (droppedPrior > 0 || droppedUpcoming > 0) {
+      ctx._note = [
+        droppedPrior    ? `prior_lessons ตัด ${droppedPrior} แผนเก่าออกเพราะอยู่ไกลเกินไป`     : '',
+        droppedUpcoming ? `upcoming_lessons ตัด ${droppedUpcoming} แผนถัดไปออกเพราะยังไกล` : '',
+      ].filter(Boolean).join(' · ');
+    }
+    ctx._estimated_tokens = _estTokens(ctx);
+    return ctx;
   }
   window._buildUnitContext = _buildUnitContext;
 

@@ -17,6 +17,8 @@ import {
   generateActivities,
   generatePassingCriteria,
   generateAssessments,
+  generateUnitArc,
+  generateUnitOutline,
   isConfigured,
 } from '../utils/claude.js';
 
@@ -133,6 +135,13 @@ router.post('/generate-passing-criteria', aiLimiter, (req, res) =>
 
 router.post('/generate-assessments', aiLimiter, (req, res) =>
   handleAi(req, res, { kind: 'assessments', cost: COST, generator: generateAssessments }));
+
+router.post('/generate-unit-arc', aiLimiter, (req, res) =>
+  handleAi(req, res, { kind: 'unit_arc', cost: COST, generator: generateUnitArc }));
+
+// Unit Outline — paid feature (1 call drafts the WHOLE unit, replaces ~5-8 manual generations)
+router.post('/generate-unit-outline', aiLimiter, (req, res) =>
+  handleAi(req, res, { kind: 'unit_outline', cost: 2, generator: generateUnitOutline }));
 
 // ─── Status ──────────────────────────────────────────────
 router.get('/status', (_req, res) => {
