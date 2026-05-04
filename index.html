@@ -4818,16 +4818,18 @@ const RUBRIC_TYPES = [
 ];
 
 // Mapping: rubric key -> default K/P/A domain
-// K = ความรู้ (knowledge), P = ทักษะ/กระบวนการ (process/skill), A = เจตคติ (attitude/desired)
+// K = ความรู้ (knowledge) — ONLY ใบงาน/แบบทดสอบ (custom items, not from rubric presets)
+// P = ทักษะ/กระบวนการ (process/skill) — ทักษะภาษา + ชิ้นงาน + พฤติกรรม + สมรรถนะ
+// A = เจตคติ (attitude) — ใช้แค่แบบประเมินคุณลักษณะอันพึงประสงค์ (desired) เท่านั้น
 const RUBRIC_DOMAIN = {
-  listening:  'P',  // ทักษะการฟัง
-  speaking:   'P',  // ทักษะการพูด
-  reading:    'P',  // ทักษะการอ่าน
-  writing:    'P',  // ทักษะการเขียน
-  work:       'P',  // ตรวจชิ้นงาน
-  competency: 'P',  // สมรรถนะผู้เรียน
-  behavior:   'A',  // พฤติกรรม
-  desired:    'A',  // คุณลักษณะอันพึงประสงค์
+  listening:  'P',
+  speaking:   'P',
+  reading:    'P',
+  writing:    'P',
+  work:       'P',
+  competency: 'P',
+  behavior:   'P',  // moved from A → P (พฤติกรรม = ทักษะการเรียน ไม่ใช่ A)
+  desired:    'A',  // A ใช้ rubric นี้เท่านั้น
 };
 function _normDomain(d) {
   const u = (d || '').toString().trim().toUpperCase();
@@ -4838,14 +4840,14 @@ window.RUBRIC_DOMAIN = RUBRIC_DOMAIN;
 
 // Mapping: rubric key -> default assessment method text
 const RUBRIC_METHODS = {
-  listening: 'สังเกตและประเมินการฟังโดยใช้แบบประเมินการฟัง (ภาคผนวก)',
-  speaking:  'สังเกตและประเมินการพูดโดยใช้แบบประเมินการพูด (ภาคผนวก)',
-  reading:   'สังเกตและประเมินการอ่านโดยใช้แบบประเมินการอ่าน (ภาคผนวก)',
-  writing:   'ตรวจผลงานการเขียนโดยใช้แบบประเมินการเขียน (ภาคผนวก)',
-  behavior:  'สังเกตพฤติกรรมรายบุคคลโดยใช้แบบสังเกตพฤติกรรม (ภาคผนวก)',
-  work:      'ตรวจชิ้นงานโดยใช้แบบประเมินชิ้นงาน (ภาคผนวก)',
-  desired:   'สังเกตและประเมินโดยใช้แบบประเมินคุณลักษณะอันพึงประสงค์ (ภาคผนวก)',
-  competency:'สังเกตและประเมินโดยใช้แบบประเมินสมรรถนะผู้เรียน (ภาคผนวก)',
+  listening: 'แบบประเมินการฟัง',
+  speaking:  'แบบประเมินการพูด',
+  reading:   'แบบประเมินการอ่าน',
+  writing:   'แบบประเมินการเขียน',
+  behavior:  'แบบสังเกตพฤติกรรม',
+  work:      'แบบประเมินชิ้นงาน',
+  desired:   'แบบประเมินคุณลักษณะอันพึงประสงค์',
+  competency:'แบบประเมินสมรรถนะผู้เรียน',
 };
 
 const CRITERIA_PLACEHOLDER = 'รอ AI ช่วยเติม หรือกรอกเอง';
@@ -5942,9 +5944,16 @@ function exportAsDocx(data) {
       xml = xml.substring(0, pStart) + block + xml.substring(pEnd);
     };
 
-    // Bullet-list placeholders (one item per bullet) — สื่อ + ประโยค
+    // Bullet-list placeholders (one item per bullet) — สื่อ + ประโยค + ภาระชิ้นงาน
     replaceWithBullets('{material}',         media);
     replaceWithBullets('{sentence_pattern}', sentences);
+    // Task — split textarea by newlines, strip leading bullet markers (•, -, 1., etc.)
+    const taskLines = (d.taskDesc || '')
+      .toString()
+      .split(/\r?\n/)
+      .map(s => s.trim().replace(/^[•\-\*]\s*/, '').replace(/^\d+\.\s*/, ''))
+      .filter(Boolean);
+    replaceWithBullets('{assignment}', taskLines);
 
     // === Vocabulary: clone the template row for every 3 entries ===
     // Template has ONE <w:tr> containing 3 pairs of (vocab_X, meaning_X) cells.
@@ -6058,7 +6067,7 @@ function exportAsDocx(data) {
       check_computing:        chk(allSkills8c[5].checked),
       check_career:           chk(allSkills8c[6].checked),
       check_compassion:       chk(allSkills8c[7].checked),
-      assignment:             safe(d.taskDesc),
+      assignment:             '',  // replaced inline above as bullet paragraphs
       check_2w3p:             chk(document.getElementById('method-2w3p').checked),
       check_clt:              chk(document.getElementById('method-clt').checked),
       check_games:            chk(document.getElementById('method-games').checked),
