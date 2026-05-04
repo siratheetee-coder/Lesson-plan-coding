@@ -8157,44 +8157,76 @@ window._createOutlinedLessons = function() {
   const newHist = allHist.slice();
   const newIds = [];
 
-  picks.forEach(i => {
-    const o = pending.lessons[i];
-    if (!o) return;
-    const id = 'plan-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
-    const d = {
-      planNo:    String(o.plan_no || ''),
-      unitNo:    _currentUnit.unitNo || '',
-      unitName:  _currentUnit.title || '',
-      unitHours: _currentUnit.totalHours || '',
-      subject:   _currentUnit.subjectName || _currentUnit.subjectGroup || '',
-      code:      _currentUnit.subjectCode || '',
-      classLevel: _currentUnit.classLevel || '',
-      semester:  _currentUnit.semester || '',
-      year:      _currentUnit.year || '',
-      topic:     o.topic || '',
-      keyConcept: o.key_concept || '',
+  // Helper: build collectDraft-compatible data from one outline item
+  const buildDraftFromOutline = (o) => {
+    const has = (arr, v) => Array.isArray(arr) && arr.includes(v);
+    return {
+      savedAt: Date.now(),
+      version: 1,
+      // Phase 1 — auto-bind to this unit so AI gets full context on reopen
+      unitId: _currentUnit.id,
+      // Text fields (read by applyDraft → fills <input> by id)
+      fields: {
+        'plan-number':     String(o.plan_no || ''),
+        'subject-name':    _currentUnit.subjectName  || '',
+        'subject-code':    _currentUnit.subjectCode  || '',
+        'subject-group':   _currentUnit.subjectGroup || 'ภาษาต่างประเทศ',
+        'class-level':     _currentUnit.classLevel   || '',
+        'semester':        _currentUnit.semester     || '',
+        'academic-year':   _currentUnit.year         || '',
+        'teacher-name':    _currentUnit.teacher      || '',
+        'unit-number':     _currentUnit.unitNo       || '',
+        'topic':           o.topic                   || '',
+        'key-concept':     o.key_concept             || '',
+        'task-description': '',
+      },
+      // Checkbox state (read by applyDraft → ticks chips for skills + methods)
+      checks: {
+        // 3Rs
+        'sk-reading':    has(o.skills_3r, 'reading'),
+        'sk-writing':    has(o.skills_3r, 'writing'),
+        'sk-arith':      has(o.skills_3r, 'arith'),
+        // 8Cs
+        'sk-critical':   has(o.skills_8c, 'critical'),
+        'sk-creativity': has(o.skills_8c, 'creativity'),
+        'sk-collab':     has(o.skills_8c, 'collab'),
+        'sk-comm':       has(o.skills_8c, 'comm'),
+        'sk-cross':      has(o.skills_8c, 'cross'),
+        'sk-computing':  has(o.skills_8c, 'computing'),
+        'sk-career':     has(o.skills_8c, 'career'),
+        'sk-compassion': has(o.skills_8c, 'compassion'),
+        // Learning methods
+        'method-2w3p':     has(o.learning_methods, '2w3p'),
+        'method-clt':      has(o.learning_methods, 'clt'),
+        'method-games':    has(o.learning_methods, 'games'),
+        'method-chant':    has(o.learning_methods, 'chant'),
+        'method-roleplay': has(o.learning_methods, 'roleplay'),
+        'method-pbl':      has(o.learning_methods, 'pbl'),
+      },
+      indicatorIds: [],
       objectives: {
         k: Array.isArray(o.objectives_k) ? o.objectives_k : [],
         p: Array.isArray(o.objectives_p) ? o.objectives_p : [],
         a: Array.isArray(o.objectives_a) ? o.objectives_a : [],
       },
-      vocab:     (o.vocab_focus || []).map(w => ({ word: w, meaning: '' })),
-      sentences: [],
-      media:     [],
+      vocab:      (o.vocab_focus || []).map(w => ({ word: w, meaning: '' })),
+      sentences:  [],
+      media:      [],
       activities: [],
-      taskDesc:  '',
-      indicators: [],
-      rubrics:   [],
       assessments: [],
       attachments: [],
-      // Bind to unit so reopening loads unit context
-      unitId:    _currentUnit.id,
     };
+  };
+
+  picks.forEach(i => {
+    const o = pending.lessons[i];
+    if (!o) return;
+    const id = 'h_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     const entry = {
       id,
       title: 'แผนการสอนที่ ' + (o.plan_no || (i+1)) + ' — ' + (o.topic || ''),
-      data: d,
-      format: 'pdf',
+      data: buildDraftFromOutline(o),
+      format: 'docx',
       savedAt: Date.now(),
       createdAt: Date.now(),
     };

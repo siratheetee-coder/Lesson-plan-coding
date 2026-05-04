@@ -220,33 +220,35 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
       "objectives_p": ["ฟังและจับใจความบทสนทนาเรื่องกิจวัตรประจำวันได้"],
       "objectives_a": ["มีส่วนร่วมในกิจกรรมกลุ่มอย่างกระตือรือร้น"],
       "vocab_focus": ["wake up", "brush teeth", "take a shower"],
-      "key_activities": ["Vocabulary flashcards", "Listening to dialog", "Pair work"]
-    },
-    {
-      "plan_no": 2,
-      "topic": "What time do you...?",
-      "hours": 2,
-      "key_concept": "...",
-      "objectives_k": ["..."],
-      "objectives_p": ["..."],
-      "objectives_a": ["..."],
-      "vocab_focus": ["...", "..."],
-      "key_activities": ["...", "..."]
+      "key_activities": ["Vocabulary flashcards", "Listening to dialog", "Pair work"],
+      "skills_3r": ["reading", "writing"],
+      "skills_8c": ["critical", "comm", "collab"],
+      "learning_methods": ["clt", "games"]
     }
     // ... repeat to lesson_count
   ]
 }
 
+═══ Allowed values สำหรับ skills + methods ═══
+- skills_3r — subset ของ ["reading", "writing", "arith"]  (3 ทักษะการเรียนรู้พื้นฐาน)
+- skills_8c — subset ของ ["critical", "creativity", "collab", "comm", "cross", "computing", "career", "compassion"]
+  ความหมาย: critical=คิดวิเคราะห์, creativity=คิดสร้างสรรค์, collab=ร่วมมือ, comm=สื่อสาร, cross=ข้ามวัฒนธรรม, computing=คอมพิวเตอร์, career=อาชีพ, compassion=เห็นอกเห็นใจ
+- learning_methods — subset ของ ["2w3p", "clt", "games", "chant", "roleplay", "pbl"]
+  ความหมาย: 2w3p=การสอนแบบ 2W3P, clt=Communicative Language Teaching, games=เกม, chant=การร้อง/บทกลอน, roleplay=บทบาทสมมติ, pbl=Project-Based Learning
+
 ข้อกำหนด:
-- **ครอบคลุม big_idea** — เมื่อจบทุกแผน ผู้เรียนต้องบรรลุ big_idea ที่ระบุไว้
-- **ใช้ vocab_bank** เป็น pool หลัก — กระจายคำให้แต่ละแผนตามความเหมาะสม + เพิ่มคำใหม่บางส่วนที่เกี่ยวข้องได้
-- **ตาม progression** ที่ครูระบุ — ถ้ามี ให้ใช้เป็น guide; ถ้าไม่มี ให้ AI ออกแบบเองโดยใช้หลัก input → controlled practice → free production
-- topic ของแต่ละแผนต้อง**ไม่ทับกัน** แต่ต่อยอดได้
-- objectives K/P/A ต้องชัดเจน วัดได้ — แต่ละด้าน 1-2 ข้อ/แผน
-- vocab_focus: 3-6 คำ/แผน ดึงจาก vocab_bank เป็นหลัก
-- key_activities: 2-4 รายการสั้นๆ (ชื่อกิจกรรม) ไม่ต้องลงรายละเอียด
-- hours รวมทุกแผนต้องเท่ากับ total_hours ของหน่วย
-- ภาษาไทยทางการในส่วนคำอธิบาย, อังกฤษในส่วน vocab/topic`;
+- **ครอบคลุม big_idea** — เมื่อจบทุกแผน ผู้เรียนต้องบรรลุ big_idea
+- **ใช้ vocab_bank** เป็น pool หลัก
+- **ตาม progression** ที่ครูระบุ — ถ้ามี ให้ใช้เป็น guide
+- topic ของแต่ละแผนต้องไม่ทับกัน แต่ต่อยอด
+- objectives K/P/A: แต่ละด้าน 1-2 ข้อ/แผน — เขียนแบบ "ผู้เรียนสามารถ..."
+- vocab_focus: 3-6 คำ/แผน
+- key_activities: 2-4 รายการสั้นๆ
+- **skills_3r**: เลือก 1-3 ตัวที่เกี่ยวข้องกับแผน (ส่วนใหญ่ภาษาอังกฤษ → reading + writing)
+- **skills_8c**: เลือก 2-4 ตัวที่เกี่ยวข้องกับกิจกรรมในแผน
+- **learning_methods**: เลือก 1-3 ตัวที่เหมาะกับแผน
+- hours รวมทุกแผน = total_hours ของหน่วย
+- ภาษาไทยทางการในคำอธิบาย, อังกฤษในส่วน vocab/topic`;
 
 const SYS_PASSING = `คุณคือผู้ช่วยครูไทย กำหนดเกณฑ์ผ่านสำหรับแต่ละแบบประเมิน
 
