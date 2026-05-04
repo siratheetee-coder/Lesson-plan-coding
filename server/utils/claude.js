@@ -344,7 +344,7 @@ function _extractJson(text) {
   try { return JSON.parse(candidate.slice(start, end + 1)); } catch { return null; }
 }
 
-async function _callClaude({ system, payload }) {
+async function _callClaude({ system, payload, maxTokens }) {
   // Extract style + ai_session + unit_context — they alter the system prompt,
   // not the JSON Claude reads in the user message. Re-inject the data ones below.
   const { style, ai_session, unit_context, ...cleanPayload } = payload || {};
@@ -370,7 +370,7 @@ async function _callClaude({ system, payload }) {
   const c = client();
   const stream = await c.messages.stream({
     model: MODEL,
-    max_tokens: 4000,
+    max_tokens: maxTokens || 4000,
     system: systemBlocks,
     messages: [{ role: 'user', content: _userMsg(finalPayload) }],
   });
@@ -383,7 +383,10 @@ async function _callClaude({ system, payload }) {
   if (!parsed) {
     const err = new Error('claude_parse_failed');
     err.code = 'claude_parse_failed';
-    err.raw = text.slice(0, 500);
+    err.raw = text.slice(0, 1000);
+    err.stop_reason = message.stop_reason;
+    err.text_length = text.length;
+    err.usage = message.usage;
     throw err;
   }
   return { data: parsed, usage: message.usage };
@@ -398,7 +401,8 @@ export async function generateActivities(payload)       { return _callClaude({ s
 export async function generatePassingCriteria(payload)  { return _callClaude({ system: SYS_PASSING,    payload }); }
 export async function generateAssessments(payload)      { return _callClaude({ system: SYS_ASSESSMENTS_FULL, payload }); }
 export async function generateUnitArc(payload)          { return _callClaude({ system: SYS_UNIT_ARC,         payload }); }
-export async function generateUnitOutline(payload)      { return _callClaude({ system: SYS_UNIT_OUTLINE,     payload }); }
+// Unit outline can produce 5-8 lessons × ~12 fields × Thai text → needs ~2-3× token budget
+export async function generateUnitOutline(payload)      { return _callClaude({ system: SYS_UNIT_OUTLINE,     payload, maxTokens: 12000 }); }
 
 export function isConfigured() {
   return !!process.env.ANTHROPIC_API_KEY;

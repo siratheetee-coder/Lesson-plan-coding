@@ -68,7 +68,14 @@ async function handleAi(req, res, { kind, cost, generator }) {
           `refund:${refId}`
         ).catch(() => {});
         audit(req.user.id, ACTIONS.AI_GENERATE_FAILED, { kind, code: err.code || err.message }, req);
-        console.error(`[ai/${kind}] generation failed:`, err.message, err.raw || '');
+        console.error(`[ai/${kind}] generation failed:`, {
+          message: err.message,
+          code: err.code,
+          stop_reason: err.stop_reason,
+          text_length: err.text_length,
+          usage: err.usage,
+          raw_preview: err.raw ? err.raw.slice(0, 300) : null,
+        });
         return res.status(502).json({
           error: 'claude_failed',
           message: 'AI ขัดข้องชั่วคราว เครดิตได้คืนแล้ว กรุณาลองใหม่',
@@ -91,7 +98,14 @@ async function handleAi(req, res, { kind, cost, generator }) {
       result = await generator(req.body || {});
     } catch (err) {
       audit(req.user.id, ACTIONS.AI_GENERATE_FAILED, { kind, code: err.code || err.message }, req);
-      console.error(`[ai/${kind}] generation failed:`, err.message, err.raw || '');
+      console.error(`[ai/${kind}] generation failed:`, {
+        message: err.message,
+        code: err.code,
+        stop_reason: err.stop_reason,
+        text_length: err.text_length,
+        usage: err.usage,
+        raw_preview: err.raw ? err.raw.slice(0, 300) : null,
+      });
       return res.status(502).json({
         error: 'claude_failed',
         message: 'AI ขัดข้องชั่วคราว กรุณาลองใหม่',
