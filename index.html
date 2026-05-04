@@ -2670,6 +2670,10 @@
         <span id="unit-coherence-info" style="margin-left:auto; font-size:0.78rem; color:#475569; display:none;">
           🤖 <span id="unit-coherence-text">AI จะอ้างอิงแผนพี่น้องในหน่วยนี้</span>
         </span>
+        <button type="button" id="unit-context-peek-btn" onclick="window._showUnitContextPreview()"
+          style="display:none; background:#fff; color:#5b21b6; border:1px solid #c4b5fd; padding:5px 12px; font-size:0.78rem; font-weight:600; border-radius:999px; cursor:pointer; font-family:inherit;">
+          🔍 ดูบริบท
+        </button>
       </div>
       <div class="badge">ภาษาต่างประเทศ · ระดับประถมศึกษา–มัธยมศึกษา</div>
       <h1>ระบบสร้างแผนการจัดการเรียนรู้ภาษาอังกฤษ</h1>
@@ -7401,16 +7405,19 @@ function updateUnitPositionInfo() {
   const posEl = document.getElementById('unit-position-info');
   const coEl  = document.getElementById('unit-coherence-info');
   const coTxt = document.getElementById('unit-coherence-text');
+  const peekBtn = document.getElementById('unit-context-peek-btn');
   if (!posEl || !coEl) return;
   if (!_activeUnitId) {
     posEl.style.display = 'none';
     coEl.style.display = 'none';
+    if (peekBtn) peekBtn.style.display = 'none';
     return;
   }
   const ctx = (typeof _buildUnitContext === 'function') ? _buildUnitContext(_activeUnitId, _currentPlanId) : null;
   if (!ctx) {
     posEl.style.display = 'none';
     coEl.style.display = 'none';
+    if (peekBtn) peekBtn.style.display = 'none';
     return;
   }
   const { index, total } = ctx.lesson_position;
@@ -7427,6 +7434,8 @@ function updateUnitPositionInfo() {
     if (upN)    parts.push(`เตรียมพื้นฐานให้ ${upN} แผนถัดไป`);
     coTxt.textContent = '🤖 AI จะ ' + parts.join(' + ');
   }
+  // Show peek button whenever we have a real unit context
+  if (peekBtn) peekBtn.style.display = '';
 }
 
 // User changes the dropdown
@@ -7447,6 +7456,148 @@ function onUnitBindingChange(unitId) {
 window.onUnitBindingChange = onUnitBindingChange;
 window.refreshUnitDropdown = refreshUnitDropdown;
 window.updateUnitPositionInfo = updateUnitPositionInfo;
+
+// ─── Phase 4: "ดูบริบท" preview modal ───────────────────
+// Shows exactly what unit context AI will receive on the next call.
+// Tier-aware — reuses Phase 3 detail_level for visual badges.
+window._showUnitContextPreview = function() {
+  if (!_activeUnitId) {
+    alert('ยังไม่ได้ผูกแผนกับหน่วย — เลือกหน่วยจาก dropdown ด้านบนก่อน');
+    return;
+  }
+  const ctx = _buildUnitContext(_activeUnitId, _currentPlanId);
+  if (!ctx) {
+    alert('ไม่พบบริบทหน่วย');
+    return;
+  }
+  document.getElementById('unit-context-peek-modal')?.remove();
+
+  const esc = s => (s || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const tierBadge = (level) => {
+    const map = {
+      full:    { bg: '#dcfce7', color: '#14532d', label: 'รายละเอียดเต็ม' },
+      medium:  { bg: '#fef3c7', color: '#78350f', label: 'รายละเอียดปานกลาง' },
+      minimal: { bg: '#fee2e2', color: '#7f1d1d', label: 'แค่หัวข้อ' },
+    };
+    const m = map[level] || map.minimal;
+    return `<span style="background:${m.bg}; color:${m.color}; padding:2px 8px; border-radius:999px; font-size:0.7rem; font-weight:700;">${m.label}</span>`;
+  };
+
+  const renderLesson = (l, isCurrent = false) => {
+    if (!l) return '';
+    const detail = isCurrent ? '' : (l.detail_level || 'minimal');
+    return `
+      <div style="background:${isCurrent ? '#ede9fe' : '#fff'}; border:1px solid ${isCurrent ? '#7c3aed' : '#e5e7eb'}; border-left:4px solid ${isCurrent ? '#7c3aed' : (detail === 'full' ? '#16a34a' : detail === 'medium' ? '#d97706' : '#9ca3af')}; border-radius:10px; padding:10px 14px; margin-bottom:8px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+          <span style="background:${isCurrent ? '#7c3aed' : '#374151'}; color:white; padding:2px 9px; border-radius:6px; font-size:0.75rem; font-weight:700;">L${esc(l.plan_no || '?')}</span>
+          <span style="font-weight:700; color:#1f2937; font-size:0.92rem;">${esc(l.topic || '(ไม่มีหัวข้อ)')}</span>
+          ${isCurrent ? `<span style="background:#7c3aed; color:white; padding:2px 9px; border-radius:999px; font-size:0.7rem; font-weight:700;">⭐ แผนปัจจุบัน</span>` : tierBadge(detail)}
+        </div>
+        ${l.key_concept ? `<div style="font-size:0.82rem; color:#475569; margin-top:4px;"><b>Key concept:</b> ${esc(l.key_concept)}</div>` : ''}
+        ${l.objectives_brief ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">🎯 ${esc(l.objectives_brief)}</div>` : ''}
+        ${l.vocab && l.vocab.length ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">📚 <b>Vocab:</b> ${l.vocab.map(v => `<code style="background:#f3f4f6; padding:1px 6px; border-radius:4px; font-size:0.75rem;">${esc(v)}</code>`).join(' ')}</div>` : ''}
+        ${l.vocab_top && l.vocab_top.length ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">📚 <b>Vocab:</b> ${l.vocab_top.map(v => `<code style="background:#f3f4f6; padding:1px 6px; border-radius:4px; font-size:0.75rem;">${esc(v)}</code>`).join(' ')}</div>` : ''}
+        ${l.sentences && l.sentences.length ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">💬 ${l.sentences.map(esc).join(' / ')}</div>` : ''}
+        ${l.activities_outline ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">⚡ ${esc(l.activities_outline)}</div>` : ''}
+        ${l.activities_top ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">⚡ ${esc(l.activities_top)}</div>` : ''}
+        ${l.task_brief ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">📝 <b>Task:</b> ${esc(l.task_brief)}</div>` : ''}
+      </div>
+    `;
+  };
+
+  const m = ctx.unit_meta || {};
+  const ov = document.createElement('div');
+  ov.id = 'unit-context-peek-modal';
+  ov.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:11500; padding:18px;';
+  ov.innerHTML = `
+    <div style="background:#fff; border-radius:16px; max-width:840px; width:100%; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 30px 80px -20px rgba(15,23,42,.4);">
+      <div style="padding:18px 24px; border-bottom:1px solid #e5e7eb; background:linear-gradient(135deg,#ede9fe,#ddd6fe); border-radius:16px 16px 0 0;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+          <div>
+            <div style="font-size:1.15rem; font-weight:800; color:#4c1d95; display:flex; align-items:center; gap:8px;">
+              🔍 บริบทที่ AI จะเห็น
+            </div>
+            <div style="font-size:0.82rem; color:#5b21b6; margin-top:3px;">
+              นี่คือข้อมูลที่ AI ใช้เพื่อให้แผนนี้สอดคล้องกับแผนพี่น้องในหน่วยเดียวกัน
+            </div>
+          </div>
+          <button onclick="document.getElementById('unit-context-peek-modal').remove()"
+            style="background:transparent; border:none; font-size:1.4rem; color:#6b21a8; cursor:pointer; padding:4px 10px;">✕</button>
+        </div>
+      </div>
+
+      <div style="padding:18px 22px; overflow-y:auto; flex:1;">
+
+        <!-- Unit meta -->
+        <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin-bottom:16px;">
+          <div style="font-weight:700; color:#1f2937; font-size:0.95rem; margin-bottom:8px;">📚 ${esc(m.title || '(ยังไม่ตั้งชื่อ)')}</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:6px 12px; font-size:0.78rem; color:#475569;">
+            ${m.subject ? `<div><b>วิชา:</b> ${esc(m.subject)}</div>` : ''}
+            ${m.level ? `<div><b>ระดับ:</b> ${esc(m.level)}</div>` : ''}
+            ${m.total_hours ? `<div><b>คาบรวม:</b> ${esc(m.total_hours)}</div>` : ''}
+            ${m.unit_no ? `<div><b>หน่วยที่:</b> ${esc(m.unit_no)}</div>` : ''}
+          </div>
+          ${m.theme ? `<div style="margin-top:10px; font-size:0.85rem; color:#1e40af;">🎨 <b>Theme:</b> ${esc(m.theme)}</div>` : ''}
+          ${m.big_idea ? `<div style="margin-top:6px; font-size:0.85rem; color:#475569; line-height:1.55;">💡 <b>Big Idea:</b> ${esc(m.big_idea)}</div>` : ''}
+          ${m.vocab_bank && m.vocab_bank.length ? `<div style="margin-top:6px; font-size:0.78rem; color:#475569;">📚 <b>คลังคำศัพท์:</b> ${m.vocab_bank.map(v => `<code style="background:#fff; padding:1px 6px; border-radius:4px; font-size:0.74rem; border:1px solid #e5e7eb;">${esc(v)}</code>`).join(' ')}</div>` : ''}
+          ${m.progression ? `<div style="margin-top:6px; font-size:0.78rem; color:#475569; white-space:pre-wrap;">🪜 <b>Progression:</b>\n${esc(m.progression)}</div>` : ''}
+        </div>
+
+        <!-- Lesson position -->
+        <div style="text-align:center; padding:8px 0; margin-bottom:12px; font-size:0.88rem; color:#5b21b6; font-weight:700;">
+          ⭐ แผนปัจจุบันคือ <b>แผนที่ ${ctx.lesson_position.index} จาก ${ctx.lesson_position.total}</b>
+        </div>
+
+        <!-- Prior lessons -->
+        ${ctx.prior_lessons.length ? `
+          <div style="margin-bottom:14px;">
+            <div style="font-weight:700; color:#374151; font-size:0.9rem; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid #e5e7eb;">
+              ⏪ แผนก่อนหน้า (${ctx.prior_lessons.length})
+            </div>
+            ${ctx.prior_lessons.map(l => renderLesson(l)).join('')}
+          </div>
+        ` : `
+          <div style="background:#f0fdf4; border:1px dashed #86efac; border-radius:10px; padding:12px; text-align:center; color:#166534; font-size:0.85rem; margin-bottom:14px;">
+            ⭐ <b>นี่คือแผนแรกของหน่วยนี้</b> — AI จะวาง progression ให้เริ่มต้น
+          </div>
+        `}
+
+        <!-- Current lesson placeholder -->
+        ${renderLesson({ plan_no: ctx.lesson_position.index, topic: '⬇ แผนปัจจุบันที่กำลังสร้าง' }, true)}
+
+        <!-- Upcoming lessons -->
+        ${ctx.upcoming_lessons.length ? `
+          <div style="margin-top:14px;">
+            <div style="font-weight:700; color:#374151; font-size:0.9rem; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid #e5e7eb;">
+              ⏩ แผนถัดไป (${ctx.upcoming_lessons.length})
+            </div>
+            ${ctx.upcoming_lessons.map(l => renderLesson(l)).join('')}
+          </div>
+        ` : ''}
+
+        ${ctx._note ? `
+          <div style="margin-top:12px; padding:10px 12px; background:#fef9c3; border:1px solid #fde047; border-radius:8px; font-size:0.78rem; color:#713f12;">
+            ℹ️ ${esc(ctx._note)}
+          </div>
+        ` : ''}
+
+      </div>
+
+      <div style="padding:12px 22px; border-top:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="font-size:0.78rem; color:#6b7280;">
+          ⚙️ ขนาดบริบทประมาณ <b>${ctx._estimated_tokens || '?'} tokens</b>
+          ${ctx._estimated_tokens > 2500 ? ' · <span style="color:#b91c1c;">⚠️ ค่อนข้างใหญ่</span>' : ' · <span style="color:#16a34a;">✓ พอดี</span>'}
+        </div>
+        <button onclick="document.getElementById('unit-context-peek-modal').remove()"
+          style="background:#7c3aed; color:white; border:none; padding:9px 18px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:600;">
+          ปิด
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+};
 
 // Let user pick a unit to attach this plan to. The actual link is created on Export.
 function addCurrentPlanToUnit() {
@@ -9290,9 +9441,27 @@ window.renderUnitDashboard = renderUnitDashboard;
       _aiSession[kind] = r.data;
       _aiSnapshots[kind] = _sourceHash();
       _renderCoherenceBadges();
-      _aiToast(applied
-        ? `✨ AI ${cfg.label} สำเร็จ — ฟรี ไม่หักเครดิต`
-        : `⚠️ AI สร้างผลลัพธ์แล้วแต่ยังไม่ได้ใส่ในฟอร์ม`, applied ? 'ok' : 'info');
+
+      // Phase 4: build toast — mention sibling lessons AI used (when bound to unit)
+      let baseMsg;
+      if (applied) {
+        baseMsg = `✨ AI ${cfg.label} สำเร็จ — ฟรี ไม่หักเครดิต`;
+        try {
+          const ctx = (typeof _buildUnitContext === 'function') ? _buildUnitContext(_activeUnitId, _currentPlanId) : null;
+          if (ctx) {
+            const priors = (ctx.prior_lessons || []).map(l => `L${l.plan_no || '?'}: ${(l.topic || '').slice(0, 24)}`);
+            if (priors.length) {
+              const sample = priors.slice(0, 2).join(', ');
+              const more = priors.length > 2 ? ` (+${priors.length - 2})` : '';
+              baseMsg += ` · 🔗 อ้างอิง ${sample}${more}`;
+            }
+          }
+        } catch(e) {}
+      } else {
+        baseMsg = `⚠️ AI สร้างผลลัพธ์แล้วแต่ยังไม่ได้ใส่ในฟอร์ม`;
+      }
+      _aiToast(baseMsg, applied ? 'ok' : 'info');
+
       // Post-AI review reminder (shown once per session, after content is in form)
       if (applied) setTimeout(() => _showAiReviewWarning(), 600);
       return;
