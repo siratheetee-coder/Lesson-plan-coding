@@ -7961,6 +7961,72 @@ window._aiDraftUnitArc = async function() {
   }
 };
 
+// ─── Phase 5: 3D popup explaining unit outliner cost & flow ──
+function _confirmUnitOutlineDialog() {
+  return new Promise(resolve => {
+    document.getElementById('unit-outline-confirm-overlay')?.remove();
+    const ov = document.createElement('div');
+    ov.id = 'unit-outline-confirm-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:11800;padding:18px;animation:aiwFade .2s ease-out';
+    ov.innerHTML = `
+      <style>
+        @keyframes uoFloat { 0%,100% { transform:translateY(0) rotate(-4deg) } 50% { transform:translateY(-6px) rotate(4deg) } }
+      </style>
+      <div style="background:linear-gradient(165deg,#ffffff 0%,#fef3c7 100%);border-radius:22px;max-width:480px;width:100%;
+                  padding:32px 30px 26px;font-family:inherit;text-align:center;
+                  box-shadow:0 30px 80px -20px rgba(180,83,9,.5),0 12px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.8);
+                  transform-style:preserve-3d;animation:aiwPop .35s cubic-bezier(.34,1.56,.64,1)">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;
+                    background:linear-gradient(145deg,#fde68a,#d97706);border-radius:50%;margin-bottom:16px;
+                    box-shadow:0 14px 30px -8px rgba(217,119,6,.5),inset 0 -5px 10px rgba(146,64,14,.45),inset 0 5px 10px rgba(255,255,255,.55);
+                    font-size:2.6rem;line-height:1;animation:uoFloat 2.2s ease-in-out infinite;">🪄</div>
+        <h2 style="font-size:1.35rem;font-weight:800;color:#78350f;margin:0 0 6px;letter-spacing:-.02em;line-height:1.35;">
+          AI จะร่างโครงแผนทั้งหน่วย
+        </h2>
+        <div style="display:inline-block;background:#dc2626;color:white;padding:4px 14px;border-radius:999px;font-size:0.78rem;font-weight:700;margin-bottom:18px;box-shadow:0 4px 10px rgba(220,38,38,.3);">
+          เสีย 2 เครดิต
+        </div>
+        <div style="text-align:left;background:#fff;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;margin-bottom:20px;">
+          <ul style="margin:0;padding:0;list-style:none;font-size:.92rem;color:#451a03;line-height:1.7;">
+            <li style="display:flex;gap:10px;margin-bottom:8px;">
+              <span style="flex-shrink:0;color:#d97706;font-weight:700;">📚</span>
+              <span>AI จะดู<b>ชื่อหน่วย เป้าหมายของหน่วย คลังคำศัพท์ และลำดับกิจกรรมในหน่วย</b></span>
+            </li>
+            <li style="display:flex;gap:10px;margin-bottom:8px;">
+              <span style="flex-shrink:0;color:#d97706;font-weight:700;">📝</span>
+              <span>AI จะสร้าง<b>จำนวนโครงแผนตามที่คุณครูต้องการ</b></span>
+            </li>
+            <li style="display:flex;gap:10px;">
+              <span style="flex-shrink:0;color:#d97706;font-weight:700;">✏️</span>
+              <span>เมื่อกดสร้างแล้ว <b>คุณครูสามารถเข้าไปแก้ไขรายละเอียดในแต่ละแผนได้</b></span>
+            </li>
+          </ul>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button id="uoc-cancel" class="aiw-btn secondary">ยกเลิก</button>
+          <button id="uoc-confirm" class="aiw-btn primary"
+            style="background:linear-gradient(180deg,#fbbf24 0%, #d97706 50%, #92400e 100%);box-shadow:0 6px 0 #78350f,0 10px 24px rgba(217,119,6,.4),inset 0 1px 0 rgba(255,255,255,.4);">
+            🪄 ดำเนินการต่อ
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    const finish = (ok) => {
+      ov.remove();
+      document.removeEventListener('keydown', onKey);
+      resolve(ok);
+    };
+    document.getElementById('uoc-confirm').onclick = () => finish(true);
+    document.getElementById('uoc-cancel').onclick  = () => finish(false);
+    ov.addEventListener('click', e => { if (e.target === ov) finish(false); });
+    const onKey = (e) => {
+      if (e.key === 'Escape') finish(false);
+      else if (e.key === 'Enter') finish(true);
+    };
+    document.addEventListener('keydown', onKey);
+  });
+}
+
 // ─── Phase 5: AI Unit Outliner ──────────────────────────
 // One paid call (2 credits) → AI drafts the WHOLE unit (N lessons) → user reviews
 // → click "Create all" → N lesson drafts auto-saved + linked to the unit.
@@ -7979,21 +8045,16 @@ window._aiOutlineUnit = async function() {
     if (!confirm('ยังไม่ได้กรอก Big Idea — แนะนำให้กรอกก่อนเพื่อผลลัพธ์ที่ดีที่สุด\n\nต้องการกดต่อไปโดยให้ AI เดาเองหรือไม่?')) return;
   }
 
-  // Confirm + cost dialogue
+  // Confirm + cost dialogue (general AI cost popup — kept for consistency)
   if (typeof window._confirmAiUse === 'function') {
     const ok = await window._confirmAiUse();
     if (!ok) return;
   }
-  const proceed = confirm(
-    '🪄 AI จะร่างโครงแผนทั้งหน่วย (จะเสีย 2 เครดิต)\n\n' +
-    '• AI จะดู: ชื่อหน่วย, Big Idea, vocab bank, progression\n' +
-    '• ผลลัพธ์: โครงแผน 3-8 แผน — ดูตัวอย่างก่อนสร้างจริง\n' +
-    '• กดสร้างแล้ว → จะเพิ่มเป็น draft ในระบบ ครูเปิดเติมรายละเอียดต่อได้\n\n' +
-    'ดำเนินการต่อ?'
-  );
+  // Specific 3D popup explaining what AI will do for unit outline
+  const proceed = await _confirmUnitOutlineDialog();
   if (!proceed) return;
 
-  const btn = event && event.target;
+  const btn = document.querySelector('button[onclick*="_aiOutlineUnit"]');
   const origText = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = '⏳ AI กำลังร่าง...'; btn.style.opacity = '.6'; }
 
@@ -8004,6 +8065,14 @@ window._aiOutlineUnit = async function() {
     // Build vocab_bank array from textarea
     const vocabBankArr = (_currentUnit.vocabBank || '')
       .split(/[,\n]/).map(s => s.trim()).filter(Boolean);
+
+    // Phase 5b — send available indicators for the unit's class level
+    // so AI can pick relevant ones per lesson (keeps unit coherent end-to-end)
+    const availableIndicators = (typeof indicatorsByLevel === 'object' && _currentUnit.classLevel)
+      ? (indicatorsByLevel[_currentUnit.classLevel] || []).map(i => ({
+          id: i.id, code: i.code, desc: i.desc
+        }))
+      : [];
 
     const payload = {
       unit_title:   _currentUnit.title,
@@ -8018,6 +8087,7 @@ window._aiOutlineUnit = async function() {
       vocab_bank:   vocabBankArr,
       progression:  _currentUnit.progression || '',
       lesson_count: requestedCount || null,
+      available_indicators: availableIndicators,
       idempotency_key: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
     };
 
@@ -8203,7 +8273,7 @@ window._createOutlinedLessons = function() {
         'method-roleplay': has(o.learning_methods, 'roleplay'),
         'method-pbl':      has(o.learning_methods, 'pbl'),
       },
-      indicatorIds: [],
+      indicatorIds: Array.isArray(o.indicator_ids) ? o.indicator_ids : [],
       objectives: {
         k: Array.isArray(o.objectives_k) ? o.objectives_k : [],
         p: Array.isArray(o.objectives_p) ? o.objectives_p : [],

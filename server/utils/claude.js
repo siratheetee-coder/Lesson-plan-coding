@@ -223,7 +223,8 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
       "key_activities": ["Vocabulary flashcards", "Listening to dialog", "Pair work"],
       "skills_3r": ["reading", "writing"],
       "skills_8c": ["critical", "comm", "collab"],
-      "learning_methods": ["clt", "games"]
+      "learning_methods": ["clt", "games"],
+      "indicator_ids": ["ind-t11-p4-1", "ind-t12-p4-2"]
     }
     // ... repeat to lesson_count
   ]
@@ -236,6 +237,17 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
 - learning_methods — subset ของ ["2w3p", "clt", "games", "chant", "roleplay", "pbl"]
   ความหมาย: 2w3p=การสอนแบบ 2W3P, clt=Communicative Language Teaching, games=เกม, chant=การร้อง/บทกลอน, roleplay=บทบาทสมมติ, pbl=Project-Based Learning
 
+═══ ตัวชี้วัด (indicators) ═══
+ในข้อมูลที่ส่งมาจะมีฟิลด์ "available_indicators" — array ของตัวชี้วัดทั้งหมดที่ใช้ได้สำหรับระดับชั้นนี้:
+[ { "id": "ind-t11-p4-1", "code": "ต 1.1 ป.4/1", "desc": "..." }, ... ]
+
+หน้าที่:
+- สำหรับแต่ละแผน เลือก **1-3 ตัวชี้วัด** ที่ตรงกับเนื้อหาและจุดประสงค์ของแผนนั้นมากที่สุด
+- ใส่ใน field "indicator_ids" เป็น array ของ id (เช่น ["ind-t11-p4-1", "ind-t12-p4-2"])
+- **ใช้ id ที่ตรงกับ available_indicators เท่านั้น** — ห้ามแต่ง id เอง
+- ถ้า available_indicators ว่าง → ใส่ indicator_ids: []
+- ตัวชี้วัดของแผนต่างๆ ในหน่วยเดียวกัน**สามารถซ้ำกันได้** ถ้าเหมาะ (โดยเฉพาะตัวชี้วัดหลักของหน่วย)
+
 ข้อกำหนด:
 - **ครอบคลุม big_idea** — เมื่อจบทุกแผน ผู้เรียนต้องบรรลุ big_idea
 - **ใช้ vocab_bank** เป็น pool หลัก
@@ -244,9 +256,10 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
 - objectives K/P/A: แต่ละด้าน 1-2 ข้อ/แผน — เขียนแบบ "ผู้เรียนสามารถ..."
 - vocab_focus: 3-6 คำ/แผน
 - key_activities: 2-4 รายการสั้นๆ
-- **skills_3r**: เลือก 1-3 ตัวที่เกี่ยวข้องกับแผน (ส่วนใหญ่ภาษาอังกฤษ → reading + writing)
+- **skills_3r**: เลือก 1-3 ตัวที่เกี่ยวข้องกับแผน
 - **skills_8c**: เลือก 2-4 ตัวที่เกี่ยวข้องกับกิจกรรมในแผน
 - **learning_methods**: เลือก 1-3 ตัวที่เหมาะกับแผน
+- **indicator_ids**: 1-3 ตัวชี้วัดจาก available_indicators (โดย id) — สำคัญมาก เพื่อให้แผนสอดคล้องกับหลักสูตร
 - hours รวมทุกแผน = total_hours ของหน่วย
 - ภาษาไทยทางการในคำอธิบาย, อังกฤษในส่วน vocab/topic`;
 
