@@ -34,6 +34,10 @@ async function handleAi(req, res, { kind, cost, generator }) {
   if (!isConfigured()) {
     return res.status(503).json({ error: 'claude_not_configured', message: 'ระบบ AI ยังไม่ได้ตั้งค่า' });
   }
+  // Resolve dynamic cost (function) vs static (number)
+  if (typeof cost === 'function') {
+    try { cost = Number(cost(req)) || 0; } catch { cost = 0; }
+  }
   try {
     // ── Paid path: credit check + idempotency guard ──────
     if (cost > 0) {
@@ -153,9 +157,20 @@ router.post('/generate-assessments', aiLimiter, (req, res) =>
 router.post('/generate-unit-arc', aiLimiter, (req, res) =>
   handleAi(req, res, { kind: 'unit_arc', cost: COST, generator: generateUnitArc }));
 
-// Unit Outline — paid feature (1 call drafts the WHOLE unit, replaces ~5-8 manual generations)
+// Unit Outline — paid feature: 1 credit per planned lesson
+// (drafts created from this call are PRE-PAID → exports of them are free via lesson_hash idempotency)
 router.post('/generate-unit-outline', aiLimiter, (req, res) =>
-  handleAi(req, res, { kind: 'unit_outline', cost: 2, generator: generateUnitOutline }));
+  handleAi(req, res, {
+    kind: 'unit_outline',
+    cost: (r) => {
+      const n = parseInt(r.body?.lesson_count) || 0;
+      // Fallback: derive from total_hours / 2 (matches prompt rule)
+      if (n > 0) return Math.max(3, Math.min(15, n));
+      const h = parseFloat(r.body?.total_hours) || 0;
+      return h > 0 ? Math.max(3, Math.min(12, Math.round(h / 2))) : 5;
+    },
+    generator: generateUnitOutline,
+  }));
 
 // ─── Status ──────────────────────────────────────────────
 router.get('/status', (_req, res) => {

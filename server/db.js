@@ -44,6 +44,13 @@ async function initPostgres() {
     -- Migrate older databases
     ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'teacher';
     ALTER TABLE users ADD COLUMN IF NOT EXISTS credits INT NOT NULL DEFAULT 0;
+    -- Convert credits to NUMERIC(10,2) so we can support 0.5-credit pricing
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name='users' AND column_name='credits' AND data_type='integer') THEN
+        ALTER TABLE users ALTER COLUMN credits TYPE NUMERIC(10,2) USING credits::numeric;
+      END IF;
+    END $$;
 
     CREATE TABLE IF NOT EXISTS refresh_tokens (
       id          TEXT PRIMARY KEY,
@@ -70,13 +77,21 @@ async function initPostgres() {
       id           TEXT PRIMARY KEY,
       user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       type         TEXT NOT NULL,
-      amount       INT NOT NULL,
-      balance_after INT NOT NULL,
+      amount       NUMERIC(10,2) NOT NULL,
+      balance_after NUMERIC(10,2) NOT NULL,
       ref_id       TEXT,
       note         TEXT,
       created_at   BIGINT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_credit_txn_user ON credit_transactions(user_id, created_at DESC);
+    -- Migrate older int columns to numeric
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_name='credit_transactions' AND column_name='amount' AND data_type='integer') THEN
+        ALTER TABLE credit_transactions ALTER COLUMN amount TYPE NUMERIC(10,2) USING amount::numeric;
+        ALTER TABLE credit_transactions ALTER COLUMN balance_after TYPE NUMERIC(10,2) USING balance_after::numeric;
+      END IF;
+    END $$;
 
     CREATE TABLE IF NOT EXISTS email_tokens (
       id         TEXT PRIMARY KEY,
@@ -180,9 +195,11 @@ const pgDb = {
   },
 
   // ─── Credits ────────────────────────────────────────────
+  // node-postgres returns NUMERIC as strings; cast to Number so JS arithmetic + JSON
+  // serialization stays correct end-to-end.
   async getCredits(userId) {
     const { rows } = await pgPool.query('SELECT credits FROM users WHERE id=$1', [userId]);
-    return rows[0]?.credits ?? 0;
+    return Number(rows[0]?.credits ?? 0);
   },
   async addCredits(userId, amount, type, note, refId, txnId) {
     const client = await pgPool.connect();
@@ -193,7 +210,7 @@ const pgDb = {
         [userId, amount]
       );
       if (!rows[0]) throw new Error('user_not_found');
-      const balanceAfter = rows[0].credits;
+      const balanceAfter = Number(rows[0].credits);
       const txn = {
         id: txnId || crypto.randomUUID(),
         user_id: userId, type, amount,
@@ -227,7 +244,7 @@ const pgDb = {
         await client.query('ROLLBACK');
         return { ok: false, error: 'insufficient_credits' };
       }
-      const balanceAfter = rows[0].credits;
+      const balanceAfter = Number(rows[0].credits);
       const txn = {
         id: txnId || crypto.randomUUID(),
         user_id: userId, type, amount: -amount,
@@ -317,9 +334,9 @@ const pgDb = {
       pgPool.query("SELECT COUNT(*)::int AS n FROM audit_log WHERE action='login_success' AND created_at > $1", [oneDayAgo]),
       pgPool.query('SELECT COUNT(*)::int AS n FROM users WHERE created_at > $1', [sevenDaysAgo]),
       pgPool.query('SELECT COUNT(*)::int AS n FROM users WHERE locked_until > $1', [Date.now()]),
-      pgPool.query('SELECT COALESCE(SUM(credits),0)::int AS n FROM users'),
+      pgPool.query('SELECT COALESCE(SUM(credits),0)::numeric AS n FROM users'),
       pgPool.query("SELECT COUNT(*)::int AS n FROM credit_transactions WHERE type='usage' AND created_at > $1", [sevenDaysAgo]),
-      pgPool.query("SELECT COALESCE(SUM(amount),0)::int AS n FROM credit_transactions WHERE type IN ('manual_grant','bonus','topup') AND created_at > $1", [sevenDaysAgo]),
+      pgPool.query("SELECT COALESCE(SUM(amount),0)::numeric AS n FROM credit_transactions WHERE type IN ('manual_grant','bonus','topup') AND created_at > $1", [sevenDaysAgo]),
     ]);
     return {
       totalUsers: total[0].n,

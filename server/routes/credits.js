@@ -207,7 +207,11 @@ router.post('/charge-export', limiters.write, async (req, res) => {
     if (!lesson_hash || typeof lesson_hash !== 'string' || lesson_hash.length < 8) {
       return res.status(400).json({ error: 'invalid_lesson_hash' });
     }
-    const cost = 1;
+    // Standalone single-plan export = 0.5 credit
+    // (Plans created via Unit Outliner are pre-paid → exports of those drafts are free
+    //  via the special "outline:" ref_id stored at outline time; lesson_hash for those
+    //  is matched to a paid txn so duplicate-detection skips the deduction.)
+    const cost = 0.5;
     const refId = `export:${req.user.id}:${lesson_hash}`;
 
     // Idempotency: if this lesson was already charged for this user → free re-export
