@@ -8296,7 +8296,7 @@ window._createOutlinedLessons = function() {
         'unit-number':     _currentUnit.unitNo       || '',
         'topic':           o.topic                   || '',
         'key-concept':     o.key_concept             || '',
-        'task-description': '',
+        'task-description': o.task                   || '',
       },
       // Checkbox state (read by applyDraft → ticks chips for skills + methods)
       checks: {
@@ -8327,14 +8327,42 @@ window._createOutlinedLessons = function() {
         p: Array.isArray(o.objectives_p) ? o.objectives_p : [],
         a: Array.isArray(o.objectives_a) ? o.objectives_a : [],
       },
-      vocab:      (o.vocab_focus || []).map(w => ({ word: w, meaning: '' })),
-      sentences:  [],
-      media:      [],
-      // Pre-fill 5 phase rows whose times sum to outline.hours × 60 minutes
-      // so when user opens the draft, total time matches the unit plan.
+      // Vocab — accept either { vocab: [{word, meaning}] } (new) or { vocab_focus: [string] } (old)
+      vocab: (() => {
+        if (Array.isArray(o.vocab) && o.vocab.length) {
+          return o.vocab.map(v => ({
+            word: (v && v.word) || '',
+            meaning: (v && v.meaning) || '',
+          })).filter(v => v.word);
+        }
+        return (o.vocab_focus || []).map(w => ({ word: w, meaning: '' }));
+      })(),
+      sentences: Array.isArray(o.sentences) ? o.sentences.filter(Boolean) : [],
+      media: Array.isArray(o.media) ? o.media.filter(Boolean) : [],
+      // task field is set in fields['task-description'] above as a string with \n bullets
+      // Activities — use AI's output if provided (5 phases with phase/name/detail/time_min)
+      // else fall back to default 5-phase scaffold sized to outline.hours
       activities: (() => {
+        if (Array.isArray(o.activities) && o.activities.length) {
+          const phaseClass = (phase) => {
+            const p = (phase || '').toString();
+            if (p.includes('นำเข้า')) return 'phase-intro';
+            if (p.includes('สอน'))    return 'phase-teach';
+            if (p.includes('ฝึก'))    return 'phase-practice';
+            if (p.includes('ประยุกต์')) return 'phase-apply';
+            if (p.includes('สรุป'))   return 'phase-conclude';
+            return 'phase-extra';
+          };
+          return o.activities.map(a => ({
+            phase: a.phase || '',
+            phaseClass: phaseClass(a.phase),
+            name: a.name || '',
+            detail: a.detail || '',
+            time: String(a.time_min || a.time || 10),
+          }));
+        }
+        // Fallback scaffold (when AI didn't return activities)
         const totalMin = Math.max(30, (parseInt(o.hours) || 1) * 60);
-        // Distribution: intro 15% / teach 30% / practice 25% / apply 20% / conclude 10%
         const ratios = [0.15, 0.30, 0.25, 0.20, 0.10];
         const phases = [
           { phase: 'นำเข้าสู่บทเรียน', phaseClass: 'phase-intro' },
@@ -8344,17 +8372,20 @@ window._createOutlinedLessons = function() {
           { phase: 'สรุปบทเรียน',      phaseClass: 'phase-conclude' },
         ];
         const times = ratios.map(r => Math.max(5, Math.round(totalMin * r)));
-        // Adjust last phase so sum is exact
         const diff = totalMin - times.reduce((a, b) => a + b, 0);
         times[times.length - 1] = Math.max(5, times[times.length - 1] + diff);
-        return phases.map((p, i) => ({
-          ...p,
-          name: '',
-          detail: '',
-          time: String(times[i]),
-        }));
+        return phases.map((p, i) => ({ ...p, name: '', detail: '', time: String(times[i]) }));
       })(),
-      assessments: [],
+      // Assessments — AI returns array of { domain, rubric_key?, what?, how?, criteria }
+      assessments: Array.isArray(o.assessments)
+        ? o.assessments.map(a => ({
+            what: a.what || (a.rubric_key ? (RUBRIC_TYPES.find(r => r.key === a.rubric_key)?.label || '') : ''),
+            how:  a.how  || (a.rubric_key ? (RUBRIC_METHODS[a.rubric_key] || '') : ''),
+            criteria: a.criteria || '',
+            rubricKey: a.rubric_key || '',
+            domain: (a.domain || 'P').toString().toUpperCase(),
+          })).filter(a => a.what)
+        : [],
       attachments: [],
     };
   };

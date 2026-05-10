@@ -232,7 +232,8 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
 - total_hours=20, lesson_count=8 → hours=2 หรือ 3 (กระจายให้รวมเท่ากับ 20)
 - ผลรวม hours ของทุกแผน = total_hours
 
-รูปแบบ JSON เท่านั้น:
+รูปแบบ JSON เท่านั้น — แต่ละแผนต้อง "พร้อมใช้สอนได้ทันที" ไม่ต้องให้ครู generate รายละเอียดเพิ่มทีละส่วน:
+
 {
   "lesson_count": 5,
   "lessons": [
@@ -240,12 +241,42 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
       "plan_no": 1,
       "topic": "Introduction to Daily Routines",
       "hours": 2,
-      "key_concept": "นักเรียนเรียนรู้คำศัพท์เกี่ยวกับกิจวัตรพื้นฐานและฟังบทสนทนาง่ายๆ",
+      "key_concept": "นักเรียนเรียนรู้คำศัพท์เกี่ยวกับกิจวัตรพื้นฐานและฟังบทสนทนาง่ายๆ ใช้ present simple",
+
       "objectives_k": ["บอกความหมายของคำศัพท์กิจวัตรประจำวันได้ 8 คำ"],
       "objectives_p": ["ฟังและจับใจความบทสนทนาเรื่องกิจวัตรประจำวันได้"],
       "objectives_a": ["มีส่วนร่วมในกิจกรรมกลุ่มอย่างกระตือรือร้น"],
-      "vocab_focus": ["wake up", "brush teeth", "take a shower"],
-      "key_activities": ["Vocabulary flashcards", "Listening to dialog", "Pair work"],
+
+      "vocab": [
+        { "word": "wake up", "meaning": "ตื่นนอน" },
+        { "word": "brush teeth", "meaning": "แปรงฟัน" },
+        { "word": "take a shower", "meaning": "อาบน้ำ" }
+      ],
+
+      "sentences": [
+        "I wake up at 7 o'clock.",
+        "She brushes her teeth every morning.",
+        "What time do you go to school?"
+      ],
+
+      "media": ["PowerPoint Daily Routines", "วิดีโอ YouTube Daily Routines Song", "ใบงานคำศัพท์", "นาฬิกา"],
+
+      "task": "• ใบงานเติมคำศัพท์ Daily Routines\\n• สมุดเล่มเล็กเรื่อง My Day",
+
+      "activities": [
+        { "phase": "นำเข้าสู่บทเรียน", "name": "ทักทายและเชื่อมประสบการณ์", "detail": "1. ครูทักทายนักเรียน\\n2. ครูถาม 'What time do you wake up?'\\n3. นักเรียนตอบเป็นคู่", "time_min": 18 },
+        { "phase": "สอน",              "name": "สอนคำศัพท์",                   "detail": "1. ครูแสดง flashcards\\n2. นักเรียนพูดตาม\\n3. ครูสอนความหมาย",       "time_min": 36 },
+        { "phase": "ฝึกปฏิบัติ",       "name": "เกมจับคู่คำศัพท์",            "detail": "1. แบ่งกลุ่ม 4 คน\\n2. แจกการ์ด\\n3. แข่งขันจับคู่", "time_min": 30 },
+        { "phase": "ประยุกต์ใช้",      "name": "Pair work ถาม-ตอบ",            "detail": "1. นักเรียนจับคู่\\n2. ถาม 'What do you do at...?'\\n3. ผลัดกันเล่ากิจวัตร", "time_min": 24 },
+        { "phase": "สรุปบทเรียน",      "name": "สรุปและทบทวนคำศัพท์",         "detail": "1. นักเรียนช่วยกันสรุป\\n2. ครูเน้นคำสำคัญ\\n3. มอบหมายใบงาน",     "time_min": 12 }
+      ],
+
+      "assessments": [
+        { "domain": "K", "what": "ใบงานคำศัพท์ Daily Routines", "how": "ใบงาน",                  "criteria": "ผ่านเกณฑ์ร้อยละ 70" },
+        { "domain": "P", "rubric_key": "listening",            "criteria": "ผ่านในระดับดีขึ้นไป" },
+        { "domain": "A", "rubric_key": "desired",              "criteria": "ผ่านในระดับดีขึ้นไป" }
+      ],
+
       "skills_3r": ["reading", "writing"],
       "skills_8c": ["critical", "comm", "collab"],
       "learning_methods": ["clt", "games"],
@@ -273,20 +304,45 @@ const SYS_UNIT_OUTLINE = `คุณคือผู้ช่วยครูไท
 - ถ้า available_indicators ว่าง → ใส่ indicator_ids: []
 - ตัวชี้วัดของแผนต่างๆ ในหน่วยเดียวกัน**สามารถซ้ำกันได้** ถ้าเหมาะ (โดยเฉพาะตัวชี้วัดหลักของหน่วย)
 
-ข้อกำหนด:
+═══ ข้อกำหนดของแต่ละฟิลด์ ═══
+
+หลักรวม:
 - **ครอบคลุม big_idea** — เมื่อจบทุกแผน ผู้เรียนต้องบรรลุ big_idea
-- **ใช้ vocab_bank** เป็น pool หลัก
-- **ตาม progression** ที่ครูระบุ — ถ้ามี ให้ใช้เป็น guide
+- **ใช้ vocab_bank** เป็น pool หลัก แต่เพิ่มคำใหม่ตาม sub-topic ของแผนได้
+- **ตาม progression** ที่ครูระบุ — ใช้เป็น guide
 - topic ของแต่ละแผนต้องไม่ทับกัน แต่ต่อยอด
-- objectives K/P/A: แต่ละด้าน 1-2 ข้อ/แผน — เขียนแบบ "ผู้เรียนสามารถ..."
-- vocab_focus: 3-6 คำ/แผน
-- key_activities: 2-4 รายการสั้นๆ
-- **skills_3r**: เลือก 1-3 ตัวที่เกี่ยวข้องกับแผน
-- **skills_8c**: เลือก 2-4 ตัวที่เกี่ยวข้องกับกิจกรรมในแผน
-- **learning_methods**: เลือก 1-3 ตัวที่เหมาะกับแผน
-- **indicator_ids**: 1-3 ตัวชี้วัดจาก available_indicators (โดย id) — สำคัญมาก เพื่อให้แผนสอดคล้องกับหลักสูตร
-- hours รวมทุกแผน = total_hours ของหน่วย
-- ภาษาไทยทางการในคำอธิบาย, อังกฤษในส่วน vocab/topic`;
+- ภาษาไทยทางการในคำอธิบาย, อังกฤษในส่วน vocab/sentences/topic
+
+แต่ละฟิลด์:
+- **topic, key_concept** — ภาษาไทยอธิบายชัดเจน
+- **objectives K/P/A**: แต่ละด้าน 1-2 ข้อ/แผน — เขียนแบบ "ผู้เรียนสามารถ..."
+- **vocab**: 5-8 คำ/แผน เป็น array ของ object { word: "english", meaning: "ความหมายไทย" } — ห้ามว่าง
+- **sentences**: 3-5 ประโยคหลักของแผน (ภาษาอังกฤษ) — โครงประโยคที่ครูจะสอน เช่น "I wake up at 7." หรือ "What time do you...?"
+- **media**: 4-6 รายการสื่อและแหล่งการเรียนรู้
+  - หลากหลาย: PowerPoint, ใบงาน, วิดีโอ YouTube (ระบุเรื่อง), เกม, รูปภาพ, วัตถุในห้องเรียน
+  - **ห้ามใช้คำว่า "ของจริง" ลอยๆ** — ระบุชื่อวัตถุเลย เช่น "นาฬิกา", "แปรงสีฟัน", "ผลไม้"
+  - สั้นกระชับ ไม่เกิน 5-8 คำ/รายการ
+- **task**: ภาระชิ้นงาน 2-4 รายการ คั่นด้วย "\\n" แต่ละบรรทัดขึ้นต้นด้วย "• "
+  - เขียนแค่ชื่อชิ้นงาน เช่น "• ใบงานคำศัพท์ Daily Routines\\n• สมุดเล่มเล็กเรื่อง My Day"
+  - ห้ามอธิบายยาว
+- **activities**: 5 ขั้นตามลำดับ — phase ต้องเป็น ["นำเข้าสู่บทเรียน", "สอน", "ฝึกปฏิบัติ", "ประยุกต์ใช้", "สรุปบทเรียน"] เป๊ะ
+  - **time_min ของทุก phase รวมกัน = hours × 60** (เช่น hours=2 → 120 นาที)
+  - กระจายเวลาตามสัดส่วน intro 15% / สอน 30% / ฝึก 25% / ประยุกต์ 20% / สรุป 10%
+  - **detail ต้องเป็น numbered bullet** "1. ...\\n2. ...\\n3. ..." (3-5 ข้อ/ขั้น) ห้ามเขียน paragraph ยาว
+  - name = ชื่อกิจกรรมสั้น 3-7 คำ
+- **assessments**: 3-4 รายการ ครอบคลุม K/P/A
+  - K (ความรู้) — ใช้แค่ใบงาน/แบบทดสอบ → custom item { domain: "K", what: "ใบงาน...", how: "ใบงาน", criteria: "ผ่านเกณฑ์ร้อยละ 70" }
+  - P (ทักษะ) — ใช้ rubric_key: listening/speaking/reading/writing/work/competency/behavior + criteria "ผ่านในระดับดีขึ้นไป"
+  - A (เจตคติ) — ใช้แค่ rubric_key: "desired" + criteria "ผ่านในระดับดีขึ้นไป"
+  - ถ้าแผนไม่มีใบงาน/แบบทดสอบ → ไม่ต้องสร้าง K item
+- **skills_3r**: 1-3 จาก [reading, writing, arith]
+- **skills_8c**: 2-4 จาก [critical, creativity, collab, comm, cross, computing, career, compassion]
+- **learning_methods**: 1-3 จาก [2w3p, clt, games, chant, roleplay, pbl]
+- **indicator_ids**: 1-3 ตัวชี้วัดจาก available_indicators (id เท่านั้น)
+- **hours รวมทุกแผน = total_hours ของหน่วย**
+
+═══ key_activities (deprecated) ═══
+ฟิลด์ "key_activities" เก่าให้ละทิ้ง — ใช้ field "activities" (ที่มี 5 ขั้นเต็ม) แทน`;
 
 const SYS_PASSING = `คุณคือผู้ช่วยครูไทย กำหนดเกณฑ์ผ่านสำหรับแต่ละแบบประเมิน
 
@@ -439,8 +495,10 @@ export async function generateActivities(payload)       { return _callClaude({ s
 export async function generatePassingCriteria(payload)  { return _callClaude({ system: SYS_PASSING,    payload }); }
 export async function generateAssessments(payload)      { return _callClaude({ system: SYS_ASSESSMENTS_FULL, payload }); }
 export async function generateUnitArc(payload)          { return _callClaude({ system: SYS_UNIT_ARC,         payload }); }
-// Unit outline can produce up to 15 lessons × ~12 fields × Thai text → needs large token budget
-export async function generateUnitOutline(payload)      { return _callClaude({ system: SYS_UNIT_OUTLINE,     payload, maxTokens: 16000 }); }
+// Unit outline now generates FULL lessons (vocab+meanings, sentences, media, task,
+// activities×5 with bullet details, assessments K/P/A, skills, methods, indicators)
+// → needs much larger output budget. Up to 15 lessons × ~3K tokens each.
+export async function generateUnitOutline(payload)      { return _callClaude({ system: SYS_UNIT_OUTLINE,     payload, maxTokens: 48000 }); }
 
 export function isConfigured() {
   return !!process.env.ANTHROPIC_API_KEY;
