@@ -2322,31 +2322,36 @@
     33%     { transform: scale(1.1) translate(-2%, 1%); }
     66%     { transform: scale(.95) translate(2%, -1%); }
   }
-  /* Brand header — uses "Logo new.png" image */
+  /* Wrapper that stacks: [logo] [mascot+card row] — fully centered */
+  .auth-content {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 18px;
+    max-width: 1080px; width: 100%;
+    padding: 18px 20px;
+  }
+  /* Brand logo — sized so it doesn't overlap anything */
   .auth-brand {
-    position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
-    text-align: center; z-index: 2; pointer-events: none; user-select: none;
-    width: min(560px, 90vw);
+    text-align: center; pointer-events: none; user-select: none;
+    width: clamp(220px, 28vw, 320px);
   }
   .auth-brand img {
     width: 100%; height: auto; display: block;
     filter: drop-shadow(0 6px 18px rgba(99,102,241,.25))
             drop-shadow(0 2px 6px rgba(15,23,42,.08));
-    /* Hide black background pixels of the original logo (screen blend mode
-       turns black into transparent on a light backdrop, preserving the colored logo) */
+    /* Original logo has black background — multiply turns black into transparent
+       on the light gradient backdrop while preserving the colored marks */
     mix-blend-mode: multiply;
   }
-  /* Side-by-side: mascot LEFT, login card RIGHT */
+  /* Row: mascot LEFT + speech-bubble + login card RIGHT */
   .auth-stage {
-    position: relative; z-index: 1;
     display: flex; align-items: center; justify-content: center;
-    gap: 48px; max-width: 1100px; width: 100%;
-    padding: 0 20px;
-    margin-top: 80px; /* leave room for the logo header on top */
+    gap: 18px; width: 100%;
   }
   .auth-mascot {
     flex: 0 0 auto;
-    width: clamp(320px, 36vw, 520px);
+    width: clamp(280px, 32vw, 420px);
+    position: relative;
     animation: mascotFloat 3.6s ease-in-out infinite;
     filter: drop-shadow(0 28px 40px rgba(30,64,175,.20))
             drop-shadow(0 10px 18px rgba(99,102,241,.18));
@@ -2358,15 +2363,76 @@
     0%,100% { transform: translateY(0)    rotate(-1.5deg); }
     50%     { transform: translateY(-14px) rotate(1.5deg); }
   }
+
+  /* ─── 3D speech bubble from mascot ─── */
+  .auth-bubble {
+    position: absolute;
+    top: 6%; right: -22%;
+    width: clamp(180px, 22vw, 260px);
+    background: linear-gradient(165deg, #ffffff 0%, #f0f9ff 100%);
+    border: 2px solid #bae6fd;
+    border-radius: 22px;
+    padding: 14px 16px;
+    font-size: clamp(.82rem, 1.05vw, .95rem);
+    font-weight: 700;
+    color: #0c4a6e;
+    text-align: center;
+    line-height: 1.4;
+    box-shadow:
+      0 12px 28px -6px rgba(14,165,233,.35),
+      0 6px 14px -4px rgba(15,23,42,.12),
+      inset 0 2px 0 rgba(255,255,255,.9);
+    transform: rotate(3deg);
+    animation: bubblePop .55s cubic-bezier(.34,1.56,.64,1) both,
+               bubbleWiggle 4s ease-in-out 1s infinite;
+    z-index: 2;
+  }
+  /* Bubble tail (pointing down-left toward mascot's head) */
+  .auth-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -14px; left: 18px;
+    width: 28px; height: 28px;
+    background: linear-gradient(165deg, #ffffff 0%, #f0f9ff 100%);
+    border-right: 2px solid #bae6fd;
+    border-bottom: 2px solid #bae6fd;
+    transform: rotate(45deg) skew(-8deg, -8deg);
+    border-radius: 0 0 6px 0;
+  }
+  /* Sparkle accents */
+  .auth-bubble::after {
+    content: '✨';
+    position: absolute;
+    top: -10px; right: -6px;
+    font-size: 1.2rem;
+    animation: bubbleSparkle 2.4s ease-in-out infinite;
+  }
+  @keyframes bubblePop {
+    0%   { opacity: 0; transform: rotate(3deg) scale(.4) translateY(20px); }
+    60%  { opacity: 1; transform: rotate(3deg) scale(1.05) translateY(-2px); }
+    100% { opacity: 1; transform: rotate(3deg) scale(1) translateY(0); }
+  }
+  @keyframes bubbleWiggle {
+    0%,100% { transform: rotate(3deg)  translateY(0); }
+    50%     { transform: rotate(-1deg) translateY(-4px); }
+  }
+  @keyframes bubbleSparkle {
+    0%,100% { transform: rotate(0)     scale(1); opacity: 1; }
+    50%     { transform: rotate(20deg) scale(1.25); opacity: .7; }
+  }
+
   @media (max-width: 880px) {
-    .auth-stage { flex-direction: column; gap: 12px; margin-top: 70px; }
-    .auth-mascot { width: clamp(220px, 50vw, 320px); order: -1; }
-    .auth-brand { top: 14px; width: min(360px, 80vw); }
+    .auth-content { gap: 10px; padding: 14px 16px; }
+    .auth-stage { flex-direction: column; gap: 6px; }
+    .auth-brand  { width: clamp(180px, 50vw, 260px); }
+    .auth-mascot { width: clamp(200px, 45vw, 280px); order: -1; }
+    .auth-bubble { right: -8%; top: 0%; width: clamp(150px, 38vw, 200px); }
   }
   @media (max-width: 480px) {
-    .auth-mascot { width: 180px; }
-    .auth-brand { width: min(280px, 75vw); top: 10px; }
-    .auth-stage { margin-top: 56px; }
+    .auth-mascot { width: 160px; }
+    .auth-brand  { width: 200px; }
+    .auth-bubble { right: -4%; width: 140px; font-size: .76rem; padding: 10px 12px; }
+    .auth-bubble::after { font-size: 1rem; }
   }
 
   /* ════════════════════════════════════════════════════════
@@ -8859,18 +8925,26 @@ window.renderUnitDashboard = renderUnitDashboard;
 <!-- ============ AUTH MODAL ============ -->
 <div id="auth-overlay" class="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title">
 
-  <!-- Brand header (top center) — uses Logo new.png -->
-  <div class="auth-brand" aria-hidden="true">
-    <img src="Logo new.png" alt="Easy ENG Plan"
-      onerror="this.parentElement.style.display='none'">
-  </div>
+  <!-- Centered content stack: logo on top + (mascot + card) row -->
+  <div class="auth-content">
 
-  <!-- Stage: mascot + login card side-by-side -->
-  <div class="auth-stage">
-    <div class="auth-mascot" aria-hidden="true">
-      <img src="mascot.png" alt=""
+    <!-- Brand header — uses Logo new.png -->
+    <div class="auth-brand" aria-hidden="true">
+      <img src="Logo new.png" alt="Easy ENG Plan"
         onerror="this.parentElement.style.display='none'">
     </div>
+
+    <!-- Stage: mascot LEFT + login card RIGHT -->
+    <div class="auth-stage">
+      <div class="auth-mascot" aria-hidden="true">
+        <img src="mascot.png" alt=""
+          onerror="this.parentElement.style.display='none'">
+        <!-- 3D speech bubble from mascot -->
+        <div class="auth-bubble">
+          สร้างแผนการสอน<br>
+          <b style="color:#0369a1;">เร็ว · ง่าย · ประหยัดเวลา</b>
+        </div>
+      </div>
 
     <div class="auth-modal">
       <h2 id="auth-title">เข้าสู่ระบบ</h2>
@@ -8908,7 +8982,8 @@ window.renderUnitDashboard = renderUnitDashboard;
       <a id="auth-toggle-link">สมัครสมาชิก</a>
     </div>
     </div><!-- /auth-modal -->
-  </div><!-- /auth-stage -->
+    </div><!-- /auth-stage -->
+  </div><!-- /auth-content -->
 </div>
 
 <!-- ============ AUTH CLIENT ============ -->
