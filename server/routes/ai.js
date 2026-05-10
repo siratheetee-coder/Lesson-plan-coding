@@ -9,6 +9,7 @@ import { db } from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 import { limiters } from '../utils/limiters.js';
 import { audit, ACTIONS } from '../utils/audit.js';
+import { outlineSemaphore } from '../utils/concurrency.js';
 import {
   generateObjectives,
   generateConcept,
@@ -30,13 +31,38 @@ const aiLimiter = limiters.ai;
 // ─── Generic handler ──────────────────────────────────────
 // cost = 0 → free AI call (no credit ledger entries)
 // cost > 0 → Pattern A: deduct first → call Claude → refund on failure
-async function handleAi(req, res, { kind, cost, generator }) {
+async function handleAi(req, res, { kind, cost, generator, semaphore }) {
   if (!isConfigured()) {
     return res.status(503).json({ error: 'claude_not_configured', message: 'ระบบ AI ยังไม่ได้ตั้งค่า' });
   }
   // Resolve dynamic cost (function) vs static (number)
   if (typeof cost === 'function') {
     try { cost = Number(cost(req)) || 0; } catch { cost = 0; }
+  }
+  // ── Semaphore: cap simultaneous heavy AI ops (e.g. unit outliner) ──
+  // Acquire BEFORE deducting credits so failures cost nothing.
+  let releaseSlot = null;
+  if (semaphore) {
+    try {
+      const queuedAt = Date.now();
+      releaseSlot = await semaphore.acquire();
+      const waitMs = Date.now() - queuedAt;
+      if (waitMs > 1000) {
+        console.log(`[ai/${kind}] queued ${waitMs}ms before slot acquired (active=${semaphore.active}, queue=${semaphore.queue.length})`);
+      }
+    } catch (e) {
+      // queue_full or queue_timeout
+      audit(req.user.id, ACTIONS.AI_GENERATE_FAILED, { kind, code: e.code || 'overloaded' }, req);
+      const message = e.code === 'queue_full'
+        ? 'ระบบกำลังหนักมาก ขณะนี้มีผู้ใช้รออยู่หลายคน — กรุณาลองใหม่ในอีกสักครู่'
+        : 'ระบบกำลังหนัก รอนานเกินไป — กรุณาลองใหม่ในอีกสักครู่';
+      return res.status(503).json({
+        error: 'ai_overloaded',
+        code: e.code,
+        message,
+        retry_after_seconds: e.code === 'queue_full' ? 30 : 60,
+      });
+    }
   }
   try {
     // ── Paid path: credit check + idempotency guard ──────
@@ -127,6 +153,8 @@ async function handleAi(req, res, { kind, cost, generator }) {
   } catch (e) {
     console.error(`[ai/${kind}] handler error:`, e);
     res.status(500).json({ error: 'server_error' });
+  } finally {
+    if (typeof releaseSlot === 'function') releaseSlot();
   }
 }
 
@@ -159,6 +187,7 @@ router.post('/generate-unit-arc', aiLimiter, (req, res) =>
 
 // Unit Outline — paid feature: 1 credit per planned lesson
 // (drafts created from this call are PRE-PAID → exports of them are free via lesson_hash idempotency)
+// Semaphore caps simultaneous outlines (default 3) to protect memory + Anthropic rate limit.
 router.post('/generate-unit-outline', aiLimiter, (req, res) =>
   handleAi(req, res, {
     kind: 'unit_outline',
@@ -170,7 +199,13 @@ router.post('/generate-unit-outline', aiLimiter, (req, res) =>
       return h > 0 ? Math.max(3, Math.min(12, Math.round(h / 2))) : 5;
     },
     generator: generateUnitOutline,
+    semaphore: outlineSemaphore,
   }));
+
+// Health endpoint — returns active/queued count for monitoring
+router.get('/queue-status', (_req, res) => {
+  res.json({ outline: outlineSemaphore.stats() });
+});
 
 // ─── Status ──────────────────────────────────────────────
 router.get('/status', (_req, res) => {

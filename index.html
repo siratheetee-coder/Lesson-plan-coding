@@ -8466,6 +8466,44 @@ function _confirmStandalonePlanDialog() {
 }
 window._confirmStandalonePlanDialog = _confirmStandalonePlanDialog;
 
+// ─── 3D popup: AI overloaded (server semaphore queue full) ───
+window._showAiOverloadedDialog = function(retrySec) {
+  document.getElementById('ai-overloaded-overlay')?.remove();
+  const ov = document.createElement('div');
+  ov.id = 'ai-overloaded-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:11800;padding:18px;animation:aiwFade .2s ease-out';
+  const sec = Math.max(10, Math.min(180, parseInt(retrySec) || 30));
+  ov.innerHTML = `
+    <div style="background:linear-gradient(165deg,#ffffff 0%,#fef3c7 100%);border-radius:22px;max-width:440px;width:100%;
+                padding:30px 28px 24px;font-family:inherit;text-align:center;
+                box-shadow:0 30px 80px -20px rgba(217,119,6,.45),0 12px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.8);
+                animation:aiwPop .35s cubic-bezier(.34,1.56,.64,1)">
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;
+                  background:linear-gradient(145deg,#fde68a,#d97706);border-radius:50%;margin-bottom:14px;
+                  box-shadow:0 14px 30px -8px rgba(217,119,6,.5),inset 0 -5px 10px rgba(146,64,14,.4),inset 0 5px 10px rgba(255,255,255,.55);
+                  font-size:2.4rem;line-height:1;animation:aiwCoin 2s ease-in-out infinite;">🚦</div>
+      <h2 style="font-size:1.25rem;font-weight:800;color:#78350f;margin:0 0 10px;line-height:1.4;">
+        🚦 AI กำลังหนักมาก ขอเวลาสักครู่
+      </h2>
+      <p style="font-size:.95rem;color:#475569;margin:0 0 8px;line-height:1.65;">
+        ขณะนี้มีคุณครูหลายท่านกำลังร่างทั้งหน่วยพร้อมกัน
+      </p>
+      <p style="font-size:.95rem;color:#16a34a;font-weight:700;margin:0 0 14px;line-height:1.55;">
+        เครดิตของคุณครูยังไม่ถูกหัก
+      </p>
+      <p style="font-size:.92rem;color:#92400e;margin:0 0 20px;line-height:1.55;">
+        ⏱ กรุณาลองใหม่ในอีกประมาณ <b>${sec}</b> วินาที
+      </p>
+      <button id="aio-ok" class="aiw-btn amber" style="min-width:140px;">เข้าใจแล้ว</button>
+    </div>`;
+  document.body.appendChild(ov);
+  const close = () => { ov.remove(); document.removeEventListener('keydown', onKey); };
+  document.getElementById('aio-ok').onclick = close;
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  const onKey = (e) => { if (e.key === 'Escape' || e.key === 'Enter') close(); };
+  document.addEventListener('keydown', onKey);
+};
+
 // ─── Phase 5: 3D popup explaining unit outliner cost & flow ──
 function _confirmUnitOutlineDialog(planCount) {
   return new Promise(resolve => {
@@ -8570,7 +8608,7 @@ window._aiOutlineUnit = async function() {
 
   const btn = document.querySelector('button[onclick*="_aiOutlineUnit"]');
   const origText = btn ? btn.textContent : '';
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin">⏳</span> AI กำลังร่าง...'; btn.style.opacity = '.6'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin">⏳</span> AI กำลังร่าง... (กำลังรอคิวคุณครูท่านอื่น)'; btn.style.opacity = '.6'; }
 
   try {
     // Read lesson count from Step 1 (single source of truth)
@@ -8619,6 +8657,14 @@ window._aiOutlineUnit = async function() {
           window.showExportToast('💚 เครดิตยังไม่พอสำหรับร่างทั้งหน่วย — ลองร่วมสนับสนุนโปรเจกต์ดูนะคะ', 'info');
         }
         if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 400);
+      } else if (res.status === 503 && r.error === 'ai_overloaded') {
+        // Server is at capacity — friendly busy message, no charge happened
+        const retrySec = Math.max(15, Math.min(120, parseInt(r.retry_after_seconds) || 30));
+        if (typeof window._showAiOverloadedDialog === 'function') {
+          window._showAiOverloadedDialog(retrySec);
+        } else {
+          alert('🚦 ' + msg + '\n\n(เครดิตไม่ถูกหัก — กรุณาลองใหม่ในอีก ~' + retrySec + ' วินาที)');
+        }
       } else {
         alert('❌ ' + msg);
       }
