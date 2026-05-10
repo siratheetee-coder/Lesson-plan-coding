@@ -2535,7 +2535,16 @@
               </div>
               <div class="unit-field">
                 <label>จำนวนคาบรวม (ชั่วโมง)</label>
-                <input type="number" id="ue-totalHours" placeholder="10" min="1">
+                <input type="number" id="ue-totalHours" placeholder="10" min="1" oninput="window._updateHoursPerPlanHint()">
+              </div>
+              <div class="unit-field">
+                <label>จำนวนแผน <span style="font-weight:400; color:#78716c; font-size:.78rem;">(เว้นว่าง = AI คำนวณ)</span></label>
+                <input type="number" id="ue-lessonCount" placeholder="auto" min="3" max="15" oninput="window._updateHoursPerPlanHint()">
+              </div>
+              <div class="unit-field full">
+                <div id="ue-hours-per-plan-hint" style="display:none; padding:8px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; font-size:0.82rem; color:#1e3a8a;">
+                  📊 <span id="ue-hpp-text"></span>
+                </div>
               </div>
               <div class="unit-field full">
                 <label>ครูผู้สอน</label>
@@ -2599,12 +2608,12 @@
                   <div style="font-size:0.82rem; color:#92400e; margin-top:2px;">AI จะร่างแผนทั้งหน่วยการเรียนรู้ให้สอดคล้องกับเป้าหมายปลายทาง</div>
                 </div>
               </div>
-              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px;">
-                <label style="font-size:1rem; color:#78350f; font-weight:600;">จำนวนแผน:</label>
-                <input type="number" id="ue-outline-count" min="3" max="10" placeholder="auto" style="width:90px; padding:6px 10px; border:1px solid #fbbf24; border-radius:8px; font-family:inherit; font-size:3rem;">
-                <span style="font-size:1cqw; color:#92400e;">(ถ้าเว้นว่าง AI จะคำนวณจากจำนวนคาบรวมของหน่วย)</span>
+              <div id="ue-outline-summary" style="font-size:0.85rem; color:#78350f; margin-top:14px; padding:10px 14px; background:#fff; border:1px dashed #fbbf24; border-radius:10px;">
+                <span id="ue-outline-summary-text">📋 ดึงข้อมูลจากขั้นที่ ① ข้อมูลหน่วย — กรุณากรอก "จำนวนคาบรวม" และ "จำนวนแผน" ก่อน</span>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap:wrap; margin-top:14px;">
                 <button type="button" onclick="window._aiOutlineUnit()"
-                  style="margin-left:auto; background:linear-gradient(135deg,#d97706,#92400e); color:white; border:none; padding:11px 22px; font-size:0.95rem; font-weight:700; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(217,119,6,.3);">
+                  style="background:linear-gradient(135deg,#d97706,#92400e); color:white; border:none; padding:11px 22px; font-size:0.95rem; font-weight:700; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(217,119,6,.3);">
                   🪄 ร่างทั้งหน่วย (2 เครดิต)
                 </button>
               </div>
@@ -7144,6 +7153,10 @@ function goUnitStep(n) {
     p.style.display = (Number(p.dataset.ustep) === n) ? '' : 'none';
   });
   if (n === 3) renderUnitDashboard();
+  // Refresh Step 2 outliner summary when entering it
+  if (n === 2 && typeof window._updateHoursPerPlanHint === 'function') {
+    window._updateHoursPerPlanHint();
+  }
   const main = document.getElementById('dash-main-content');
   if (main) main.scrollTop = 0;
 }
@@ -7160,12 +7173,15 @@ function applyUnitToForm(u) {
   set('ue-semester', u.semester || '1');
   set('ue-year', u.year);
   set('ue-totalHours', u.totalHours);
+  set('ue-lessonCount', u.lessonCount);
   set('ue-teacher', u.teacher);
   // Phase 2 — Story Arc fields
   set('ue-theme', u.theme);
   set('ue-bigIdea', u.bigIdea);
   set('ue-vocabBank', u.vocabBank);
   set('ue-progression', u.progression);
+  // Refresh hint
+  if (typeof window._updateHoursPerPlanHint === 'function') window._updateHoursPerPlanHint();
   const td = document.getElementById('ue-title-display');
   if (td) td.textContent = (u.title || '').trim() || 'หน่วยการเรียนรู้ใหม่';
 }
@@ -7184,6 +7200,7 @@ function collectCurrentUnitFromForm() {
   _currentUnit.semester = get('ue-semester');
   _currentUnit.year = get('ue-year').trim();
   _currentUnit.totalHours = get('ue-totalHours').trim();
+  _currentUnit.lessonCount = get('ue-lessonCount').trim();
   _currentUnit.teacher = get('ue-teacher').trim();
   // Phase 2 — Story Arc fields
   _currentUnit.theme       = get('ue-theme').trim();
@@ -7961,6 +7978,37 @@ window._aiDraftUnitArc = async function() {
   }
 };
 
+// Live hint — calculates hours-per-plan when user fills total hours + lesson count
+// Updates BOTH the Step 1 hint box AND the Step 2 outliner summary box
+window._updateHoursPerPlanHint = function() {
+  const hint = document.getElementById('ue-hours-per-plan-hint');
+  const txt  = document.getElementById('ue-hpp-text');
+  const sumTxt = document.getElementById('ue-outline-summary-text');
+  const hours = parseFloat((document.getElementById('ue-totalHours') || {}).value) || 0;
+  const count = parseInt((document.getElementById('ue-lessonCount') || {}).value) || 0;
+
+  if (hours <= 0) {
+    if (hint) hint.style.display = 'none';
+    if (sumTxt) sumTxt.innerHTML = '📋 ดึงข้อมูลจากขั้นที่ ① ข้อมูลหน่วย — กรุณากรอก "จำนวนคาบรวม" และ "จำนวนแผน" ก่อน';
+    return;
+  }
+
+  let hintHtml, sumHtml;
+  if (count > 0) {
+    const perPlan = hours / count;
+    const ppFmt = perPlan % 1 === 0 ? perPlan : perPlan.toFixed(1);
+    const minPerPlan = Math.round(perPlan * 60);
+    hintHtml = `${hours} ชั่วโมง ÷ ${count} แผน = <b>${ppFmt} ชั่วโมง/แผน</b> (${minPerPlan} นาที/แผน)`;
+    sumHtml  = `🪄 AI จะร่าง <b>${count} แผน</b> · รวม ${hours} ชั่วโมง · เฉลี่ย <b>${ppFmt} ชั่วโมง/แผน</b> (${minPerPlan} นาที/แผน)`;
+  } else {
+    const auto = Math.max(3, Math.min(12, Math.round(hours / 2)));
+    hintHtml = `📐 ถ้าไม่ระบุจำนวนแผน AI จะออกแบบ <b>~${auto} แผน</b> (~2 ชั่วโมง/แผน)`;
+    sumHtml  = `🪄 AI จะร่าง <b>~${auto} แผน</b> · รวม ${hours} ชั่วโมง · เฉลี่ย ~2 ชั่วโมง/แผน <em>(เพราะไม่ระบุจำนวนแผน)</em>`;
+  }
+  if (hint && txt) { txt.innerHTML = hintHtml; hint.style.display = ''; }
+  if (sumTxt) sumTxt.innerHTML = sumHtml;
+};
+
 // ─── Phase 5: 3D popup explaining unit outliner cost & flow ──
 function _confirmUnitOutlineDialog() {
   return new Promise(resolve => {
@@ -8059,8 +8107,8 @@ window._aiOutlineUnit = async function() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ AI กำลังร่าง...'; btn.style.opacity = '.6'; }
 
   try {
-    const countInput = document.getElementById('ue-outline-count');
-    const requestedCount = countInput && countInput.value ? parseInt(countInput.value) : null;
+    // Read lesson count from Step 1 (single source of truth)
+    const requestedCount = _currentUnit.lessonCount ? parseInt(_currentUnit.lessonCount) : null;
 
     // Build vocab_bank array from textarea
     const vocabBankArr = (_currentUnit.vocabBank || '')
@@ -8282,7 +8330,30 @@ window._createOutlinedLessons = function() {
       vocab:      (o.vocab_focus || []).map(w => ({ word: w, meaning: '' })),
       sentences:  [],
       media:      [],
-      activities: [],
+      // Pre-fill 5 phase rows whose times sum to outline.hours × 60 minutes
+      // so when user opens the draft, total time matches the unit plan.
+      activities: (() => {
+        const totalMin = Math.max(30, (parseInt(o.hours) || 1) * 60);
+        // Distribution: intro 15% / teach 30% / practice 25% / apply 20% / conclude 10%
+        const ratios = [0.15, 0.30, 0.25, 0.20, 0.10];
+        const phases = [
+          { phase: 'นำเข้าสู่บทเรียน', phaseClass: 'phase-intro' },
+          { phase: 'สอน',              phaseClass: 'phase-teach' },
+          { phase: 'ฝึกปฏิบัติ',       phaseClass: 'phase-practice' },
+          { phase: 'ประยุกต์ใช้',      phaseClass: 'phase-apply' },
+          { phase: 'สรุปบทเรียน',      phaseClass: 'phase-conclude' },
+        ];
+        const times = ratios.map(r => Math.max(5, Math.round(totalMin * r)));
+        // Adjust last phase so sum is exact
+        const diff = totalMin - times.reduce((a, b) => a + b, 0);
+        times[times.length - 1] = Math.max(5, times[times.length - 1] + diff);
+        return phases.map((p, i) => ({
+          ...p,
+          name: '',
+          detail: '',
+          time: String(times[i]),
+        }));
+      })(),
       assessments: [],
       attachments: [],
     };
