@@ -9,6 +9,94 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 
+  /* ─── 3D modal button system (used across all confirmation popups) ─── */
+  /* Styles are GLOBAL so they survive any modal opening/closing */
+  @keyframes aiwFade { from { opacity:0 } to { opacity:1 } }
+  @keyframes aiwPop  { 0% { opacity:0; transform:translateY(20px) scale(.92) rotateX(15deg) } 60% { transform:translateY(-4px) scale(1.02) rotateX(-2deg) } 100% { opacity:1; transform:translateY(0) scale(1) rotateX(0) } }
+  @keyframes aiwCoin { 0%,100% { transform:translateY(0) rotate(-8deg) } 50% { transform:translateY(-8px) rotate(8deg) } }
+
+  .aiw-btn {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 13px 22px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    border: none;
+    line-height: 1.2;
+    letter-spacing: .01em;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .aiw-btn:hover { transform: translateY(-2px); filter: brightness(1.04); }
+  .aiw-btn:active { transform: translateY(2px); filter: brightness(.96); }
+  .aiw-btn:focus-visible { outline: 3px solid rgba(124,58,237,.45); outline-offset: 2px; }
+  .aiw-btn:disabled { opacity: .55; cursor: not-allowed; transform: none !important; filter: none !important; }
+
+  /* Primary purple — used by AI use confirmation */
+  .aiw-btn.primary {
+    background: linear-gradient(180deg,#a78bfa 0%, #7c3aed 50%, #5b21b6 100%);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.25);
+    box-shadow: 0 6px 0 #4c1d95, 0 10px 24px rgba(124,58,237,.4), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .aiw-btn.primary:hover  { box-shadow: 0 8px 0 #4c1d95, 0 14px 30px rgba(124,58,237,.5), inset 0 1px 0 rgba(255,255,255,.4); }
+  .aiw-btn.primary:active { box-shadow: 0 2px 0 #4c1d95, 0 4px 10px rgba(124,58,237,.3), inset 0 1px 0 rgba(255,255,255,.3); }
+
+  /* Amber/warning — used for "Understood, thanks" + outline confirm */
+  .aiw-btn.amber {
+    background: linear-gradient(180deg,#fbbf24 0%, #d97706 50%, #92400e 100%);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(120,53,15,.4);
+    box-shadow: 0 6px 0 #78350f, 0 10px 24px rgba(217,119,6,.4), inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .aiw-btn.amber:hover  { box-shadow: 0 8px 0 #78350f, 0 14px 30px rgba(217,119,6,.55), inset 0 1px 0 rgba(255,255,255,.45); }
+  .aiw-btn.amber:active { box-shadow: 0 2px 0 #78350f, 0 4px 10px rgba(217,119,6,.3),  inset 0 1px 0 rgba(255,255,255,.3); }
+
+  /* Green/success — used for "Go to Unit Planner" (the recommended path) */
+  .aiw-btn.green {
+    background: linear-gradient(180deg,#6ee7b7 0%, #10b981 50%, #047857 100%);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(6,78,59,.4);
+    box-shadow: 0 6px 0 #064e3b, 0 10px 24px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .aiw-btn.green:hover  { box-shadow: 0 8px 0 #064e3b, 0 14px 30px rgba(16,185,129,.55), inset 0 1px 0 rgba(255,255,255,.45); }
+  .aiw-btn.green:active { box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(16,185,129,.3),  inset 0 1px 0 rgba(255,255,255,.3); }
+
+  /* Blue (less used now — kept for compat) */
+  .aiw-btn.blue {
+    background: linear-gradient(180deg,#93c5fd 0%, #3b82f6 50%, #1e40af 100%);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(30,58,138,.4);
+    box-shadow: 0 6px 0 #1e3a8a, 0 10px 24px rgba(59,130,246,.4), inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .aiw-btn.blue:hover  { box-shadow: 0 8px 0 #1e3a8a, 0 14px 30px rgba(59,130,246,.55), inset 0 1px 0 rgba(255,255,255,.45); }
+  .aiw-btn.blue:active { box-shadow: 0 2px 0 #1e3a8a, 0 4px 10px rgba(59,130,246,.3),  inset 0 1px 0 rgba(255,255,255,.3); }
+
+  /* Soft/secondary — used for cancel + de-emphasized "continue anyway" */
+  .aiw-btn.secondary {
+    background: linear-gradient(180deg,#ffffff 0%, #f3f4f6 100%);
+    color: #374151;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 4px 0 #9ca3af, 0 6px 16px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  .aiw-btn.secondary:hover  { box-shadow: 0 6px 0 #9ca3af, 0 8px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.9); }
+  .aiw-btn.secondary:active { box-shadow: 0 1px 0 #9ca3af, 0 2px 6px  rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.7); }
+
+  /* Ghost — pure white card-style (used for de-incentivized actions) */
+  .aiw-btn.ghost {
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 0 #cbd5e1, 0 6px 14px rgba(15,23,42,.06), inset 0 1px 0 rgba(255,255,255,.9);
+    font-weight: 600;
+  }
+  .aiw-btn.ghost:hover  { color: #1e293b; box-shadow: 0 6px 0 #cbd5e1, 0 8px 18px rgba(15,23,42,.1),  inset 0 1px 0 rgba(255,255,255,.9); }
+  .aiw-btn.ghost:active { box-shadow: 0 1px 0 #cbd5e1, 0 2px 5px  rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.7); }
+  /* ─── End modal button system ─── */
+
+
   :root {
     --primary: #2563eb;
     --primary-light: #dbeafe;
@@ -8095,15 +8183,9 @@ function _confirmStandalonePlanDialog() {
           </ul>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;">
-          <button id="sp-cancel" class="aiw-btn secondary">ยกเลิก</button>
-          <button id="sp-unit" class="aiw-btn primary"
-            style="background:linear-gradient(180deg,#a7f3d0 0%, #10b981 50%, #047857 100%);box-shadow:0 6px 0 #064e3b,0 10px 24px rgba(16,185,129,.4),inset 0 1px 0 rgba(255,255,255,.4);">
-            📚 ไปที่ Unit Planner
-          </button>
-          <button id="sp-continue" class="aiw-btn primary"
-            style="background:linear-gradient(180deg,#93c5fd 0%, #3b82f6 50%, #1e40af 100%);box-shadow:0 6px 0 #1e3a8a,0 10px 24px rgba(59,130,246,.4),inset 0 1px 0 rgba(255,255,255,.4);">
-            ✏️ สร้างแผนเดี่ยวต่อ
-          </button>
+          <button id="sp-cancel"   class="aiw-btn secondary">ยกเลิก</button>
+          <button id="sp-continue" class="aiw-btn ghost">✏️ สร้างแผนเดี่ยวต่อ</button>
+          <button id="sp-unit"     class="aiw-btn green">📚 ไปที่ Unit Planner</button>
         </div>
         <label style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:.78rem;color:#64748b;cursor:pointer;user-select:none;">
           <input type="checkbox" id="sp-dont-ask" style="cursor:pointer;accent-color:#3b82f6;">
@@ -8178,11 +8260,8 @@ function _confirmUnitOutlineDialog(planCount) {
           </ul>
         </div>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-          <button id="uoc-cancel" class="aiw-btn secondary">ยกเลิก</button>
-          <button id="uoc-confirm" class="aiw-btn primary"
-            style="background:linear-gradient(180deg,#fbbf24 0%, #d97706 50%, #92400e 100%);box-shadow:0 6px 0 #78350f,0 10px 24px rgba(217,119,6,.4),inset 0 1px 0 rgba(255,255,255,.4);">
-            🪄 ดำเนินการต่อ
-          </button>
+          <button id="uoc-cancel"  class="aiw-btn secondary">ยกเลิก</button>
+          <button id="uoc-confirm" class="aiw-btn amber">🪄 ดำเนินการต่อ</button>
         </div>
       </div>`;
     document.body.appendChild(ov);
@@ -9651,22 +9730,6 @@ window.renderUnitDashboard = renderUnitDashboard;
       ov.id = 'ai-credit-warning-overlay';
       ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:11000;padding:18px;animation:aiwFade .2s ease-out';
       ov.innerHTML = `
-        <style>
-          @keyframes aiwFade { from { opacity:0 } to { opacity:1 } }
-          @keyframes aiwPop  { 0% { opacity:0; transform:translateY(20px) scale(.92) rotateX(15deg) } 60% { transform:translateY(-4px) scale(1.02) rotateX(-2deg) } 100% { opacity:1; transform:translateY(0) scale(1) rotateX(0) } }
-          @keyframes aiwCoin { 0%,100% { transform:translateY(0) rotate(-8deg) } 50% { transform:translateY(-8px) rotate(8deg) } }
-          .aiw-btn { font-family:inherit; font-weight:700; font-size:.95rem; padding:13px 22px; border-radius:12px; cursor:pointer; transition:transform .12s, box-shadow .12s; border:none; }
-          .aiw-btn:hover { transform:translateY(-2px); }
-          .aiw-btn:active { transform:translateY(1px); }
-          .aiw-btn.primary { background:linear-gradient(180deg,#a78bfa 0%, #7c3aed 50%, #5b21b6 100%); color:#fff;
-            box-shadow: 0 6px 0 #4c1d95, 0 10px 24px rgba(124,58,237,.4), inset 0 1px 0 rgba(255,255,255,.4); }
-          .aiw-btn.primary:hover { box-shadow: 0 8px 0 #4c1d95, 0 14px 30px rgba(124,58,237,.5), inset 0 1px 0 rgba(255,255,255,.4); }
-          .aiw-btn.primary:active { box-shadow: 0 2px 0 #4c1d95, 0 4px 10px rgba(124,58,237,.3), inset 0 1px 0 rgba(255,255,255,.3); }
-          .aiw-btn.secondary { background:linear-gradient(180deg,#f9fafb 0%, #e5e7eb 100%); color:#374151;
-            box-shadow: 0 4px 0 #9ca3af, 0 6px 16px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.8); border:1px solid #d1d5db; }
-          .aiw-btn.secondary:hover { box-shadow: 0 6px 0 #9ca3af, 0 8px 20px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.8); }
-          .aiw-btn.secondary:active { box-shadow: 0 1px 0 #9ca3af, 0 2px 6px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6); }
-        </style>
         <div style="background:linear-gradient(165deg,#ffffff 0%,#faf5ff 100%);border-radius:22px;max-width:460px;width:100%;
                     padding:32px 30px 26px;font-family:inherit;text-align:center;
                     box-shadow:0 30px 80px -20px rgba(91,33,182,.5),0 12px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.8);
@@ -9748,7 +9811,7 @@ window.renderUnitDashboard = renderUnitDashboard;
           แนะนำให้ <b style="color:#059669;">ตรวจทานและแก้ไข</b>ผลลัพธ์ของ AI ก่อนนำไปใช้สอนทุกครั้ง
         </p>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;">
-          <button id="airw-ok" class="aiw-btn primary" style="background:linear-gradient(180deg,#fbbf24 0%, #d97706 50%, #92400e 100%);box-shadow:0 6px 0 #78350f,0 10px 24px rgba(217,119,6,.4),inset 0 1px 0 rgba(255,255,255,.4);">✓ เข้าใจแล้ว ขอบคุณ</button>
+          <button id="airw-ok" class="aiw-btn amber">✓ เข้าใจแล้ว ขอบคุณ</button>
         </div>
         <label style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:.78rem;color:#78716c;cursor:pointer;user-select:none;">
           <input type="checkbox" id="airw-dont-ask" style="cursor:pointer;accent-color:#d97706;">
