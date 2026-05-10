@@ -2086,82 +2086,190 @@
   }
   .dash-logout-btn:hover { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
 
-  /* Top-up button */
+  /* "Support" button — soft green, less commercial than purple gradient */
   .dash-topup-btn {
-    display: flex; align-items: center; gap: 4px;
-    padding: 7px 13px; border-radius: 8px;
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 14px; border-radius: 10px;
+    background: linear-gradient(180deg, #6ee7b7 0%, #10b981 60%, #047857 100%);
     color: white; border: none;
-    font-family: inherit; font-size: .82rem; font-weight: 600;
-    cursor: pointer; transition: opacity .15s;
-    white-space: nowrap;
+    font-family: inherit; font-size: .82rem; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(6,78,59,.3);
+    box-shadow: 0 3px 0 #064e3b, 0 5px 12px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.4);
+    transition: transform .12s, box-shadow .12s, filter .12s;
   }
-  .dash-topup-btn:hover { opacity: .88; }
+  .dash-topup-btn:hover  { transform: translateY(-1px); filter: brightness(1.05); box-shadow: 0 4px 0 #064e3b, 0 7px 14px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.45); }
+  .dash-topup-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #064e3b, 0 2px 6px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.3); }
   @media (max-width: 640px) { .dash-topup-btn { display: none; } }
 
-  /* ─── Top-up Modal ─── */
+  /* ─── Top-up Modal — "Become a Supporter" 3D theme ─── */
+  @keyframes topupHeart  { 0%,100% { transform:translateY(0) scale(1) } 35% { transform:translateY(-4px) scale(1.05) } 70% { transform:translateY(0) scale(.97) } }
+  @keyframes topupSprout { 0% { opacity:0; transform:scale(.6) translateY(8px) } 100% { opacity:1; transform:scale(1) translateY(0) } }
+  @keyframes topupShine  { 0% { transform:translateX(-120%) } 100% { transform:translateX(220%) } }
+
   .topup-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.55);
+    position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(6px);
     z-index: 10100; display: flex; align-items: center; justify-content: center;
-    padding: 20px;
+    padding: 20px; animation: aiwFade .25s ease-out;
   }
   .topup-modal {
-    background: white; border-radius: 20px; width: 100%; max-width: 520px;
-    max-height: 90vh; overflow-y: auto; position: relative;
-    box-shadow: 0 25px 60px rgba(0,0,0,.2);
+    background: linear-gradient(170deg, #ffffff 0%, #f0fdf4 50%, #fef9c3 100%);
+    border-radius: 24px; width: 100%; max-width: 540px;
+    max-height: 92vh; overflow-y: auto; position: relative;
+    box-shadow:
+      0 30px 80px -10px rgba(15,23,42,.35),
+      0 18px 30px -10px rgba(16,185,129,.18),
+      inset 0 1px 0 rgba(255,255,255,.85);
+    transform-style: preserve-3d;
+    animation: aiwPop .4s cubic-bezier(.34,1.56,.64,1);
+    border: 1px solid rgba(187,247,208,.6);
   }
   .topup-modal-header {
-    padding: 28px 28px 18px; text-align: center;
-    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-    border-radius: 20px 20px 0 0;
+    padding: 32px 28px 22px; text-align: center; position: relative;
+    background: linear-gradient(135deg,#ecfdf5 0%, #d1fae5 50%, #fef3c7 100%);
+    border-radius: 24px 24px 0 0;
+    overflow: hidden;
   }
-  .topup-modal-header h2 { margin: 8px 0 4px; font-size: 1.3rem; color: #3730a3; }
-  .topup-modal-header p  { margin: 0; font-size: .9rem; color: #6b7280; }
-  .topup-modal-body { padding: 20px 24px 28px; }
+  .topup-modal-header::after {
+    /* Shine sweep */
+    content: ''; position: absolute; top: -50%; left: 0; width: 60%; height: 200%;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.55) 50%, transparent 70%);
+    pointer-events: none;
+    animation: topupShine 5s ease-in-out infinite;
+  }
+  .topup-modal-header .topup-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 84px; height: 84px;
+    background: linear-gradient(145deg,#a7f3d0 0%, #10b981 60%, #047857 100%);
+    border-radius: 50%; font-size: 2.4rem; line-height: 1;
+    box-shadow:
+      0 14px 30px -8px rgba(16,185,129,.55),
+      inset 0 -5px 10px rgba(6,78,59,.4),
+      inset 0 5px 10px rgba(255,255,255,.55);
+    animation: topupHeart 2.8s ease-in-out infinite;
+    margin-bottom: 6px;
+  }
+  .topup-modal-header h2 {
+    margin: 10px 0 6px; font-size: 1.45rem; color: #064e3b; font-weight: 800;
+    letter-spacing: -.01em; line-height: 1.3;
+    text-shadow: 0 1px 0 rgba(255,255,255,.7);
+  }
+  .topup-modal-header p {
+    margin: 0; font-size: .92rem; color: #475569; line-height: 1.6;
+    max-width: 420px; margin-left: auto; margin-right: auto;
+  }
+  .topup-modal-header .topup-balance {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.85);
+    border: 1px solid rgba(16,185,129,.3);
+    color: #047857; font-size: .82rem; font-weight: 700;
+    padding: 6px 14px; border-radius: 999px; margin-top: 12px;
+    box-shadow: 0 2px 6px rgba(16,185,129,.15);
+  }
+  .topup-modal-body { padding: 22px 26px 28px; position: relative; z-index: 1; }
   .topup-modal-close {
     position: absolute; top: 14px; right: 16px;
-    background: rgba(255,255,255,.8); border: none; border-radius: 50%;
-    width: 32px; height: 32px; cursor: pointer; font-size: 1rem;
+    background: rgba(255,255,255,.85); border: 1px solid rgba(0,0,0,.05);
+    border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 1rem;
     display: flex; align-items: center; justify-content: center;
-    color: #6b7280; transition: background .15s;
+    color: #475569; transition: all .15s;
+    z-index: 5;
+    box-shadow: 0 2px 6px rgba(0,0,0,.08);
   }
-  .topup-modal-close:hover { background: white; color: #1f2937; }
+  .topup-modal-close:hover { background: white; color: #1f2937; transform: scale(1.05); }
+
+  /* Section labels (small, gentle) */
+  .topup-section-label {
+    font-size: .82rem; font-weight: 700; color: #047857;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+  }
+
   .topup-packages-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;
   }
   @media (max-width: 400px) { .topup-packages-grid { grid-template-columns: 1fr; } }
+
+  /* 3D package cards */
   .topup-pkg-card {
-    border: 2px solid #e5e7eb; border-radius: 14px; padding: 16px 14px;
-    cursor: pointer; transition: all .15s; text-align: center; position: relative;
-    background: white;
+    border: 2px solid #d1fae5; border-radius: 16px; padding: 18px 14px 14px;
+    cursor: pointer; text-align: center; position: relative;
+    background: linear-gradient(165deg, #ffffff 0%, #f0fdf4 100%);
+    box-shadow:
+      0 4px 0 #a7f3d0,
+      0 8px 22px -8px rgba(16,185,129,.18),
+      inset 0 1px 0 rgba(255,255,255,.9);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    animation: topupSprout .4s ease-out backwards;
   }
-  .topup-pkg-card:hover { border-color: #7c3aed; background: #faf5ff; }
-  .topup-pkg-card.selected { border-color: #7c3aed; background: #f5f3ff; box-shadow: 0 0 0 3px #c4b5fd; }
-  .topup-pkg-card .pkg-credits { font-size: 1.6rem; font-weight: 800; color: #4c1d95; }
-  .topup-pkg-card .pkg-label   { font-size: .8rem; color: #6b7280; margin-bottom: 8px; }
-  .topup-pkg-card .pkg-price   { font-size: 1.1rem; font-weight: 700; color: #1f2937; }
-  .topup-pkg-card .pkg-per     { font-size: .72rem; color: #9ca3af; margin-top: 2px; }
+  .topup-pkg-card:nth-child(1) { animation-delay: 0s; }
+  .topup-pkg-card:nth-child(2) { animation-delay: .06s; }
+  .topup-pkg-card:nth-child(3) { animation-delay: .12s; }
+  .topup-pkg-card:nth-child(4) { animation-delay: .18s; }
+  .topup-pkg-card:hover {
+    transform: translateY(-3px);
+    border-color: #10b981;
+    box-shadow:
+      0 7px 0 #6ee7b7,
+      0 14px 30px -10px rgba(16,185,129,.35),
+      inset 0 1px 0 rgba(255,255,255,.95);
+  }
+  .topup-pkg-card:active { transform: translateY(2px); box-shadow: 0 1px 0 #a7f3d0, 0 4px 10px rgba(16,185,129,.18), inset 0 1px 0 rgba(255,255,255,.7); }
+  .topup-pkg-card.selected {
+    border-color: #047857;
+    background: linear-gradient(165deg, #ecfdf5 0%, #d1fae5 100%);
+    box-shadow:
+      0 4px 0 #047857,
+      0 0 0 3px rgba(16,185,129,.25),
+      0 12px 28px -8px rgba(16,185,129,.4),
+      inset 0 1px 0 rgba(255,255,255,.9);
+    transform: translateY(-1px);
+  }
+  .topup-pkg-card .pkg-credits {
+    font-size: 1.85rem; font-weight: 800; color: #065f46;
+    line-height: 1; margin-bottom: 2px;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
+  }
+  .topup-pkg-card .pkg-label   { font-size: .8rem; color: #047857; margin-bottom: 10px; font-weight: 600; }
+  .topup-pkg-card .pkg-price   { font-size: 1.15rem; font-weight: 800; color: #1f2937; }
+  .topup-pkg-card .pkg-per     { font-size: .72rem; color: #6b7280; margin-top: 4px; }
   .topup-pkg-badge {
-    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: white; font-size: .65rem; font-weight: 700; padding: 2px 10px;
-    border-radius: 999px; white-space: nowrap;
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%);
+    color: #78350f; font-size: .7rem; font-weight: 800; padding: 4px 12px;
+    border-radius: 999px; white-space: nowrap; letter-spacing: .02em;
+    box-shadow: 0 4px 10px rgba(217,119,6,.3), inset 0 1px 0 rgba(255,255,255,.45);
+    border: 1px solid rgba(255,255,255,.5);
   }
+
   .topup-contact-box {
-    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px;
-    padding: 16px 18px; margin-top: 12px;
+    background: linear-gradient(165deg,#ffffff,#f0fdf4);
+    border: 1px solid #bbf7d0; border-radius: 14px;
+    padding: 16px 18px; margin-top: 14px;
+    box-shadow: 0 4px 12px -4px rgba(16,185,129,.15), inset 0 1px 0 rgba(255,255,255,.8);
   }
-  .topup-contact-box h4 { margin: 0 0 10px; font-size: .9rem; color: #166534; }
+  .topup-contact-box h4 { margin: 0 0 10px; font-size: .92rem; color: #064e3b; font-weight: 700; }
   .topup-contact-box p  { margin: 4px 0; font-size: .85rem; color: #374151; }
+
   .topup-confirm-btn {
-    width: 100%; margin-top: 14px; padding: 13px;
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: white; border: none; border-radius: 10px;
-    font-family: inherit; font-size: 1rem; font-weight: 600;
-    cursor: pointer; transition: opacity .15s;
+    width: 100%; margin-top: 16px; padding: 14px 22px;
+    background: linear-gradient(180deg,#6ee7b7 0%, #10b981 50%, #047857 100%);
+    color: white; border: none; border-radius: 12px;
+    font-family: inherit; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: transform .12s, box-shadow .12s, filter .12s;
+    text-shadow: 0 1px 2px rgba(6,78,59,.4);
+    box-shadow: 0 6px 0 #064e3b, 0 10px 24px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.45);
   }
-  .topup-confirm-btn:hover { opacity: .9; }
-  .topup-confirm-btn:disabled { opacity: .5; cursor: default; }
+  .topup-confirm-btn:hover  { transform: translateY(-2px); filter: brightness(1.04); box-shadow: 0 8px 0 #064e3b, 0 14px 30px rgba(16,185,129,.55), inset 0 1px 0 rgba(255,255,255,.5); }
+  .topup-confirm-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.3); }
+  .topup-confirm-btn:disabled { opacity: .55; cursor: not-allowed; transform: none !important; filter: none !important; }
+
+  .topup-thanks-note {
+    margin-top: 16px; padding: 12px 14px;
+    background: linear-gradient(135deg,#fef3c7,#fde68a);
+    border: 1px solid #fcd34d; border-radius: 12px;
+    font-size: .83rem; color: #78350f; line-height: 1.6; text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5);
+  }
   .topup-history-list { margin-top: 4px; }
   .topup-history-item {
     display: flex; justify-content: space-between; align-items: center;
@@ -2335,12 +2443,12 @@
       </div>
     </div>
     <div class="dash-topbar-right">
-      <div class="dash-quota" id="dash-quota-widget" title="จำนวนแผนที่ Export ได้ — AI ช่วยสร้างฟรี คลิกเพื่อเติมเครดิต" onclick="openTopupModal()" style="cursor:pointer;">
+      <div class="dash-quota" id="dash-quota-widget" title="เครดิตคงเหลือ — AI ช่วยสร้างฟรี · คลิกเพื่อร่วมสนับสนุนโปรเจกต์" onclick="openTopupModal()" style="cursor:pointer;">
         <span>⚡</span>
         <span>เหลือ <b id="dash-quota-text">—</b> แผน</span>
         <div class="dash-quota-bar"><span id="dash-quota-fill" style="width:0%;"></span></div>
       </div>
-      <button class="dash-topup-btn" onclick="openTopupModal()" title="เติมเครดิต">+ เติมเครดิต</button>
+      <button class="dash-topup-btn" onclick="openTopupModal()" title="ร่วมสนับสนุนโปรเจกต์">💚 ร่วมสนับสนุน</button>
       <div class="dash-avatar" id="dash-avatar" onclick="openProfileMenu()" title="โปรไฟล์">คณ</div>
       <button id="dash-logout-btn" class="dash-logout-btn" type="button" title="ออกจากระบบ">
         <span style="font-size:1rem">⏻</span><span>ออกจากระบบ</span>
@@ -2503,10 +2611,10 @@
                   <span style="font-size:0.85rem; color:#5b21b6;">⚡ เครดิตคงเหลือ</span>
                   <span id="profile-quota-text" style="font-size:1.1rem; font-weight:800; color:#5b21b6;">— แผน</span>
                 </div>
-                <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
-                  ⚡ เติมเครดิต
+                <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#10b981,#047857); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
+                  💚 ร่วมสนับสนุนโปรเจกต์
                 </button>
-                <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 5 แผนแรก · ใช้ AI ฟรีไม่จำกัด</div>
+                <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 10 แผนแรก · AI ช่วยฟรีไม่จำกัด</div>
               </div>
             </div>
             <div>
@@ -5317,9 +5425,9 @@ async function chargeExportCredit(format) {
       return true;
     }
     if (res.status === 402) {
-      showExportToast('❌ เครดิตไม่เพียงพอ กรุณาเติมเครดิต', 'err');
+      showExportToast('💚 เครดิตหมดแล้ว — มาร่วมสนับสนุนโปรเจกต์กันต่อนะคะ', 'info');
       if (typeof window.openTopupModal === 'function') {
-        setTimeout(() => window.openTopupModal(), 600);
+        setTimeout(() => window.openTopupModal(), 400);
       }
       return false;
     }
@@ -8362,8 +8470,10 @@ window._aiOutlineUnit = async function() {
     if (!res.ok || !r.ok) {
       const msg = r.message || 'AI ขัดข้อง กรุณาลองใหม่';
       if (res.status === 402) {
-        alert('❌ เครดิตไม่เพียงพอ (ต้องการ 2 เครดิต) กรุณาเติมเครดิต');
-        if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 600);
+        if (typeof window.showExportToast === 'function') {
+          window.showExportToast('💚 เครดิตยังไม่พอสำหรับร่างทั้งหน่วย — ลองร่วมสนับสนุนโปรเจกต์ดูนะคะ', 'info');
+        }
+        if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 400);
       } else {
         alert('❌ ' + msg);
       }
@@ -9079,31 +9189,46 @@ window.renderUnitDashboard = renderUnitDashboard;
   <div class="topup-modal">
     <button class="topup-modal-close" onclick="closeTopupModal()">✕</button>
     <div class="topup-modal-header">
-      <div style="font-size:2.2rem;">⚡</div>
-      <h2>เติมเครดิตทำแผน</h2>
-      <p>ยอดคงเหลือ: <b id="topup-current-credits">—</b> แผน</p>
-      <p style="font-size:.78rem; color:#7c3aed; background:#f5f3ff; border-radius:8px; padding:6px 12px; margin-top:8px; margin-bottom:0;">
-        ✨ ใช้ AI ช่วยสร้างแผนได้ฟรีไม่จำกัด — เสีย 1 เครดิตเมื่อ Export เท่านั้น
+      <div class="topup-icon">🌿</div>
+      <h2>ร่วมเป็น "ผู้สนับสนุนรุ่นแรก" ของเรา</h2>
+      <p>
+        หากคุณครูชอบแผนการสอนนี้ และอยากช่วยให้โปรเจกต์นี้พัฒนาต่อไป<br>
+        การสนับสนุนเล็กๆ ของคุณครูจะเป็น<b style="color:#047857;">กำลังใจ</b>ให้ทีมงานพัฒนาฟีเจอร์ใหม่ๆ ต่อไปค่ะ 💗
       </p>
+      <div class="topup-balance">
+        <span>💎</span>
+        <span>เครดิตคงเหลือ: <span id="topup-current-credits">—</span></span>
+      </div>
     </div>
     <div class="topup-modal-body">
       <!-- Packages grid -->
-      <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">เลือกแพ็กเกจ</div>
+      <div class="topup-section-label">
+        <span>🎁</span>
+        <span>เลือกแพ็กเกจที่อยากร่วมสนับสนุน</span>
+      </div>
       <div class="topup-packages-grid" id="topup-packages-grid">
         <!-- Rendered by JS -->
       </div>
 
       <!-- Contact / payment info (shown after selecting a package) -->
       <div id="topup-contact-box" class="topup-contact-box" style="display:none;">
-        <h4>📋 วิธีชำระเงิน</h4>
+        <h4>📋 วิธีร่วมสนับสนุน</h4>
         <div id="topup-payment-instructions">
           <!-- Rendered by JS -->
         </div>
       </div>
 
+      <!-- Thank-you note -->
+      <div class="topup-thanks-note">
+        💚 ทุกการสนับสนุน ไม่ว่าเล็กหรือใหญ่ ล้วนเป็นกำลังใจสำคัญ — ขอบคุณคุณครูทุกท่านที่ร่วมเดินทางไปด้วยกัน
+      </div>
+
       <!-- Transaction history tab -->
-      <div style="margin-top:20px; border-top:1px solid #f3f4f6; padding-top:16px;">
-        <div style="font-size:.82rem; font-weight:600; color:#374151; margin-bottom:10px;">ประวัติเครดิต</div>
+      <div style="margin-top:22px; border-top:1px dashed #d1fae5; padding-top:16px;">
+        <div class="topup-section-label">
+          <span>📜</span>
+          <span>ประวัติเครดิต</span>
+        </div>
         <div id="topup-history-list" class="topup-history-list">
           <div style="font-size:.85rem; color:#9ca3af; text-align:center; padding:12px;">กำลังโหลด...</div>
         </div>
@@ -9879,8 +10004,8 @@ window.renderUnitDashboard = renderUnitDashboard;
       return;
     }
     if (r.status === 402) {
-      _aiToast('❌ เครดิตไม่เพียงพอ กรุณาเติมเครดิต', 'err');
-      if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 600);
+      _aiToast('💚 เครดิตหมดแล้ว — มาร่วมสนับสนุนโปรเจกต์กันต่อนะคะ', 'info');
+      if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 400);
     } else if (r.status === 503) {
       _aiToast('❌ ระบบ AI ยังไม่พร้อมใช้งาน', 'err');
     } else if (r.status === 429) {
@@ -10450,9 +10575,9 @@ document.addEventListener('click', (e) => {
       return `<div class="topup-pkg-card" data-pkg-id="${pkg.id}" onclick="window._selectPkg('${pkg.id}')">
         ${badge}
         <div class="pkg-credits">${pkg.credits}</div>
-        <div class="pkg-label">แผน</div>
+        <div class="pkg-label">เครดิต</div>
         ${priceBlock}
-        <div class="pkg-per">${perPlan} บาท/แผน</div>
+        <div class="pkg-per">≈ ${perPlan} บาท/แผน</div>
       </div>`;
     }).join('');
   }
@@ -10579,9 +10704,9 @@ document.addEventListener('click', (e) => {
           instr.innerHTML = `
             <div style="text-align:center; padding:18px 12px;">
               <div style="font-size:2.2rem; margin-bottom:8px;">🛠️</div>
-              <p style="font-weight:700; color:#1a1f3a; margin-bottom:6px;">ระบบเติมเครดิตยังไม่พร้อม</p>
+              <p style="font-weight:700; color:#1a1f3a; margin-bottom:6px;">ช่องทางสนับสนุนยังไม่พร้อม</p>
               <p style="font-size:.85rem; color:#6b7280; line-height:1.5;">
-                กรุณาติดต่อผู้ดูแลระบบเพื่อเติมเครดิตด้วยตนเอง
+                กรุณาติดต่อทีมงานโดยตรงเพื่อร่วมสนับสนุนโปรเจกต์ค่ะ 💚
               </p>
             </div>`;
           return;
