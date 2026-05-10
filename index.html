@@ -2242,12 +2242,10 @@
   }
 
   .topup-contact-box {
-    background: linear-gradient(165deg,#ffffff,#f0fdf4);
-    border: 1px solid #bbf7d0; border-radius: 14px;
-    padding: 16px 18px; margin-top: 14px;
-    box-shadow: 0 4px 12px -4px rgba(16,185,129,.15), inset 0 1px 0 rgba(255,255,255,.8);
+    margin-top: 14px;
+    /* Inner cards (support header / qr / slip uploader / contact) provide
+       their own styling — keep the wrapper minimal. */
   }
-  .topup-contact-box h4 { margin: 0 0 10px; font-size: .92rem; color: #064e3b; font-weight: 700; }
   .topup-contact-box p  { margin: 4px 0; font-size: .85rem; color: #374151; }
 
   .topup-confirm-btn {
@@ -9212,7 +9210,6 @@ window.renderUnitDashboard = renderUnitDashboard;
 
       <!-- Contact / payment info (shown after selecting a package) -->
       <div id="topup-contact-box" class="topup-contact-box" style="display:none;">
-        <h4>📋 วิธีร่วมสนับสนุน</h4>
         <div id="topup-payment-instructions">
           <!-- Rendered by JS -->
         </div>
@@ -10651,53 +10648,89 @@ document.addEventListener('click', (e) => {
       const instr = document.getElementById('topup-payment-instructions');
       if (data.mode === 'manual') {
         const isStatic = data.qr_type === 'static';
+
+        // ─── New header: "สนับสนุนเราเพียง X บาท เพื่อสร้างแผนเพิ่มถึง Y แผน" ───
+        const supportHeader = `
+          <div style="text-align:center; margin-bottom:14px; padding:18px 14px;
+                      background:linear-gradient(135deg,#ecfdf5,#d1fae5);
+                      border:1px solid #a7f3d0; border-radius:14px;
+                      box-shadow:inset 0 1px 0 rgba(255,255,255,.7);">
+            <div style="font-size:0.92rem; color:#047857; font-weight:600; line-height:1.55;">
+              💚 สนับสนุนเราเพียง <b style="color:#065f46; font-size:1.15rem;">${pkg.price_thb} บาท</b><br>
+              เพื่อสร้างแผนเพิ่มถึง <b style="color:#065f46; font-size:1.15rem;">${pkg.credits} แผน</b>
+            </div>
+          </div>`;
+
         const amountLabel = isStatic
-          ? `<div style="background:#fef3c7; border:2px solid #f59e0b; border-radius:10px; padding:12px; margin:10px 0; text-align:center;">
-               <div style="font-size:.75rem; color:#92400e; font-weight:600;">⚠️ กรุณาพิมพ์ยอดเงินเอง</div>
-               <div style="font-size:1.8rem; font-weight:800; color:#92400e; line-height:1.1;">฿${pkg.price_thb}.00</div>
+          ? `<div style="background:linear-gradient(165deg,#fef3c7,#fde68a); border:1px solid #fcd34d; border-radius:12px; padding:14px; margin:10px 0; text-align:center;
+                        box-shadow:0 4px 10px rgba(217,119,6,.15), inset 0 1px 0 rgba(255,255,255,.55);">
+               <div style="font-size:.78rem; color:#92400e; font-weight:700; margin-bottom:2px;">⚠️ กรุณาพิมพ์ยอดเงินเอง</div>
+               <div style="font-size:1.9rem; font-weight:800; color:#78350f; line-height:1.1; letter-spacing:-.01em;">฿${pkg.price_thb}.00</div>
              </div>`
-          : `<div style="font-size:1rem; font-weight:800; color:#1a1f3a; margin-top:8px;">ยอดในตัว QR: ฿${pkg.price_thb}.00</div>`;
+          : `<div style="display:inline-block; padding:6px 14px; background:#fff;
+                        border:1px solid #d1fae5; border-radius:999px; margin:6px auto;
+                        font-size:.88rem; color:#047857; font-weight:700;
+                        box-shadow:0 2px 6px rgba(16,185,129,.12);">
+               💳 ยอดในตัว QR: ฿${pkg.price_thb}.00
+             </div>`;
+
         const qr = data.qr_image
-          ? `<div style="text-align:center; margin:12px 0;">
-               <div style="background:white; padding:8px; border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,.08);">
-                 <img src="${data.qr_image}" alt="PromptPay QR" style="max-width:240px; width:100%; height:auto; display:block;">
+          ? `<div style="text-align:center; margin:14px 0;">
+               <div style="background:#fff; padding:10px; border-radius:14px; display:inline-block;
+                           box-shadow:0 4px 16px rgba(15,23,42,.08), 0 2px 4px rgba(15,23,42,.05);
+                           border:1px solid #e5e7eb;">
+                 <img src="${data.qr_image}" alt="PromptPay QR" style="max-width:240px; width:100%; height:auto; display:block; border-radius:6px;">
                </div>
              </div>`
-          : (data.promptpay ? `<p>💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '');
-        let contact = '';
+          : (data.promptpay ? `<p style="text-align:center;">💳 <b>PromptPay:</b> ${data.promptpay}</p>` : '');
+
+        // Contact button (used for both QR-static and as fallback) — moved below auto-upload
+        let contactBlock = '';
         if (data.contact) {
           const c = data.contact;
           const isUrl = /^https?:\/\//i.test(c);
           const isFb = /facebook\.com/i.test(c);
-          const icon = isFb ? '📘' : '📱';
-          const label = isFb ? 'Facebook Page' : (isUrl ? 'ติดต่อ' : c);
-          contact = isUrl
-            ? `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> <a href="${c}" target="_blank" rel="noopener" style="color:#1d4ed8; text-decoration:underline; font-weight:600;">${label}</a></p>`
-            : `<p style="margin-top:10px;">${icon} <b>ส่งสลิปทาง:</b> ${c}</p>`;
+          const platform = isFb ? 'Facebook Page' : (isUrl ? 'ลิงก์ติดต่อ' : c);
+          const platformIcon = isFb ? '📘' : (isUrl ? '🔗' : '📱');
+          const linkBtn = isUrl
+            ? `<a href="${c}" target="_blank" rel="noopener"
+                  class="aiw-btn green"
+                  style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; padding:11px 20px; font-size:.9rem;">
+                 ${platformIcon} ส่งสลิปทาง ${platform}
+               </a>`
+            : `<div style="font-weight:700; color:#1a1f3a;">${platformIcon} ${c}</div>`;
+          contactBlock = `
+            <div style="margin-top:18px; padding:16px 14px; background:linear-gradient(165deg,#ffffff,#f0fdf4);
+                        border:1px dashed #a7f3d0; border-radius:14px; text-align:center;">
+              <div style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
+                หากชำระเงินแล้ว <b style="color:#dc2626;">ไม่ได้รับเครดิต</b><br>
+                คุณครูสามารถส่งสลิปให้ทีมงานเพื่อตรวจสอบได้
+              </div>
+              ${linkBtn}
+            </div>`;
         }
-        const note = data.note || 'กรุณาโอนเงินแล้วส่งสลิปให้ผู้ดูแลระบบ';
-        // Slip uploader is only useful if SlipOK is configured on the backend.
-        // Otherwise it just produces a 500 error → hide it.
+
+        // Auto-upload section (SlipOK) — primary path on top
         const slipUploader = _topupConfig.slipok ? `
-          <div style="margin-top:14px; padding-top:14px; border-top:1px dashed #e5e7eb;">
-            <div style="font-size:.85rem; font-weight:700; color:#1a1f3a; margin-bottom:6px; text-align:center;">
-              📤 อัพโหลดสลิปเพื่อรับเครดิตอัตโนมัติ
+          <div style="margin-top:16px; padding:18px 16px; background:linear-gradient(165deg,#f0fdf4,#dcfce7);
+                      border:1px solid #86efac; border-radius:14px;
+                      box-shadow:0 4px 12px rgba(16,185,129,.12), inset 0 1px 0 rgba(255,255,255,.7);">
+            <div style="font-size:.95rem; font-weight:800; color:#064e3b; margin-bottom:4px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
+              <span>📤</span><span>อัพโหลดสลิปเพื่อรับเครดิตอัตโนมัติ</span>
             </div>
-            <div style="font-size:.72rem; color:#6b7280; text-align:center; margin-bottom:8px;">
-              ระบบตรวจสอบสลิปอัตโนมัติด้วย SlipOK เมื่อยืนยันแล้วเครดิตเข้าทันที
+            <div style="font-size:.78rem; color:#047857; text-align:center; margin-bottom:14px; line-height:1.55;">
+              ระบบตรวจสอบสลิปอัตโนมัติด้วย SlipOK<br>
+              <b>ยืนยันแล้วเครดิตเข้าทันที</b>
             </div>
             <input type="file" id="topup-slip-input" accept="image/*" style="display:none;" onchange="window._uploadSlip(event)">
-            <button onclick="document.getElementById('topup-slip-input').click()"
-                    class="topup-slip-btn"
-                    style="width:100%; padding:12px; border-radius:10px; border:2px dashed #6b7280;
-                           background:#f9fafb; cursor:pointer; font-size:.92rem; font-weight:600; color:#1a1f3a;
-                           transition:all .15s;"
-                    onmouseover="this.style.borderColor='#1a1f3a'; this.style.background='#f3f4f6';"
-                    onmouseout="this.style.borderColor='#6b7280'; this.style.background='#f9fafb';">
+            <button onclick="document.getElementById('topup-slip-input').click()" class="aiw-btn green"
+                    style="width:100%; padding:14px 22px; font-size:1rem;">
               📷 เลือกรูปสลิป
             </button>
-            <div id="topup-slip-status" style="margin-top:10px; font-size:.85rem;"></div>
+            <div id="topup-slip-status" style="margin-top:10px; font-size:.85rem; text-align:center;"></div>
           </div>` : '';
+
+        const note = data.note ? `<p style="font-size:.78rem; color:#6b7280; text-align:center; margin-top:10px; line-height:1.5;">${data.note}</p>` : '';
 
         // No QR + no contact + no SlipOK → show a clear "not ready" state instead of empty silence
         if (!data.qr_image && !data.contact && !_topupConfig.slipok) {
@@ -10711,13 +10744,14 @@ document.addEventListener('click', (e) => {
             </div>`;
           return;
         }
+        // Order: header → amount → QR → auto-upload (primary CTA) → manual fallback contact → note
         instr.innerHTML = `
-          <p style="font-size:.9rem; color:#166534; margin-bottom:6px; text-align:center;"><b>${pkg.label}</b></p>
-          ${amountLabel}
+          ${supportHeader}
+          <div style="text-align:center;">${amountLabel}</div>
           ${qr}
-          ${contact}
-          <p style="font-size:.78rem; color:#6b7280; margin-top:8px;">${note}</p>
-          ${slipUploader}`;
+          ${slipUploader}
+          ${contactBlock}
+          ${note}`;
       } else if (data.mode === 'omise' && data.qr_image) {
         instr.innerHTML = `
           <p style="font-size:.9rem; color:#166534; margin-bottom:10px;"><b>สแกน QR เพื่อชำระเงิน</b></p>
