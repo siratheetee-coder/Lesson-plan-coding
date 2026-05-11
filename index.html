@@ -1671,6 +1671,32 @@
     transition: transform 0.15s, box-shadow 0.15s;
   }
   .unit-create-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
+  .unit-cs-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    box-shadow: 0 4px 12px rgba(217,119,6,.35) !important;
+  }
+  .unit-cs-btn:hover:not(:disabled) {
+    box-shadow: 0 6px 18px rgba(217,119,6,.45) !important;
+  }
+  .unit-cs-btn:disabled {
+    background: linear-gradient(135deg, #d1d5db, #9ca3af) !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+  /* Unit card checkbox (top-left) */
+  .unit-card { position: relative; }
+  .unit-card-check {
+    position: absolute;
+    top: 10px; left: 10px;
+    width: 22px; height: 22px;
+    accent-color: #d97706;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .unit-card.selected {
+    box-shadow: 0 0 0 3px #f59e0b, 0 8px 22px rgba(217,119,6,.25);
+  }
 
   .unit-card-grid {
     display: grid;
@@ -3002,7 +3028,12 @@
               <h1 style="margin:0 0 4px; font-size:1.6rem; color:#1f2937; font-weight:700;">📚 หน่วยการเรียนรู้ของฉัน</h1>
               <p style="margin:0; color:#6b7280; font-size:0.92rem;">วางแผนภาพรวมการสอนระยะยาว รวบรวมหลายคาบเข้าเป็นหน่วยเดียว</p>
             </div>
-            <button class="unit-create-btn" onclick="openUnitEditor()">+ สร้างหน่วยใหม่</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="unit-create-btn unit-cs-btn" id="unit-cs-btn" onclick="generateCourseStructure()" disabled title="เลือกหน่วยอย่างน้อย 1 หน่วยก่อน">
+                📋 สร้างโครงสร้างรายวิชา <span id="unit-cs-count" style="display:none;">(<span id="unit-cs-count-num">0</span>)</span>
+              </button>
+              <button class="unit-create-btn" onclick="openUnitEditor()">+ สร้างหน่วยใหม่</button>
+            </div>
           </div>
           <div id="unit-card-list" class="unit-card-grid"></div>
         </div>
@@ -7713,7 +7744,8 @@ function renderUnitList() {
     const cls = escapeHtmlDash(u.classLevel || '');
     const subj = escapeHtmlDash(u.subjectName || u.subjectGroup || u.subject || '');
     return (
-      '<div class="unit-card" onclick="openUnitEditor(\'' + u.id + '\')">' +
+      '<div class="unit-card" data-unit-id="' + u.id + '" onclick="openUnitEditor(\'' + u.id + '\')">' +
+        '<input type="checkbox" class="unit-card-check" data-unit-id="' + u.id + '" onclick="event.stopPropagation(); onUnitSelectToggle(this);" title="เลือกสำหรับสร้างโครงสร้างรายวิชา">' +
         '<button class="unit-card-menu" onclick="event.stopPropagation(); confirmDeleteUnit(\'' + u.id + '\');" title="ลบ">🗑</button>' +
         '<div class="unit-card-icon">📚</div>' +
         '<div class="unit-card-title">' + title + '</div>' +
@@ -7726,6 +7758,100 @@ function renderUnitList() {
       '</div>'
     );
   }).join('');
+  // Restore previously checked units (if user re-renders the list)
+  if (Array.isArray(window._selectedUnitIds)) {
+    window._selectedUnitIds.forEach(id => {
+      const cb = box.querySelector('.unit-card-check[data-unit-id="' + id + '"]');
+      if (cb) { cb.checked = true; cb.closest('.unit-card')?.classList.add('selected'); }
+    });
+    updateCourseStructureBtn();
+  }
+}
+
+// ─── Course Structure: selection + generate ───────────────
+window._selectedUnitIds = window._selectedUnitIds || [];
+function onUnitSelectToggle(cb) {
+  const id = cb.dataset.unitId;
+  const card = cb.closest('.unit-card');
+  if (cb.checked) {
+    if (!window._selectedUnitIds.includes(id)) window._selectedUnitIds.push(id);
+    card?.classList.add('selected');
+  } else {
+    window._selectedUnitIds = window._selectedUnitIds.filter(x => x !== id);
+    card?.classList.remove('selected');
+  }
+  updateCourseStructureBtn();
+}
+function updateCourseStructureBtn() {
+  const btn = document.getElementById('unit-cs-btn');
+  const wrap = document.getElementById('unit-cs-count');
+  const num = document.getElementById('unit-cs-count-num');
+  const n = window._selectedUnitIds.length;
+  if (!btn) return;
+  btn.disabled = n === 0;
+  btn.title = n === 0 ? 'เลือกหน่วยอย่างน้อย 1 หน่วยก่อน' : 'สร้างเอกสารโครงสร้างรายวิชาจาก ' + n + ' หน่วยที่เลือก';
+  if (wrap && num) { wrap.style.display = n > 0 ? '' : 'none'; num.textContent = n; }
+}
+
+// Build indicator_map from indicatorsByLevel — only ids actually used in the
+// selected units' lessons (keeps the request payload small).
+function _buildIndicatorMap(unitIds) {
+  const map = {};
+  if (typeof indicatorsByLevel !== 'object') return map;
+  // Flatten the curriculum into a single id-keyed table
+  const flat = {};
+  for (const lvl in indicatorsByLevel) {
+    for (const ind of (indicatorsByLevel[lvl] || [])) {
+      flat[ind.id] = { code: ind.code, desc: ind.desc };
+    }
+  }
+  // Collect used ids from each unit's linked lessons
+  const units = loadUnits().filter(u => unitIds.includes(u.id));
+  const hist  = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const histById = Object.fromEntries(hist.map(h => [h.id, h]));
+  const usedIds = new Set();
+  for (const u of units) {
+    for (const lid of (u.lessonIds || [])) {
+      const lesson = histById[lid];
+      for (const id of (lesson?.data?.indicatorIds || [])) usedIds.add(id);
+    }
+  }
+  for (const id of usedIds) if (flat[id]) map[id] = flat[id];
+  return map;
+}
+
+async function generateCourseStructure() {
+  const ids = (window._selectedUnitIds || []).slice();
+  if (ids.length === 0) { alert('กรุณาเลือกหน่วยอย่างน้อย 1 หน่วยก่อน'); return; }
+  const btn = document.getElementById('unit-cs-btn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ กำลังสร้าง...';
+  try {
+    const indicator_map = _buildIndicatorMap(ids);
+    const fetcher = window.authFetch || window.fetch;
+    const res = await fetcher('/api/course-structure/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unit_ids: ids, indicator_map }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || 'ไม่สามารถสร้างเอกสารได้');
+    // Open generated HTML in a new tab
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.open();
+      win.document.write(data.html);
+      win.document.close();
+    } else {
+      alert('โปรดอนุญาต popup เพื่อดูเอกสารโครงสร้างรายวิชา');
+    }
+  } catch (e) {
+    alert('เกิดข้อผิดพลาด: ' + (e.message || 'กรุณาลองใหม่'));
+  } finally {
+    btn.innerHTML = original;
+    updateCourseStructureBtn();
+  }
 }
 function confirmDeleteUnit(id) {
   const u = getUnitById(id);

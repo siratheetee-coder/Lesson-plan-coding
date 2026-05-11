@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>โครงสร้างรายวิชา — ภาษาอังกฤษ 4</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; font-family:'Sarabun', sans-serif; background:#e5e7eb; color:#1f2937; }
+  body { padding: 24px 0; }
+  .page { width:210mm; min-height:297mm; background:white; margin:0 auto 18px; padding:22mm 18mm 22mm 22mm; box-shadow:0 4px 18px rgba(0,0,0,.12); font-size:15pt; line-height:1.55; }
+  .doc-title { text-align:center; font-size:18pt; font-weight:600; margin:0 0 14px; }
+  .info-grid { display:flex; justify-content:space-between; margin-bottom:8px; font-size:14pt; }
+  .info-grid .col { display:flex; flex-direction:column; gap:2px; }
+  .info-grid .col.right { text-align:right; }
+  hr.info-rule { border:none; border-top:1px solid #1f2937; margin:6px 0 16px; }
+  .indent-para { text-indent:32pt; text-align:justify; margin:12px 0; font-size:15pt; line-height:1.65; }
+  .indicator-codes-title { font-weight:600; font-size:16pt; margin:0 0 10px; }
+  .indicator-codes { list-style:none; padding:0; margin:0; font-size:15pt; line-height:1.9; }
+  .indicator-codes li { display:flex; gap:14px; }
+  .indicator-codes .code { min-width:60px; }
+  .indicator-total { font-weight:600; text-align:center; margin-top:12px; font-size:15pt; }
+  .strand-heading { font-weight:600; font-size:15pt; margin:16px 0 8px; }
+  .strand-list { list-style:none; padding:0; margin:0; }
+  .strand-list li { display:flex; gap:10px; margin-bottom:6px; padding-left:8px; font-size:14pt; line-height:1.55; }
+  .strand-list .idx { min-width:28px; flex-shrink:0; }
+  .strand-list .code { min-width:110px; flex-shrink:0; }
+  table.course-table, table.assess-table { width:100%; border-collapse:collapse; margin:6px 0; font-size:13pt; }
+  table.course-table th, table.course-table td, table.assess-table th, table.assess-table td { border:1px solid #1f2937; padding:8px 10px; vertical-align:top; line-height:1.45; }
+  table.course-table th, table.assess-table th { text-align:center; background:#f8fafc; font-weight:600; }
+  table.course-table td.center, table.assess-table td { text-align:center; }
+  table.course-table td.unit-name { font-weight:500; }
+  table.course-table td.indicators { white-space:normal; font-size:12.5pt; line-height:1.7; }
+  table.course-table td.essence { text-align:left; font-size:13pt; line-height:1.55; }
+  table.course-table .total-row td, table.assess-table .total-row td { font-weight:600; background:#f8fafc; }
+  .empty { color:#9ca3af; font-style:italic; }
+  .empty-row { color:#9ca3af; font-style:italic; margin:8px 0; }
+  .preview-banner { max-width:210mm; margin:0 auto 14px; background:linear-gradient(135deg,#dbeafe,#bfdbfe); border:1px solid #3b82f6; border-radius:8px; padding:14px 20px; font-size:13pt; color:#1e3a8a; }
+  .preview-banner b { color:#1d4ed8; }
+  @media print {
+    body { background:white; padding:0; }
+    .page { margin:0; box-shadow:none; page-break-after:always; width:100%; min-height:auto; padding:22mm 18mm 22mm 22mm; }
+    .page:last-child { page-break-after:auto; }
+    .preview-banner { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-banner">
+  📋 <b>โครงสร้างรายวิชา</b> — สร้างจาก 1 หน่วยที่เลือก ·
+  ใช้ <code>Ctrl+P</code> เพื่อพิมพ์ / save as PDF ·
+  ช่องที่ <span class="empty">—</span> ขีดเส้นเทาคือยังไม่มีข้อมูล (เติมในแผนหรือแก้ในเอกสารเอง)
+</div>
+
+<!-- Section 1 — คำอธิบายรายวิชา -->
+<div class="page">
+  <h1 class="doc-title">คำอธิบายรายวิชา</h1>
+  
+    <div class="info-grid">
+      <div class="col">
+        <span>รหัสวิชา อ 14101 รายวิชา ภาษาอังกฤษ 4</span>
+        <span>ภาคเรียนที่ 1 ปีการศึกษา 2566</span>
+        <span>เวลาเรียน 13 ชั่วโมง</span>
+      </div>
+      <div class="col right">
+        <span>กลุ่มสาระการเรียนรู้ ภาษาต่างประเทศ</span>
+        <span>ชั้น ประถมศึกษาปีที่ 4</span>
+        <span>เวลาเรียน <span class="empty">—</span> ชั่วโมง/สัปดาห์</span>
+      </div>
+    </div>
+    <hr class="info-rule">
+  <p class="indent-para empty-row" style="text-indent:0; text-align:center;">
+    (ย่อหน้าคำอธิบายรายวิชา — ใช้ AI สร้างได้ในขั้นถัดไป หรือพิมพ์ในเอกสารเอง)
+  </p>
+</div>
+
+<!-- Section 2 — ตัวชี้วัด (รหัสย่อ) -->
+<div class="page">
+  <h2 class="indicator-codes-title">ตัวชี้วัด</h2>
+  <ul class="indicator-codes">
+        <li>
+          <span class="code">ต 1.1</span>
+          <span>ป.4/1 , ป.4/2</span>
+        </li>
+        <li>
+          <span class="code">ต 1.2</span>
+          <span>ป.4/1</span>
+        </li></ul>
+  <p class="indicator-total">รวมทั้งหมด 3 ตัวชี้วัด</p>
+</div>
+
+<!-- Section 3 — สาระ มาตรฐาน และตัวชี้วัด (รายละเอียดเต็ม) -->
+<div class="page">
+  <h1 class="doc-title">สาระ มาตรฐานการเรียนรู้ และตัวชี้วัด</h1>
+  
+    <div class="info-grid">
+      <div class="col">
+        <span>รหัสวิชา อ 14101 รายวิชา ภาษาอังกฤษ 4</span>
+        <span>ภาคเรียนที่ 1 ปีการศึกษา 2566</span>
+        <span>เวลาเรียน 13 ชั่วโมง</span>
+      </div>
+      <div class="col right">
+        <span>กลุ่มสาระการเรียนรู้ ภาษาต่างประเทศ</span>
+        <span>ชั้น ประถมศึกษาปีที่ 4</span>
+        <span>เวลาเรียน <span class="empty">—</span> ชั่วโมง/สัปดาห์</span>
+      </div>
+    </div>
+    <hr class="info-rule">
+  
+        <div class="strand-heading">สาระที่ 1  ภาษาเพื่อการสื่อสาร</div>
+        <ul class="strand-list">
+          
+            <li>
+              <span class="idx">1)</span>
+              <span class="code">ต 1.1 ป.4/1</span>
+              <span>ปฏิบัติตามคำสั่ง คำขอร้องและคำแนะนำ (Instructions) ง่าย ๆ ที่ฟังหรืออ่าน</span>
+            </li>
+            <li>
+              <span class="idx">2)</span>
+              <span class="code">ต 1.1 ป.4/2</span>
+              <span>อ่านออกเสียงคำ สะกดคำ อ่านกลุ่มคำ ประโยค ข้อความง่ายๆ</span>
+            </li>
+            <li>
+              <span class="idx">3)</span>
+              <span class="code">ต 1.2 ป.4/1</span>
+              <span>พูด/เขียนโต้ตอบในการสื่อสารระหว่างบุคคล</span>
+            </li>
+        </ul>
+</div>
+
+<!-- Section 4 — โครงสร้างรายวิชา -->
+<div class="page">
+  <h1 class="doc-title">โครงสร้างรายวิชา</h1>
+  
+    <div class="info-grid">
+      <div class="col">
+        <span>รหัสวิชา อ 14101 รายวิชา ภาษาอังกฤษ 4</span>
+        <span>ภาคเรียนที่ 1 ปีการศึกษา 2566</span>
+        <span>เวลาเรียน 13 ชั่วโมง</span>
+      </div>
+      <div class="col right">
+        <span>กลุ่มสาระการเรียนรู้ ภาษาต่างประเทศ</span>
+        <span>ชั้น ประถมศึกษาปีที่ 4</span>
+        <span>เวลาเรียน <span class="empty">—</span> ชั่วโมง/สัปดาห์</span>
+      </div>
+    </div>
+    <hr class="info-rule">
+  <table class="course-table">
+    <thead>
+      <tr>
+        <th style="width:8%;">หน่วยที่</th>
+        <th style="width:16%;">ชื่อหน่วยการเรียนรู้</th>
+        <th style="width:18%;">มาตรฐานการเรียนรู้/<br>ตัวชี้วัด</th>
+        <th>สาระสำคัญ</th>
+        <th style="width:10%;">เวลา<br>(ชั่วโมง)</th>
+        <th style="width:10%;">น้ำหนัก<br>คะแนน</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+      <td class="center">2</td>
+      <td class="unit-name center">The amazing body</td>
+      <td class="indicators">ต 1.1 ป.4/1<br>ต 1.1 ป.4/2<br>ต 1.2 ป.4/1</td>
+      <td class="essence">??????????????????????????????????</td>
+      <td class="center">13</td>
+      <td class="center"><span class="empty">—</span></td>
+    </tr>
+      <tr class="total-row">
+        <td colspan="4">คะแนนเก็บระหว่างเรียน</td>
+        <td></td>
+        <td><span class="empty">—</span></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4">คะแนนสอบปลายปี</td>
+        <td></td>
+        <td><span class="empty">—</span></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4">รวมตลอดปี</td>
+        <td>13</td>
+        <td><span class="empty">—</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 5 — การวัดผลประเมินผล -->
+<div class="page">
+  <h1 class="doc-title">การวัดผลประเมินผล</h1>
+  
+    <div class="info-grid">
+      <div class="col">
+        <span>รหัสวิชา อ 14101 รายวิชา ภาษาอังกฤษ 4</span>
+        <span>ภาคเรียนที่ 1 ปีการศึกษา 2566</span>
+        <span>เวลาเรียน 13 ชั่วโมง</span>
+      </div>
+      <div class="col right">
+        <span>กลุ่มสาระการเรียนรู้ ภาษาต่างประเทศ</span>
+        <span>ชั้น ประถมศึกษาปีที่ 4</span>
+        <span>เวลาเรียน <span class="empty">—</span> ชั่วโมง/สัปดาห์</span>
+      </div>
+    </div>
+    <hr class="info-rule">
+  <table class="assess-table">
+    <thead>
+      <tr>
+        <th rowspan="3" style="width:8%;">หน่วยที่</th>
+        <th rowspan="3" style="width:22%;">ชื่อหน่วย<br>การเรียนรู้</th>
+        <th colspan="3">การวัดผลประเมินผล</th>
+        <th rowspan="3" style="width:14%;">รวมทั้ง<br>ปีการศึกษา<br>(100 คะแนน)</th>
+      </tr>
+      <tr>
+        <th rowspan="2" style="width:16%;">คะแนนเก็บ<br>ระหว่างเรียน</th>
+        <th colspan="2">คะแนนสอบปลายปี</th>
+      </tr>
+      <tr>
+        <th>สอบปลาย<br>ภาคเรียนที่ 1</th>
+        <th>สอบปลาย<br>ภาคเรียนที่ 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+    <tr>
+      <td>2</td>
+      <td>The amazing body</td>
+      <td><span class="empty">—</span></td>
+      <td><span class="empty">—</span></td>
+      <td><span class="empty">—</span></td>
+      <td><span class="empty">—</span></td>
+    </tr>
+      <tr class="total-row">
+        <td colspan="2">รวม</td>
+        <td><span class="empty">—</span></td>
+        <td>—</td>
+        <td>—</td>
+        <td><span class="empty">—</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

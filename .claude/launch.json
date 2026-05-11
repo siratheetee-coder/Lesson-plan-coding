@@ -2,6 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "Easy ENG Plan (backend + frontend)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--watch", "server.js"],
+      "cwd": "server",
+      "port": 3000
+    },
+    {
       "name": "Static HTML (npx serve)",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "-l", "3000", "."],

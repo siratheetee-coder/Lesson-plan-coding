@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>โครงสร้างรายวิชา — Template Preview</title>
+<style>
+  /* ─────────────────────────────────────────────────────────
+     COURSE STRUCTURE DOCUMENT TEMPLATE
+     Generic placeholders — works for any grade level / subject
+     Header, footer, and page numbers intentionally omitted
+     (will be added by the export pipeline if needed).
+     ───────────────────────────────────────────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Sarabun', 'TH Sarabun New', sans-serif;
+    background: #e5e7eb;
+    color: #1f2937;
+  }
+  body { padding: 24px 0; }
+
+  /* ── A4 page ─────────────────────────────────────────── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    margin: 0 auto 18px;
+    padding: 22mm 18mm 22mm 22mm;
+    position: relative;
+    box-shadow: 0 4px 18px rgba(0,0,0,.12);
+    font-size: 15pt;
+    line-height: 1.55;
+  }
+
+  /* ── Document title (centered) ─────────────────────── */
+  .doc-title {
+    text-align: center;
+    font-size: 18pt; font-weight: 600;
+    margin: 0 0 14px;
+  }
+
+  /* ── Two-column header info ────────────────────────── */
+  .info-grid {
+    display: flex; justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14pt;
+  }
+  .info-grid .col { display: flex; flex-direction: column; gap: 2px; }
+  .info-grid .col.right { text-align: right; }
+  hr.info-rule {
+    border: none;
+    border-top: 1px solid #1f2937;
+    margin: 6px 0 16px;
+  }
+
+  /* ── Indented paragraphs ───────────────────────────── */
+  .indent-para {
+    text-indent: 32pt;
+    text-align: justify;
+    margin: 12px 0;
+    font-size: 15pt;
+    line-height: 1.65;
+  }
+
+  /* ── Indicator code list (page 2 — short codes) ────── */
+  .indicator-codes-title {
+    font-weight: 600; font-size: 16pt;
+    margin: 0 0 10px;
+  }
+  .indicator-codes {
+    list-style: none; padding: 0; margin: 0;
+    font-size: 15pt;
+    line-height: 1.9;
+  }
+  .indicator-codes li { display: flex; gap: 14px; }
+  .indicator-codes .code { min-width: 60px; }
+  .indicator-total {
+    font-weight: 600;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 15pt;
+  }
+
+  /* ── Strand section (page 3-4 — full indicator text) ── */
+  .strand-heading {
+    font-weight: 600; font-size: 15pt;
+    margin: 16px 0 8px;
+  }
+  .strand-list {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .strand-list li {
+    display: flex; gap: 10px;
+    margin-bottom: 6px;
+    padding-left: 8px;
+    font-size: 14pt;
+    line-height: 1.55;
+  }
+  .strand-list .idx { min-width: 28px; flex-shrink: 0; }
+  .strand-list .code { min-width: 110px; flex-shrink: 0; }
+
+  /* ── Course structure table (page 5-7) ─────────────── */
+  table.course-table {
+    width: 100%; border-collapse: collapse;
+    margin: 6px 0;
+    font-size: 13pt;
+  }
+  table.course-table th,
+  table.course-table td {
+    border: 1px solid #1f2937;
+    padding: 8px 10px;
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  table.course-table th {
+    text-align: center;
+    background: #f8fafc;
+    font-weight: 600;
+  }
+  table.course-table td.center { text-align: center; }
+  table.course-table td.unit-name { font-weight: 500; }
+  table.course-table td.indicators {
+    white-space: nowrap;
+    font-size: 12.5pt;
+    line-height: 1.7;
+  }
+  table.course-table td.essence { font-size: 13pt; line-height: 1.55; }
+  table.course-table .total-row td {
+    font-weight: 600;
+    text-align: center;
+    background: #f8fafc;
+  }
+
+  /* ── Assessment table (page 8) ─────────────────────── */
+  table.assess-table {
+    width: 100%; border-collapse: collapse;
+    margin-top: 6px;
+    font-size: 13pt;
+  }
+  table.assess-table th,
+  table.assess-table td {
+    border: 1px solid #1f2937;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.4;
+  }
+  table.assess-table th {
+    background: #f8fafc;
+    font-weight: 600;
+  }
+  table.assess-table .total-row td {
+    font-weight: 600;
+    background: #f8fafc;
+  }
+
+  /* ── Placeholder highlight (preview only) ──────────── */
+  .ph {
+    background: #fef9c3;
+    color: #92400e;
+    padding: 0 4px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+
+  /* ── Print ─────────────────────────────────────────── */
+  @media print {
+    body { background: white; padding: 0; }
+    .page {
+      margin: 0; box-shadow: none;
+      page-break-after: always;
+      width: 100%; min-height: auto;
+      padding: 22mm 18mm 22mm 22mm;
+    }
+    .page:last-child { page-break-after: auto; }
+    .preview-banner { display: none; }
+    .ph { background: transparent !important; color: inherit !important; }
+  }
+
+  /* ── Top banner (preview only) ─────────────────────── */
+  .preview-banner {
+    max-width: 210mm; margin: 0 auto 14px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-size: 13pt;
+    color: #78350f;
+  }
+  .preview-banner b { color: #4c1d95; }
+</style>
+</head>
+<body>
+
+<div class="preview-banner">
+  📋 <b>Course Structure Template</b> — generic placeholders (ใช้ได้ทุกระดับชั้น)
+  · Placeholder ที่ไฮไลต์สีเหลือง <span class="ph">{{TOKEN}}</span>
+  จะถูกแทนที่ด้วยข้อมูลจริงตอนสร้างเอกสาร
+  · ลอง <code>Ctrl+P</code> เพื่อดู print preview
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1 — คำอธิบายรายวิชา
+     ═══════════════════════════════════════════════════════ -->
+<div class="page">
+  <h1 class="doc-title">คำอธิบายรายวิชา</h1>
+
+  <div class="info-grid">
+    <div class="col">
+      <span>รหัสวิชา <span class="ph">{{SUBJECT_CODE}}</span> รายวิชา <span class="ph">{{SUBJECT_NAME}}</span></span>
+      <span>ภาคเรียนที่ <span class="ph">{{TERMS}}</span> ปีการศึกษา <span class="ph">{{ACADEMIC_YEAR}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{TOTAL_HOURS}}</span> ชั่วโมง</span>
+    </div>
+    <div class="col right">
+      <span>กลุ่มสาระการเรียนรู้ <span class="ph">{{SUBJECT_GROUP}}</span></span>
+      <span>ชั้น <span class="ph">{{CLASS_LEVEL}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{HOURS_PER_WEEK}}</span> ชั่วโมง/สัปดาห์</span>
+    </div>
+  </div>
+  <hr class="info-rule">
+
+  <p class="indent-para">
+    <span class="ph">{{COURSE_DESCRIPTION_PARAGRAPH_1}}</span>
+    (ย่อหน้าบรรยายภาพรวมของรายวิชา — สิ่งที่ผู้เรียนจะได้เรียนรู้
+    ทักษะต่างๆ และความสามารถที่จะเกิดขึ้นจากการเรียน
+    ครอบคลุมตัวชี้วัดทั้งหมดของวิชา)
+  </p>
+
+  <p class="indent-para">
+    <span class="ph">{{COURSE_DESCRIPTION_PARAGRAPH_2}}</span>
+    (ย่อหน้าสรุปวัตถุประสงค์ — เริ่มต้นด้วย "โดยการ..."
+    ระบุคุณลักษณะอันพึงประสงค์ที่จะเกิด เช่น สมรรถนะ
+    ความตระหนัก คุณธรรม จริยธรรม การนำไปประยุกต์ใช้ในชีวิตจริง)
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 2 — ตัวชี้วัด (รหัสย่อ)
+     ═══════════════════════════════════════════════════════ -->
+<div class="page">
+  <h2 class="indicator-codes-title">ตัวชี้วัด</h2>
+
+  <ul class="indicator-codes">
+    <!-- LOOP foreach group in {{INDICATOR_GROUPS}} -->
+    <li>
+      <span class="code"><span class="ph">{{STRAND_CODE}}</span></span>
+      <span><span class="ph">{{LEVEL_CODES_JOINED}}</span></span>
+    </li>
+    <!-- e.g. {{STRAND_CODE}} = "ต 1.1"  ·  {{LEVEL_CODES_JOINED}} = "ป.4/1 , ป.4/2 , ป.4/3" -->
+    <!-- END LOOP -->
+  </ul>
+
+  <p class="indicator-total">รวมทั้งหมด <span class="ph">{{TOTAL_INDICATORS}}</span> ตัวชี้วัด</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 3 — สาระ มาตรฐานการเรียนรู้ และตัวชี้วัด
+     ═══════════════════════════════════════════════════════ -->
+<div class="page">
+  <h1 class="doc-title">สาระ มาตรฐานการเรียนรู้ และตัวชี้วัด</h1>
+
+  <div class="info-grid">
+    <div class="col">
+      <span>รหัสวิชา <span class="ph">{{SUBJECT_CODE}}</span> รายวิชา <span class="ph">{{SUBJECT_NAME}}</span></span>
+      <span>ภาคเรียนที่ <span class="ph">{{TERMS}}</span> ปีการศึกษา <span class="ph">{{ACADEMIC_YEAR}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{TOTAL_HOURS}}</span> ชั่วโมง</span>
+    </div>
+    <div class="col right">
+      <span>กลุ่มสาระการเรียนรู้ <span class="ph">{{SUBJECT_GROUP}}</span></span>
+      <span>ชั้น <span class="ph">{{CLASS_LEVEL}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{HOURS_PER_WEEK}}</span> ชั่วโมง/สัปดาห์</span>
+    </div>
+  </div>
+  <hr class="info-rule">
+
+  <!-- LOOP foreach strand in {{STRANDS}} -->
+  <div class="strand-heading">
+    สาระที่ <span class="ph">{{STRAND_NO}}</span>  <span class="ph">{{STRAND_TITLE}}</span>
+  </div>
+  <ul class="strand-list">
+    <!-- LOOP foreach indicator in strand.indicators -->
+    <li>
+      <span class="idx"><span class="ph">{{IDX}}</span>)</span>
+      <span class="code"><span class="ph">{{INDICATOR_CODE}}</span></span>
+      <span><span class="ph">{{INDICATOR_TEXT}}</span></span>
+    </li>
+    <!-- e.g. {{IDX}} = "1"  ·  {{INDICATOR_CODE}} = "ต 1.1 ม.2/1"  ·  {{INDICATOR_TEXT}} = "ปฏิบัติตามคำสั่ง..." -->
+    <!-- END LOOP -->
+  </ul>
+  <!-- END LOOP -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 4 — โครงสร้างรายวิชา (units table)
+     ═══════════════════════════════════════════════════════ -->
+<div class="page">
+  <h1 class="doc-title">โครงสร้างรายวิชา</h1>
+
+  <div class="info-grid">
+    <div class="col">
+      <span>รหัสวิชา <span class="ph">{{SUBJECT_CODE}}</span> รายวิชา <span class="ph">{{SUBJECT_NAME}}</span></span>
+      <span>ภาคเรียนที่ <span class="ph">{{TERMS}}</span> ปีการศึกษา <span class="ph">{{ACADEMIC_YEAR}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{TOTAL_HOURS}}</span> ชั่วโมง</span>
+    </div>
+    <div class="col right">
+      <span>กลุ่มสาระการเรียนรู้ <span class="ph">{{SUBJECT_GROUP}}</span></span>
+      <span>ชั้น <span class="ph">{{CLASS_LEVEL}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{HOURS_PER_WEEK}}</span> ชั่วโมง/สัปดาห์</span>
+    </div>
+  </div>
+  <hr class="info-rule">
+
+  <table class="course-table">
+    <thead>
+      <tr>
+        <th style="width:8%;">หน่วยที่</th>
+        <th style="width:16%;">ชื่อหน่วยการเรียนรู้</th>
+        <th style="width:18%;">มาตรฐานการเรียนรู้/<br>ตัวชี้วัด</th>
+        <th>สาระสำคัญ</th>
+        <th style="width:10%;">เวลา<br>(ชั่วโมง)</th>
+        <th style="width:10%;">น้ำหนัก<br>คะแนน</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- LOOP foreach unit in {{UNITS}} -->
+      <tr>
+        <td class="center"><span class="ph">{{UNIT.NO}}</span></td>
+        <td class="unit-name center"><span class="ph">{{UNIT.TITLE}}</span></td>
+        <td class="indicators"><span class="ph">{{UNIT.INDICATORS}}</span></td>
+        <td class="essence"><span class="ph">{{UNIT.ESSENCE}}</span></td>
+        <td class="center"><span class="ph">{{UNIT.HOURS}}</span></td>
+        <td class="center"><span class="ph">{{UNIT.SCORE_WEIGHT}}</span></td>
+      </tr>
+      <!-- END LOOP -->
+      <tr class="total-row">
+        <td colspan="4">คะแนนเก็บระหว่างเรียน</td>
+        <td></td>
+        <td><span class="ph">{{COLLECTED_SCORE_TOTAL}}</span></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4">คะแนนสอบปลายปี</td>
+        <td></td>
+        <td><span class="ph">{{FINAL_EXAM_SCORE}}</span></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4">รวมตลอดปี</td>
+        <td><span class="ph">{{TOTAL_HOURS}}</span></td>
+        <td><span class="ph">{{GRAND_TOTAL_SCORE}}</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 5 — การวัดผลประเมินผล
+     ═══════════════════════════════════════════════════════ -->
+<div class="page">
+  <h1 class="doc-title">การวัดผลประเมินผล</h1>
+
+  <div class="info-grid">
+    <div class="col">
+      <span>รหัสวิชา <span class="ph">{{SUBJECT_CODE}}</span> รายวิชา <span class="ph">{{SUBJECT_NAME}}</span></span>
+      <span>ภาคเรียนที่ <span class="ph">{{TERMS}}</span> ปีการศึกษา <span class="ph">{{ACADEMIC_YEAR}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{TOTAL_HOURS}}</span> ชั่วโมง</span>
+    </div>
+    <div class="col right">
+      <span>กลุ่มสาระการเรียนรู้ <span class="ph">{{SUBJECT_GROUP}}</span></span>
+      <span>ชั้น <span class="ph">{{CLASS_LEVEL}}</span></span>
+      <span>เวลาเรียน <span class="ph">{{HOURS_PER_WEEK}}</span> ชั่วโมง/สัปดาห์</span>
+    </div>
+  </div>
+  <hr class="info-rule">
+
+  <table class="assess-table">
+    <thead>
+      <tr>
+        <th rowspan="3" style="width:8%;">หน่วยที่</th>
+        <th rowspan="3" style="width:22%;">ชื่อหน่วย<br>การเรียนรู้</th>
+        <th colspan="3">การวัดผลประเมินผล</th>
+        <th rowspan="3" style="width:14%;">รวมทั้ง<br>ปีการศึกษา<br>(100 คะแนน)</th>
+      </tr>
+      <tr>
+        <th rowspan="2" style="width:16%;">คะแนนเก็บ<br>ระหว่างเรียน<br>(<span class="ph">{{COLLECTED_TOTAL}}</span> คะแนน)</th>
+        <th colspan="2">คะแนนสอบปลายปี<br>(<span class="ph">{{FINAL_EXAM_TOTAL}}</span> คะแนน)</th>
+      </tr>
+      <tr>
+        <th>สอบปลาย<br>ภาคเรียนที่ 1</th>
+        <th>สอบปลาย<br>ภาคเรียนที่ 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- LOOP foreach unit in {{ASSESSMENT_ROWS}} -->
+      <tr>
+        <td><span class="ph">{{UNIT.NO}}</span></td>
+        <td><span class="ph">{{UNIT.TITLE}}</span></td>
+        <td><span class="ph">{{UNIT.COLLECTED}}</span></td>
+        <td><span class="ph">{{UNIT.MIDTERM}}</span></td>
+        <td><span class="ph">{{UNIT.FINAL}}</span></td>
+        <td><span class="ph">{{UNIT.TOTAL}}</span></td>
+      </tr>
+      <!-- END LOOP -->
+      <tr class="total-row">
+        <td colspan="2">รวม</td>
+        <td><span class="ph">{{SUM_COLLECTED}}</span></td>
+        <td><span class="ph">{{SUM_MIDTERM}}</span></td>
+        <td><span class="ph">{{SUM_FINAL}}</span></td>
+        <td><span class="ph">{{GRAND_TOTAL}}</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
