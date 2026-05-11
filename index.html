@@ -1671,31 +1671,160 @@
     transition: transform 0.15s, box-shadow 0.15s;
   }
   .unit-create-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
-  .unit-cs-btn {
-    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-    box-shadow: 0 4px 12px rgba(217,119,6,.35) !important;
+
+  /* ─── Course Structure panel ─────────────────────────── */
+  .cs-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap;
+    margin-bottom: 16px;
   }
-  .unit-cs-btn:hover:not(:disabled) {
-    box-shadow: 0 6px 18px rgba(217,119,6,.45) !important;
+  .cs-toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cs-link-btn {
+    background: white; border: 1px solid #e5e7eb;
+    padding: 7px 14px; border-radius: 8px;
+    font-family: inherit; font-size: .85rem; font-weight: 500;
+    color: #4b5563; cursor: pointer;
+    transition: all .15s ease;
   }
-  .unit-cs-btn:disabled {
-    background: linear-gradient(135deg, #d1d5db, #9ca3af) !important;
-    box-shadow: none !important;
-    cursor: not-allowed;
-    opacity: 0.75;
+  .cs-link-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+  .cs-help-banner {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    color: #78350f;
+    font-size: .9rem;
+    line-height: 1.55;
   }
-  /* Unit card checkbox (top-left) */
-  .unit-card { position: relative; }
-  .unit-card-check {
-    position: absolute;
-    top: 10px; left: 10px;
-    width: 22px; height: 22px;
-    accent-color: #d97706;
+  .cs-help-banner b { color: #4c1d95; }
+
+  /* Selection grid */
+  #cs-unit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    padding-bottom: 90px; /* leave room for sticky action bar */
+  }
+  .cs-card {
+    position: relative;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px 18px 14px;
     cursor: pointer;
-    z-index: 2;
+    transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    user-select: none;
   }
-  .unit-card.selected {
-    box-shadow: 0 0 0 3px #f59e0b, 0 8px 22px rgba(217,119,6,.25);
+  .cs-card:hover {
+    border-color: #c4b5fd;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(124,58,237,.12);
+  }
+  .cs-card.selected {
+    border-color: #f59e0b;
+    background: linear-gradient(160deg, #fffbeb 0%, #fef3c7 100%);
+    box-shadow: 0 0 0 3px rgba(245,158,11,.15), 0 10px 22px rgba(217,119,6,.18);
+  }
+  .cs-card-check {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-weight: 700; font-size: 1.05rem;
+    line-height: 1;
+    transition: all .2s ease;
+  }
+  .cs-card.selected .cs-card-check {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #d97706;
+    box-shadow: 0 4px 10px rgba(217,119,6,.35);
+  }
+  .cs-card-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .cs-card-title {
+    font-size: 1rem; font-weight: 700; color: #1f2937;
+    margin-bottom: 4px;
+    line-height: 1.35;
+    padding-right: 36px; /* avoid check overlap */
+  }
+  .cs-card-sub { font-size: .82rem; color: #6b7280; margin-bottom: 10px; line-height: 1.4; }
+  .cs-card-stats {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    font-size: .82rem; color: #4b5563;
+    padding-top: 8px;
+    border-top: 1px dashed #e5e7eb;
+  }
+  .cs-card-stats b { color: #1f2937; }
+
+  /* Empty state */
+  .cs-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border: 2px dashed #e5e7eb;
+    border-radius: 16px;
+    color: #6b7280;
+  }
+  .cs-empty-icon { font-size: 3rem; margin-bottom: 10px; }
+  .cs-empty-title { font-size: 1.1rem; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+  .cs-empty-sub { font-size: .9rem; }
+
+  /* Sticky action bar (bottom-anchored) */
+  .cs-action-bar {
+    position: sticky; bottom: 0;
+    margin: 0 -24px -24px;
+    padding: 14px 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0), white 30%);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .cs-action-bar > * { pointer-events: auto; }
+  .cs-action-bar.has-selection .cs-action-pill {
+    background: white;
+    border: 1px solid #fbbf24;
+    box-shadow: 0 8px 22px rgba(217,119,6,.18);
+  }
+  .cs-action-pill {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: .9rem;
+    color: #1f2937;
+    display: flex; align-items: center; gap: 8px;
+    transition: all .2s ease;
+  }
+  .cs-action-pill b { color: #d97706; font-size: 1.05rem; }
+  .cs-generate-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(217,119,6,.35);
+    transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .cs-generate-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(217,119,6,.45);
+  }
+  .cs-generate-btn:disabled {
+    background: linear-gradient(135deg, #d1d5db, #9ca3af);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: .7;
   }
 
   .unit-card-grid {
@@ -2845,6 +2974,9 @@
       <button class="dash-nav-item" data-nav="units" onclick="dashNav('units')">
         <span class="icon">📦</span><span class="label">คลังหน่วยการเรียนรู้</span>
       </button>
+      <button class="dash-nav-item" data-nav="course-structure" onclick="dashNav('course-structure')">
+        <span class="icon">📋</span><span class="label">โครงสร้างรายวิชา</span>
+      </button>
       <button class="dash-nav-item" data-nav="templates" onclick="dashNav('templates')">
         <span class="icon">📐</span><span class="label">แม่แบบมาตรฐาน</span>
       </button>
@@ -3019,6 +3151,40 @@
         </div>
       </div>
 
+      <!-- COURSE STRUCTURE PANEL -->
+      <div data-panel="course-structure" style="display:none;">
+        <div style="margin-bottom:16px;">
+          <h1 style="margin:0 0 4px; font-size:1.6rem; color:#1f2937; font-weight:700;">📋 โครงสร้างรายวิชา</h1>
+          <p style="margin:0; color:#6b7280; font-size:0.92rem;">รวบรวมหน่วยการเรียนรู้เข้าด้วยกัน → สร้างเอกสารโครงสร้างรายวิชา 5 หน้า พร้อมพิมพ์</p>
+        </div>
+
+        <div class="cs-help-banner">
+          💡 <b>เลือกหน่วย</b>ที่จะรวมเป็นรายวิชาเดียวกัน (กดทั้งใบเลย) — ระบบจะรวบรวมตัวชี้วัด เวลาเรียน และข้อมูลพื้นฐานให้อัตโนมัติ
+          พร้อมสร้างเป็นเอกสาร 5 หน้า: คำอธิบายรายวิชา · ตัวชี้วัด · สาระและมาตรฐาน · โครงสร้างรายวิชา · การวัดผลประเมินผล
+        </div>
+
+        <div class="cs-toolbar">
+          <div style="font-size:.9rem; color:#4b5563;">
+            <b id="cs-total-units">0</b> หน่วยทั้งหมด
+          </div>
+          <div class="cs-toolbar-actions">
+            <button class="cs-link-btn" onclick="selectAllCsCards()">☑ เลือกทั้งหมด</button>
+            <button class="cs-link-btn" onclick="clearCsSelection()">✕ ล้างการเลือก</button>
+          </div>
+        </div>
+
+        <div id="cs-unit-grid"></div>
+
+        <div id="cs-action-bar" class="cs-action-bar">
+          <span class="cs-action-pill">
+            ✓ เลือกแล้ว <b id="cs-selected-count">0</b> หน่วย
+          </span>
+          <button id="cs-generate-btn" class="cs-generate-btn" disabled onclick="generateCourseStructure()">
+            📋 สร้างโครงสร้างรายวิชา
+          </button>
+        </div>
+      </div>
+
       <!-- UNIT PLANNER PANEL -->
       <div data-panel="units" style="display:none;">
         <!-- MODE: LIST -->
@@ -3028,12 +3194,7 @@
               <h1 style="margin:0 0 4px; font-size:1.6rem; color:#1f2937; font-weight:700;">📚 หน่วยการเรียนรู้ของฉัน</h1>
               <p style="margin:0; color:#6b7280; font-size:0.92rem;">วางแผนภาพรวมการสอนระยะยาว รวบรวมหลายคาบเข้าเป็นหน่วยเดียว</p>
             </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-              <button class="unit-create-btn unit-cs-btn" id="unit-cs-btn" onclick="generateCourseStructure()" disabled title="เลือกหน่วยอย่างน้อย 1 หน่วยก่อน">
-                📋 สร้างโครงสร้างรายวิชา <span id="unit-cs-count" style="display:none;">(<span id="unit-cs-count-num">0</span>)</span>
-              </button>
-              <button class="unit-create-btn" onclick="openUnitEditor()">+ สร้างหน่วยใหม่</button>
-            </div>
+            <button class="unit-create-btn" onclick="openUnitEditor()">+ สร้างหน่วยใหม่</button>
           </div>
           <div id="unit-card-list" class="unit-card-grid"></div>
         </div>
@@ -7351,6 +7512,11 @@ function dashNav(key) {
   if (key === 'home') renderRecentWorks();
   if (key === 'library') renderLibraryList();
   if (key === 'profile') renderProfileUI();
+  if (key === 'course-structure') {
+    renderCourseStructurePanel();
+    const totalEl = document.getElementById('cs-total-units');
+    if (totalEl) totalEl.textContent = loadUnits().length;
+  }
   // Scroll main to top
   const main = document.getElementById('dash-main-content');
   if (main) main.scrollTop = 0;
@@ -7744,8 +7910,7 @@ function renderUnitList() {
     const cls = escapeHtmlDash(u.classLevel || '');
     const subj = escapeHtmlDash(u.subjectName || u.subjectGroup || u.subject || '');
     return (
-      '<div class="unit-card" data-unit-id="' + u.id + '" onclick="openUnitEditor(\'' + u.id + '\')">' +
-        '<input type="checkbox" class="unit-card-check" data-unit-id="' + u.id + '" onclick="event.stopPropagation(); onUnitSelectToggle(this);" title="เลือกสำหรับสร้างโครงสร้างรายวิชา">' +
+      '<div class="unit-card" onclick="openUnitEditor(\'' + u.id + '\')">' +
         '<button class="unit-card-menu" onclick="event.stopPropagation(); confirmDeleteUnit(\'' + u.id + '\');" title="ลบ">🗑</button>' +
         '<div class="unit-card-icon">📚</div>' +
         '<div class="unit-card-title">' + title + '</div>' +
@@ -7758,39 +7923,94 @@ function renderUnitList() {
       '</div>'
     );
   }).join('');
-  // Restore previously checked units (if user re-renders the list)
-  if (Array.isArray(window._selectedUnitIds)) {
-    window._selectedUnitIds.forEach(id => {
-      const cb = box.querySelector('.unit-card-check[data-unit-id="' + id + '"]');
-      if (cb) { cb.checked = true; cb.closest('.unit-card')?.classList.add('selected'); }
-    });
-    updateCourseStructureBtn();
-  }
 }
 
-// ─── Course Structure: selection + generate ───────────────
+// ═════════════════════════════════════════════════════════════
+//  COURSE STRUCTURE PANEL — dedicated tab for selecting units
+//  and generating the 5-page "โครงสร้างรายวิชา" document.
+// ═════════════════════════════════════════════════════════════
 window._selectedUnitIds = window._selectedUnitIds || [];
-function onUnitSelectToggle(cb) {
-  const id = cb.dataset.unitId;
-  const card = cb.closest('.unit-card');
-  if (cb.checked) {
-    if (!window._selectedUnitIds.includes(id)) window._selectedUnitIds.push(id);
-    card?.classList.add('selected');
-  } else {
-    window._selectedUnitIds = window._selectedUnitIds.filter(x => x !== id);
-    card?.classList.remove('selected');
+
+function renderCourseStructurePanel() {
+  const grid = document.getElementById('cs-unit-grid');
+  if (!grid) return;
+  const units = loadUnits().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  if (!units.length) {
+    grid.innerHTML =
+      '<div class="cs-empty">' +
+        '<div class="cs-empty-icon">📦</div>' +
+        '<div class="cs-empty-title">ยังไม่มีหน่วยการเรียนรู้</div>' +
+        '<div class="cs-empty-sub">ไปที่ "คลังหน่วยการเรียนรู้" เพื่อสร้างหน่วยก่อน แล้วกลับมาที่นี่</div>' +
+        '<button class="unit-create-btn" style="margin-top:14px;" onclick="dashNav(\'units\')">→ ไปที่คลังหน่วยการเรียนรู้</button>' +
+      '</div>';
+    updateCsActionBar();
+    return;
   }
-  updateCourseStructureBtn();
+  grid.innerHTML = units.map(u => {
+    const n = (u.lessonIds || []).length;
+    const total = parseFloat(u.totalHours) || 0;
+    const title = escapeHtmlDash(u.title || '(ยังไม่ตั้งชื่อ)');
+    const cls = escapeHtmlDash(u.classLevel || '');
+    const subj = escapeHtmlDash(u.subjectName || u.subjectGroup || u.subject || '');
+    const isSel = window._selectedUnitIds.includes(u.id);
+    return (
+      '<div class="cs-card' + (isSel ? ' selected' : '') + '" data-unit-id="' + u.id + '" onclick="toggleCsCard(this)">' +
+        '<div class="cs-card-check">' + (isSel ? '✓' : '') + '</div>' +
+        '<div class="cs-card-icon">📚</div>' +
+        '<div class="cs-card-title">' + title + '</div>' +
+        '<div class="cs-card-sub">' + (subj ? subj + ' · ' : '') + cls + (u.year ? ' · ปี ' + escapeHtmlDash(u.year) : '') + '</div>' +
+        '<div class="cs-card-stats">' +
+          '<span>🗂 <b>' + n + '</b> แผน</span>' +
+          (total ? '<span>⏱ <b>' + total + '</b> ชม.</span>' : '') +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+  updateCsActionBar();
 }
-function updateCourseStructureBtn() {
-  const btn = document.getElementById('unit-cs-btn');
-  const wrap = document.getElementById('unit-cs-count');
-  const num = document.getElementById('unit-cs-count-num');
+
+function toggleCsCard(card) {
+  const id = card.dataset.unitId;
+  const check = card.querySelector('.cs-card-check');
+  if (window._selectedUnitIds.includes(id)) {
+    window._selectedUnitIds = window._selectedUnitIds.filter(x => x !== id);
+    card.classList.remove('selected');
+    if (check) check.textContent = '';
+  } else {
+    window._selectedUnitIds.push(id);
+    card.classList.add('selected');
+    if (check) check.textContent = '✓';
+  }
+  updateCsActionBar();
+}
+
+function selectAllCsCards() {
+  const cards = document.querySelectorAll('#cs-unit-grid .cs-card');
+  window._selectedUnitIds = [...cards].map(c => c.dataset.unitId);
+  cards.forEach(c => {
+    c.classList.add('selected');
+    const ch = c.querySelector('.cs-card-check'); if (ch) ch.textContent = '✓';
+  });
+  updateCsActionBar();
+}
+function clearCsSelection() {
+  window._selectedUnitIds = [];
+  document.querySelectorAll('#cs-unit-grid .cs-card').forEach(c => {
+    c.classList.remove('selected');
+    const ch = c.querySelector('.cs-card-check'); if (ch) ch.textContent = '';
+  });
+  updateCsActionBar();
+}
+
+function updateCsActionBar() {
+  const bar = document.getElementById('cs-action-bar');
+  const btn = document.getElementById('cs-generate-btn');
+  const count = document.getElementById('cs-selected-count');
   const n = window._selectedUnitIds.length;
-  if (!btn) return;
+  if (!btn || !count) return;
+  count.textContent = n;
   btn.disabled = n === 0;
-  btn.title = n === 0 ? 'เลือกหน่วยอย่างน้อย 1 หน่วยก่อน' : 'สร้างเอกสารโครงสร้างรายวิชาจาก ' + n + ' หน่วยที่เลือก';
-  if (wrap && num) { wrap.style.display = n > 0 ? '' : 'none'; num.textContent = n; }
+  if (bar) bar.classList.toggle('has-selection', n > 0);
 }
 
 // Build indicator_map from indicatorsByLevel — only ids actually used in the
@@ -7823,10 +8043,9 @@ function _buildIndicatorMap(unitIds) {
 async function generateCourseStructure() {
   const ids = (window._selectedUnitIds || []).slice();
   if (ids.length === 0) { alert('กรุณาเลือกหน่วยอย่างน้อย 1 หน่วยก่อน'); return; }
-  const btn = document.getElementById('unit-cs-btn');
-  const original = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '⏳ กำลังสร้าง...';
+  const btn = document.getElementById('cs-generate-btn');
+  const original = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ กำลังสร้าง...'; }
   try {
     const indicator_map = _buildIndicatorMap(ids);
     const fetcher = window.authFetch || window.fetch;
@@ -7849,8 +8068,8 @@ async function generateCourseStructure() {
   } catch (e) {
     alert('เกิดข้อผิดพลาด: ' + (e.message || 'กรุณาลองใหม่'));
   } finally {
-    btn.innerHTML = original;
-    updateCourseStructureBtn();
+    if (btn) { btn.innerHTML = original; }
+    updateCsActionBar();
   }
 }
 function confirmDeleteUnit(id) {
