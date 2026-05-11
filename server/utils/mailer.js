@@ -6,7 +6,7 @@
 // If neither is set → no-op (isEmailEnabled() returns false).
 
 const APP_URL = () => process.env.APP_ORIGIN || 'http://localhost:3000';
-const FROM    = () => process.env.SMTP_FROM   || '"Lesson Plan Generator" <noreply@example.com>';
+const FROM    = () => process.env.SMTP_FROM   || '"Easy ENG Plan" <noreply@example.com>';
 
 // ─── Public flag ────────────────────────────────────────
 export function isEmailEnabled() {
@@ -70,7 +70,7 @@ export async function sendVerificationEmail(email, token) {
   const link = `${APP_URL()}/?verify=${token}`;
   await sendMail({
     to: email,
-    subject: 'ยืนยันอีเมลของคุณ — Lesson Plan Generator',
+    subject: 'ยืนยันอีเมลของคุณ — Easy ENG Plan',
     text: `สวัสดี!\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อยืนยันอีเมล (หมดอายุใน 24 ชั่วโมง)\n\n${link}\n\nหากคุณไม่ได้สมัคร ไม่ต้องดำเนินการใดๆ`,
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px;">
@@ -92,7 +92,7 @@ export async function sendPasswordResetEmail(email, token) {
   const link = `${APP_URL()}/?reset=${token}`;
   await sendMail({
     to: email,
-    subject: 'รีเซ็ตรหัสผ่าน — Lesson Plan Generator',
+    subject: 'รีเซ็ตรหัสผ่าน — Easy ENG Plan',
     text: `สวัสดี!\n\nมีคำขอรีเซ็ตรหัสผ่าน คลิกลิงก์ด้านล่าง (หมดอายุใน 1 ชั่วโมง)\n\n${link}\n\nหากไม่ได้ขอรีเซ็ต ไม่ต้องดำเนินการใดๆ`,
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px;">
