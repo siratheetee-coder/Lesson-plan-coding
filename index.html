@@ -2124,9 +2124,9 @@
   .feedback-cta-btn {
     width: 100%;
     padding: 11px 14px;
-    background: linear-gradient(135deg, #fde047 0%, #d4a017 45%, #b8860b 100%);
-    color: #422006;
-    border: 1px solid #b8860b;
+    background: linear-gradient(135deg, #f59e0b 0%, #d4a017 45%, #92400e 100%);
+    color: #ffffff;
+    border: 1px solid #92400e;
     border-radius: 10px;
     font-family: inherit;
     font-size: 0.9rem;
@@ -2134,11 +2134,11 @@
     cursor: pointer;
     box-shadow:
       0 4px 12px -2px rgba(184,134,11,.45),
-      inset 0 1px 0 rgba(255,255,255,.55),
-      inset 0 -2px 0 rgba(120,80,0,.18);
+      inset 0 1px 0 rgba(255,255,255,.35),
+      inset 0 -2px 0 rgba(120,80,0,.25);
     transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
     letter-spacing: .3px;
-    text-shadow: 0 1px 0 rgba(255,255,255,.3);
+    text-shadow: 0 1px 2px rgba(120,53,15,.55);
   }
   .feedback-cta-btn:hover {
     transform: translateY(-1px);
@@ -5778,7 +5778,7 @@ async function chargeExportCredit(format) {
       return true;
     }
     if (res.status === 402) {
-      showExportToast('💚 เครดิตหมดแล้ว — มาร่วมสนับสนุนโปรเจกต์กันต่อนะคะ', 'info');
+      showExportToast('💚 เครดิตหมดแล้ว ร่วมสนับสนุนโปรเจกต์เพื่อสร้างแผนต่อนะคะ ขอบคุณค่ะ', 'info');
       if (typeof window.openTopupModal === 'function') {
         setTimeout(() => window.openTopupModal(), 400);
       }
@@ -8867,7 +8867,7 @@ window._aiOutlineUnit = async function() {
       const msg = r.message || 'AI ขัดข้อง กรุณาลองใหม่';
       if (res.status === 402) {
         if (typeof window.showExportToast === 'function') {
-          window.showExportToast('💚 เครดิตยังไม่พอสำหรับร่างทั้งหน่วย — ลองร่วมสนับสนุนโปรเจกต์ดูนะคะ', 'info');
+          window.showExportToast('💚 เครดิตยังไม่พอสำหรับร่างทั้งหน่วย ร่วมสนับสนุนโปรเจกต์เพื่อสร้างแผนต่อนะคะ ขอบคุณค่ะ', 'info');
         }
         if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 400);
       } else if (res.status === 503 && r.error === 'ai_overloaded') {
@@ -9619,7 +9619,7 @@ window.renderUnitDashboard = renderUnitDashboard;
     <div class="fb-card-header">
       <div class="fb-card-icon">⭐</div>
       <h2 id="fb-title">ร่วมรีวิวเป็นกำลังใจให้ทีมงาน</h2>
-      <p>ความเห็นของคุณครูช่วยให้เว็บไซต์นี้<br>ดีขึ้นเพื่อครูไทยทุกคน 💛</p>
+      <p>ความเห็นของคุณครูจะช่วยให้เว็บไซต์นี้<br>ดีขึ้นเพื่อครูไทยทุกคน 💛</p>
     </div>
     <div class="fb-card-body">
       <div class="fb-stars-row" id="fb-stars">
@@ -9630,12 +9630,12 @@ window.renderUnitDashboard = renderUnitDashboard;
         <span class="fb-star" data-v="5" onclick="fbSetRating(5)" onmouseover="fbHoverRating(5)" onmouseout="fbHoverRating(0)">★</span>
       </div>
       <div class="fb-rating-label" id="fb-rating-label">เลือกดาวเพื่อให้คะแนน</div>
-      <textarea class="fb-textarea" id="fb-message" placeholder="อยากบอกอะไรกับทีมงานไหมคะ? (ไม่บังคับ — แต่จะมีค่ามากสำหรับเราค่ะ 💛)" maxlength="2000"></textarea>
+      <textarea class="fb-textarea" id="fb-message" placeholder="อยากบอกอะไรกับทีมงานไหมคะ?💛" maxlength="2000"></textarea>
       <button class="fb-submit-btn" id="fb-submit-btn" onclick="submitFeedback()" disabled>
         💛 ส่งรีวิวให้ทีมงาน
       </button>
       <div class="fb-success-note" id="fb-success-note">
-        🌷 ขอบคุณมากๆ ค่ะ — ทีมงานได้รับ feedback ของคุณครูเรียบร้อยแล้ว
+        🌷 ขอบคุณมากๆ ค่ะ ทีมงานได้รับ feedback ของคุณครูเรียบร้อยแล้ว
       </div>
     </div>
   </div>
@@ -10549,7 +10549,7 @@ window.renderUnitDashboard = renderUnitDashboard;
       return;
     }
     if (r.status === 402) {
-      _aiToast('💚 เครดิตหมดแล้ว — มาร่วมสนับสนุนโปรเจกต์กันต่อนะคะ', 'info');
+      _aiToast('💚 เครดิตหมดแล้ว ร่วมสนับสนุนโปรเจกต์เพื่อสร้างแผนต่อนะคะ ขอบคุณค่ะ', 'info');
       if (typeof window.openTopupModal === 'function') setTimeout(() => window.openTopupModal(), 400);
     } else if (r.status === 503) {
       _aiToast('❌ ระบบ AI ยังไม่พร้อมใช้งาน', 'err');
