@@ -126,6 +126,15 @@ async function initPostgres() {
       updated_at BIGINT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_units_user ON units(user_id, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS feedback (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      rating     INT NOT NULL,
+      message    TEXT,
+      created_at BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at DESC);
   `);
   console.log('✓ PostgreSQL connected and schema ready');
 }
@@ -449,13 +458,34 @@ const pgDb = {
   async deleteUnit(userId, id) {
     await pgPool.query('DELETE FROM units WHERE id=$1 AND user_id=$2', [id, userId]);
   },
+
+  // ─── Feedback ───────────────────────────────────────────
+  async insertFeedback(entry) {
+    await pgPool.query(
+      `INSERT INTO feedback (id,user_id,rating,message,created_at)
+       VALUES ($1,$2,$3,$4,$5)`,
+      [entry.id, entry.user_id, entry.rating, entry.message, entry.created_at]
+    );
+    return entry;
+  },
+  async listFeedback({ limit = 100 } = {}) {
+    const { rows } = await pgPool.query(
+      `SELECT f.id, f.user_id, f.rating, f.message, f.created_at,
+              u.email, u.display_name
+         FROM feedback f
+         LEFT JOIN users u ON u.id = f.user_id
+        ORDER BY f.created_at DESC
+        LIMIT $1`, [limit]
+    );
+    return rows;
+  },
 };
 
 // ═══════════════════════════════════════════════════════════
 //  JSON FILE MODE (local dev — no PostgreSQL needed)
 // ═══════════════════════════════════════════════════════════
 const dbPath = process.env.DB_PATH || './data/app.db.json';
-const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [], email_tokens: [], lessons: [], units: [] };
+const initial = { users: [], refresh_tokens: [], audit_log: [], credit_transactions: [], email_tokens: [], lessons: [], units: [], feedback: [] };
 let state = initial;
 
 function loadJson() {
@@ -701,6 +731,21 @@ const jsonDb = {
   async deleteUnit(userId, id) {
     state.units = (state.units || []).filter(u => !(u.id === id && u.user_id === userId));
     saveJson();
+  },
+
+  // ─── Feedback ───────────────────────────────────────────
+  async insertFeedback(entry) {
+    if (!state.feedback) state.feedback = [];
+    state.feedback.push(entry);
+    saveJson();
+    return entry;
+  },
+  async listFeedback({ limit = 100 } = {}) {
+    const list = (state.feedback || []).slice().sort((a, b) => b.created_at - a.created_at).slice(0, limit);
+    return list.map(f => {
+      const u = state.users.find(x => x.id === f.user_id);
+      return { ...f, email: u?.email || null, display_name: u?.display_name || null };
+    });
   },
 };
 

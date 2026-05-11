@@ -171,4 +171,21 @@ router.post('/users/:id/credits/grant', async (req, res) => {
   }
 });
 
+// ─── Feedback list (admin only) ──────────────────────────
+router.get('/feedback', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 200, 1000);
+    const items = await db.listFeedback({ limit });
+    // Aggregate stats
+    const total = items.length;
+    const avg = total > 0 ? items.reduce((s, f) => s + (f.rating || 0), 0) / total : 0;
+    const dist = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    items.forEach(f => { if (dist[f.rating] !== undefined) dist[f.rating]++; });
+    res.json({ items, stats: { total, avg: Math.round(avg * 100) / 100, distribution: dist } });
+  } catch (e) {
+    console.error('feedback list error', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
 export default router;

@@ -2120,6 +2120,206 @@
   @keyframes topupSprout { 0% { opacity:0; transform:scale(.6) translateY(8px) } 100% { opacity:1; transform:scale(1) translateY(0) } }
   @keyframes topupShine  { 0% { transform:translateX(-120%) } 100% { transform:translateX(220%) } }
 
+  /* ───────── Feedback CTA (brass gold) ───────── */
+  .feedback-cta-btn {
+    width: 100%;
+    padding: 11px 14px;
+    background: linear-gradient(135deg, #fde047 0%, #d4a017 45%, #b8860b 100%);
+    color: #422006;
+    border: 1px solid #b8860b;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow:
+      0 4px 12px -2px rgba(184,134,11,.45),
+      inset 0 1px 0 rgba(255,255,255,.55),
+      inset 0 -2px 0 rgba(120,80,0,.18);
+    transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+    letter-spacing: .3px;
+    text-shadow: 0 1px 0 rgba(255,255,255,.3);
+  }
+  .feedback-cta-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+    box-shadow:
+      0 8px 18px -3px rgba(184,134,11,.55),
+      inset 0 1px 0 rgba(255,255,255,.6),
+      inset 0 -2px 0 rgba(120,80,0,.18);
+  }
+  .feedback-cta-btn:active { transform: translateY(1px); }
+
+  /* ───────── Feedback Modal (3D card) ───────── */
+  @keyframes fbOverlayFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fbCardPop {
+    0%   { opacity: 0; transform: perspective(1200px) rotateX(-18deg) scale(.85) translateY(40px); }
+    60%  { opacity: 1; transform: perspective(1200px) rotateX(4deg)   scale(1.02) translateY(-6px); }
+    100% { opacity: 1; transform: perspective(1200px) rotateX(0)      scale(1)    translateY(0); }
+  }
+  @keyframes fbStarPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.18); filter: drop-shadow(0 0 6px rgba(251,191,36,.7)); }
+  }
+  @keyframes fbShimmer { 0% { transform: translateX(-120%); } 100% { transform: translateX(220%); } }
+
+  .fb-overlay {
+    position: fixed; inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(120,53,15,.55), rgba(15,23,42,.75));
+    backdrop-filter: blur(8px);
+    z-index: 10200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fbOverlayFade .25s ease-out;
+    perspective: 1400px;
+  }
+  .fb-card {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(160deg, #fffdf6 0%, #fef9c3 55%, #fde68a 100%);
+    border: 1px solid #fcd34d;
+    border-radius: 22px;
+    padding: 0;
+    box-shadow:
+      0 32px 70px -10px rgba(120,53,15,.45),
+      0 18px 30px -10px rgba(217,119,6,.35),
+      inset 0 2px 0 rgba(255,255,255,.7),
+      inset 0 -3px 0 rgba(180,120,20,.18);
+    transform-style: preserve-3d;
+    animation: fbCardPop .55s cubic-bezier(.34,1.56,.64,1);
+    overflow: hidden;
+  }
+  .fb-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.45) 50%, transparent 65%);
+    pointer-events: none;
+    animation: fbShimmer 6s ease-in-out infinite;
+  }
+  .fb-card-header {
+    padding: 26px 26px 14px;
+    text-align: center;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 22px 22px 0 0;
+    position: relative;
+    z-index: 1;
+  }
+  .fb-card-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 72px; height: 72px; margin-bottom: 8px;
+    background: linear-gradient(145deg, #fef3c7 0%, #fbbf24 55%, #b45309 100%);
+    border-radius: 50%;
+    font-size: 2.1rem;
+    box-shadow:
+      0 12px 26px -6px rgba(180,83,9,.55),
+      inset 0 2px 0 rgba(255,255,255,.6),
+      inset 0 -3px 0 rgba(120,53,15,.2);
+  }
+  .fb-card-header h2 {
+    margin: 6px 0 4px;
+    font-size: 1.25rem; font-weight: 800;
+    color: #78350f;
+    letter-spacing: .3px;
+  }
+  .fb-card-header p {
+    margin: 0; font-size: .88rem;
+    color: #92400e; line-height: 1.5;
+  }
+  .fb-close-btn {
+    position: absolute; top: 12px; right: 14px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,.7);
+    border: 1px solid rgba(180,83,9,.25);
+    color: #78350f; font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+    z-index: 2;
+    transition: background .2s, transform .15s;
+  }
+  .fb-close-btn:hover { background: white; transform: scale(1.08); }
+
+  .fb-card-body { padding: 18px 26px 24px; position: relative; z-index: 1; }
+  .fb-stars-row {
+    display: flex; justify-content: center; gap: 6px;
+    padding: 6px 0 14px;
+  }
+  .fb-star {
+    cursor: pointer;
+    font-size: 2.2rem;
+    color: #e5e7eb;
+    transition: transform .15s ease, color .2s ease;
+    user-select: none;
+    line-height: 1;
+  }
+  .fb-star:hover { transform: scale(1.15); }
+  .fb-star.active {
+    color: #f59e0b;
+    text-shadow: 0 2px 6px rgba(245,158,11,.45);
+    animation: fbStarPulse .35s ease-out;
+  }
+  .fb-rating-label {
+    text-align: center;
+    font-size: .82rem; font-weight: 600;
+    color: #78350f;
+    min-height: 18px;
+    margin-bottom: 12px;
+  }
+  .fb-textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 12px 14px;
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+    font-family: inherit; font-size: .9rem;
+    color: #422006;
+    background: rgba(255,255,255,.85);
+    resize: vertical;
+    transition: border-color .2s, box-shadow .2s;
+    box-sizing: border-box;
+  }
+  .fb-textarea:focus {
+    outline: none;
+    border-color: #d97706;
+    box-shadow: 0 0 0 3px rgba(217,119,6,.18);
+  }
+  .fb-submit-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 60%, #92400e 100%);
+    color: white;
+    border: 1px solid #b45309;
+    border-radius: 12px;
+    font-family: inherit; font-size: .95rem; font-weight: 700;
+    cursor: pointer;
+    box-shadow:
+      0 8px 18px -4px rgba(180,83,9,.55),
+      inset 0 1px 0 rgba(255,255,255,.4),
+      inset 0 -2px 0 rgba(120,53,15,.25);
+    transition: transform .15s, filter .2s;
+    letter-spacing: .3px;
+  }
+  .fb-submit-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.07); }
+  .fb-submit-btn:active:not(:disabled) { transform: translateY(1px); }
+  .fb-submit-btn:disabled { opacity: .55; cursor: not-allowed; }
+  .fb-success-note {
+    margin-top: 12px; padding: 10px 12px;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border: 1px solid #6ee7b7;
+    border-radius: 10px;
+    font-size: .85rem; font-weight: 600;
+    color: #065f46;
+    text-align: center;
+    display: none;
+  }
+  .fb-success-note.show { display: block; animation: aiwPop .35s ease-out; }
+  @media (max-width: 480px) {
+    .fb-card-header { padding: 22px 18px 12px; }
+    .fb-card-body   { padding: 14px 18px 20px; }
+    .fb-card-header h2 { font-size: 1.1rem; }
+    .fb-star { font-size: 1.9rem; }
+  }
+
   .topup-overlay {
     position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(6px);
     z-index: 10100; display: flex; align-items: center; justify-content: center;
@@ -2760,6 +2960,14 @@
                   💚 ร่วมสนับสนุนโปรเจกต์
                 </button>
                 <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 10 แผนแรก · AI ช่วยฟรีไม่จำกัด</div>
+
+                <!-- ─── Feedback CTA (brass gold) ─── -->
+                <button class="feedback-cta-btn" onclick="openFeedbackModal()" style="margin-top:14px;">
+                  ⭐ ร่วมรีวิวเป็นกำลังใจให้ทีมงาน
+                </button>
+                <div style="font-size:0.72rem; color:#92400e; margin-top:6px; text-align:center; font-weight:500;">
+                  ช่วยเราปั้นเว็บไซต์นี้ให้ดีขึ้น เพื่อครูไทยทุกคน
+                </div>
               </div>
             </div>
             <div>
@@ -6046,6 +6254,11 @@ function _doGeneratePlan(format = 'pdf') {
       }
     }
   } catch (e) { console.warn('saveToHistory failed:', e); }
+
+  // ─── Prompt user for feedback after their first lesson ───
+  if (typeof window.maybePromptFeedback === 'function') {
+    try { window.maybePromptFeedback(); } catch (e) {}
+  }
 }
 
 function exportAsDocx(data) {
@@ -9398,6 +9611,123 @@ window.renderUnitDashboard = renderUnitDashboard;
     </button>
   </div>
 </div>
+
+<!-- ============ FEEDBACK MODAL ============ -->
+<div id="fb-overlay" class="fb-overlay" style="display:none;" onclick="if(event.target===this)closeFeedbackModal()">
+  <div class="fb-card" role="dialog" aria-labelledby="fb-title">
+    <button class="fb-close-btn" onclick="closeFeedbackModal()" aria-label="ปิด">✕</button>
+    <div class="fb-card-header">
+      <div class="fb-card-icon">⭐</div>
+      <h2 id="fb-title">ร่วมรีวิวเป็นกำลังใจให้ทีมงาน</h2>
+      <p>ความเห็นของคุณครูช่วยให้เว็บไซต์นี้<br>ดีขึ้นเพื่อครูไทยทุกคน 💛</p>
+    </div>
+    <div class="fb-card-body">
+      <div class="fb-stars-row" id="fb-stars">
+        <span class="fb-star" data-v="1" onclick="fbSetRating(1)" onmouseover="fbHoverRating(1)" onmouseout="fbHoverRating(0)">★</span>
+        <span class="fb-star" data-v="2" onclick="fbSetRating(2)" onmouseover="fbHoverRating(2)" onmouseout="fbHoverRating(0)">★</span>
+        <span class="fb-star" data-v="3" onclick="fbSetRating(3)" onmouseover="fbHoverRating(3)" onmouseout="fbHoverRating(0)">★</span>
+        <span class="fb-star" data-v="4" onclick="fbSetRating(4)" onmouseover="fbHoverRating(4)" onmouseout="fbHoverRating(0)">★</span>
+        <span class="fb-star" data-v="5" onclick="fbSetRating(5)" onmouseover="fbHoverRating(5)" onmouseout="fbHoverRating(0)">★</span>
+      </div>
+      <div class="fb-rating-label" id="fb-rating-label">เลือกดาวเพื่อให้คะแนน</div>
+      <textarea class="fb-textarea" id="fb-message" placeholder="อยากบอกอะไรกับทีมงานไหมคะ? (ไม่บังคับ — แต่จะมีค่ามากสำหรับเราค่ะ 💛)" maxlength="2000"></textarea>
+      <button class="fb-submit-btn" id="fb-submit-btn" onclick="submitFeedback()" disabled>
+        💛 ส่งรีวิวให้ทีมงาน
+      </button>
+      <div class="fb-success-note" id="fb-success-note">
+        🌷 ขอบคุณมากๆ ค่ะ — ทีมงานได้รับ feedback ของคุณครูเรียบร้อยแล้ว
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Feedback modal logic ─────────────────────────────────
+(function() {
+  let _fbRating = 0;
+  const FB_LABELS = ['', '😢 ปรับปรุง', '😐 พอใช้', '🙂 ดี', '😊 ดีมาก', '🤩 เยี่ยมเลย!'];
+
+  function _paintStars(active) {
+    document.querySelectorAll('#fb-stars .fb-star').forEach(s => {
+      const v = parseInt(s.dataset.v);
+      s.classList.toggle('active', v <= active);
+    });
+  }
+
+  window.fbSetRating = function(v) {
+    _fbRating = v;
+    _paintStars(v);
+    const lbl = document.getElementById('fb-rating-label');
+    if (lbl) lbl.textContent = FB_LABELS[v] || '';
+    const btn = document.getElementById('fb-submit-btn');
+    if (btn) btn.disabled = !(v >= 1 && v <= 5);
+  };
+
+  window.fbHoverRating = function(v) {
+    _paintStars(v > 0 ? v : _fbRating);
+  };
+
+  window.openFeedbackModal = function() {
+    _fbRating = 0;
+    _paintStars(0);
+    const lbl = document.getElementById('fb-rating-label');
+    if (lbl) lbl.textContent = 'เลือกดาวเพื่อให้คะแนน';
+    const msg = document.getElementById('fb-message');
+    if (msg) msg.value = '';
+    const btn = document.getElementById('fb-submit-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '💛 ส่งรีวิวให้ทีมงาน'; }
+    const note = document.getElementById('fb-success-note');
+    if (note) note.classList.remove('show');
+    document.getElementById('fb-overlay').style.display = 'flex';
+  };
+
+  window.closeFeedbackModal = function() {
+    document.getElementById('fb-overlay').style.display = 'none';
+  };
+
+  window.submitFeedback = async function() {
+    if (!(_fbRating >= 1 && _fbRating <= 5)) return;
+    const btn = document.getElementById('fb-submit-btn');
+    const note = document.getElementById('fb-success-note');
+    const message = (document.getElementById('fb-message').value || '').trim();
+    btn.disabled = true;
+    btn.textContent = '⏳ กำลังส่ง...';
+    try {
+      const fetcher = window.authFetch || window.fetch;
+      const res = await fetcher('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: _fbRating, message }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || 'ส่งไม่สำเร็จ');
+      // Mark as submitted so we don't auto-prompt again
+      try { localStorage.setItem('lpg:feedbackSubmitted', '1'); } catch {}
+      note.classList.add('show');
+      btn.textContent = '✓ ส่งเรียบร้อย';
+      setTimeout(() => window.closeFeedbackModal(), 1800);
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = '💛 ส่งรีวิวให้ทีมงาน';
+      alert('ส่ง feedback ไม่สำเร็จ: ' + (e.message || 'กรุณาลองใหม่ค่ะ'));
+    }
+  };
+
+  // Auto-prompt on first lesson creation
+  // Trigger: after a successful saveToHistory (set marker), wait a bit, then show
+  window.maybePromptFeedback = function() {
+    try {
+      if (localStorage.getItem('lpg:feedbackSubmitted') === '1') return;
+      if (localStorage.getItem('lpg:feedbackPrompted') === '1') return;
+      // Show only once user has at least 1 lesson
+      const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+      if (!hist || hist.length < 1) return;
+      localStorage.setItem('lpg:feedbackPrompted', '1');
+      setTimeout(() => window.openFeedbackModal(), 1500);
+    } catch {}
+  };
+})();
+</script>
 
 <!-- ============ TOP-UP MODAL ============ -->
 <div id="topup-overlay" class="topup-overlay" style="display:none;" onclick="if(event.target===this)closeTopupModal()">

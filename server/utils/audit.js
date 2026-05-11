@@ -30,6 +30,9 @@ export const ACTIONS = Object.freeze({
   // AI
   AI_GENERATE_FAILED:      'ai_generate_failed',
 
+  // Feedback
+  FEEDBACK_SUBMITTED:      'feedback_submitted',
+
   // Admin
   ADMIN_LOCK_USER:         'admin_lock_user',
   ADMIN_UNLOCK_USER:       'admin_unlock_user',

@@ -344,6 +344,7 @@ async function renderApp() {
     <div class="tabs">
       <button class="tab ${currentTab==='users'?'active':''}"   data-tab="users">👥 Users</button>
       <button class="tab ${currentTab==='credits'?'active':''}" data-tab="credits">⚡ Credits</button>
+      <button class="tab ${currentTab==='feedback'?'active':''}" data-tab="feedback">⭐ Feedback</button>
       <button class="tab ${currentTab==='audit'?'active':''}"   data-tab="audit">📋 Audit Log</button>
     </div>
     <div id="tab-content"></div>
@@ -352,6 +353,7 @@ async function renderApp() {
 
   if (currentTab === 'users')   renderUsers();
   else if (currentTab === 'credits') renderCredits();
+  else if (currentTab === 'feedback') renderFeedback();
   else renderAudit();
 }
 
@@ -471,6 +473,76 @@ async function loadCredits() {
       a.onclick = (e) => { e.preventDefault(); openUserModal(a.dataset.id); }
     );
   } catch (e) { wrap.innerHTML = `<div class="err">${escapeHtml(e.message)}</div>`; }
+}
+
+// ════════════════════════════════════════════════════════
+//  FEEDBACK TAB
+// ════════════════════════════════════════════════════════
+async function renderFeedback() {
+  const c = $('tab-content');
+  c.innerHTML = '<div class="loading">กำลังโหลด feedback...</div>';
+  try {
+    const { items, stats } = await api('/admin/api/feedback');
+    if (!items.length) {
+      c.innerHTML = '<div class="empty">ยังไม่มีรีวิวจาก user</div>';
+      return;
+    }
+    const starsRow = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+    const dist = stats.distribution || {};
+    const maxBar = Math.max(1, ...Object.values(dist));
+    const barRow = (n) => `
+      <div style="display:flex;align-items:center;gap:8px;font-size:.82rem;">
+        <span style="width:48px;color:#f59e0b;font-weight:600;">${n}★</span>
+        <div style="flex:1;background:#f1f5f9;border-radius:4px;height:10px;overflow:hidden;">
+          <div style="width:${(dist[n] || 0) / maxBar * 100}%;height:100%;background:linear-gradient(90deg,#fbbf24,#d97706);"></div>
+        </div>
+        <span style="width:32px;text-align:right;color:#64748b;">${dist[n] || 0}</span>
+      </div>`;
+
+    c.innerHTML = `
+      <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:18px;">
+        <div class="stat-card amber">
+          <div class="label">⭐ คะแนนเฉลี่ย</div>
+          <div class="value">${stats.avg.toFixed(2)} <span style="font-size:.85rem;color:#94a3b8;">/ 5</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">📝 รีวิวทั้งหมด</div>
+          <div class="value">${fmt(stats.total)}</div>
+        </div>
+        <div class="stat-card" style="grid-column:span 2;">
+          <div class="label" style="margin-bottom:8px;">📊 การกระจายดาว</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            ${[5,4,3,2,1].map(barRow).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th style="width:140px;">เวลา</th>
+          <th style="width:200px;">User</th>
+          <th style="width:120px;">ดาว</th>
+          <th>ข้อความ</th>
+        </tr></thead>
+        <tbody>
+          ${items.map(f => `
+            <tr>
+              <td style="white-space:nowrap;font-size:.82rem;">${fmtDate(f.created_at)}</td>
+              <td style="font-size:.85rem;">
+                ${escapeHtml(f.display_name || '—')}<br>
+                <span style="color:#64748b;font-size:.78rem;">${escapeHtml(f.email || '—')}</span>
+              </td>
+              <td><span style="color:#f59e0b;font-size:1rem;letter-spacing:1px;">${starsRow(f.rating)}</span></td>
+              <td style="font-size:.88rem;line-height:1.55;white-space:pre-wrap;">${f.message ? escapeHtml(f.message) : '<span style="color:#cbd5e1;">— ไม่มีข้อความ —</span>'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+      <p style="color:#64748b;font-size:.82rem;margin-top:8px;">แสดง ${items.length} รีวิวล่าสุด</p>
+    `;
+  } catch (e) {
+    c.innerHTML = `<div class="err">${escapeHtml(e.message)}</div>`;
+  }
 }
 
 // ════════════════════════════════════════════════════════
