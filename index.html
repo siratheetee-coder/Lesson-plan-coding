@@ -9233,6 +9233,18 @@ window.renderUnitDashboard = renderUnitDashboard;
         <a id="auth-forgot" style="color:#7c3aed;font-size:.85rem;cursor:pointer;display:none">ลืมรหัสผ่าน?</a>
       </div>
 
+      <div class="auth-row" id="auth-consent-row" style="display:none; margin-top:6px;">
+        <label style="display:flex; align-items:flex-start; gap:8px; font-size:.85rem; line-height:1.5; color:#4b5563;">
+          <input id="auth-consent" type="checkbox" style="margin-top:3px; flex-shrink:0;" />
+          <span>
+            ฉันได้อ่านและยอมรับ
+            <a href="/terms.html" target="_blank" style="color:#7c3aed; font-weight:600;">ข้อกำหนดการใช้บริการ</a>
+            และ
+            <a href="/privacy.html" target="_blank" style="color:#7c3aed; font-weight:600;">นโยบายความเป็นส่วนตัว</a>
+          </span>
+        </label>
+      </div>
+
       <div id="auth-error" class="auth-error"></div>
 
       <button type="submit" id="auth-submit" class="auth-primary">เข้าสู่ระบบ</button>
@@ -9244,6 +9256,12 @@ window.renderUnitDashboard = renderUnitDashboard;
     <div class="auth-toggle">
       <span id="auth-toggle-text">ยังไม่มีบัญชี?</span>
       <a id="auth-toggle-link">สมัครสมาชิก</a>
+    </div>
+
+    <div style="text-align:center; margin-top:18px; padding-top:14px; border-top:1px solid #f1f5f9; font-size:.78rem; color:#9ca3af;">
+      <a href="/terms.html" target="_blank" style="color:#9ca3af; margin:0 8px;">ข้อกำหนดการใช้บริการ</a>
+      ·
+      <a href="/privacy.html" target="_blank" style="color:#9ca3af; margin:0 8px;">นโยบายความเป็นส่วนตัว</a>
     </div>
     </div><!-- /auth-modal -->
     </div><!-- /auth-stage -->
@@ -9327,6 +9345,13 @@ window.renderUnitDashboard = renderUnitDashboard;
     $('auth-name-row').style.display     = isRegister ? 'block' : 'none';
     $('auth-password-row').style.display = isForgot   ? 'none'  : 'block';
     $('auth-remember-row').style.display = isForgot   ? 'none'  : 'block';
+    // Consent checkbox only on register
+    const consentRow = $('auth-consent-row');
+    if (consentRow) {
+      consentRow.style.display = isRegister ? 'block' : 'none';
+      const cb = $('auth-consent');
+      if (cb) cb.checked = false;
+    }
     // Hide "forgot password?" link when email isn't configured (link is useless without email)
     $('auth-forgot').style.display       = (mode === 'login' && window._authConfig?.emailEnabled !== false) ? 'inline' : 'none';
     $('auth-google-divider').style.display = isForgot ? 'none' : '';
@@ -9426,6 +9451,14 @@ window.renderUnitDashboard = renderUnitDashboard;
   async function handleSubmit(e) {
     e.preventDefault();
     clearError();
+    // Require consent on register
+    if (authMode === 'register') {
+      const consent = $('auth-consent');
+      if (consent && !consent.checked) {
+        showError('กรุณายอมรับข้อกำหนดการใช้บริการและนโยบายความเป็นส่วนตัวก่อนสมัคร');
+        return;
+      }
+    }
     const email = $('auth-email').value.trim();
     const password = $('auth-password').value;
     const remember = $('auth-remember').checked;

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ข้อกำหนดการใช้บริการ | AI Lesson Plan Generator</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    margin: 0;
+    background: linear-gradient(180deg, #faf5ff 0%, #ffffff 50%, #f0fdf4 100%);
+    color: #1f2937;
+    line-height: 1.75;
+  }
+  .legal-container { max-width: 820px; margin: 0 auto; padding: 60px 28px 80px; }
+  .legal-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #7c3aed; text-decoration: none;
+    font-size: .92rem; font-weight: 600; margin-bottom: 22px;
+  }
+  .legal-back:hover { text-decoration: underline; }
+  h1 { font-size: 2rem; font-weight: 700; color: #1a1f3a; margin: 0 0 6px; }
+  .legal-subtitle { color: #6b7280; font-size: .95rem; margin-bottom: 6px; }
+  .legal-effective {
+    background: #f5f3ff; color: #5b21b6;
+    padding: 6px 14px; border-radius: 8px;
+    font-size: .85rem; display: inline-block; margin-bottom: 28px;
+  }
+  h2 {
+    font-size: 1.25rem; font-weight: 700; color: #4c1d95;
+    margin: 36px 0 12px; padding-bottom: 6px;
+    border-bottom: 2px solid #ede9fe;
+  }
+  h3 { font-size: 1rem; font-weight: 600; color: #1a1f3a; margin: 18px 0 6px; }
+  ul, ol { padding-left: 24px; }
+  li { margin-bottom: 6px; }
+  .legal-card {
+    background: white; border: 1px solid #e9d5ff;
+    border-radius: 14px; padding: 20px 24px; margin: 16px 0;
+  }
+  .legal-warn {
+    background: #fef3c7; border-left: 4px solid #f59e0b;
+    padding: 14px 18px; border-radius: 6px; margin: 16px 0;
+    font-size: .92rem; color: #78350f;
+  }
+  .legal-info {
+    background: #ecfdf5; border-left: 4px solid #10b981;
+    padding: 14px 18px; border-radius: 6px; margin: 16px 0;
+    font-size: .92rem; color: #064e3b;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .92rem; }
+  th, td { padding: 10px 14px; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+  th { background: #f5f3ff; font-weight: 600; color: #4c1d95; }
+  .legal-footer {
+    margin-top: 50px; padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280; font-size: .88rem; text-align: center;
+  }
+  a { color: #7c3aed; }
+</style>
+</head>
+<body>
+<div class="legal-container">
+  <a href="/" class="legal-back">← กลับสู่หน้าหลัก</a>
+
+  <h1>ข้อกำหนดและเงื่อนไขการใช้บริการ</h1>
+  <p class="legal-subtitle">AI Lesson Plan Generator</p>
+  <span class="legal-effective">📅 มีผลบังคับใช้ตั้งแต่: 11 พฤษภาคม 2569 (พ.ศ. 2569)</span>
+
+  <p>
+    ยินดีต้อนรับสู่ AI Lesson Plan Generator! การเข้าใช้บริการของเราถือว่าคุณครู
+    ได้ยอมรับข้อกำหนดเหล่านี้ทั้งหมดแล้ว กรุณาอ่านอย่างละเอียดก่อนใช้งาน
+  </p>
+
+  <h2>1. คำนิยาม</h2>
+  <ul>
+    <li><b>"บริการ"</b> หมายถึง เว็บไซต์ AI Lesson Plan Generator และฟีเจอร์ทั้งหมด</li>
+    <li><b>"ผู้ใช้" / "คุณครู"</b> หมายถึง บุคคลที่สมัครและใช้บริการ</li>
+    <li><b>"เครดิต"</b> หมายถึง หน่วยที่ใช้แลก export แผนการสอน (1 เครดิต = 1 แผน)</li>
+    <li><b>"เนื้อหา AI"</b> หมายถึง ข้อความ/แผนที่ระบบสร้างจาก Claude API</li>
+  </ul>
+
+  <h2>2. การสมัครและบัญชีผู้ใช้</h2>
+  <ul>
+    <li>ผู้สมัครต้องมีอายุ 20 ปีขึ้นไป หรือได้รับความยินยอมจากผู้ปกครอง</li>
+    <li>ข้อมูลที่ให้ต้องเป็นจริงและถูกต้อง</li>
+    <li>คุณครูเป็นผู้รับผิดชอบในการรักษาความปลอดภัยของรหัสผ่าน</li>
+    <li>ห้ามแชร์บัญชีกับบุคคลอื่น</li>
+    <li>ผู้สมัครใหม่ได้รับเครดิตฟรี 10 แผนสำหรับลองใช้ระบบ</li>
+  </ul>
+
+  <h2>3. การใช้บริการอย่างเหมาะสม</h2>
+  <p>คุณครูตกลงว่าจะ <b>ไม่</b>:</p>
+  <ul>
+    <li>ใช้บริการเพื่อสร้างเนื้อหาที่ผิดกฎหมาย, ลามก, หรือเป็นอันตราย</li>
+    <li>พยายามเจาะระบบ, hack, scrape, หรือ reverse engineer</li>
+    <li>ใช้ bot/script ส่ง request จำนวนมากเกินปกติ</li>
+    <li>ขายต่อหรือให้บริการต่อในเชิงพาณิชย์โดยไม่ได้รับอนุญาต</li>
+    <li>ปลอมแปลงตัวตน หรือสร้างบัญชีหลายบัญชีเพื่อรับเครดิตฟรีซ้ำ</li>
+    <li>ใช้ข้อมูลที่ละเมิดลิขสิทธิ์ของผู้อื่นเป็น input</li>
+  </ul>
+
+  <h2>4. ระบบเครดิตและการชำระเงิน</h2>
+
+  <h3>4.1 หลักการของเครดิต</h3>
+  <ul>
+    <li><b>AI generation ฟรีไม่จำกัด</b> — หักเครดิตเฉพาะตอน export แผน (PDF/DOCX)</li>
+    <li>1 เครดิต = 1 แผน (การ export แผนเดิมซ้ำไม่หักเครดิตเพิ่ม)</li>
+    <li>การร่างทั้งหน่วย (Unit Outline) หักล่วงหน้าตามจำนวนแผนที่ระบบสร้าง</li>
+    <li>เครดิตไม่มีวันหมดอายุ ตราบที่บัญชียังเปิดอยู่</li>
+  </ul>
+
+  <h3>4.2 การซื้อเครดิต</h3>
+  <ul>
+    <li>ชำระผ่าน PromptPay (QR Code) เท่านั้น</li>
+    <li>ตรวจสอบสลิปอัตโนมัติด้วยบริการ SlipOK</li>
+    <li>เครดิตจะเข้าระบบทันทีเมื่อระบบยืนยันการชำระเงินสำเร็จ</li>
+    <li>ราคาแสดงเป็นเงินบาท (THB) รวมภาษีแล้ว (ถ้ามี)</li>
+  </ul>
+
+  <h3>4.3 นโยบายการคืนเงิน (Refund Policy)</h3>
+  <div class="legal-warn">
+    <b>⚠️ เครดิตที่ซื้อแล้วไม่สามารถขอคืนเงินได้</b> ยกเว้นกรณีต่อไปนี้:
+    <ul style="margin-top:6px;">
+      <li>ระบบเรียกเก็บเงินผิดพลาด (เช่น หักซ้ำ)</li>
+      <li>ระบบขัดข้องจากฝั่งเรา ทำให้ใช้เครดิตไม่ได้เกิน 7 วัน</li>
+      <li>การชำระเงินผิดพลาดและยังไม่ได้รับเครดิต</li>
+    </ul>
+    <span style="display:block; margin-top:8px;">ติดต่อขอคืนเงินภายใน <b>7 วัน</b> นับจากวันชำระ ที่
+    <a href="mailto:[your-email@example.com]">[your-email@example.com]</a></span>
+  </div>
+
+  <h2>5. ทรัพย์สินทางปัญญา</h2>
+
+  <h3>5.1 เนื้อหาที่คุณครูสร้าง</h3>
+  <div class="legal-info">
+    🎓 <b>แผนการสอนที่คุณครู export ออกไปเป็นของคุณครูเอง</b>
+    คุณครูสามารถใช้, แก้ไข, แชร์, หรือพิมพ์เผยแพร่ในงานสอนได้อย่างเต็มที่
+  </div>
+
+  <h3>5.2 สิทธิ์ของระบบ</h3>
+  <ul>
+    <li>โค้ด, การออกแบบ, แบรนด์ของเว็บไซต์เป็นของผู้ดำเนินการ</li>
+    <li>เนื้อหาที่ AI สร้างอ้างอิงจาก Claude (Anthropic) ซึ่งไม่อ้างสิทธิ์ในผลลัพธ์</li>
+    <li>เราอาจใช้ข้อมูล <b>เชิงสถิติแบบไม่ระบุตัวตน</b> เพื่อปรับปรุงระบบ</li>
+  </ul>
+
+  <h2>6. ข้อจำกัดความรับผิดและความถูกต้องของเนื้อหา AI</h2>
+  <div class="legal-warn">
+    <b>⚠️ สำคัญ — โปรดอ่าน:</b>
+    <ul style="margin-top:6px;">
+      <li>เนื้อหาที่ AI สร้างเป็น <b>"เครื่องมือช่วย"</b> ไม่ใช่แผนสำเร็จรูปสมบูรณ์</li>
+      <li>คุณครูควรตรวจสอบและปรับให้เหมาะกับบริบทห้องเรียนก่อนนำไปใช้</li>
+      <li>AI อาจสร้างข้อมูลที่ไม่ถูกต้องตามตัวชี้วัด/สาระการเรียนรู้บางกรณี</li>
+      <li>เราไม่รับผิดชอบต่อผลกระทบจากการใช้เนื้อหาโดยไม่ตรวจทาน</li>
+    </ul>
+  </div>
+  <p>
+    บริการให้บริการในลักษณะ <b>"as-is"</b> — เราไม่รับประกันว่าระบบจะไม่ขัดข้อง,
+    ไม่มี bug, หรือพร้อมใช้ตลอด 24/7
+  </p>
+
+  <h2>7. การระงับ/ยุติบัญชี</h2>
+  <p>เราอาจระงับหรือยุติบัญชีโดยไม่คืนเครดิตหากพบว่า:</p>
+  <ul>
+    <li>ละเมิดข้อกำหนดเหล่านี้</li>
+    <li>ใช้งานในทางที่ผิดกฎหมาย</li>
+    <li>ฉ้อโกงเครดิตหรือสลิป</li>
+    <li>ทำให้ระบบเสียหาย หรือกระทบผู้ใช้ท่านอื่น</li>
+  </ul>
+  <p>คุณครูสามารถลบบัญชีของตนเองได้ทุกเมื่อ — ติดต่อทีมงาน</p>
+
+  <h2>8. การเปลี่ยนแปลงบริการและราคา</h2>
+  <ul>
+    <li>เราอาจเพิ่ม/ลด/เปลี่ยน feature ได้</li>
+    <li>การเปลี่ยนแปลงราคาแพ็กเกจไม่กระทบเครดิตที่ซื้อไปแล้ว</li>
+    <li>การเปลี่ยนแปลงสำคัญจะแจ้งล่วงหน้าอย่างน้อย 7 วัน</li>
+  </ul>
+
+  <h2>9. กฎหมายที่ใช้บังคับและการระงับข้อพิพาท</h2>
+  <p>
+    ข้อกำหนดเหล่านี้อยู่ภายใต้กฎหมายแห่งราชอาณาจักรไทย ข้อพิพาทใดๆ
+    หากเจรจาไม่สำเร็จให้นำเข้าสู่ศาลที่มีเขตอำนาจในประเทศไทย
+  </p>
+
+  <h2>10. ติดต่อเรา</h2>
+  <div class="legal-card">
+    <p>
+      <b>AI Lesson Plan Generator</b><br>
+      📧 อีเมล: <a href="mailto:[your-email@example.com]">[your-email@example.com]</a><br>
+      💬 Line OA: [ถ้ามี]<br>
+      🌐 เว็บไซต์: <a href="/">[ใส่ URL ที่นี่]</a>
+    </p>
+  </div>
+
+  <div class="legal-footer">
+    © 2569 AI Lesson Plan Generator · ปรับปรุงล่าสุด: 11 พฤษภาคม 2569<br>
+    ดูเพิ่มเติม: <a href="/privacy.html">นโยบายความเป็นส่วนตัว</a>
+  </div>
+</div>
+</body>
+</html>
