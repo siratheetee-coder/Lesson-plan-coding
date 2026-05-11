@@ -1802,6 +1802,20 @@
     transition: all .2s ease;
   }
   .cs-action-pill b { color: #d97706; font-size: 1.05rem; }
+  .cs-ai-toggle {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: white;
+    border: 1px solid #e9d5ff;
+    border-radius: 999px;
+    font-size: .85rem; color: #4c1d95;
+    cursor: pointer;
+    transition: all .2s ease;
+    user-select: none;
+  }
+  .cs-ai-toggle:hover { border-color: #c4b5fd; background: #faf5ff; }
+  .cs-ai-toggle input { accent-color: #7c3aed; cursor: pointer; }
+  .cs-ai-toggle input:checked + span { font-weight: 600; }
   .cs-generate-btn {
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
@@ -1825,6 +1839,17 @@
     box-shadow: none;
     cursor: not-allowed;
     opacity: .7;
+  }
+  .cs-docx-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    box-shadow: 0 8px 22px rgba(37,99,235,.35) !important;
+  }
+  .cs-docx-btn:hover:not(:disabled) {
+    box-shadow: 0 12px 28px rgba(37,99,235,.45) !important;
+  }
+  .cs-docx-btn:disabled {
+    background: linear-gradient(135deg, #d1d5db, #9ca3af) !important;
+    box-shadow: none !important;
   }
 
   .unit-card-grid {
@@ -3179,8 +3204,15 @@
           <span class="cs-action-pill">
             ✓ เลือกแล้ว <b id="cs-selected-count">0</b> หน่วย
           </span>
+          <label class="cs-ai-toggle" title="AI จะร่างคำอธิบายรายวิชา 2 ย่อหน้าจากตัวชี้วัด + ชื่อหน่วยที่เลือก (ฟรี · ใช้เวลาประมาณ 8-12 วินาที)">
+            <input type="checkbox" id="cs-ai-desc-toggle" checked>
+            <span>✨ ให้ AI ช่วยร่างคำอธิบายรายวิชา</span>
+          </label>
           <button id="cs-generate-btn" class="cs-generate-btn" disabled onclick="generateCourseStructure()">
-            📋 สร้างโครงสร้างรายวิชา
+            📋 ดูตัวอย่าง (HTML)
+          </button>
+          <button id="cs-docx-btn" class="cs-generate-btn cs-docx-btn" disabled onclick="downloadCourseStructureDocx()">
+            📥 ดาวน์โหลด DOCX
           </button>
         </div>
       </div>
@@ -8005,11 +8037,13 @@ function clearCsSelection() {
 function updateCsActionBar() {
   const bar = document.getElementById('cs-action-bar');
   const btn = document.getElementById('cs-generate-btn');
+  const docxBtn = document.getElementById('cs-docx-btn');
   const count = document.getElementById('cs-selected-count');
   const n = window._selectedUnitIds.length;
   if (!btn || !count) return;
   count.textContent = n;
   btn.disabled = n === 0;
+  if (docxBtn) docxBtn.disabled = n === 0;
   if (bar) bar.classList.toggle('has-selection', n > 0);
 }
 
@@ -8040,23 +8074,149 @@ function _buildIndicatorMap(unitIds) {
   return map;
 }
 
+// Build the course context payload that the AI needs to write a description.
+// Pulls subject info from selected units + all unique indicators (with text).
+function _buildCourseContext(unitIds, indicatorMap) {
+  const units = loadUnits().filter(u => unitIds.includes(u.id));
+  const first = units[0] || {};
+  // Collect indicators used across all selected units' lessons
+  const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const histById = Object.fromEntries(hist.map(h => [h.id, h]));
+  const seen = new Map();
+  for (const u of units) {
+    for (const lid of (u.lessonIds || [])) {
+      for (const id of (histById[lid]?.data?.indicatorIds || [])) {
+        const meta = indicatorMap[id];
+        if (meta?.code && !seen.has(meta.code)) seen.set(meta.code, meta.desc || '');
+      }
+    }
+  }
+  return {
+    subject_name:    first.subjectName || '',
+    subject_code:    first.subjectCode || '',
+    class_level:     first.classLevel || '',
+    subject_group:   first.subjectGroup || '',
+    total_hours:     units.reduce((s,u) => s + (parseFloat(u.totalHours) || 0), 0),
+    units: units.map(u => ({
+      no: u.unitNo || '', title: u.title || '',
+    })),
+    indicators: [...seen.entries()].map(([code, text]) => ({ code, text })),
+  };
+}
+
+async function _aiGenerateDescription(courseCtx) {
+  const fetcher = window.authFetch || window.fetch;
+  const res = await fetcher('/api/ai/generate-course-description', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(courseCtx),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.message || json.error || 'ไม่สามารถสร้างคำอธิบายได้');
+  return {
+    paragraph_1: json.data?.paragraph_1 || '',
+    paragraph_2: json.data?.paragraph_2 || '',
+  };
+}
+
+async function downloadCourseStructureDocx() {
+  const ids = (window._selectedUnitIds || []).slice();
+  if (ids.length === 0) { alert('กรุณาเลือกหน่วยอย่างน้อย 1 หน่วยก่อน'); return; }
+  const btn = document.getElementById('cs-docx-btn');
+  const original = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; }
+  const useAi = !!document.getElementById('cs-ai-desc-toggle')?.checked;
+  try {
+    const indicator_map = _buildIndicatorMap(ids);
+    let description = null;
+    if (useAi) {
+      if (btn) btn.innerHTML = '✨ AI กำลังร่างคำอธิบาย...';
+      try {
+        const ctx = _buildCourseContext(ids, indicator_map);
+        description = await _aiGenerateDescription(ctx);
+      } catch (e) {
+        console.warn('[cs] AI description failed:', e);
+        if (!confirm('AI สร้างคำอธิบายไม่สำเร็จ — ดาวน์โหลด DOCX โดยไม่มีคำอธิบายต่อไหมคะ?')) throw e;
+        description = null;
+      }
+    }
+    if (btn) btn.innerHTML = '⏳ กำลังสร้างไฟล์...';
+    const fetcher = window.authFetch || window.fetch;
+    const res = await fetcher('/api/course-structure/export-docx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unit_ids: ids, indicator_map, description }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || err.error || 'ดาวน์โหลด DOCX ไม่สำเร็จ');
+    }
+    // Stream → blob → download
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    // Prefer filename* (UTF-8 Thai) → fallback to ASCII filename → fallback default
+    const cd = res.headers.get('Content-Disposition') || '';
+    let name = 'course-structure.docx';
+    const utf = cd.match(/filename\*=UTF-8''([^;]+)/i);
+    if (utf) try { name = decodeURIComponent(utf[1]); } catch {}
+    else {
+      const m = cd.match(/filename="?([^";]+)"?/);
+      if (m) name = m[1];
+    }
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('เกิดข้อผิดพลาด: ' + (e.message || 'กรุณาลองใหม่'));
+  } finally {
+    if (btn) { btn.innerHTML = original; }
+    updateCsActionBar();
+  }
+}
+
 async function generateCourseStructure() {
   const ids = (window._selectedUnitIds || []).slice();
   if (ids.length === 0) { alert('กรุณาเลือกหน่วยอย่างน้อย 1 หน่วยก่อน'); return; }
   const btn = document.getElementById('cs-generate-btn');
   const original = btn ? btn.innerHTML : '';
-  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ กำลังสร้าง...'; }
+  if (btn) { btn.disabled = true; }
+  const useAi = !!document.getElementById('cs-ai-desc-toggle')?.checked;
   try {
     const indicator_map = _buildIndicatorMap(ids);
+
+    // Step 1 (optional): AI generates description paragraphs
+    let description = null;
+    if (useAi) {
+      if (btn) btn.innerHTML = '✨ AI กำลังร่างคำอธิบาย...';
+      try {
+        const ctx = _buildCourseContext(ids, indicator_map);
+        description = await _aiGenerateDescription(ctx);
+      } catch (e) {
+        // AI fail → continue without description (don't block the whole flow)
+        console.warn('[cs] AI description failed:', e);
+        if (!confirm('AI สร้างคำอธิบายไม่สำเร็จ — สร้างเอกสารโดยไม่มีคำอธิบายต่อไหมคะ?')) {
+          throw e;
+        }
+        description = null;
+      }
+    }
+
+    // Step 2: build preview HTML
+    if (btn) btn.innerHTML = '⏳ กำลังสร้างเอกสาร...';
     const fetcher = window.authFetch || window.fetch;
     const res = await fetcher('/api/course-structure/preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ unit_ids: ids, indicator_map }),
+      body: JSON.stringify({ unit_ids: ids, indicator_map, description }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.message || data.error || 'ไม่สามารถสร้างเอกสารได้');
-    // Open generated HTML in a new tab
+
+    // Open in a new tab
     const win = window.open('', '_blank');
     if (win) {
       win.document.open();

@@ -20,6 +20,7 @@ import {
   generateAssessments,
   generateUnitArc,
   generateUnitOutline,
+  generateCourseDescription,
   isConfigured,
 } from '../utils/claude.js';
 
@@ -184,6 +185,9 @@ router.post('/generate-assessments', aiLimiter, (req, res) =>
 
 router.post('/generate-unit-arc', aiLimiter, (req, res) =>
   handleAi(req, res, { kind: 'unit_arc', cost: COST, generator: generateUnitArc }));
+
+router.post('/generate-course-description', aiLimiter, (req, res) =>
+  handleAi(req, res, { kind: 'course_description', cost: COST, generator: generateCourseDescription }));
 
 // Unit Outline — paid feature: 1 credit per planned lesson
 // (drafts created from this call are PRE-PAID → exports of them are free via lesson_hash idempotency)

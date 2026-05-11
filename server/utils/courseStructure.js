@@ -15,6 +15,12 @@
 //     current unit schema → placeholders are left blank for the user
 //     to fill in by editing the printed doc.
 
+import {
+  Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
+  Table, TableRow, TableCell, WidthType, BorderStyle, PageBreak,
+  TabStopType, TabStopPosition,
+} from 'docx';
+
 // ─── Thai-language strand titles per subject prefix ──────
 // First char of indicator code determines which subject curriculum.
 // "ต" = ภาษาต่างประเทศ (foreign language)
@@ -188,10 +194,24 @@ export function aggregate({ units, lessonsById, indicatorMap = {} }) {
 }
 
 // ─── Render → HTML mirroring course-structure-template.html ──
+// data.description = { paragraph_1, paragraph_2 }  (optional — if absent, renders a placeholder note)
 export function renderHtml(data) {
   const ph = (v) => v === '' || v === null || v === undefined
     ? '<span class="empty">—</span>'
     : esc(v);
+
+  // Description paragraphs — either AI-generated or placeholder note
+  const desc = data.description || {};
+  const descHtml = (desc.paragraph_1 || desc.paragraph_2)
+    ? `
+      <p class="indent-para">${esc(desc.paragraph_1 || '')}</p>
+      ${desc.paragraph_2 ? `<p class="indent-para">${esc(desc.paragraph_2)}</p>` : ''}
+    `
+    : `
+      <p class="indent-para empty-row" style="text-indent:0; text-align:center;">
+        (ย่อหน้าคำอธิบายรายวิชา — กดปุ่ม "✨ ให้ AI ช่วยร่างคำอธิบาย" ในหน้า "โครงสร้างรายวิชา" เพื่อสร้างอัตโนมัติ)
+      </p>
+    `;
 
   // Section 2: indicator code list
   const indicatorCodeList = data.indicator_groups.length
@@ -313,9 +333,7 @@ export function renderHtml(data) {
 <div class="page">
   <h1 class="doc-title">คำอธิบายรายวิชา</h1>
   ${infoGrid}
-  <p class="indent-para empty-row" style="text-indent:0; text-align:center;">
-    (ย่อหน้าคำอธิบายรายวิชา — ใช้ AI สร้างได้ในขั้นถัดไป หรือพิมพ์ในเอกสารเอง)
-  </p>
+  ${descHtml}
 </div>
 
 <!-- Section 2 — ตัวชี้วัด (รหัสย่อ) -->
@@ -404,4 +422,273 @@ export function renderHtml(data) {
 
 </body>
 </html>`;
+}
+
+// ─── DOCX renderer ─────────────────────────────────────────
+// Returns a Buffer (DOCX binary) the route can stream to the client.
+// Mirrors the same 5 sections as renderHtml.
+
+// Helpers
+const FONT = 'Sarabun';
+const _txt = (text, opts = {}) => new TextRun({ text: String(text ?? ''), font: FONT, ...opts });
+const _p = (children, opts = {}) => new Paragraph({ children: Array.isArray(children) ? children : [children], ...opts });
+const _heading = (text) => new Paragraph({
+  alignment: AlignmentType.CENTER,
+  spacing: { before: 200, after: 240 },
+  children: [_txt(text, { bold: true, size: 32 })],
+});
+const _strandHeading = (text) => new Paragraph({
+  spacing: { before: 200, after: 100 },
+  children: [_txt(text, { bold: true, size: 26 })],
+});
+const _emDash = (val) => (val === '' || val === null || val === undefined) ? '—' : String(val);
+
+function _twoColInfo(data) {
+  // Two-column header info as a borderless 2-column table
+  const left = [
+    `รหัสวิชา ${data.subject_code || '—'}  รายวิชา ${data.subject_name || '—'}`,
+    `ภาคเรียนที่ ${_emDash(data.terms)}  ปีการศึกษา ${_emDash(data.academic_year)}`,
+    `เวลาเรียน ${data.total_hours || '—'} ชั่วโมง`,
+  ];
+  const right = [
+    `กลุ่มสาระการเรียนรู้ ${data.subject_group || '—'}`,
+    `ชั้น ${data.class_level || '—'}`,
+    `เวลาเรียน ${_emDash(data.hours_per_week)} ชั่วโมง/สัปดาห์`,
+  ];
+  const noBorder = { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} };
+  const cell = (lines, align) => new TableCell({
+    borders: noBorder,
+    children: lines.map(l => new Paragraph({
+      alignment: align, children: [_txt(l, { size: 24 })],
+    })),
+  });
+  return new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: noBorder,
+    rows: [new TableRow({ children: [cell(left, AlignmentType.LEFT), cell(right, AlignmentType.RIGHT)] })],
+  });
+}
+
+function _hrParagraph() {
+  // Visual separator using bottom border
+  return new Paragraph({
+    border: { bottom: { color: '000000', size: 6, style: BorderStyle.SINGLE, space: 1 } },
+    spacing: { after: 200 },
+    children: [],
+  });
+}
+
+function _pageBreak() {
+  return new Paragraph({ children: [new PageBreak()] });
+}
+
+function _bodyCell(text, opts = {}) {
+  const { align = AlignmentType.LEFT, bold = false, size = 22, lines = null } = opts;
+  const paras = lines
+    ? lines.map(l => new Paragraph({ alignment: align, children: [_txt(l, { size, bold })] }))
+    : [new Paragraph({ alignment: align, children: [_txt(text, { size, bold })] })];
+  return new TableCell({ children: paras });
+}
+
+export async function renderDocx(data) {
+  const desc = data.description || {};
+
+  // ── Section 1: คำอธิบายรายวิชา ──
+  const section1 = [
+    _heading('คำอธิบายรายวิชา'),
+    _twoColInfo(data),
+    _hrParagraph(),
+  ];
+  if (desc.paragraph_1) {
+    section1.push(new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      indent: { firstLine: 720 },
+      spacing: { line: 380, after: 200 },
+      children: [_txt(desc.paragraph_1, { size: 28 })],
+    }));
+  }
+  if (desc.paragraph_2) {
+    section1.push(new Paragraph({
+      alignment: AlignmentType.JUSTIFIED,
+      indent: { firstLine: 720 },
+      spacing: { line: 380, after: 200 },
+      children: [_txt(desc.paragraph_2, { size: 28 })],
+    }));
+  }
+  if (!desc.paragraph_1 && !desc.paragraph_2) {
+    section1.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { before: 240, after: 240 },
+      children: [_txt('(ย่อหน้าคำอธิบายรายวิชา — สามารถพิมพ์เพิ่มเองได้ในเอกสารนี้)', { italics: true, color: '9ca3af', size: 24 })],
+    }));
+  }
+
+  // ── Section 2: ตัวชี้วัด ──
+  const section2 = [
+    _pageBreak(),
+    new Paragraph({
+      alignment: AlignmentType.LEFT,
+      spacing: { before: 0, after: 200 },
+      children: [_txt('ตัวชี้วัด', { bold: true, size: 30 })],
+    }),
+  ];
+  if (data.indicator_groups?.length) {
+    for (const g of data.indicator_groups) {
+      section2.push(new Paragraph({
+        spacing: { line: 360 },
+        children: [
+          _txt(g.strand_code, { size: 26 }),
+          _txt('  ' + g.level_codes_joined, { size: 26 }),
+        ],
+      }));
+    }
+  } else {
+    section2.push(new Paragraph({ children: [_txt('— ไม่พบตัวชี้วัดในแผน —', { italics: true, color: '9ca3af', size: 24 })] }));
+  }
+  section2.push(new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 240 },
+    children: [_txt(`รวมทั้งหมด ${data.total_indicators || 0} ตัวชี้วัด`, { bold: true, size: 26 })],
+  }));
+
+  // ── Section 3: สาระ มาตรฐาน + ตัวชี้วัด ──
+  const section3 = [
+    _pageBreak(),
+    _heading('สาระ มาตรฐานการเรียนรู้ และตัวชี้วัด'),
+    _twoColInfo(data),
+    _hrParagraph(),
+  ];
+  if (data.strands?.length) {
+    for (const s of data.strands) {
+      section3.push(_strandHeading(`สาระที่ ${s.no}  ${s.title}`));
+      for (const ind of s.indicators) {
+        section3.push(new Paragraph({
+          indent: { left: 360 },
+          spacing: { line: 320 },
+          children: [
+            _txt(`${ind.idx})  `, { size: 24 }),
+            _txt(`${ind.code}  `, { size: 24, bold: true }),
+            _txt(ind.text, { size: 24 }),
+          ],
+        }));
+      }
+    }
+  } else {
+    section3.push(new Paragraph({ children: [_txt('— ไม่พบตัวชี้วัด —', { italics: true, color: '9ca3af', size: 24 })] }));
+  }
+
+  // ── Section 4: โครงสร้างรายวิชา ──
+  const headerCell = (text) => _bodyCell(text, { align: AlignmentType.CENTER, bold: true, size: 22 });
+  const courseTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({
+        tableHeader: true,
+        children: [
+          headerCell('หน่วยที่'),
+          headerCell('ชื่อหน่วยการเรียนรู้'),
+          headerCell('มาตรฐานการเรียนรู้ /\nตัวชี้วัด'),
+          headerCell('สาระสำคัญ'),
+          headerCell('เวลา\n(ชั่วโมง)'),
+          headerCell('น้ำหนัก\nคะแนน'),
+        ],
+      }),
+      ...(data.units || []).map(u => new TableRow({
+        children: [
+          _bodyCell(_emDash(u.no), { align: AlignmentType.CENTER }),
+          _bodyCell(u.title || '—', { align: AlignmentType.CENTER }),
+          _bodyCell('', { align: AlignmentType.LEFT, lines: (u.indicator_codes?.length ? u.indicator_codes : ['—']) }),
+          _bodyCell(u.essence || '—'),
+          _bodyCell(_emDash(u.hours || ''), { align: AlignmentType.CENTER }),
+          _bodyCell(_emDash(u.score_weight), { align: AlignmentType.CENTER }),
+        ],
+      })),
+      // Totals
+      new TableRow({ children: [
+        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('คะแนนเก็บระหว่างเรียน', {bold:true, size:22})] })] }),
+        _bodyCell(''),
+        _bodyCell(_emDash(data.collected_score_total), { align: AlignmentType.CENTER, bold: true }),
+      ]}),
+      new TableRow({ children: [
+        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('คะแนนสอบปลายปี', {bold:true, size:22})] })] }),
+        _bodyCell(''),
+        _bodyCell(_emDash(data.final_exam_score), { align: AlignmentType.CENTER, bold: true }),
+      ]}),
+      new TableRow({ children: [
+        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('รวมตลอดปี', {bold:true, size:22})] })] }),
+        _bodyCell(_emDash(data.total_hours || ''), { align: AlignmentType.CENTER, bold: true }),
+        _bodyCell(_emDash(data.grand_total_score), { align: AlignmentType.CENTER, bold: true }),
+      ]}),
+    ],
+  });
+  const section4 = [
+    _pageBreak(),
+    _heading('โครงสร้างรายวิชา'),
+    _twoColInfo(data),
+    _hrParagraph(),
+    courseTable,
+  ];
+
+  // ── Section 5: การวัดผลประเมินผล ──
+  const assessTable = new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    rows: [
+      new TableRow({ tableHeader: true, children: [
+        headerCell('หน่วยที่'),
+        headerCell('ชื่อหน่วยการเรียนรู้'),
+        headerCell('คะแนนเก็บ\nระหว่างเรียน'),
+        headerCell('สอบปลาย\nภาคเรียนที่ 1'),
+        headerCell('สอบปลาย\nภาคเรียนที่ 2'),
+        headerCell('รวมทั้งปี\n(100 คะแนน)'),
+      ]}),
+      ...(data.assessment_rows || []).map(r => new TableRow({
+        children: [
+          _bodyCell(_emDash(r.no), { align: AlignmentType.CENTER }),
+          _bodyCell(r.title || '—', { align: AlignmentType.CENTER }),
+          _bodyCell(_emDash(r.collected), { align: AlignmentType.CENTER }),
+          _bodyCell(_emDash(r.midterm), { align: AlignmentType.CENTER }),
+          _bodyCell(_emDash(r.final), { align: AlignmentType.CENTER }),
+          _bodyCell(_emDash(r.total), { align: AlignmentType.CENTER }),
+        ],
+      })),
+      new TableRow({ children: [
+        new TableCell({ columnSpan: 2, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [_txt('รวม', { bold: true, size: 22 })] })] }),
+        _bodyCell(_emDash(data.collected_score_total), { align: AlignmentType.CENTER, bold: true }),
+        _bodyCell('—', { align: AlignmentType.CENTER }),
+        _bodyCell('—', { align: AlignmentType.CENTER }),
+        _bodyCell(_emDash(data.grand_total_score), { align: AlignmentType.CENTER, bold: true }),
+      ]}),
+    ],
+  });
+  const section5 = [
+    _pageBreak(),
+    _heading('การวัดผลประเมินผล'),
+    _twoColInfo(data),
+    _hrParagraph(),
+    assessTable,
+  ];
+
+  const doc = new Document({
+    creator: 'Easy ENG Plan',
+    title: `โครงสร้างรายวิชา — ${data.subject_name || ''}`,
+    styles: {
+      default: {
+        document: { run: { font: FONT, size: 24 } },
+      },
+    },
+    sections: [{
+      properties: {
+        page: { margin: { top: 1100, right: 900, bottom: 1100, left: 1100 } },
+      },
+      children: [
+        ...section1,
+        ...section2,
+        ...section3,
+        ...section4,
+        ...section5,
+      ],
+    }],
+  });
+
+  return await Packer.toBuffer(doc);
 }
