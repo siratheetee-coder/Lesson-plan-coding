@@ -429,7 +429,7 @@ export function renderHtml(data) {
 // Mirrors the same 5 sections as renderHtml.
 
 // Helpers
-const FONT = 'Sarabun';
+const FONT = 'TH SarabunPSK';
 const _txt = (text, opts = {}) => new TextRun({ text: String(text ?? ''), font: FONT, ...opts });
 const _p = (children, opts = {}) => new Paragraph({ children: Array.isArray(children) ? children : [children], ...opts });
 const _heading = (text) => new Paragraph({
@@ -439,7 +439,7 @@ const _heading = (text) => new Paragraph({
 });
 const _strandHeading = (text) => new Paragraph({
   spacing: { before: 200, after: 100 },
-  children: [_txt(text, { bold: true, size: 26 })],
+  children: [_txt(text, { bold: true, size: 28 })],
 });
 const _emDash = (val) => (val === '' || val === null || val === undefined) ? '—' : String(val);
 
@@ -483,7 +483,7 @@ function _pageBreak() {
 }
 
 function _bodyCell(text, opts = {}) {
-  const { align = AlignmentType.LEFT, bold = false, size = 22, lines = null } = opts;
+  const { align = AlignmentType.LEFT, bold = false, size = 24, lines = null } = opts;
   const paras = lines
     ? lines.map(l => new Paragraph({ alignment: align, children: [_txt(l, { size, bold })] }))
     : [new Paragraph({ alignment: align, children: [_txt(text, { size, bold })] })];
@@ -529,7 +529,7 @@ export async function renderDocx(data) {
     new Paragraph({
       alignment: AlignmentType.LEFT,
       spacing: { before: 0, after: 200 },
-      children: [_txt('ตัวชี้วัด', { bold: true, size: 30 })],
+      children: [_txt('ตัวชี้วัด', { bold: true, size: 32 })],
     }),
   ];
   if (data.indicator_groups?.length) {
@@ -537,8 +537,8 @@ export async function renderDocx(data) {
       section2.push(new Paragraph({
         spacing: { line: 360 },
         children: [
-          _txt(g.strand_code, { size: 26 }),
-          _txt('  ' + g.level_codes_joined, { size: 26 }),
+          _txt(g.strand_code, { size: 28 }),
+          _txt('  ' + g.level_codes_joined, { size: 28 }),
         ],
       }));
     }
@@ -548,7 +548,7 @@ export async function renderDocx(data) {
   section2.push(new Paragraph({
     alignment: AlignmentType.CENTER,
     spacing: { before: 240 },
-    children: [_txt(`รวมทั้งหมด ${data.total_indicators || 0} ตัวชี้วัด`, { bold: true, size: 26 })],
+    children: [_txt(`รวมทั้งหมด ${data.total_indicators || 0} ตัวชี้วัด`, { bold: true, size: 28 })],
   }));
 
   // ── Section 3: สาระ มาตรฐาน + ตัวชี้วัด ──
@@ -578,7 +578,7 @@ export async function renderDocx(data) {
   }
 
   // ── Section 4: โครงสร้างรายวิชา ──
-  const headerCell = (text) => _bodyCell(text, { align: AlignmentType.CENTER, bold: true, size: 22 });
+  const headerCell = (text) => _bodyCell(text, { align: AlignmentType.CENTER, bold: true, size: 24 });
   const courseTable = new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: [
@@ -605,17 +605,17 @@ export async function renderDocx(data) {
       })),
       // Totals
       new TableRow({ children: [
-        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('คะแนนเก็บระหว่างเรียน', {bold:true, size:22})] })] }),
+        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('คะแนนเก็บระหว่างเรียน', {bold:true, size:24})] })] }),
         _bodyCell(''),
         _bodyCell(_emDash(data.collected_score_total), { align: AlignmentType.CENTER, bold: true }),
       ]}),
       new TableRow({ children: [
-        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('คะแนนสอบปลายปี', {bold:true, size:22})] })] }),
+        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('คะแนนสอบปลายปี', {bold:true, size:24})] })] }),
         _bodyCell(''),
         _bodyCell(_emDash(data.final_exam_score), { align: AlignmentType.CENTER, bold: true }),
       ]}),
       new TableRow({ children: [
-        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('รวมตลอดปี', {bold:true, size:22})] })] }),
+        new TableCell({ columnSpan: 4, children: [new Paragraph({ alignment: AlignmentType.CENTER, children:[_txt('รวมตลอดปี', {bold:true, size:24})] })] }),
         _bodyCell(_emDash(data.total_hours || ''), { align: AlignmentType.CENTER, bold: true }),
         _bodyCell(_emDash(data.grand_total_score), { align: AlignmentType.CENTER, bold: true }),
       ]}),
@@ -652,7 +652,7 @@ export async function renderDocx(data) {
         ],
       })),
       new TableRow({ children: [
-        new TableCell({ columnSpan: 2, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [_txt('รวม', { bold: true, size: 22 })] })] }),
+        new TableCell({ columnSpan: 2, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [_txt('รวม', { bold: true, size: 24 })] })] }),
         _bodyCell(_emDash(data.collected_score_total), { align: AlignmentType.CENTER, bold: true }),
         _bodyCell('—', { align: AlignmentType.CENTER }),
         _bodyCell('—', { align: AlignmentType.CENTER }),
