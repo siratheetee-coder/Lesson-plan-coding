@@ -3184,8 +3184,8 @@
         </div>
 
         <div class="cs-help-banner">
-          💡 <b>เลือกหน่วย</b>ที่จะรวมเป็นรายวิชาเดียวกัน (กดทั้งใบเลย) — ระบบจะรวบรวมตัวชี้วัด เวลาเรียน และข้อมูลพื้นฐานให้อัตโนมัติ
-          พร้อมสร้างเป็นเอกสาร 5 หน้า: คำอธิบายรายวิชา · ตัวชี้วัด · สาระและมาตรฐาน · โครงสร้างรายวิชา · การวัดผลประเมินผล
+          💡 <b>เลือกหน่วย</b>เพื่อสร้างโครงสร้างรายวิชา ระบบจะรวบรวมตัวชี้วัด เวลาเรียน และข้อมูลพื้นฐานให้อัตโนมัติ
+          พร้อมสร้างเป็น คำอธิบายรายวิชา · ตัวชี้วัด · สาระและมาตรฐาน · โครงสร้างรายวิชา · การวัดผลประเมินผล
         </div>
 
         <div class="cs-toolbar">
@@ -3342,7 +3342,7 @@
                   ✨ ให้ AI ช่วยร่าง (ฟรี)
                 </button>
               </div>
-              <div style="font-size:1rem; color:#78350f; margin-bottom:14px;">ฟิลด์ในส่วนนี้จะถูกส่งให้ AI เป็นบริบทเวลาสร้างแผนรายคาบในหน่วยนี้ — เพื่อให้แต่ละแผนสอดคล้องและต่อยอดกัน</div>
+              <div style="font-size:1rem; color:#78350f; margin-bottom:14px;">ข้อมูลในส่วนนี้จะถูกส่งให้ AI เป็นบริบทเวลาสร้างแผนรายคาบในหน่วยนี้ เพื่อให้แต่ละแผนสอดคล้องและต่อยอดกัน</div>
               <div class="unit-field-grid">
                 <div class="unit-field full">
                   <label>🎨Theme ของหน่วย <span style="font-weight:400; color:#78716c; font-size:1rem;">(สรุปธีมในประโยคเดียว)</span></label>
@@ -9062,7 +9062,7 @@ window._aiDraftUnitArc = async function() {
   // Detect existing data — confirm overwrite
   const hasExisting = ['ue-theme','ue-bigIdea','ue-vocabBank','ue-progression']
     .some(id => get(id));
-  if (hasExisting && !confirm('Story Arc มีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return;
+  if (hasExisting && !confirm(' มีข้อมูลอยู่แล้ว ต้องการให้ AI เขียนทับหรือไม่?')) return;
 
   const btn = document.querySelector('[data-ai-kind="unit_arc"]');
   if (btn) { btn._origText = btn._origText || btn.textContent; btn.innerHTML = '<span class="spin">⏳</span> AI กำลังคิด...'; btn.disabled = true; btn.style.opacity = '.6'; }
@@ -9333,11 +9333,11 @@ window._aiOutlineUnit = async function() {
   // Persist any in-progress edits before reading
   if (typeof collectCurrentUnitFromForm === 'function') collectCurrentUnitFromForm();
   if (!_currentUnit.title) {
-    alert('กรุณาตั้งชื่อหน่วยและกรอก Story Arc (อย่างน้อย Big Idea) ก่อนใช้ AI ร่างทั้งหน่วย');
+    alert('กรุณาตั้งชื่อหน่วยและกรอกข้อมูลก่อนใช้ AI ร่างทั้งหน่วย');
     return;
   }
   if (!_currentUnit.bigIdea) {
-    if (!confirm('ยังไม่ได้กรอก Big Idea — แนะนำให้กรอกก่อนเพื่อผลลัพธ์ที่ดีที่สุด\n\nต้องการกดต่อไปโดยให้ AI เดาเองหรือไม่?')) return;
+    if (!confirm('ยังไม่ได้กรอกข้อมูล — แนะนำให้กรอกก่อนเพื่อผลลัพธ์ที่ดีที่สุด\n\nต้องการกดต่อไปโดยให้ AI เดาเองหรือไม่?')) return;
   }
 
   // Confirm + cost dialogue (general AI cost popup — kept for consistency)
@@ -10813,7 +10813,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         const bp = _basePayload();
         const hasObjs = bp.objectives.k.length || bp.objectives.p.length || bp.objectives.a.length;
         const hasActs = bp.activities.length;
-        if (!hasObjs && !hasActs) return 'กรุณาให้ AI สร้างจุดประสงค์หรือกิจกรรมก่อน — AI จะใช้ข้อมูลเหล่านี้ในการเลือกแบบประเมินที่เหมาะสม';
+        if (!hasObjs && !hasActs) return 'กรุณาให้ AI สร้างจุดประสงค์หรือกิจกรรมก่อน โดย AI จะใช้ข้อมูลเหล่านี้ในการเลือกแบบประเมินที่เหมาะสม';
         return null;
       },
       payload: () => _basePayload(),
