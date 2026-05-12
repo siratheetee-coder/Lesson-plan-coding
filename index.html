@@ -8013,6 +8013,7 @@ function toggleCsCard(card) {
     card.classList.add('selected');
     if (check) check.textContent = '✓';
   }
+  if (typeof _invalidateDescriptionCache === 'function') _invalidateDescriptionCache();
   updateCsActionBar();
 }
 
@@ -8023,6 +8024,7 @@ function selectAllCsCards() {
     c.classList.add('selected');
     const ch = c.querySelector('.cs-card-check'); if (ch) ch.textContent = '✓';
   });
+  if (typeof _invalidateDescriptionCache === 'function') _invalidateDescriptionCache();
   updateCsActionBar();
 }
 function clearCsSelection() {
@@ -8031,6 +8033,7 @@ function clearCsSelection() {
     c.classList.remove('selected');
     const ch = c.querySelector('.cs-card-check'); if (ch) ch.textContent = '';
   });
+  if (typeof _invalidateDescriptionCache === 'function') _invalidateDescriptionCache();
   updateCsActionBar();
 }
 
@@ -8119,6 +8122,34 @@ async function _aiGenerateDescription(courseCtx) {
   };
 }
 
+// ─── Description cache ────────────────────────────────────
+// AI calls are slow + cost API quota; reuse the result across
+// repeated HTML/DOCX clicks for the same unit selection.
+// Invalidates automatically when the cache key (sorted unit IDs)
+// no longer matches.
+window._csDescriptionCache = window._csDescriptionCache || { key: null, data: null };
+
+function _csDescriptionCacheKey(ids) {
+  return [...ids].sort().join('|');
+}
+
+async function _getOrGenerateDescription(ids, indicator_map, btn) {
+  const key = _csDescriptionCacheKey(ids);
+  if (window._csDescriptionCache.key === key && window._csDescriptionCache.data) {
+    // Hit — reuse without an API round-trip
+    return window._csDescriptionCache.data;
+  }
+  if (btn) btn.innerHTML = '✨ AI กำลังร่างคำอธิบาย...';
+  const ctx = _buildCourseContext(ids, indicator_map);
+  const data = await _aiGenerateDescription(ctx);
+  window._csDescriptionCache = { key, data };
+  return data;
+}
+
+function _invalidateDescriptionCache() {
+  window._csDescriptionCache = { key: null, data: null };
+}
+
 async function downloadCourseStructureDocx() {
   const ids = (window._selectedUnitIds || []).slice();
   if (ids.length === 0) { alert('กรุณาเลือกหน่วยอย่างน้อย 1 หน่วยก่อน'); return; }
@@ -8130,10 +8161,8 @@ async function downloadCourseStructureDocx() {
     const indicator_map = _buildIndicatorMap(ids);
     let description = null;
     if (useAi) {
-      if (btn) btn.innerHTML = '✨ AI กำลังร่างคำอธิบาย...';
       try {
-        const ctx = _buildCourseContext(ids, indicator_map);
-        description = await _aiGenerateDescription(ctx);
+        description = await _getOrGenerateDescription(ids, indicator_map, btn);
       } catch (e) {
         console.warn('[cs] AI description failed:', e);
         if (!confirm('AI สร้างคำอธิบายไม่สำเร็จ — ดาวน์โหลด DOCX โดยไม่มีคำอธิบายต่อไหมคะ?')) throw e;
@@ -8191,10 +8220,8 @@ async function generateCourseStructure() {
     // Step 1 (optional): AI generates description paragraphs
     let description = null;
     if (useAi) {
-      if (btn) btn.innerHTML = '✨ AI กำลังร่างคำอธิบาย...';
       try {
-        const ctx = _buildCourseContext(ids, indicator_map);
-        description = await _aiGenerateDescription(ctx);
+        description = await _getOrGenerateDescription(ids, indicator_map, btn);
       } catch (e) {
         // AI fail → continue without description (don't block the whole flow)
         console.warn('[cs] AI description failed:', e);
