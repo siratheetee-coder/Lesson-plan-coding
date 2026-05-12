@@ -505,7 +505,7 @@ export async function renderDocx(data) {
   ];
   if (desc.paragraph_1) {
     section1.push(new Paragraph({
-      alignment: AlignmentType.JUSTIFIED,
+      alignment: AlignmentType.LEFT,
       indent: { firstLine: 720 },
       spacing: { line: 380, after: 200 },
       children: [_txt(desc.paragraph_1, { size: 28 })],
@@ -513,7 +513,7 @@ export async function renderDocx(data) {
   }
   if (desc.paragraph_2) {
     section1.push(new Paragraph({
-      alignment: AlignmentType.JUSTIFIED,
+      alignment: AlignmentType.LEFT,
       indent: { firstLine: 720 },
       spacing: { line: 380, after: 200 },
       children: [_txt(desc.paragraph_2, { size: 28 })],
