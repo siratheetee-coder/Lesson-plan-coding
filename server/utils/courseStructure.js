@@ -455,7 +455,11 @@ function _twoColInfo(data) {
     `ชั้น ${data.class_level || '—'}`,
     `เวลาเรียน ${_emDash(data.hours_per_week)} ชั่วโมง/สัปดาห์`,
   ];
-  const noBorder = { top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE}, left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE} };
+  const noBorder = {
+    top:{style:BorderStyle.NONE}, bottom:{style:BorderStyle.NONE},
+    left:{style:BorderStyle.NONE}, right:{style:BorderStyle.NONE},
+    insideHorizontal:{style:BorderStyle.NONE}, insideVertical:{style:BorderStyle.NONE},
+  };
   const cell = (lines, align) => new TableCell({
     borders: noBorder,
     children: lines.map(l => new Paragraph({
