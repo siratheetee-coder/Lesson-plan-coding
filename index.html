@@ -2829,12 +2829,11 @@
       transform: translateX(-50%) rotate(-2deg);
       width: clamp(180px, 60vw, 240px);
     }
-    .auth-bubble::before {
-      right: auto;
-      left: 50%;
-      bottom: -12px;
-      transform: translateX(-50%) rotate(-45deg) skew(8deg, 8deg);
-    }
+    /* On stacked (mobile) layouts the bubble sits above the mascot — the
+       tail + sparkle would visually clip into the bubble text on small
+       phones, so hide both decorations there. */
+    .auth-bubble::before,
+    .auth-bubble::after { display: none; }
     /* Restart wiggle animation around the new transform anchor */
     @keyframes bubbleWiggleMobile {
       0%,100% { transform: translateX(-50%) rotate(-2deg) translateY(0); }
