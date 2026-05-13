@@ -2343,6 +2343,75 @@
   }
   .feedback-cta-btn:active { transform: translateY(1px); }
 
+  /* ───────── Tutorial Panel (video list) ───────── */
+  .tutorial-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 820px;
+  }
+  .tutorial-item {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    transition: box-shadow .2s ease, transform .15s ease;
+  }
+  .tutorial-item:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  }
+  .tutorial-item__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .tutorial-item__num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(124,58,237,0.25);
+  }
+  .tutorial-item__body { flex: 1; min-width: 0; }
+  .tutorial-item__title {
+    margin: 2px 0 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  .tutorial-item__desc {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .tutorial-item__video {
+    width: 100%;
+    max-height: 480px;
+    border-radius: 10px;
+    background: #000;
+    margin-top: 6px;
+    display: block;
+  }
+  .tutorial-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.95rem;
+    background: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 14px;
+  }
+
   /* ───────── Feedback Modal (3D card) ───────── */
   @keyframes fbOverlayFade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes fbCardPop {
@@ -3043,6 +3112,9 @@
       <button class="dash-nav-item" data-nav="profile" onclick="dashNav('profile')">
         <span class="icon">⚙️</span><span class="label">ตั้งค่าสมาชิก</span>
       </button>
+      <button class="dash-nav-item" data-nav="tutorial" onclick="dashNav('tutorial')" title="ดูวิดีโอวิธีใช้งานเว็บ">
+        <span class="icon">📺</span><span class="label">วิธีใช้งาน</span>
+      </button>
       <button class="dash-nav-item" data-nav="feedback" onclick="openFeedbackModal()" title="แชร์ความคิดเห็นกับทีมงาน">
         <span class="icon">⭐</span><span class="label">ร่วมรีวิว</span>
       </button>
@@ -3155,6 +3227,15 @@
             <div class="dash-action-badge">เร็วๆ นี้</div>
           </button>
         </div>
+      </div>
+
+      <!-- TUTORIAL — วิธีใช้งานเว็บ -->
+      <div data-panel="tutorial" style="display:none;">
+        <div class="dash-welcome">
+          <h1>📺 วิธีใช้งานเว็บ</h1>
+          <p>คลิปสั้นๆ พาคุณครูเริ่มต้นใช้งาน Easy ENG Plan ตั้งแต่ต้นจนสร้างแผนการสอนเสร็จ</p>
+        </div>
+        <div id="tutorial-list" class="tutorial-list"></div>
       </div>
 
       <!-- PROFILE -->
@@ -7566,11 +7647,54 @@ function openDashboardView() {
 }
 
 // ----- Sidebar nav -----
+// ─── Tutorial videos ──────────────────────────────────────
+// Each entry: { src, title, desc }
+// Add new clips here in display order. Files live in /videos/
+const TUTORIAL_VIDEOS = [
+  {
+    src:  'videos/01-intro.mp4',
+    title: 'แนะนำเว็บ Easy ENG Plan',
+    desc:  'ภาพรวมของเว็บไซต์ — รู้จักเมนูหลัก ระบบเครดิต และวิธีเริ่มต้นใช้งานในไม่กี่นาที',
+  },
+  // เพิ่มคลิปใหม่ที่นี่เลย เช่น:
+  // {
+  //   src:  'videos/02-create-plan.mp4',
+  //   title: 'สร้างแผนรายคาบแบบละเอียด',
+  //   desc:  'สาธิตการกรอกข้อมูลแผน 5E ตั้งแต่เลือกระดับชั้น ตัวชี้วัด จนถึง export DOCX',
+  // },
+];
+
+function renderTutorialPanel() {
+  const wrap = document.getElementById('tutorial-list');
+  if (!wrap) return;
+  if (!TUTORIAL_VIDEOS.length) {
+    wrap.innerHTML = '<div class="tutorial-empty">ยังไม่มีคลิปวิดีโอในขณะนี้ — กลับมาดูใหม่เร็วๆ นี้ค่ะ</div>';
+    return;
+  }
+  wrap.innerHTML = TUTORIAL_VIDEOS.map((v, i) => `
+    <div class="tutorial-item">
+      <div class="tutorial-item__head">
+        <div class="tutorial-item__num">${i + 1}</div>
+        <div class="tutorial-item__body">
+          <h3 class="tutorial-item__title">${escapeHtml(v.title)}</h3>
+          <p class="tutorial-item__desc">${escapeHtml(v.desc)}</p>
+        </div>
+      </div>
+      <video class="tutorial-item__video" controls preload="metadata" playsinline
+             src="${encodeURI(v.src)}"></video>
+    </div>
+  `).join('');
+}
+
 function dashNav(key) {
   // Activate pill
   document.querySelectorAll('.dash-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.nav === key);
   });
+  // Pause any playing tutorial videos when leaving the panel
+  if (key !== 'tutorial') {
+    document.querySelectorAll('.tutorial-item__video').forEach(v => { try { v.pause(); } catch {} });
+  }
   // Show panel
   document.querySelectorAll('[data-panel]').forEach(p => {
     p.style.display = (p.dataset.panel === key) ? '' : 'none';
@@ -7578,6 +7702,7 @@ function dashNav(key) {
   if (key === 'home') renderRecentWorks();
   if (key === 'library') renderLibraryList();
   if (key === 'profile') renderProfileUI();
+  if (key === 'tutorial') renderTutorialPanel();
   if (key === 'course-structure') {
     renderCourseStructurePanel();
     const totalEl = document.getElementById('cs-total-units');
