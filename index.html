@@ -2235,8 +2235,16 @@
     background: rgba(15,23,42,.55);
     display: none; align-items: center; justify-content: center;
     backdrop-filter: blur(4px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px 0;
   }
   .auth-overlay.show { display: flex; }
+  /* On short viewports (phones in portrait), anchor content to the top
+     so the form + register link aren't clipped below the fold. */
+  @media (max-height: 760px), (max-width: 480px) {
+    .auth-overlay { align-items: flex-start; padding: 14px 0 28px; }
+  }
   .auth-modal {
     width: min(420px, 92vw);
     background: #fff; border-radius: 16px;
@@ -2811,12 +2819,36 @@
     .auth-stage { flex-direction: column; gap: 6px; }
     .auth-brand  { width: clamp(180px, 50vw, 260px); }
     .auth-mascot { width: clamp(200px, 45vw, 280px); order: -1; }
-    .auth-bubble { left: -8%; top: 0%; width: clamp(150px, 38vw, 200px); }
+    /* Move bubble ABOVE the mascot on stacked layouts (instead of overlapping it).
+       Inverse rotation + relocated tail so it points DOWN at mascot's head. */
+    .auth-bubble {
+      left: 50%;
+      top: auto;
+      bottom: 100%;
+      margin-bottom: -8px;
+      transform: translateX(-50%) rotate(-2deg);
+      width: clamp(180px, 60vw, 240px);
+    }
+    .auth-bubble::before {
+      right: auto;
+      left: 50%;
+      bottom: -12px;
+      transform: translateX(-50%) rotate(-45deg) skew(8deg, 8deg);
+    }
+    /* Restart wiggle animation around the new transform anchor */
+    @keyframes bubbleWiggleMobile {
+      0%,100% { transform: translateX(-50%) rotate(-2deg) translateY(0); }
+      50%     { transform: translateX(-50%) rotate(2deg)  translateY(-3px); }
+    }
+    .auth-bubble {
+      animation: bubblePop .55s cubic-bezier(.34,1.56,.64,1) both,
+                 bubbleWiggleMobile 4s ease-in-out 1s infinite;
+    }
   }
   @media (max-width: 480px) {
-    .auth-mascot { width: 160px; }
-    .auth-brand  { width: 200px; }
-    .auth-bubble { left: -4%; width: 140px; font-size: .76rem; padding: 10px 12px; }
+    .auth-mascot { width: 150px; }
+    .auth-brand  { width: 180px; }
+    .auth-bubble { width: clamp(170px, 70vw, 220px); font-size: .8rem; padding: 10px 12px; }
     .auth-bubble::after { font-size: 1rem; }
   }
 
