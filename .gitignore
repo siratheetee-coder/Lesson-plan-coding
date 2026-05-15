@@ -20,3 +20,6 @@ npm-debug.log*
 # Local tutorial videos (host on YouTube/CDN instead)
 videos/
 *.mp4
+
+# Generated test render — not for commit
+worksheet-test-rendered.docx
