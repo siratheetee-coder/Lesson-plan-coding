@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#5b21b6">
+<meta name="theme-color" content="#3a47cc">
 <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.4/dist/pizzip.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
@@ -36,18 +36,18 @@
   }
   .aiw-btn:hover { transform: translateY(-2px); filter: brightness(1.04); }
   .aiw-btn:active { transform: translateY(2px); filter: brightness(.96); }
-  .aiw-btn:focus-visible { outline: 3px solid rgba(124,58,237,.45); outline-offset: 2px; }
+  .aiw-btn:focus-visible { outline: 3px solid rgba(83,99,240,.45); outline-offset: 2px; }
   .aiw-btn:disabled { opacity: .55; cursor: not-allowed; transform: none !important; filter: none !important; }
 
   /* Primary purple — used by AI use confirmation */
   .aiw-btn.primary {
-    background: linear-gradient(180deg,#a78bfa 0%, #7c3aed 50%, #5b21b6 100%);
+    background: linear-gradient(180deg,#a78bfa 0%, #5363f0 50%, #3a47cc 100%);
     color: #fff;
     text-shadow: 0 1px 2px rgba(0,0,0,.25);
-    box-shadow: 0 6px 0 #4c1d95, 0 10px 24px rgba(124,58,237,.4), inset 0 1px 0 rgba(255,255,255,.4);
+    box-shadow: 0 6px 0 #2a358a, 0 10px 24px rgba(83,99,240,.4), inset 0 1px 0 rgba(255,255,255,.4);
   }
-  .aiw-btn.primary:hover  { box-shadow: 0 8px 0 #4c1d95, 0 14px 30px rgba(124,58,237,.5), inset 0 1px 0 rgba(255,255,255,.4); }
-  .aiw-btn.primary:active { box-shadow: 0 2px 0 #4c1d95, 0 4px 10px rgba(124,58,237,.3), inset 0 1px 0 rgba(255,255,255,.3); }
+  .aiw-btn.primary:hover  { box-shadow: 0 8px 0 #2a358a, 0 14px 30px rgba(83,99,240,.5), inset 0 1px 0 rgba(255,255,255,.4); }
+  .aiw-btn.primary:active { box-shadow: 0 2px 0 #2a358a, 0 4px 10px rgba(83,99,240,.3), inset 0 1px 0 rgba(255,255,255,.3); }
 
   /* Amber/warning — used for "Understood, thanks" + outline confirm */
   .aiw-btn.amber {
@@ -116,10 +116,21 @@
 
 
   :root {
-    --primary: #2563eb;
-    --primary-light: #dbeafe;
-    --primary-dark: #1d4ed8;
-    --secondary: #7c3aed;
+    /* ── 60/30/10 palette ── */
+    /* 60% Dominant — indigo-blue */
+    --primary:        #5363f0;
+    --primary-dark:   #3a47cc;
+    --primary-light:  #dbe1ff;
+    --primary-lighter:#eef0ff;
+    --secondary:      #5363f0;  /* legacy alias */
+    /* 30% Complement — pale surface */
+    --surface-1: #f5f7fc;
+    --surface-2: #eaf0fa;
+    /* 10% Accent — cyan */
+    --accent:         #2dcec9;
+    --accent-dark:    #1aa6a2;
+    --accent-light:   #d4f5f4;
+    /* Semantic */
     --success: #16a34a;
     --warning: #d97706;
     --danger: #dc2626;
@@ -348,7 +359,7 @@
     flex-shrink: 0;
   }
   .icon-blue { background: var(--primary-light); }
-  .icon-purple { background: #ede9fe; }
+  .icon-purple { background: #eef0ff; }
   .icon-green { background: #dcfce7; }
   .icon-orange { background: #ffedd5; }
   .icon-pink { background: #fce7f3; }
@@ -523,7 +534,7 @@
   .phase-intro { background: #fef3c7; color: #92400e; }
   .phase-teach { background: #dbeafe; color: #1e40af; }
   .phase-practice { background: #dcfce7; color: #14532d; }
-  .phase-apply { background: #f3e8ff; color: #4c1d95; }
+  .phase-apply { background: #eef0ff; color: #2a358a; }
   .phase-conclude { background: #fee2e2; color: #7f1d1d; }
   .phase-extra { background: #e5e7eb; color: #374151; }
 
@@ -531,7 +542,7 @@
   #activities-tbody tr:has(.act-phase.phase-intro)    { background: #fffbeb; }
   #activities-tbody tr:has(.act-phase.phase-teach)    { background: #eff6ff; }
   #activities-tbody tr:has(.act-phase.phase-practice) { background: #f0fdf4; }
-  #activities-tbody tr:has(.act-phase.phase-apply)    { background: #faf5ff; }
+  #activities-tbody tr:has(.act-phase.phase-apply)    { background: #f5f7fc; }
   #activities-tbody tr:has(.act-phase.phase-conclude) { background: #fef2f2; }
   #activities-tbody tr:has(.act-phase.phase-extra)    { background: #f9fafb; }
   /* Editable stage-name input styled as a badge pill */
@@ -589,7 +600,7 @@
     padding: 6px 10px;
     border: 1px solid var(--gray-200);
   }
-  .vocab-table tr:nth-child(even) td { background: #faf5ff; }
+  .vocab-table tr:nth-child(even) td { background: #f5f7fc; }
 
   /* Add button */
   .btn-add {
@@ -674,7 +685,7 @@
   /* History button in header */
   .btn-history {
     background: #ffffff;
-    color: #5b21b6;
+    color: #3a47cc;
     border: 1px solid #ffffff;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     padding: 9px 18px;
@@ -687,7 +698,7 @@
     white-space: nowrap;
     flex-shrink: 0;
   }
-  .btn-history:hover { background: #f5f3ff; color: #4c1d95; }
+  .btn-history:hover { background: #f5f3ff; color: #2a358a; }
   @media (max-width: 600px) {
     .header { flex-direction: column; align-items: flex-start; }
     .btn-history { align-self: flex-start; }
@@ -750,18 +761,18 @@
   }
   .roster-table th {
     background: #f5f3ff;
-    color: #5b21b6;
+    color: #3a47cc;
     font-weight: 600;
     padding: 8px 10px;
     text-align: left;
-    border-bottom: 2px solid #ddd6fe;
+    border-bottom: 2px solid #d2d9fb;
   }
   .roster-table td {
     padding: 4px 6px;
     border-bottom: 1px solid #f3f4f6;
     vertical-align: middle;
   }
-  .roster-table tr:hover td { background: #faf5ff; }
+  .roster-table tr:hover td { background: #f5f7fc; }
   .roster-no-input {
     width: 52px;
     padding: 5px 8px;
@@ -798,7 +809,7 @@
   .btn-roster-header {
     background: #ffffff;
     border: 1px solid #ffffff;
-    color: #5b21b6;
+    color: #3a47cc;
     font-weight: 600;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     padding: 7px 14px;
@@ -812,7 +823,7 @@
     transition: background 0.2s;
     white-space: nowrap;
   }
-  .btn-roster-header:hover { background: #f5f3ff; color: #4c1d95; }
+  .btn-roster-header:hover { background: #f5f3ff; color: #2a358a; }
 
   .history-modal {
     position: fixed; inset: 0; z-index: 10000;
@@ -909,11 +920,11 @@
   }
   .btn-generate:hover { box-shadow: 0 6px 10px rgba(22,163,74,0.4); transform: translateY(-1px); }
   .btn-print {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    background: linear-gradient(135deg, #5363f0, #3a47cc);
     color: white;
-    box-shadow: 0 4px 6px rgba(124,58,237,0.3);
+    box-shadow: 0 4px 6px rgba(83,99,240,0.3);
   }
-  .btn-print:hover { box-shadow: 0 6px 10px rgba(124,58,237,0.4); transform: translateY(-1px); }
+  .btn-print:hover { box-shadow: 0 6px 10px rgba(83,99,240,0.4); transform: translateY(-1px); }
 
   /* Objective rows */
   .obj-group {
@@ -972,7 +983,7 @@
   }
   /* Section header rows (K / P / A) inside the assessment table */
   .assessment-table tr.assess-section-header td {
-    background: linear-gradient(90deg, #eef2ff, #ede9fe);
+    background: linear-gradient(90deg, #eef2ff, #eef0ff);
     color: #1e1b4b;
     font-weight: 700;
     font-size: 0.92rem;
@@ -1268,8 +1279,8 @@
     font-size: 0.88rem;
     transition: all 0.2s;
   }
-  .skills21-item:hover { border-color: var(--secondary); background: #ede9fe; }
-  .skills21-item.checked { border-color: var(--secondary); background: #ede9fe; }
+  .skills21-item:hover { border-color: var(--secondary); background: #eef0ff; }
+  .skills21-item.checked { border-color: var(--secondary); background: #eef0ff; }
   .skills21-item input { accent-color: var(--secondary); }
 
   /* Media items */
@@ -1348,11 +1359,11 @@
     transition: all 0.15s;
     line-height: 1.4;
   }
-  .ind-btn:hover { border-color: var(--secondary); background: linear-gradient(145deg, #ede9fe, #ddd6fe); }
+  .ind-btn:hover { border-color: var(--secondary); background: linear-gradient(145deg, #eef0ff, #d2d9fb); }
   .ind-btn.selected {
-    background: linear-gradient(145deg, #7c3aed, #6d28d9);
+    background: linear-gradient(145deg, #5363f0, #3a47cc);
     color: #fff;
-    border-color: #5b21b6;
+    border-color: #3a47cc;
     box-shadow: 2px 2px 6px rgba(91,33,182,0.35), inset 0 1px 3px rgba(0,0,0,0.18);
   }
   .ind-btn:active { transform: translateY(1px); box-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
@@ -1407,17 +1418,17 @@
   .dash-topbar-left { display: flex; align-items: center; gap: 14px; }
   .dash-topbar-left img { height: 40px; width: auto; }
   .dash-topbar-left .greeting { font-size: 1rem; color: #374151; font-weight: 600; }
-  .dash-topbar-left .greeting b { color: #5b21b6; }
+  .dash-topbar-left .greeting b { color: #3a47cc; }
   .dash-topbar-right { display: flex; align-items: center; gap: 16px; }
   .dash-quota {
-    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-    color: #5b21b6;
+    background: linear-gradient(135deg, #eef0ff, #d2d9fb);
+    color: #3a47cc;
     padding: 8px 16px;
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 600;
     display: flex; align-items: center; gap: 8px;
-    border: 1px solid #c4b5fd;
+    border: 1px solid #bac4fa;
   }
   .dash-quota-bar {
     width: 80px; height: 6px;
@@ -1426,18 +1437,18 @@
   }
   .dash-quota-bar > span {
     display: block; height: 100%;
-    background: linear-gradient(90deg, #7c3aed, #a78bfa);
+    background: linear-gradient(90deg, #5363f0, #a78bfa);
     border-radius: 999px;
     transition: width 0.3s;
   }
   .dash-avatar {
     width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #4c1d95);
+    background: linear-gradient(135deg, #5363f0, #2a358a);
     color: white; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     font-size: 1rem;
-    border: 2px solid #ede9fe;
+    border: 2px solid #eef0ff;
   }
 
   .dash-body { flex: 1; display: flex; overflow: hidden; }
@@ -1465,8 +1476,8 @@
   }
   .dash-nav-item:hover { background: #f3f4f6; color: #1f2937; }
   .dash-nav-item.active {
-    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-    color: #5b21b6; font-weight: 700;
+    background: linear-gradient(135deg, #eef0ff, #d2d9fb);
+    color: #3a47cc; font-weight: 700;
   }
   .dash-nav-item .icon { font-size: 1.1rem; width: 22px; text-align: center; }
   .dash-nav-divider {
@@ -1503,7 +1514,7 @@
   .dash-section-title::before {
     content: ''; display: inline-block;
     width: 4px; height: 20px;
-    background: linear-gradient(180deg, #7c3aed, #4c1d95);
+    background: linear-gradient(180deg, #5363f0, #2a358a);
     border-radius: 2px;
   }
 
@@ -1526,8 +1537,8 @@
   }
   .dash-action-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(124,58,237,0.15);
-    border-color: #c4b5fd;
+    box-shadow: 0 10px 30px rgba(83,99,240,0.15);
+    border-color: #bac4fa;
   }
   .dash-action-card[disabled] { opacity: 0.6; cursor: not-allowed; }
   .dash-action-card[disabled]:hover { transform: none; box-shadow: none; border-color: #e5e7eb; }
@@ -1537,7 +1548,7 @@
     font-size: 1.6rem;
     margin-bottom: 14px;
   }
-  .dash-action-icon.purple  { background: linear-gradient(135deg, #ede9fe, #c4b5fd); }
+  .dash-action-icon.purple  { background: linear-gradient(135deg, #eef0ff, #bac4fa); }
   .dash-action-icon.blue    { background: linear-gradient(135deg, #dbeafe, #93c5fd); }
   .dash-action-icon.emerald { background: linear-gradient(135deg, #d1fae5, #6ee7b7); }
   .dash-action-title {
@@ -1631,7 +1642,7 @@
   #form-back-btn {
     background: #ffffff;
     border: 1px solid #ffffff;
-    color: #5b21b6;
+    color: #3a47cc;
     padding: 6px 14px; border-radius: 999px;
     cursor: pointer; font-family: inherit;
     font-size: 0.85rem; font-weight: 600;
@@ -1640,7 +1651,7 @@
     margin-bottom: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
-  #form-back-btn:hover { background: #f5f3ff; color: #4c1d95; }
+  #form-back-btn:hover { background: #f5f3ff; color: #2a358a; }
 
   @media (max-width: 900px) {
     .dash-sidebar { width: 64px; padding: 14px 8px; }
@@ -1662,15 +1673,15 @@
     margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
   }
   .unit-create-btn {
-    background: linear-gradient(135deg,#7c3aed,#5b21b6);
+    background: linear-gradient(135deg,#5363f0,#3a47cc);
     color: white; border: none;
     padding: 10px 20px; border-radius: 10px;
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(124,58,237,0.25);
+    box-shadow: 0 4px 12px rgba(83,99,240,0.25);
     transition: transform 0.15s, box-shadow 0.15s;
   }
-  .unit-create-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
+  .unit-create-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(83,99,240,0.35); }
 
   /* ─── Course Structure panel ─────────────────────────── */
   .cs-toolbar {
@@ -1697,7 +1708,7 @@
     font-size: .9rem;
     line-height: 1.55;
   }
-  .cs-help-banner b { color: #4c1d95; }
+  .cs-help-banner b { color: #2a358a; }
 
   /* Selection grid */
   #cs-unit-grid {
@@ -1717,9 +1728,9 @@
     user-select: none;
   }
   .cs-card:hover {
-    border-color: #c4b5fd;
+    border-color: #bac4fa;
     transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(124,58,237,.12);
+    box-shadow: 0 8px 22px rgba(83,99,240,.12);
   }
   .cs-card.selected {
     border-color: #f59e0b;
@@ -1808,13 +1819,13 @@
     background: white;
     border: 1px solid #e9d5ff;
     border-radius: 999px;
-    font-size: .85rem; color: #4c1d95;
+    font-size: .85rem; color: #2a358a;
     cursor: pointer;
     transition: all .2s ease;
     user-select: none;
   }
-  .cs-ai-toggle:hover { border-color: #c4b5fd; background: #faf5ff; }
-  .cs-ai-toggle input { accent-color: #7c3aed; cursor: pointer; }
+  .cs-ai-toggle:hover { border-color: #bac4fa; background: #f5f7fc; }
+  .cs-ai-toggle input { accent-color: #5363f0; cursor: pointer; }
   .cs-ai-toggle input:checked + span { font-weight: 600; }
   .cs-generate-btn {
     background: linear-gradient(135deg, #f59e0b, #d97706);
@@ -1868,12 +1879,12 @@
   }
   .unit-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(124,58,237,0.12);
-    border-color: #c4b5fd;
+    box-shadow: 0 10px 24px rgba(83,99,240,0.12);
+    border-color: #bac4fa;
   }
   .unit-card-icon {
     width: 44px; height: 44px; border-radius: 10px;
-    background: linear-gradient(135deg,#ede9fe,#c4b5fd);
+    background: linear-gradient(135deg,#eef0ff,#bac4fa);
     display: flex; align-items: center; justify-content: center;
     font-size: 1.3rem; margin-bottom: 12px;
   }
@@ -1888,7 +1899,7 @@
     display: flex; gap: 14px; font-size: 0.75rem; color: #6b7280;
     border-top: 1px solid #f3f4f6; padding-top: 10px;
   }
-  .unit-card-stats b { color: #5b21b6; }
+  .unit-card-stats b { color: #3a47cc; }
   .unit-card-menu {
     position: absolute; top: 12px; right: 12px;
     background: transparent; border: none;
@@ -1925,13 +1936,13 @@
     transition: transform 0.15s, box-shadow 0.15s;
   }
   .unit-btn-save {
-    background: white; color: #5b21b6; border: 1px solid #c4b5fd !important;
+    background: white; color: #3a47cc; border: 1px solid #bac4fa !important;
   }
   .unit-btn-save:hover { background: #f5f3ff; }
   .unit-btn-export {
-    background: linear-gradient(135deg,#7c3aed,#5b21b6); color: white;
+    background: linear-gradient(135deg,#5363f0,#3a47cc); color: white;
   }
-  .unit-btn-export:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+  .unit-btn-export:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(83,99,240,0.3); }
 
   .unit-steps-nav {
     display: flex; gap: 6px; flex-wrap: wrap;
@@ -1955,9 +1966,9 @@
   }
   .unit-step-btn:hover { background: #f3f4f6; color: #1f2937; }
   .unit-step-btn.active {
-    background: linear-gradient(135deg,#ede9fe,#ddd6fe);
-    color: #5b21b6; font-weight: 700;
-    border-color: #c4b5fd;
+    background: linear-gradient(135deg,#eef0ff,#d2d9fb);
+    color: #3a47cc; font-weight: 700;
+    border-color: #bac4fa;
   }
 
   .unit-step-panel {
@@ -1967,7 +1978,7 @@
     padding: 24px;
   }
   .unit-step-panel h3 {
-    margin: 0 0 6px; font-size: 1.08rem; color: #5b21b6; font-weight: 700;
+    margin: 0 0 6px; font-size: 1.08rem; color: #3a47cc; font-weight: 700;
   }
   .unit-step-panel .step-help {
     color: #6b7280; font-size: 0.85rem; margin-bottom: 18px;
@@ -1991,8 +2002,8 @@
     box-sizing: border-box;
   }
   .unit-field input:focus, .unit-field select:focus, .unit-field textarea:focus {
-    outline: none; border-color: #7c3aed;
-    box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+    outline: none; border-color: #5363f0;
+    box-shadow: 0 0 0 3px rgba(83,99,240,0.12);
   }
   .unit-field.full { grid-column: 1 / -1; }
 
@@ -2010,8 +2021,8 @@
     background: #fafafe;
     transition: background 0.15s, border-color 0.15s;
   }
-  .unit-chk-item:hover { background: #f5f3ff; border-color: #c4b5fd; }
-  .unit-chk-item input { margin-top: 2px; flex-shrink: 0; accent-color: #7c3aed; }
+  .unit-chk-item:hover { background: #f5f3ff; border-color: #bac4fa; }
+  .unit-chk-item input { margin-top: 2px; flex-shrink: 0; accent-color: #5363f0; }
 
   .unit-ind-filter {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -2034,9 +2045,9 @@
   }
   .unit-ind-group { margin-bottom: 12px; }
   .unit-ind-group-title {
-    font-weight: 700; font-size: 0.82rem; color: #5b21b6;
+    font-weight: 700; font-size: 0.82rem; color: #3a47cc;
     padding: 4px 6px; margin-bottom: 4px;
-    border-bottom: 1px dashed #c4b5fd;
+    border-bottom: 1px dashed #bac4fa;
   }
   .unit-ind-item {
     display: flex; align-items: flex-start; gap: 8px;
@@ -2044,10 +2055,10 @@
     font-size: 0.84rem; cursor: pointer; color: #374151;
   }
   .unit-ind-item:hover { background: #f5f3ff; }
-  .unit-ind-item input { margin-top: 3px; flex-shrink: 0; accent-color: #7c3aed; }
-  .unit-ind-item b { color: #5b21b6; margin-right: 4px; }
+  .unit-ind-item input { margin-top: 3px; flex-shrink: 0; accent-color: #5363f0; }
+  .unit-ind-item b { color: #3a47cc; margin-right: 4px; }
   .unit-ind-count { margin-top: 10px; font-size: 0.82rem; color: #6b7280; }
-  .unit-ind-count b { color: #5b21b6; }
+  .unit-ind-count b { color: #3a47cc; }
 
   .unit-lesson-list {
     display: flex; flex-direction: column; gap: 12px;
@@ -2066,7 +2077,7 @@
   }
   .unit-lesson-num {
     width: 30px; height: 30px; border-radius: 8px;
-    background: linear-gradient(135deg,#7c3aed,#5b21b6);
+    background: linear-gradient(135deg,#5363f0,#3a47cc);
     color: white; font-weight: 700; font-size: 0.88rem;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
@@ -2079,7 +2090,7 @@
     font-family: inherit;
   }
   .unit-lesson-title-input:focus {
-    outline: none; border-bottom-color: #c4b5fd;
+    outline: none; border-bottom-color: #bac4fa;
   }
   .unit-lesson-delete {
     background: transparent; border: none;
@@ -2093,7 +2104,7 @@
     width: 26px; height: 26px; border-radius: 50%;
     cursor: pointer; color: #9ca3af; font-size: 0.85rem;
   }
-  .unit-lesson-move:hover { background: #f3f4f6; color: #5b21b6; }
+  .unit-lesson-move:hover { background: #f3f4f6; color: #3a47cc; }
   .unit-lesson-body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -2107,25 +2118,25 @@
     width: 100%;
     padding: 14px;
     background: #fafafa;
-    border: 2px dashed #c4b5fd;
+    border: 2px dashed #bac4fa;
     border-radius: 12px;
-    color: #5b21b6;
+    color: #3a47cc;
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
   }
-  .unit-add-lesson-btn:hover { background: #f5f3ff; border-color: #7c3aed; }
+  .unit-add-lesson-btn:hover { background: #f5f3ff; border-color: #5363f0; }
 
   .unit-hours-meter {
     background: #f5f3ff;
-    border: 1px solid #ddd6fe;
+    border: 1px solid #d2d9fb;
     border-radius: 10px;
     padding: 12px 16px;
     margin-bottom: 16px;
     display: flex; align-items: center; gap: 14px;
     flex-wrap: wrap;
   }
-  .unit-hours-meter .label { font-size: 0.85rem; color: #5b21b6; font-weight: 600; }
+  .unit-hours-meter .label { font-size: 0.85rem; color: #3a47cc; font-weight: 600; }
   .unit-hours-meter .bar {
     flex: 1; min-width: 120px;
     height: 8px; background: white;
@@ -2133,7 +2144,7 @@
   }
   .unit-hours-meter .bar > span {
     display: block; height: 100%;
-    background: linear-gradient(90deg,#7c3aed,#a78bfa);
+    background: linear-gradient(90deg,#5363f0,#a78bfa);
     transition: width 0.3s;
   }
   .unit-hours-meter.over .bar > span { background: linear-gradient(90deg,#ef4444,#f87171); }
@@ -2145,9 +2156,9 @@
     margin-bottom: 12px;
   }
   .unit-assess-table th {
-    background: #f5f3ff; color: #5b21b6;
+    background: #f5f3ff; color: #3a47cc;
     font-weight: 600; padding: 9px 10px;
-    text-align: left; border-bottom: 2px solid #ddd6fe;
+    text-align: left; border-bottom: 2px solid #d2d9fb;
     font-size: 0.8rem;
   }
   .unit-assess-table td {
@@ -2158,7 +2169,7 @@
     border: 1px solid #e5e7eb; border-radius: 6px;
     font-family: inherit; font-size: 0.84rem; background: white;
   }
-  .unit-assess-table input:focus { outline: none; border-color: #7c3aed; }
+  .unit-assess-table input:focus { outline: none; border-color: #5363f0; }
   .unit-assess-table .col-action { width: 40px; text-align: center; }
 
   .unit-review-grid {
@@ -2198,10 +2209,10 @@
   }
   .unit-step-prev:hover { background: #e5e7eb; }
   .unit-step-next {
-    background: linear-gradient(135deg,#7c3aed,#5b21b6);
+    background: linear-gradient(135deg,#5363f0,#3a47cc);
     color: white;
   }
-  .unit-step-next:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+  .unit-step-next:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(83,99,240,0.3); }
 
   .unit-empty {
     text-align: center;
@@ -2583,7 +2594,7 @@
   .ws-mode-title { font-weight: 800; font-size: 1.1rem; color: #1f2937; margin-bottom: 4px; }
   .ws-mode-sub { font-size: 0.86rem; color: #6b7280; line-height: 1.5; }
   .ws-back-btn {
-    background: none; border: none; color: #7c3aed;
+    background: none; border: none; color: #5363f0;
     font-size: 0.9rem; font-weight: 600; cursor: pointer;
     padding: 4px 0 12px; font-family: inherit;
   }
@@ -2729,7 +2740,7 @@
     padding: 7px 12px;
     transition: border-color .15s, background .15s;
   }
-  .ws-saved-row:hover { border-color: #7c3aed; background: #faf5ff; }
+  .ws-saved-row:hover { border-color: #5363f0; background: #f5f7fc; }
   .ws-saved-row__title {
     flex: 1;
     font-weight: 600; color: #1f2937; font-size: 0.9rem;
@@ -2799,14 +2810,14 @@
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    background: linear-gradient(135deg, #5363f0, #3a47cc);
     color: white;
     font-weight: 700;
     font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 6px rgba(124,58,237,0.25);
+    box-shadow: 0 2px 6px rgba(83,99,240,0.25);
   }
   .tutorial-item__body { flex: 1; min-width: 0; }
   .tutorial-item__title {
@@ -3199,7 +3210,7 @@
 
   /* ═══ Login full-page view — blue gradient + drifting particles + side mascot ═══ */
   .auth-overlay {
-    background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 45%, #fef3c7 100%);
+    background: linear-gradient(135deg, #dbeafe 0%, #eef0ff 45%, #fef3c7 100%);
     backdrop-filter: none;
     overflow: hidden;
   }
@@ -3596,7 +3607,7 @@
 
         <div class="dash-section-title" style="justify-content:space-between;">
           <span style="display:flex;align-items:center;">แผนล่าสุดของฉัน</span>
-          <button onclick="dashNav('library')" style="background:none;border:none;color:#7c3aed;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">ดูทั้งหมด →</button>
+          <button onclick="dashNav('library')" style="background:none;border:none;color:#5363f0;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">ดูทั้งหมด →</button>
         </div>
         <div class="dash-recent" id="dash-recent-list"></div>
       </div>
@@ -3609,7 +3620,7 @@
             <p>แผนทั้งหมดที่เคยสร้างและบันทึกไว้</p>
           </div>
           <button onclick="startNewPlan()"
-            style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:12px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.95rem; font-weight:600; box-shadow:0 4px 12px rgba(124,58,237,0.3); white-space:nowrap;">
+            style="background:linear-gradient(135deg,#5363f0,#3a47cc); color:white; border:none; padding:12px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.95rem; font-weight:600; box-shadow:0 4px 12px rgba(83,99,240,0.3); white-space:nowrap;">
             ✨ สร้างแผนรายคาบ
           </button>
         </div>
@@ -3620,7 +3631,7 @@
             <input id="library-search" type="text" placeholder="ค้นหาจากชื่อแผน วิชา หัวข้อ ระดับชั้น..."
               oninput="renderLibraryList()"
               style="width:100%; padding:11px 14px 11px 38px; border:1.5px solid #e5e7eb; border-radius:10px; font-family:inherit; font-size:0.92rem; outline:none; background:#fff; box-sizing:border-box;"
-              onfocus="this.style.borderColor='#7c3aed';"
+              onfocus="this.style.borderColor='#5363f0';"
               onblur="this.style.borderColor='#e5e7eb';">
           </div>
           <select id="library-filter-class"
@@ -3823,7 +3834,7 @@
         <!-- Saved worksheets section -->
         <div class="ws-step" id="ws-saved-section" style="display:none;">
           <div class="ws-step__head">
-            <span class="ws-step__num" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">💾</span>
+            <span class="ws-step__num" style="background:linear-gradient(135deg,#5363f0,#3a47cc);">💾</span>
             <div>
               <div class="ws-step__title">ใบงานที่บันทึกไว้</div>
               <div class="ws-step__sub">คลิกเพื่อโหลดดูตัวอย่าง หรือดาวน์โหลดอีกครั้ง</div>
@@ -3872,14 +3883,14 @@
             <div>
               <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:4px;">ชื่อ-นามสกุล</label>
               <input id="profile-name-input" type="text" placeholder="กรอกชื่อของคุณ"
-                style="width:100%; padding:10px 14px; border:1px solid #ddd6fe; border-radius:10px; font-family:inherit; font-size:0.9rem;">
+                style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem;">
             </div>
             <div>
               <div style="font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">เครดิต AI</div>
               <div style="background:#f5f3ff; padding:14px; border-radius:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                  <span style="font-size:0.85rem; color:#5b21b6;">⚡ เครดิตคงเหลือ</span>
-                  <span id="profile-quota-text" style="font-size:1.1rem; font-weight:800; color:#5b21b6;">— แผน</span>
+                  <span style="font-size:0.85rem; color:#3a47cc;">⚡ เครดิตคงเหลือ</span>
+                  <span id="profile-quota-text" style="font-size:1.1rem; font-weight:800; color:#3a47cc;">— แผน</span>
                 </div>
                 <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#10b981,#047857); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
                   💚 ร่วมสนับสนุนโปรเจกต์
@@ -3897,7 +3908,7 @@
             </div>
             <div>
               <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">รูปแบบการเขียนของ AI</label>
-              <select id="profile-ai-style" style="width:100%; padding:10px 14px; border:1px solid #ddd6fe; border-radius:10px; font-family:inherit; font-size:0.9rem; background:white;">
+              <select id="profile-ai-style" style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem; background:white;">
                 <option value="">— ค่าเริ่มต้น (เป็นทางการ) —</option>
                 <option value="formal">📜 เป็นทางการ — ภาษาราชการ ตรงประเด็น</option>
                 <option value="semi">😊 กึ่งทางการ — อ่านง่าย เป็นมิตร</option>
@@ -3906,7 +3917,7 @@
               </select>
               <div style="font-size:0.72rem; color:#6b7280; margin-top:4px;">มีผลกับทุก AI generation จากนี้ไป</div>
             </div>
-            <button onclick="saveProfile()" class="btn-primary" style="padding:10px 20px; background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer; align-self:flex-start;">
+            <button onclick="saveProfile()" class="btn-primary" style="padding:10px 20px; background:linear-gradient(135deg,#5363f0,#3a47cc); color:white; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer; align-self:flex-start;">
               💾 บันทึกข้อมูล
             </button>
           </div>
@@ -4075,7 +4086,7 @@
                 <button type="button" class="ai-assist-btn" onclick="window._aiDraftUnitArc()"
                   data-ai-kind="unit_arc"
                   style="margin-left:auto; padding:6px 12px; font-size:1rem; border-radius:8px; border:none; cursor:pointer; font-family:inherit; font-weight:600;
-                         background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25);">
+                         background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25);">
                   ✨ ให้ AI ช่วยร่าง (ฟรี)
                 </button>
               </div>
@@ -4134,11 +4145,11 @@
               </div>
             </div>
 
-            <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe); border:1px dashed #c4b5fd; border-radius:14px; padding:24px; text-align:center; margin:16px 0;">
+            <div style="background:linear-gradient(135deg,#f5f3ff,#eef0ff); border:1px dashed #bac4fa; border-radius:14px; padding:24px; text-align:center; margin:16px 0;">
               <div style="font-size:2.4rem; margin-bottom:6px;">📝</div>
-              <div style="font-size:1rem; font-weight:700; color:#5b21b6; margin-bottom:4px;">หรือสร้างแผนทีละแผนเอง</div>
+              <div style="font-size:1rem; font-weight:700; color:#3a47cc; margin-bottom:4px;">หรือสร้างแผนทีละแผนเอง</div>
               <div style="font-size:0.84rem; color:#6b7280; margin-bottom:14px;">เปิดระบบสร้างแผนแบบปกติ — ข้อมูลหัวแผนจะถูกกรอกให้อัตโนมัติ</div>
-              <button onclick="startLessonForUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:11px 24px; font-size:0.95rem; font-weight:600; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(91,33,182,0.2);">
+              <button onclick="startLessonForUnit()" style="background:linear-gradient(135deg,#5363f0,#3a47cc); color:white; border:none; padding:11px 24px; font-size:0.95rem; font-weight:600; border-radius:10px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(91,33,182,0.2);">
                 ➕ เริ่มสร้างแผนรายคาบใหม่
               </button>
             </div>
@@ -4183,19 +4194,19 @@
     </div>
     <div class="header-left">
       <button id="form-back-btn" type="button" onclick="backFromFormView()">← กลับหน้าแรก</button>
-      <div id="unit-context-banner" style="margin:8px 0 4px; padding:10px 14px; background:linear-gradient(135deg,#ede9fe,#ddd6fe); border:1px solid #c4b5fd; border-radius:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div id="unit-context-banner" style="margin:8px 0 4px; padding:10px 14px; background:linear-gradient(135deg,#eef0ff,#d2d9fb); border:1px solid #bac4fa; border-radius:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <span style="font-size:1.1rem;">📚</span>
-        <span style="font-size:0.88rem; color:#4c1d95; font-weight:600;">หน่วยการเรียนรู้:</span>
+        <span style="font-size:0.88rem; color:#2a358a; font-weight:600;">หน่วยการเรียนรู้:</span>
         <select id="lesson-unit-select" onchange="onUnitBindingChange(this.value)"
-          style="font-family:inherit; font-size:0.86rem; padding:6px 10px; border-radius:8px; border:1px solid #c4b5fd; background:#fff; color:#4c1d95; min-width:240px; cursor:pointer;">
+          style="font-family:inherit; font-size:0.86rem; padding:6px 10px; border-radius:8px; border:1px solid #bac4fa; background:#fff; color:#2a358a; min-width:240px; cursor:pointer;">
           <option value="">— ไม่ผูกหน่วย (แผนเดี่ยว) —</option>
         </select>
-        <span id="unit-position-info" style="font-size:0.78rem; color:#6d28d9; background:#fff; padding:4px 10px; border-radius:999px; border:1px solid #ddd6fe; display:none;"></span>
+        <span id="unit-position-info" style="font-size:0.78rem; color:#3a47cc; background:#fff; padding:4px 10px; border-radius:999px; border:1px solid #d2d9fb; display:none;"></span>
         <span id="unit-coherence-info" style="margin-left:auto; font-size:0.78rem; color:#475569; display:none;">
           🤖 <span id="unit-coherence-text">AI จะอ้างอิงแผนพี่น้องในหน่วยนี้</span>
         </span>
         <button type="button" id="unit-context-peek-btn" onclick="window._showUnitContextPreview()"
-          style="display:none; background:#fff; color:#5b21b6; border:1px solid #c4b5fd; padding:5px 12px; font-size:0.78rem; font-weight:600; border-radius:999px; cursor:pointer; font-family:inherit;">
+          style="display:none; background:#fff; color:#3a47cc; border:1px solid #bac4fa; padding:5px 12px; font-size:0.78rem; font-weight:600; border-radius:999px; cursor:pointer; font-family:inherit;">
           🔍 ดูบริบท
         </button>
       </div>
@@ -4215,7 +4226,7 @@
     <div class="roster-modal-card">
       <div class="roster-modal-header">
         <div>
-          <h2 style="margin:0; font-size:1.25rem; color:#4c1d95;">👨‍🎓 รายชื่อนักเรียน</h2>
+          <h2 style="margin:0; font-size:1.25rem; color:#2a358a;">👨‍🎓 รายชื่อนักเรียน</h2>
           <p style="margin:4px 0 0; color:#6b7280; font-size:0.82rem;">บันทึกรายชื่อครั้งเดียว — ทุกแบบประเมินที่ export จะดึงชื่อมาใส่ให้อัตโนมัติ</p>
         </div>
         <button onclick="closeRosterModal()" style="background:#f3f4f6; border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1rem;">✕</button>
@@ -4224,7 +4235,7 @@
       <div class="roster-modal-body">
         <!-- Bulk paste section -->
         <details style="margin-bottom:14px;">
-          <summary style="cursor:pointer; font-weight:600; font-size:0.88rem; color:#5b21b6; padding:6px 0; user-select:none;">
+          <summary style="cursor:pointer; font-weight:600; font-size:0.88rem; color:#3a47cc; padding:6px 0; user-select:none;">
             📋 วางรายชื่อแบบ Bulk (จาก Excel / Google Sheets)
           </summary>
           <div style="margin-top:10px; padding:12px; background:#f5f3ff; border-radius:10px;">
@@ -4235,10 +4246,10 @@
             </p>
             <textarea id="bulk-paste-area" rows="6"
               placeholder="1&#9;เด็กชายสมชาย ใจดี&#10;2&#9;เด็กหญิงสมหญิง รักเรียน&#10;&#10;หรือแค่ชื่อ:&#10;เด็กชายสมชาย ใจดี&#10;เด็กหญิงสมหญิง รักเรียน"
-              style="width:100%; min-height:120px; padding:8px 10px; border:1px solid #ddd6fe; border-radius:8px; font-size:0.82rem; font-family:inherit; resize:vertical;"></textarea>
+              style="width:100%; min-height:120px; padding:8px 10px; border:1px solid #d2d9fb; border-radius:8px; font-size:0.82rem; font-family:inherit; resize:vertical;"></textarea>
             <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
               <button class="btn" onclick="importBulkRoster(false)"
-                style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; padding:7px 16px; border:none; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.85rem;">
+                style="background:linear-gradient(135deg,#5363f0,#3a47cc); color:white; padding:7px 16px; border:none; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.85rem;">
                 ✅ เพิ่มต่อจากรายชื่อที่มีอยู่
               </button>
               <button class="btn" onclick="importBulkRoster(true)"
@@ -4274,7 +4285,7 @@
         <div style="display:flex; gap:10px; align-items:center;">
           <span id="roster-saved-label" style="font-size:0.8rem; color:#16a34a; display:none;">✓ บันทึกแล้ว</span>
           <button onclick="saveRosterAndClose()"
-            style="background:linear-gradient(135deg,#7c3aed,#5b21b6); color:white; border:none; padding:9px 22px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.9rem; font-weight:600;">
+            style="background:linear-gradient(135deg,#5363f0,#3a47cc); color:white; border:none; padding:9px 22px; border-radius:10px; cursor:pointer; font-family:inherit; font-size:0.9rem; font-weight:600;">
             💾 บันทึก
           </button>
         </div>
@@ -4426,7 +4437,7 @@
         </div>
         <button type="button" class="ai-assist-btn" data-ai-kind="objectives" onclick="window._aiAssist('objectives')"
                 style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
-                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+                       background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25); white-space:nowrap;">
           ✨ ให้ AI ช่วย (ฟรี)
         </button>
       </div>
@@ -4489,7 +4500,7 @@
         </div>
         <button type="button" class="ai-assist-btn" data-ai-kind="concept" onclick="window._aiAssist('concept')"
                 style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
-                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+                       background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25); white-space:nowrap;">
           ✨ ให้ AI ช่วย (ฟรี)
         </button>
       </div>
@@ -4532,7 +4543,7 @@
         </div>
         <button type="button" class="ai-assist-btn" data-ai-kind="media" onclick="window._aiAssist('media')"
                 style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
-                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+                       background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25); white-space:nowrap;">
           ✨ ให้ AI ช่วย (ฟรี)
         </button>
       </div>
@@ -4600,7 +4611,7 @@
           <label style="margin:0;">ภาระชิ้นงาน (Task/Assignment)</label>
           <button type="button" class="ai-assist-btn" data-ai-kind="task" onclick="window._aiAssist('task')"
                   style="padding:7px 12px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.78rem;
-                         background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+                         background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25); white-space:nowrap;">
             ✨ ให้ AI ช่วย (ฟรี)
           </button>
         </div>
@@ -4663,7 +4674,7 @@
         <p style="font-size:0.9rem; color:var(--gray-500); margin:0;">📝 กรอกรายละเอียดกิจกรรมแต่ละขั้น (แก้ไขได้ทั้งหมด)</p>
         <button type="button" class="ai-assist-btn" data-ai-kind="activities" onclick="window._aiAssist('activities')"
                 style="padding:9px 14px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.85rem;
-                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25);">
+                       background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25);">
           ✨ ให้ AI ช่วยร่างกิจกรรม 5 ขั้น (ฟรี)
         </button>
       </div>
@@ -4742,29 +4753,29 @@
       </div>
 
       <!-- AI Assessment Generator (primary) + Manual fallback in one card -->
-      <div style="margin-bottom:14px; padding:18px; background:linear-gradient(135deg,#f5f3ff,#fdf4ff); border:1.5px dashed #7c3aed; border-radius:12px;">
+      <div style="margin-bottom:14px; padding:18px; background:linear-gradient(135deg,#f5f3ff,#fdf4ff); border:1.5px dashed #5363f0; border-radius:12px;">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
           <div style="font-size:1.8rem;">✨</div>
           <div style="flex:1; min-width:240px;">
-            <div style="font-weight:700; color:#5b21b6; font-size:1rem;">เลือกแบบประเมิน</div>
+            <div style="font-weight:700; color:#3a47cc; font-size:1rem;">เลือกแบบประเมิน</div>
             <div style="font-size:.8rem; color:#6b21a8; margin-top:3px;">ให้ AI วิเคราะห์จุดประสงค์ + กิจกรรม + ภาระชิ้นงาน เลือกแบบประเมินและกำหนดเกณฑ์ผ่าน หรือเลือกเองจาก preset</div>
           </div>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button type="button" class="ai-assist-btn" data-ai-kind="assessments" onclick="window._aiAssist('assessments')"
                   style="flex:1; min-width:220px; padding:12px 16px; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:.92rem;
-                         background:linear-gradient(135deg,#7c3aed,#5b21b6); color:#fff; box-shadow:0 4px 10px rgba(124,58,237,.3);">
+                         background:linear-gradient(135deg,#5363f0,#3a47cc); color:#fff; box-shadow:0 4px 10px rgba(83,99,240,.3);">
             🚀 สร้างแบบประเมินด้วย AI
           </button>
           <button type="button" id="manual-rubric-toggle"
-                  style="flex:1; min-width:220px; padding:12px 16px; border:1.5px solid #7c3aed; border-radius:10px; cursor:pointer; font-weight:700; font-size:.92rem;
-                         background:#fff; color:#5b21b6;">
+                  style="flex:1; min-width:220px; padding:12px 16px; border:1.5px solid #5363f0; border-radius:10px; cursor:pointer; font-weight:700; font-size:.92rem;
+                         background:#fff; color:#3a47cc;">
             ⚙️ เลือกแบบประเมินเอง (ขั้นสูง)
           </button>
         </div>
         <!-- Manual rubric picker (toggled) -->
-        <div id="manual-rubric-panel" style="display:none; margin-top:14px; padding:12px; background:#faf5ff; border:1px solid #e9d5ff; border-radius:10px;">
-          <div style="font-size:.82rem; color:#7c3aed; margin-bottom:8px;">📋 เลือกสิ่งที่ต้องการประเมิน — ระบบจะเติมวิธีการประเมินและแนบแบบประเมินในภาคผนวกให้อัตโนมัติ</div>
+        <div id="manual-rubric-panel" style="display:none; margin-top:14px; padding:12px; background:#f5f7fc; border:1px solid #e9d5ff; border-radius:10px;">
+          <div style="font-size:.82rem; color:#5363f0; margin-bottom:8px;">📋 เลือกสิ่งที่ต้องการประเมิน — ระบบจะเติมวิธีการประเมินและแนบแบบประเมินในภาคผนวกให้อัตโนมัติ</div>
           <div id="rubric-picker" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px;"></div>
         </div>
       </div>
@@ -4814,7 +4825,7 @@
         <button class="btn btn-prev" onclick="goToStep(3)">← กลับ</button>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-save" onclick="saveNow()">💾 บันทึก</button>
-          <button class="btn btn-generate" onclick="addCurrentPlanToUnit()" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">
+          <button class="btn btn-generate" onclick="addCurrentPlanToUnit()" style="background:linear-gradient(135deg,#5363f0,#3a47cc);">
             📎 เพิ่มแผนนี้ในหน่วยการเรียนรู้
           </button>
           <button class="btn btn-generate" onclick="generatePlan('docx')" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);">
@@ -5561,7 +5572,7 @@ function _openPlanNameModal(placeholder, onSave) {
   modal.innerHTML = `
     <div style="background:#fff;border-radius:14px;max-width:560px;width:100%;padding:24px 26px;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:inherit;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div style="width:36px;height:36px;background:#ede9fe;color:#5b21b6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">💾</div>
+        <div style="width:36px;height:36px;background:#eef0ff;color:#3a47cc;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">💾</div>
         <div style="font-size:1.05rem;font-weight:700;color:#1f2937;">ตั้งชื่อแผนการสอน</div>
       </div>
       <div style="font-size:.82rem;color:#6b7280;margin-bottom:14px;">ปล่อยว่างเพื่อใช้ชื่ออัตโนมัติด้านล่าง</div>
@@ -5574,7 +5585,7 @@ function _openPlanNameModal(placeholder, onSave) {
           ยกเลิก
         </button>
         <button id="plan-name-save" type="button"
-          style="padding:9px 22px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;border-radius:9px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;">
+          style="padding:9px 22px;background:linear-gradient(135deg,#5363f0,#3a47cc);color:#fff;border:none;border-radius:9px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;">
           💾 บันทึก
         </button>
       </div>
@@ -5983,7 +5994,7 @@ function renderHistoryList() {
         '<div class="history-item-info">' +
           '<div class="history-item-title">' +
             escapeHtml(displayTitle) +
-            (isCustom ? ' <span style="font-size:0.7rem; color:#7c3aed; background:#ede9fe; padding:1px 6px; border-radius:6px; font-weight:500; margin-left:4px;">ตั้งชื่อเอง</span>' : '') +
+            (isCustom ? ' <span style="font-size:0.7rem; color:#5363f0; background:#eef0ff; padding:1px 6px; border-radius:6px; font-weight:500; margin-left:4px;">ตั้งชื่อเอง</span>' : '') +
           '</div>' +
           '<div class="history-item-meta">' +
             '<span>🕒 ' + formatTime(e.savedAt) + '</span>' +
@@ -5991,7 +6002,7 @@ function renderHistoryList() {
           '</div>' +
         '</div>' +
         '<div class="history-actions">' +
-          '<button class="history-btn use" onclick="renameHistoryItem(\'' + e.id + '\')" title="เปลี่ยนชื่อแผน" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe;">✏️ ชื่อ</button>' +
+          '<button class="history-btn use" onclick="renameHistoryItem(\'' + e.id + '\')" title="เปลี่ยนชื่อแผน" style="background:#f5f3ff; color:#3a47cc; border-color:#d2d9fb;">✏️ ชื่อ</button>' +
           '<button class="history-btn use" onclick="applyHistoryItem(\'' + e.id + '\')">ใช้เป็นต้นแบบ</button>' +
           '<button class="history-btn del" onclick="deleteHistoryItem(\'' + e.id + '\')">🗑</button>' +
         '</div>' +
@@ -6381,7 +6392,7 @@ function renderRubricPicker() {
   if (!host) return;
   host.innerHTML = RUBRIC_TYPES.map(r => `
     <label data-rubric-chip="${r.key}" style="display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; cursor:pointer; background:#fff; transition:all 0.15s;"
-      onmouseover="if(!this.querySelector('input').checked)this.style.background='#f5f3ff'" onmouseout="this.style.background=this.querySelector('input').checked?'#ede9fe':'#fff'">
+      onmouseover="if(!this.querySelector('input').checked)this.style.background='#f5f3ff'" onmouseout="this.style.background=this.querySelector('input').checked?'#eef0ff':'#fff'">
       <input type="checkbox" class="rubric-chk" data-rubric-key="${r.key}" style="width:16px; height:16px; cursor:pointer;"
         onchange="onRubricChipToggle(this.dataset.rubricKey, this.checked)">
       <span style="font-size:1.1rem;">${r.icon}</span>
@@ -6400,8 +6411,8 @@ function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = ''
   tr.dataset.domain = dom;
   const locked = !!rubricKey;
   tr.innerHTML =
-    `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..." ${locked ? 'readonly style="background:#faf5ff; font-weight:500;"' : ''}></td>` +
-    `<td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..." ${locked ? 'readonly style="background:#faf5ff;"' : ''}></td>` +
+    `<td><input type="text" class="assess-what" placeholder="สิ่งที่ประเมิน..." ${locked ? 'readonly style="background:#f5f7fc; font-weight:500;"' : ''}></td>` +
+    `<td><input type="text" class="assess-how" placeholder="วิธีการประเมิน..." ${locked ? 'readonly style="background:#f5f7fc;"' : ''}></td>` +
     `<td><textarea class="assess-criteria" rows="2" placeholder="${CRITERIA_PLACEHOLDER}" style="width:100%;min-height:60px;resize:vertical;font-family:inherit;font-size:.9rem;padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;"></textarea></td>` +
     `<td style="text-align:center;"><button type="button" class="btn-remove" onclick="removeAssessmentRow(this)" title="ลบรายการนี้" style="background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:16px;">✕</button></td>`;
   tr.querySelector('.assess-what').value = what;
@@ -6413,7 +6424,7 @@ function buildAssessmentRow({ what = '', how = '', criteria = '', rubricKey = ''
 window.onRubricChipToggle = onRubricChipToggle;
 function onRubricChipToggle(key, checked, domainOverride) {
   const chipLabel = document.querySelector(`label[data-rubric-chip="${key}"]`);
-  if (chipLabel) chipLabel.style.background = checked ? '#ede9fe' : '#fff';
+  if (chipLabel) chipLabel.style.background = checked ? '#eef0ff' : '#fff';
   // Find existing row anywhere in the table
   const existing = document.querySelector(`#assessment-table tbody tr[data-rubric-key="${key}"]`);
   if (checked) {
@@ -6468,7 +6479,7 @@ function setSelectedRubrics(keys) {
   document.querySelectorAll('#rubric-picker .rubric-chk').forEach(cb => {
     cb.checked = set.has(cb.dataset.rubricKey);
     const lbl = cb.closest('label');
-    if (lbl) lbl.style.background = cb.checked ? '#ede9fe' : '#fff';
+    if (lbl) lbl.style.background = cb.checked ? '#eef0ff' : '#fff';
   });
 }
 
@@ -9287,7 +9298,7 @@ function buildRecentCard(e) {
     '<div class="dash-recent-card" style="position:relative;" onclick="editLessonPlan(\'' + e.id + '\')">' +
       '<div style="position:absolute; top:8px; right:8px; display:flex; gap:6px;">' +
         '<button onclick="event.stopPropagation(); renameHistoryItem(\'' + e.id + '\')" title="เปลี่ยนชื่อแผน" ' +
-          'style="background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">✏️</button>' +
+          'style="background:#f5f3ff; color:#3a47cc; border:1px solid #d2d9fb; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">✏️</button>' +
         '<button onclick="event.stopPropagation(); applyHistoryItem(\'' + e.id + '\')" title="ใช้เป็นต้นแบบ (สร้างแผนใหม่จากแผนนี้)" ' +
           'style="background:#ecfeff; color:#0e7490; border:1px solid #a5f3fc; width:26px; height:26px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.78rem; display:flex; align-items:center; justify-content:center;">📋</button>' +
         '<button onclick="event.stopPropagation(); deleteHistoryItem(\'' + e.id + '\'); renderLibraryList(); renderRecentWorks();" title="ลบแผนนี้" ' +
@@ -10044,9 +10055,9 @@ function renderUnitDashboard() {
   // Summary cards
   const summaryHtml =
     '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:18px;">' +
-      '<div style="background:linear-gradient(135deg,#ede9fe,#ddd6fe); padding:14px 16px; border-radius:12px;">' +
+      '<div style="background:linear-gradient(135deg,#eef0ff,#d2d9fb); padding:14px 16px; border-radius:12px;">' +
         '<div style="font-size:0.78rem; color:#6b21a8; font-weight:600;">แผนรายคาบในหน่วย</div>' +
-        '<div style="font-size:1.8rem; font-weight:800; color:#4c1d95;">' + lessons.length + '</div>' +
+        '<div style="font-size:1.8rem; font-weight:800; color:#2a358a;">' + lessons.length + '</div>' +
       '</div>' +
       '<div style="background:linear-gradient(135deg,#fef3c7,#fde68a); padding:14px 16px; border-radius:12px;">' +
         '<div style="font-size:0.78rem; color:#92400e; font-weight:600;">เวลาเรียนรวม</div>' +
@@ -10078,14 +10089,14 @@ function renderUnitDashboard() {
           const when = formatRelTime(h.savedAt || 0);
           return (
             '<div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:12px;">' +
-              '<div style="width:32px; height:32px; background:#ede9fe; color:#5b21b6; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">' + (i + 1) + '</div>' +
+              '<div style="width:32px; height:32px; background:#eef0ff; color:#3a47cc; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">' + (i + 1) + '</div>' +
               '<div style="flex:1; min-width:0;">' +
                 '<div style="font-weight:600; color:#1f2937; font-size:0.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(title) + '</div>' +
                 (obj ? '<div style="font-size:0.8rem; color:#6b7280; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">🎯 ' + esc(obj) + '</div>' : '') +
                 '<div style="font-size:0.75rem; color:#9ca3af; margin-top:2px;">' + esc(when) + '</div>' +
               '</div>' +
-              '<button onclick="renameHistoryItem(\'' + esc(h.id) + '\')" style="background:#f5f3ff; color:#6d28d9; border:1px solid #ddd6fe; width:30px; height:30px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.85rem; flex-shrink:0;" title="เปลี่ยนชื่อแผน">✏️</button>' +
-              '<button onclick="openLessonFromUnit(\'' + esc(h.id) + '\')" style="background:#ede9fe; color:#5b21b6; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.8rem; font-weight:600; flex-shrink:0;">เปิดแผน</button>' +
+              '<button onclick="renameHistoryItem(\'' + esc(h.id) + '\')" style="background:#f5f3ff; color:#3a47cc; border:1px solid #d2d9fb; width:30px; height:30px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.85rem; flex-shrink:0;" title="เปลี่ยนชื่อแผน">✏️</button>' +
+              '<button onclick="openLessonFromUnit(\'' + esc(h.id) + '\')" style="background:#eef0ff; color:#3a47cc; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.8rem; font-weight:600; flex-shrink:0;">เปิดแผน</button>' +
               '<button onclick="removeUnitLesson(\'' + esc(h.id) + '\')" style="background:#fee2e2; color:#991b1b; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-family:inherit; font-size:0.85rem; flex-shrink:0;" title="เอาออกจากหน่วย">✕</button>' +
             '</div>'
           );
@@ -10103,7 +10114,7 @@ function renderUnitDashboard() {
   if (unlinked.length) {
     attachHtml =
       '<details style="margin-top:10px; padding:12px 14px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px;">' +
-        '<summary style="cursor:pointer; font-weight:600; color:#5b21b6; font-size:0.88rem;">➕ เพิ่มแผนที่เคยทำไว้เข้าหน่วย (' + unlinked.length + ' รายการ)</summary>' +
+        '<summary style="cursor:pointer; font-weight:600; color:#3a47cc; font-size:0.88rem;">➕ เพิ่มแผนที่เคยทำไว้เข้าหน่วย (' + unlinked.length + ' รายการ)</summary>' +
         '<div style="margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:300px; overflow-y:auto;">' +
           unlinked.map(h => {
             const title = getLessonTitle(h);
@@ -10114,7 +10125,7 @@ function renderUnitDashboard() {
                   '<div style="font-size:0.85rem; color:#374151; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(title) + '</div>' +
                   '<div style="font-size:0.72rem; color:#9ca3af;">' + esc(when) + '</div>' +
                 '</div>' +
-                '<button onclick="attachLessonToUnit(\'' + esc(h.id) + '\')" style="background:#5b21b6; color:white; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:0.78rem;">+ เพิ่ม</button>' +
+                '<button onclick="attachLessonToUnit(\'' + esc(h.id) + '\')" style="background:#3a47cc; color:white; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:0.78rem;">+ เพิ่ม</button>' +
               '</div>'
             );
           }).join('') +
@@ -10315,11 +10326,11 @@ window._showUnitContextPreview = function() {
     if (!l) return '';
     const detail = isCurrent ? '' : (l.detail_level || 'minimal');
     return `
-      <div style="background:${isCurrent ? '#ede9fe' : '#fff'}; border:1px solid ${isCurrent ? '#7c3aed' : '#e5e7eb'}; border-left:4px solid ${isCurrent ? '#7c3aed' : (detail === 'full' ? '#16a34a' : detail === 'medium' ? '#d97706' : '#9ca3af')}; border-radius:10px; padding:10px 14px; margin-bottom:8px;">
+      <div style="background:${isCurrent ? '#eef0ff' : '#fff'}; border:1px solid ${isCurrent ? '#5363f0' : '#e5e7eb'}; border-left:4px solid ${isCurrent ? '#5363f0' : (detail === 'full' ? '#16a34a' : detail === 'medium' ? '#d97706' : '#9ca3af')}; border-radius:10px; padding:10px 14px; margin-bottom:8px;">
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
-          <span style="background:${isCurrent ? '#7c3aed' : '#374151'}; color:white; padding:2px 9px; border-radius:6px; font-size:0.75rem; font-weight:700;">L${esc(l.plan_no || '?')}</span>
+          <span style="background:${isCurrent ? '#5363f0' : '#374151'}; color:white; padding:2px 9px; border-radius:6px; font-size:0.75rem; font-weight:700;">L${esc(l.plan_no || '?')}</span>
           <span style="font-weight:700; color:#1f2937; font-size:0.92rem;">${esc(l.topic || '(ไม่มีหัวข้อ)')}</span>
-          ${isCurrent ? `<span style="background:#7c3aed; color:white; padding:2px 9px; border-radius:999px; font-size:0.7rem; font-weight:700;">⭐ แผนปัจจุบัน</span>` : tierBadge(detail)}
+          ${isCurrent ? `<span style="background:#5363f0; color:white; padding:2px 9px; border-radius:999px; font-size:0.7rem; font-weight:700;">⭐ แผนปัจจุบัน</span>` : tierBadge(detail)}
         </div>
         ${l.key_concept ? `<div style="font-size:0.82rem; color:#475569; margin-top:4px;"><b>Key concept:</b> ${esc(l.key_concept)}</div>` : ''}
         ${l.objectives_brief ? `<div style="font-size:0.78rem; color:#475569; margin-top:4px;">🎯 ${esc(l.objectives_brief)}</div>` : ''}
@@ -10339,13 +10350,13 @@ window._showUnitContextPreview = function() {
   ov.style.cssText = 'position:fixed; inset:0; background:rgba(15,23,42,.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:11500; padding:18px;';
   ov.innerHTML = `
     <div style="background:#fff; border-radius:16px; max-width:840px; width:100%; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 30px 80px -20px rgba(15,23,42,.4);">
-      <div style="padding:18px 24px; border-bottom:1px solid #e5e7eb; background:linear-gradient(135deg,#ede9fe,#ddd6fe); border-radius:16px 16px 0 0;">
+      <div style="padding:18px 24px; border-bottom:1px solid #e5e7eb; background:linear-gradient(135deg,#eef0ff,#d2d9fb); border-radius:16px 16px 0 0;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
           <div>
-            <div style="font-size:1.15rem; font-weight:800; color:#4c1d95; display:flex; align-items:center; gap:8px;">
+            <div style="font-size:1.15rem; font-weight:800; color:#2a358a; display:flex; align-items:center; gap:8px;">
               🔍 บริบทที่ AI จะเห็น
             </div>
-            <div style="font-size:0.82rem; color:#5b21b6; margin-top:3px;">
+            <div style="font-size:0.82rem; color:#3a47cc; margin-top:3px;">
               นี่คือข้อมูลที่ AI ใช้เพื่อให้แผนนี้สอดคล้องกับแผนพี่น้องในหน่วยเดียวกัน
             </div>
           </div>
@@ -10372,7 +10383,7 @@ window._showUnitContextPreview = function() {
         </div>
 
         <!-- Lesson position -->
-        <div style="text-align:center; padding:8px 0; margin-bottom:12px; font-size:0.88rem; color:#5b21b6; font-weight:700;">
+        <div style="text-align:center; padding:8px 0; margin-bottom:12px; font-size:0.88rem; color:#3a47cc; font-weight:700;">
           ⭐ แผนปัจจุบันคือ <b>แผนที่ ${ctx.lesson_position.index} จาก ${ctx.lesson_position.total}</b>
         </div>
 
@@ -10417,7 +10428,7 @@ window._showUnitContextPreview = function() {
           ${ctx._estimated_tokens > 2500 ? ' · <span style="color:#b91c1c;">⚠️ ค่อนข้างใหญ่</span>' : ' · <span style="color:#16a34a;">✓ พอดี</span>'}
         </div>
         <button onclick="document.getElementById('unit-context-peek-modal').remove()"
-          style="background:#7c3aed; color:white; border:none; padding:9px 18px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:600;">
+          style="background:#5363f0; color:white; border:none; padding:9px 18px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:600;">
           ปิด
         </button>
       </div>
@@ -10458,7 +10469,7 @@ function openUnitPickerModal(units) {
   card.style.cssText = 'background:white; border-radius:14px; max-width:560px; width:100%; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;';
   card.innerHTML =
     '<div style="padding:18px 22px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center;">' +
-      '<div><div style="font-size:1.1rem; font-weight:700; color:#5b21b6;">📎 เลือกหน่วยการเรียนรู้</div>' +
+      '<div><div style="font-size:1.1rem; font-weight:700; color:#3a47cc;">📎 เลือกหน่วยการเรียนรู้</div>' +
       '<div style="font-size:0.82rem; color:#6b7280; margin-top:2px;">แผนนี้จะถูกเพิ่มเข้าหน่วยที่เลือกโดยอัตโนมัติเมื่อคุณกด Export</div></div>' +
       '<button onclick="document.getElementById(\'unit-picker-modal\').remove()" style="background:transparent; border:none; font-size:1.3rem; color:#9ca3af; cursor:pointer; padding:4px 8px;">✕</button>' +
     '</div>' +
@@ -10470,8 +10481,8 @@ function openUnitPickerModal(units) {
         const cls = esc(u.classLevel || '');
         return (
           '<button onclick="pickUnitForCurrentPlan(\'' + esc(u.id) + '\')" ' +
-            'style="display:block; width:100%; text-align:left; background:' + (isActive ? '#ede9fe' : '#fff') + '; border:1px solid ' + (isActive ? '#a78bfa' : '#e5e7eb') + '; border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-family:inherit;">' +
-            '<div style="font-weight:600; color:#1f2937; margin-bottom:4px;">📚 ' + esc(u.title || '(ยังไม่ตั้งชื่อ)') + (isActive ? ' <span style="color:#7c3aed; font-size:0.75rem;">• หน่วยปัจจุบัน</span>' : '') + '</div>' +
+            'style="display:block; width:100%; text-align:left; background:' + (isActive ? '#eef0ff' : '#fff') + '; border:1px solid ' + (isActive ? '#a78bfa' : '#e5e7eb') + '; border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-family:inherit;">' +
+            '<div style="font-weight:600; color:#1f2937; margin-bottom:4px;">📚 ' + esc(u.title || '(ยังไม่ตั้งชื่อ)') + (isActive ? ' <span style="color:#5363f0; font-size:0.75rem;">• หน่วยปัจจุบัน</span>' : '') + '</div>' +
             '<div style="font-size:0.78rem; color:#6b7280;">' + (subj ? subj + ' · ' : '') + cls + ' · มี ' + n + ' แผน</div>' +
           '</button>'
         );
@@ -11439,7 +11450,7 @@ window.renderUnitDashboard = renderUnitDashboard;
 
       <div class="auth-row" id="auth-remember-row">
         <label><input id="auth-remember" type="checkbox" checked /> จดจำการเข้าสู่ระบบ</label>
-        <a id="auth-forgot" style="color:#7c3aed;font-size:.85rem;cursor:pointer;display:none">ลืมรหัสผ่าน?</a>
+        <a id="auth-forgot" style="color:#5363f0;font-size:.85rem;cursor:pointer;display:none">ลืมรหัสผ่าน?</a>
       </div>
 
       <div class="auth-row" id="auth-consent-row" style="display:none; margin-top:6px;">
@@ -11447,9 +11458,9 @@ window.renderUnitDashboard = renderUnitDashboard;
           <input id="auth-consent" type="checkbox" style="margin-top:3px; flex-shrink:0;" />
           <span>
             ฉันได้อ่านและยอมรับ
-            <a href="/terms.html" target="_blank" style="color:#7c3aed; font-weight:600;">ข้อกำหนดการใช้บริการ</a>
+            <a href="/terms.html" target="_blank" style="color:#5363f0; font-weight:600;">ข้อกำหนดการใช้บริการ</a>
             และ
-            <a href="/privacy.html" target="_blank" style="color:#7c3aed; font-weight:600;">นโยบายความเป็นส่วนตัว</a>
+            <a href="/privacy.html" target="_blank" style="color:#5363f0; font-weight:600;">นโยบายความเป็นส่วนตัว</a>
           </span>
         </label>
       </div>
@@ -11853,7 +11864,7 @@ window.renderUnitDashboard = renderUnitDashboard;
              style="width:100%;padding:10px 13px;border:1.5px solid #cbd5e1;border-radius:9px;font-size:.95rem;font-family:inherit;box-sizing:border-box;">
     </div>
     <button id="reset-submit-btn" onclick="submitResetPassword()"
-            style="width:100%;padding:12px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;">
+            style="width:100%;padding:12px;background:#5363f0;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;">
       ✓ บันทึกรหัสผ่านใหม่
     </button>
   </div>
@@ -12522,7 +12533,7 @@ window.renderUnitDashboard = renderUnitDashboard;
             if (cb) {
               cb.checked = true;
               const lbl = cb.closest('label');
-              if (lbl) lbl.style.background = '#ede9fe';
+              if (lbl) lbl.style.background = '#eef0ff';
             }
             const rubric = RUBRIC_TYPES.find(r => r.key === item.rubric_key);
             if (rubric) {
@@ -12647,7 +12658,7 @@ window.renderUnitDashboard = renderUnitDashboard;
       ov.id = 'ai-credit-warning-overlay';
       ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:11000;padding:18px;animation:aiwFade .2s ease-out';
       ov.innerHTML = `
-        <div style="background:linear-gradient(165deg,#ffffff 0%,#faf5ff 100%);border-radius:22px;max-width:460px;width:100%;
+        <div style="background:linear-gradient(165deg,#ffffff 0%,#f5f7fc 100%);border-radius:22px;max-width:460px;width:100%;
                     padding:32px 30px 26px;font-family:inherit;text-align:center;
                     box-shadow:0 30px 80px -20px rgba(91,33,182,.5),0 12px 30px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.8);
                     transform-style:preserve-3d;animation:aiwPop .35s cubic-bezier(.34,1.56,.64,1)">
@@ -12657,7 +12668,7 @@ window.renderUnitDashboard = renderUnitDashboard;
                       animation:aiwCoin 2.4s ease-in-out infinite;font-size:2.4rem;">💰</div>
           <h2 style="font-size:1.32rem;font-weight:800;color:#1f2937;margin:0 0 8px;letter-spacing:-.02em;">ใช้ AI สร้างเนื้อหา?</h2>
           <p style="font-size:.95rem;color:#4b5563;margin:0 0 6px;line-height:1.55;">
-            การใช้ <b style="color:#7c3aed;">AI สร้าง</b> จะคิด <b style="color:#dc2626;">1 เครดิต หลังจากสร้างเสร็จ</b>
+            การใช้ <b style="color:#5363f0;">AI สร้าง</b> จะคิด <b style="color:#dc2626;">1 เครดิต หลังจากสร้างเสร็จ</b>
           </p>
           <p style="font-size:.88rem;color:#6b7280;margin:0 0 20px;line-height:1.55;">
             แต่หาก<b style="color:#059669;">สร้างเอง</b>จะไม่เสียเครดิตเลย
@@ -12667,7 +12678,7 @@ window.renderUnitDashboard = renderUnitDashboard;
             <button id="aiw-confirm" class="aiw-btn primary">✨ ใช้ AI</button>
           </div>
           <label style="display:flex;align-items:center;justify-content:center;gap:7px;font-size:.78rem;color:#6b7280;cursor:pointer;user-select:none;">
-            <input type="checkbox" id="aiw-dont-ask" style="cursor:pointer;accent-color:#7c3aed;">
+            <input type="checkbox" id="aiw-dont-ask" style="cursor:pointer;accent-color:#5363f0;">
             <span>ไม่ต้องแสดงการแจ้งเตือนนี้อีก</span>
           </label>
         </div>`;
@@ -12836,7 +12847,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         <div id="fp-steps" style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
           <button id="fp-cancel-btn" style="padding:10px 18px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;">ยกเลิก</button>
-          <button id="fp-close-btn" style="padding:10px 18px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;display:none;">เสร็จสิ้น</button>
+          <button id="fp-close-btn" style="padding:10px 18px;background:#5363f0;color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:600;cursor:pointer;display:none;">เสร็จสิ้น</button>
         </div>
       </div>`;
     document.body.appendChild(m);
@@ -12854,7 +12865,7 @@ window.renderUnitDashboard = renderUnitDashboard;
       skip: '⏭️',
       err: '❌',
     };
-    const colors = { pending:'#9ca3af', running:'#7c3aed', ok:'#059669', skip:'#d97706', err:'#dc2626' };
+    const colors = { pending:'#9ca3af', running:'#5363f0', ok:'#059669', skip:'#d97706', err:'#dc2626' };
     row.querySelector('.fp-icon').innerHTML = icons[status] || '⏸';
     row.querySelector('.fp-icon').style.color = colors[status];
     row.style.background = status === 'running' ? '#f5f3ff' : 'transparent';
@@ -13128,7 +13139,7 @@ window.renderUnitDashboard = renderUnitDashboard;
               </div>
               <button type="button" class="ai-assist-btn" data-ai-kind="activities" onclick="window._aiAssist('activities')"
                 style="padding:8px 13px; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:.82rem;
-                       background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; box-shadow:0 2px 6px rgba(124,58,237,.25); white-space:nowrap;">
+                       background:linear-gradient(135deg,#5363f0,#7984f5); color:#fff; box-shadow:0 2px 6px rgba(83,99,240,.25); white-space:nowrap;">
                 ✨ ให้ AI ช่วย (ฟรี)
               </button>
             </div>
@@ -13163,12 +13174,12 @@ window.renderUnitDashboard = renderUnitDashboard;
       // ── 5. Build AI Hub intro card for step-3 ────────────────────
       const hubIntro = document.createElement('div');
       hubIntro.className = 'card';
-      hubIntro.style.cssText = 'background:linear-gradient(135deg,#f5f3ff,#fdf4ff);border:1.5px dashed #7c3aed;';
+      hubIntro.style.cssText = 'background:linear-gradient(135deg,#f5f3ff,#fdf4ff);border:1.5px dashed #5363f0;';
       hubIntro.innerHTML = `
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
           <div style="font-size:2.4rem;">🚀</div>
           <div style="flex:1;min-width:240px;">
-            <div style="font-weight:800;color:#5b21b6;font-size:1.1rem;">ขั้นนี้ AI ช่วยสร้างให้</div>
+            <div style="font-weight:800;color:#3a47cc;font-size:1.1rem;">ขั้นนี้ AI ช่วยสร้างให้</div>
             <div style="color:#6b21a8;font-size:.85rem;margin-top:3px;">
               จุดประสงค์ K/P/A → สาระ/คำศัพท์/ประโยค → สื่อ → ภาระชิ้นงาน → กิจกรรม 5 ขั้น → แบบประเมิน + เกณฑ์
             </div>
@@ -13176,11 +13187,11 @@ window.renderUnitDashboard = renderUnitDashboard;
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="ai-fullplan-trigger ai-assist-btn" type="button" onclick="window._generateFullPlan()"
-            style="flex:1;min-width:240px;padding:14px 18px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,.3);">
+            style="flex:1;min-width:240px;padding:14px 18px;background:linear-gradient(135deg,#5363f0,#3a47cc);color:#fff;border:none;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(83,99,240,.3);">
             ✨ ให้ AI สร้างเนื้อหาทั้งหมดที่เหลือ
           </button>
           <button type="button" id="hub-manual-btn"
-            style="flex:1;min-width:240px;padding:14px 18px;background:#fff;color:#5b21b6;border:1.5px solid #7c3aed;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;">
+            style="flex:1;min-width:240px;padding:14px 18px;background:#fff;color:#3a47cc;border:1.5px solid #5363f0;border-radius:11px;font-family:inherit;font-weight:700;font-size:.95rem;cursor:pointer;">
             ✏️ ให้ AI ช่วยสร้างเองทีละส่วน
           </button>
         </div>
@@ -13968,7 +13979,7 @@ document.getElementById('verify-banner')?.remove();
       .promo-pop-btn:hover { transform:translateY(-2px); }
       .promo-pop-btn:active { transform:translateY(1px); }
       .promo-pop-btn.cta {
-        background:linear-gradient(180deg,#fff 0%,#f3f4f6 100%); color:#5b21b6;
+        background:linear-gradient(180deg,#fff 0%,#f3f4f6 100%); color:#3a47cc;
         box-shadow:
           0 6px 0 rgba(0,0,0,.12),
           0 10px 24px rgba(0,0,0,.2),
@@ -14031,7 +14042,7 @@ document.getElementById('verify-banner')?.remove();
     const card = document.createElement('div');
     card.className = 'promo-pop-card';
     const grad = opts.gradient
-      || 'linear-gradient(135deg,#7c3aed 0%,#a855f7 50%,#ec4899 100%)';
+      || 'linear-gradient(135deg,#5363f0 0%,#7984f5 50%,#ec4899 100%)';
     card.style.background = grad;
 
     // Close button
