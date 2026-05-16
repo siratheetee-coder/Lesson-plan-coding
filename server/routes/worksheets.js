@@ -19,6 +19,66 @@ router.use(requireAuth);
 
 const COST_PER_EXPORT = 0.5;
 
+// ─── GET /units — list units + their lessons + orphan lessons ────
+// Used by frontend AI-mode dropdown: pick Unit → see its lessons in order.
+router.get('/units', async (req, res) => {
+  try {
+    const [units, lessons] = await Promise.all([
+      db.listUnits(req.user.id),
+      db.listLessons(req.user.id),
+    ]);
+    // Index lessons by id
+    const byId = new Map(lessons.map(l => [l.id, l]));
+    // Build unit groups: include lessons in unit.lessonIds order, then any
+    // lessons whose data.unitId matches this unit
+    const used = new Set();
+    const unitGroups = (units || []).map(u => {
+      const ids = Array.isArray(u.lessonIds) ? u.lessonIds : [];
+      const linked = ids.map(id => byId.get(id)).filter(Boolean);
+      const extra  = lessons.filter(l => l.data?.unitId === u.id && !ids.includes(l.id));
+      const all = [...linked, ...extra]
+        .sort((a, b) => _planNo(a) - _planNo(b));
+      all.forEach(l => used.add(l.id));
+      return {
+        id: u.id,
+        title: u.title || '(ไม่ระบุชื่อหน่วย)',
+        unitNo: u.unitNo || u.unit_no || null,
+        lessons: all.map(_lessonSummary),
+      };
+    });
+    // Sort units by unitNo asc (nulls last)
+    unitGroups.sort((a, b) => {
+      const an = a.unitNo == null ? Infinity : Number(a.unitNo);
+      const bn = b.unitNo == null ? Infinity : Number(b.unitNo);
+      return an - bn;
+    });
+    // Orphan lessons (not linked to any unit)
+    const orphan = lessons
+      .filter(l => !used.has(l.id))
+      .sort((a, b) => _planNo(a) - _planNo(b))
+      .map(_lessonSummary);
+    res.json({ ok: true, units: unitGroups, orphanLessons: orphan });
+  } catch (e) {
+    console.error('[worksheets/units]', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+function _planNo(l) {
+  const v = parseInt(l.data?.fields?.['plan-number'], 10);
+  return Number.isFinite(v) ? v : 9999;
+}
+function _lessonSummary(l) {
+  const f = l.data?.fields || {};
+  return {
+    id:          l.id,
+    title:       f.topic || l.title || '(ไม่ระบุหัวข้อ)',
+    planNumber:  f['plan-number'] || null,
+    subject:     f['subject-name'] || '',
+    level:       f['class-level'] || '',
+    savedAt:     l.savedAt || l.saved_at || null,
+  };
+}
+
 // ─── POST /scan ────────────────────────────────────────────
 // body: { lesson_id }  → returns { worksheets: [...], meta, vocab, keyExpressions }
 router.post('/scan', limiters.write, async (req, res) => {
