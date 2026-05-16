@@ -1603,33 +1603,49 @@
   .dash-recent-badge.docx { background: #dbeafe; color: #1e40af; }
   /* Library list — bigger cards, full plan name visible (no truncation) */
   #dash-library-list {
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 16px;
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px;
   }
-  #dash-library-list .dash-recent-card {
-    padding: 20px 22px;
-    gap: 10px;
-    min-height: 140px;
+  .dash-library-row {
+    display: flex; align-items: center; gap: 10px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    min-width: 0;
   }
-  #dash-library-list .dash-recent-title {
-    font-size: 1.02rem;
-    line-height: 1.5;
-    -webkit-line-clamp: unset;
-    display: block;
-    overflow: visible;
-    text-overflow: clip;
-    word-break: break-word;
-    white-space: normal;
+  .dash-library-row:hover { border-color: #5363f0; background: #f5f7fc; }
+  .dash-library-row__badge {
+    font-size: 0.7rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px;
+    flex-shrink: 0;
   }
-  #dash-library-list .dash-recent-meta {
-    font-size: 0.8rem;
-    flex-wrap: wrap;
-    gap: 6px 10px;
-    margin-top: 4px;
+  .dash-library-row__badge.docx { background: #eef0ff; color: #3a47cc; }
+  .dash-library-row__badge.pdf  { background: #fef2f2; color: #b91c1c; }
+  .dash-library-row__title {
+    flex: 1;
+    font-weight: 600; color: #1f2937; font-size: 0.92rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0;
   }
-  #dash-library-list .dash-recent-badge {
-    font-size: 0.74rem;
-    padding: 2px 8px;
+  .dash-library-row__meta {
+    font-size: 0.78rem; color: #6b7280;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .dash-library-row__btn {
+    background: none; border: none;
+    cursor: pointer; font-family: inherit;
+    font-size: 0.92rem; padding: 4px 6px;
+    color: #6b7280; border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .dash-library-row__btn:hover { background: #f3f4f6; color: #1f2937; }
+  .dash-library-row__btn--danger:hover { background: #fee2e2; color: #b91c1c; }
+  @media (max-width: 560px) {
+    .dash-library-row__meta { display: none; }
   }
 
   .dash-recent-empty {
@@ -9318,6 +9334,28 @@ function buildRecentCard(e) {
   );
 }
 
+function buildLibraryRow(e) {
+  const title = getLessonTitle(e);
+  const fmt = (e.format || 'docx').toLowerCase();
+  const badgeText = fmt === 'pdf' ? 'PDF' : 'DOCX';
+  const badgeClass = fmt === 'pdf' ? 'pdf' : 'docx';
+  const when = formatRelTime(e.savedAt || e.ts || e.timestamp || 0);
+  const f = (e.data && e.data.fields) || {};
+  const cls = f['class-level'] || (e.data && e.data.classLevel) || '';
+  const subj = f['subject-name'] || '';
+  const meta = [subj, cls, when].filter(Boolean).join(' · ');
+  return (
+    '<div class="dash-library-row" onclick="editLessonPlan(\'' + e.id + '\')">' +
+      '<span class="dash-library-row__badge ' + badgeClass + '">' + badgeText + '</span>' +
+      '<span class="dash-library-row__title" title="' + escapeHtmlDash(title) + '">' + escapeHtmlDash(title) + '</span>' +
+      '<span class="dash-library-row__meta">' + escapeHtmlDash(meta) + '</span>' +
+      '<button class="dash-library-row__btn" onclick="event.stopPropagation(); renameHistoryItem(\'' + e.id + '\')" title="เปลี่ยนชื่อ">✏️</button>' +
+      '<button class="dash-library-row__btn" onclick="event.stopPropagation(); applyHistoryItem(\'' + e.id + '\')" title="ใช้เป็นต้นแบบ">📋</button>' +
+      '<button class="dash-library-row__btn dash-library-row__btn--danger" onclick="event.stopPropagation(); deleteHistoryItem(\'' + e.id + '\'); renderLibraryList(); renderRecentWorks();" title="ลบ">🗑</button>' +
+    '</div>'
+  );
+}
+
 function renderRecentWorks() {
   const box = document.getElementById('dash-recent-list');
   if (!box) return;
@@ -9419,7 +9457,7 @@ function renderLibraryList() {
       '</div>';
     return;
   }
-  box.innerHTML = filtered.map(buildRecentCard).join('');
+  box.innerHTML = filtered.map(buildLibraryRow).join('');
 }
 
 // Open a saved plan into the form for in-place editing.
