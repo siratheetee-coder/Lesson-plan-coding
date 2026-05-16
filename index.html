@@ -2717,37 +2717,47 @@
   .ws-cached-banner button:hover { background: #fffbeb; }
 
   .ws-saved-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 10px;
-  }
-  .ws-saved-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 12px 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    transition: border-color .15s, box-shadow .2s;
+    gap: 4px;
   }
-  .ws-saved-card:hover { border-color: #7c3aed; box-shadow: 0 4px 10px rgba(124,58,237,0.08); }
-  .ws-saved-card__title {
-    font-weight: 700; color: #1f2937; font-size: 0.92rem;
-    line-height: 1.35;
+  .ws-saved-row {
+    display: flex; align-items: center; gap: 10px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 7px 12px;
+    transition: border-color .15s, background .15s;
   }
-  .ws-saved-card__meta { font-size: 0.78rem; color: #6b7280; }
-  .ws-saved-card__actions { display: flex; gap: 6px; margin-top: 4px; }
-  .ws-saved-card__btn {
+  .ws-saved-row:hover { border-color: #7c3aed; background: #faf5ff; }
+  .ws-saved-row__title {
     flex: 1;
-    background: #f9fafb; border: 1px solid #d1d5db;
-    padding: 6px 8px; border-radius: 6px;
-    cursor: pointer; font-family: inherit;
-    font-size: 0.78rem; font-weight: 600; color: #4b5563;
+    font-weight: 600; color: #1f2937; font-size: 0.9rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0;
   }
-  .ws-saved-card__btn:hover { background: #f3f4f6; }
-  .ws-saved-card__btn--danger { color: #b91c1c; border-color: #fecaca; }
-  .ws-saved-card__btn--danger:hover { background: #fee2e2; }
+  .ws-saved-row__meta {
+    font-size: 0.76rem; color: #6b7280;
+    white-space: nowrap;
+  }
+  .ws-saved-row__mode {
+    font-size: 0.72rem; color: #047857;
+    background: #ecfdf5; border: 1px solid #a7f3d0;
+    padding: 2px 8px; border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .ws-saved-row__mode--manual { color: #1e40af; background: #eff6ff; border-color: #bfdbfe; }
+  .ws-saved-row__btn {
+    background: none; border: none;
+    cursor: pointer; font-family: inherit;
+    font-size: 0.92rem; padding: 4px 6px;
+    color: #6b7280; border-radius: 4px;
+  }
+  .ws-saved-row__btn:hover { background: #f3f4f6; color: #1f2937; }
+  .ws-saved-row__btn--danger:hover { background: #fee2e2; color: #b91c1c; }
+  @media (max-width: 560px) {
+    .ws-saved-row__meta { display: none; }
+  }
   .ws-add-section {
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
     background: #ecfdf5; border: 1px dashed #10b981; border-radius: 10px;
@@ -8362,14 +8372,14 @@ async function _wsLoadSavedList() {
     sec.style.display = '';
     wrap.innerHTML = list.map(w => {
       const dt = w.createdAt ? new Date(w.createdAt).toLocaleDateString('th-TH') : '';
-      const modeTag = w.mode === 'ai' ? '✨ AI' : '✍️ Manual';
-      return `<div class="ws-saved-card">
-        <div class="ws-saved-card__title">${escapeHtml(w.title)}</div>
-        <div class="ws-saved-card__meta">${modeTag} · ${escapeHtml(dt)}</div>
-        <div class="ws-saved-card__actions">
-          <button class="ws-saved-card__btn" onclick="wsLoadSaved('${escapeHtml(w.id)}')">👁️ ดู</button>
-          <button class="ws-saved-card__btn ws-saved-card__btn--danger" onclick="wsDeleteSaved('${escapeHtml(w.id)}')">🗑️</button>
-        </div>
+      const modeClass = w.mode === 'ai' ? '' : 'ws-saved-row__mode--manual';
+      const modeTag   = w.mode === 'ai' ? '✨ AI' : '✍️ Manual';
+      return `<div class="ws-saved-row">
+        <span class="ws-saved-row__mode ${modeClass}">${modeTag}</span>
+        <span class="ws-saved-row__title" title="${escapeHtml(w.title)}">${escapeHtml(w.title)}</span>
+        <span class="ws-saved-row__meta">${escapeHtml(dt)}</span>
+        <button class="ws-saved-row__btn" onclick="wsLoadSaved('${escapeHtml(w.id)}')" title="ดู">👁️</button>
+        <button class="ws-saved-row__btn ws-saved-row__btn--danger" onclick="wsDeleteSaved('${escapeHtml(w.id)}')" title="ลบ">🗑️</button>
       </div>`;
     }).join('');
   } catch (e) {
