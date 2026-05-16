@@ -2715,6 +2715,39 @@
     font-weight: 600;
   }
   .ws-cached-banner button:hover { background: #fffbeb; }
+
+  .ws-saved-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+  .ws-saved-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color .15s, box-shadow .2s;
+  }
+  .ws-saved-card:hover { border-color: #7c3aed; box-shadow: 0 4px 10px rgba(124,58,237,0.08); }
+  .ws-saved-card__title {
+    font-weight: 700; color: #1f2937; font-size: 0.92rem;
+    line-height: 1.35;
+  }
+  .ws-saved-card__meta { font-size: 0.78rem; color: #6b7280; }
+  .ws-saved-card__actions { display: flex; gap: 6px; margin-top: 4px; }
+  .ws-saved-card__btn {
+    flex: 1;
+    background: #f9fafb; border: 1px solid #d1d5db;
+    padding: 6px 8px; border-radius: 6px;
+    cursor: pointer; font-family: inherit;
+    font-size: 0.78rem; font-weight: 600; color: #4b5563;
+  }
+  .ws-saved-card__btn:hover { background: #f3f4f6; }
+  .ws-saved-card__btn--danger { color: #b91c1c; border-color: #fecaca; }
+  .ws-saved-card__btn--danger:hover { background: #fee2e2; }
   .ws-add-section {
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
     background: #ecfdf5; border: 1px dashed #10b981; border-radius: 10px;
@@ -3775,6 +3808,18 @@
             </button>
             <div id="ws-manual-status" class="ws-status"></div>
           </div>
+        </div>
+
+        <!-- Saved worksheets section -->
+        <div class="ws-step" id="ws-saved-section" style="display:none;">
+          <div class="ws-step__head">
+            <span class="ws-step__num" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">💾</span>
+            <div>
+              <div class="ws-step__title">ใบงานที่บันทึกไว้</div>
+              <div class="ws-step__sub">คลิกเพื่อโหลดดูตัวอย่าง หรือดาวน์โหลดอีกครั้ง</div>
+            </div>
+          </div>
+          <div id="ws-saved-list" class="ws-saved-list"></div>
         </div>
 
         <!-- Preview + export (shared between modes) -->
@@ -8235,6 +8280,7 @@ const _wsState = {
   // Shared output
   generated: null,             // { worksheetNo, title, ..., sections }
   generatedFrom: null,         // 'ai' | 'manual'
+  savedId: null,               // worksheet row id once persisted
 };
 
 // Helper: authenticated JSON fetch
@@ -8268,6 +8314,7 @@ function _wsSaveCache() {
       // Final output
       generated: _wsState.generated,
       generatedFrom: _wsState.generatedFrom,
+      savedId: _wsState.savedId,
     };
     localStorage.setItem(WS_CACHE_KEY, JSON.stringify(snap));
   } catch {}
@@ -8285,23 +8332,109 @@ function _wsClearCache() {
 
 // ─── Entry point ──────────────────────────────────────────
 function renderWorksheetsPanel() {
-  // If we have a cached state, restore it instead of showing mode picker
+  _wsLoadSavedList();
   const cached = _wsLoadCache();
   if (cached && cached.generated && cached.mode) {
     Object.assign(_wsState, cached);
     _wsShowCachedBanner();
-    wsSetMode(cached.mode, /*skipReset=*/true);
+    wsSetMode(cached.mode, true);
     _wsRenderPreview();
     document.getElementById('ws-step-preview').style.display = '';
     return;
   }
   if (cached && cached.mode) {
-    // No final output but mode + intermediate state — restore mode only
     Object.assign(_wsState, cached);
-    wsSetMode(cached.mode, /*skipReset=*/true);
+    wsSetMode(cached.mode, true);
     return;
   }
   wsSetMode(null);
+}
+
+// ─── Saved worksheets list ────────────────────────────────
+async function _wsLoadSavedList() {
+  const wrap = document.getElementById('ws-saved-list');
+  const sec  = document.getElementById('ws-saved-section');
+  if (!wrap || !sec) return;
+  try {
+    const out = await _wsJsonFetch('/worksheets/saved', { method: 'GET' });
+    const list = out.worksheets || [];
+    if (!list.length) { sec.style.display = 'none'; return; }
+    sec.style.display = '';
+    wrap.innerHTML = list.map(w => {
+      const dt = w.createdAt ? new Date(w.createdAt).toLocaleDateString('th-TH') : '';
+      const modeTag = w.mode === 'ai' ? '✨ AI' : '✍️ Manual';
+      return `<div class="ws-saved-card">
+        <div class="ws-saved-card__title">${escapeHtml(w.title)}</div>
+        <div class="ws-saved-card__meta">${modeTag} · ${escapeHtml(dt)}</div>
+        <div class="ws-saved-card__actions">
+          <button class="ws-saved-card__btn" onclick="wsLoadSaved('${escapeHtml(w.id)}')">👁️ ดู</button>
+          <button class="ws-saved-card__btn ws-saved-card__btn--danger" onclick="wsDeleteSaved('${escapeHtml(w.id)}')">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    sec.style.display = 'none';
+    console.warn('[worksheets/saved load]', e.message);
+  }
+}
+
+async function wsLoadSaved(id) {
+  try {
+    const out = await _wsJsonFetch('/worksheets/saved', { method: 'GET' });
+    const ws = (out.worksheets || []).find(w => w.id === id);
+    if (!ws) return alert('ไม่พบใบงาน');
+    _wsState.generated = ws.data;
+    _wsState.generatedFrom = ws.mode === 'ai' ? 'ai' : 'manual';
+    _wsState.selectedLessonId = ws.lessonId || null;
+    _wsState.savedId = ws.id;
+    _wsRenderPreview();
+    document.getElementById('ws-step-preview').style.display = '';
+    document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    _wsSaveCache();
+  } catch (e) {
+    alert('โหลดไม่สำเร็จ: ' + (e.message || 'unknown'));
+  }
+}
+window.wsLoadSaved = wsLoadSaved;
+
+async function wsDeleteSaved(id) {
+  if (!confirm('ลบใบงานนี้?')) return;
+  try {
+    await _wsJsonFetch('/worksheets/saved/' + encodeURIComponent(id), { method: 'DELETE' });
+    _wsLoadSavedList();
+  } catch (e) {
+    alert('ลบไม่สำเร็จ: ' + (e.message || 'unknown'));
+  }
+}
+window.wsDeleteSaved = wsDeleteSaved;
+
+async function _wsAutoSave() {
+  if (!_wsState.generated) return;
+  const d = _wsState.generated;
+  const planNum = _wsState.generatedFrom === 'ai'
+    ? _wsState.units.flatMap(u => u.lessons).concat(_wsState.orphanLessons || [])
+        .find(l => l.id === _wsState.selectedLessonId)?.planNumber
+    : null;
+  const title = (_wsState.generatedFrom === 'ai' && planNum)
+    ? `ใบงานของ แผนที่ ${planNum} — ${d.title || 'Worksheet'}`
+    : `ใบงาน — ${d.title || 'Worksheet'} (${new Date().toLocaleDateString('th-TH')})`;
+  try {
+    const out = await _wsJsonFetch('/worksheets/saved', {
+      method: 'POST',
+      body: {
+        id:         _wsState.savedId || undefined, // upsert if existing
+        lesson_id:  _wsState.selectedLessonId || null,
+        plan_number: planNum || null,
+        title,
+        mode:       _wsState.generatedFrom,
+        data:       d,
+      },
+    });
+    if (out.worksheet?.id) _wsState.savedId = out.worksheet.id;
+    _wsLoadSavedList();
+  } catch (e) {
+    console.warn('[ws autosave]', e.message);
+  }
 }
 
 function _wsShowCachedBanner() {
@@ -8506,11 +8639,13 @@ async function wsGenerate() {
     });
     _wsState.generated = out.data;
     _wsState.generatedFrom = 'ai';
+    _wsState.savedId = null; // new generation = new save record
     _wsRenderPreview();
     document.getElementById('ws-step-preview').style.display = '';
     document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
     status.textContent = '✓ สร้างใบงานสำเร็จ — กดปุ่ม Download DOCX เพื่อบันทึก';
     _wsSaveCache();
+    _wsAutoSave();
   } catch (e) {
     status.className = 'ws-status err';
     status.textContent = '✗ ' + (e.message || 'AI ขัดข้อง กรุณาลองใหม่');
@@ -8798,10 +8933,12 @@ function wsManualBuild() {
   }
   _wsState.generated = { ...meta, sections };
   _wsState.generatedFrom = 'manual';
+  _wsState.savedId = null;
   _wsRenderPreview();
   document.getElementById('ws-step-preview').style.display = '';
   document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
   _wsSaveCache();
+  _wsAutoSave();
 }
 window.wsManualBuild = wsManualBuild;
 

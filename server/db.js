@@ -135,6 +135,19 @@ async function initPostgres() {
       created_at BIGINT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_feedback_created ON feedback(created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS worksheets (
+      id          TEXT PRIMARY KEY,
+      user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      lesson_id   TEXT,
+      plan_number TEXT,
+      title       TEXT NOT NULL,
+      mode        TEXT,           -- 'ai' | 'manual'
+      data        TEXT NOT NULL,  -- JSON of full worksheet
+      created_at  BIGINT NOT NULL,
+      updated_at  BIGINT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_worksheets_user ON worksheets(user_id, created_at DESC);
   `);
   console.log('✓ PostgreSQL connected and schema ready');
 }
@@ -459,6 +472,34 @@ const pgDb = {
     await pgPool.query('DELETE FROM units WHERE id=$1 AND user_id=$2', [id, userId]);
   },
 
+  // ─── Worksheets ─────────────────────────────────────────
+  async listWorksheets(userId) {
+    const { rows } = await pgPool.query(
+      'SELECT id,lesson_id,plan_number,title,mode,data,created_at,updated_at FROM worksheets WHERE user_id=$1 ORDER BY created_at DESC LIMIT 100',
+      [userId]
+    );
+    return rows.map(r => ({
+      id: r.id, lessonId: r.lesson_id, planNumber: r.plan_number,
+      title: r.title, mode: r.mode,
+      data: JSON.parse(r.data || '{}'),
+      createdAt: Number(r.created_at), updatedAt: Number(r.updated_at),
+    }));
+  },
+  async upsertWorksheet(userId, entry) {
+    const t = now();
+    await pgPool.query(
+      `INSERT INTO worksheets (id,user_id,lesson_id,plan_number,title,mode,data,created_at,updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$8)
+       ON CONFLICT (id) DO UPDATE SET title=$5, mode=$6, data=$7, updated_at=$8`,
+      [entry.id, userId, entry.lessonId || null, entry.planNumber || null,
+       entry.title, entry.mode || null, JSON.stringify(entry.data || {}), t]
+    );
+    return entry;
+  },
+  async deleteWorksheet(userId, id) {
+    await pgPool.query('DELETE FROM worksheets WHERE id=$1 AND user_id=$2', [id, userId]);
+  },
+
   // ─── Feedback ───────────────────────────────────────────
   async insertFeedback(entry) {
     await pgPool.query(
@@ -730,6 +771,29 @@ const jsonDb = {
   },
   async deleteUnit(userId, id) {
     state.units = (state.units || []).filter(u => !(u.id === id && u.user_id === userId));
+    saveJson();
+  },
+
+  // ─── Worksheets ─────────────────────────────────────────
+  async listWorksheets(userId) {
+    return (state.worksheets || [])
+      .filter(w => w.user_id === userId)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      .slice(0, 100)
+      .map(({ user_id, ...w }) => w);
+  },
+  async upsertWorksheet(userId, entry) {
+    if (!state.worksheets) state.worksheets = [];
+    const t = now();
+    const i = state.worksheets.findIndex(w => w.id === entry.id && w.user_id === userId);
+    const record = { ...entry, user_id: userId, updatedAt: t, createdAt: entry.createdAt || t };
+    if (i >= 0) state.worksheets[i] = record;
+    else state.worksheets.push(record);
+    saveJson();
+    return entry;
+  },
+  async deleteWorksheet(userId, id) {
+    state.worksheets = (state.worksheets || []).filter(w => !(w.id === id && w.user_id === userId));
     saveJson();
   },
 

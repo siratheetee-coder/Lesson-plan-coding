@@ -19,6 +19,52 @@ router.use(requireAuth);
 
 const COST_PER_EXPORT = 0.5;
 
+// ─── GET /saved — list user's saved worksheets ──────────────
+router.get('/saved', async (req, res) => {
+  try {
+    const rows = await db.listWorksheets(req.user.id);
+    res.json({ ok: true, worksheets: rows });
+  } catch (e) {
+    console.error('[worksheets/saved]', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── POST /saved — save (or update) a worksheet ────────────
+// body: { id?, lesson_id?, plan_number?, title, mode, data }
+router.post('/saved', limiters.write, async (req, res) => {
+  try {
+    const data = req.body?.data;
+    const title = String(req.body?.title || '').trim();
+    if (!title) return res.status(400).json({ error: 'missing_title' });
+    if (!data || typeof data !== 'object') return res.status(400).json({ error: 'missing_data' });
+    const entry = {
+      id:         String(req.body?.id || crypto.randomUUID()),
+      lessonId:   req.body?.lesson_id || null,
+      planNumber: req.body?.plan_number || null,
+      title,
+      mode:       req.body?.mode || 'manual',
+      data,
+    };
+    await db.upsertWorksheet(req.user.id, entry);
+    res.json({ ok: true, worksheet: entry });
+  } catch (e) {
+    console.error('[worksheets/saved POST]', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
+// ─── DELETE /saved/:id ─────────────────────────────────────
+router.delete('/saved/:id', async (req, res) => {
+  try {
+    await db.deleteWorksheet(req.user.id, req.params.id);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[worksheets/saved DELETE]', e);
+    res.status(500).json({ error: 'server_error' });
+  }
+});
+
 // ─── GET /units — list units + their lessons + orphan lessons ────
 // Used by frontend AI-mode dropdown: pick Unit → see its lessons in order.
 router.get('/units', async (req, res) => {
