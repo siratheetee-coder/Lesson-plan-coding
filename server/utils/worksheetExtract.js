@@ -19,6 +19,29 @@
 
 const WS_KEYWORD_RE = /ใบงาน|worksheet/i;
 
+// Keyword → section-type mapping. First match wins per keyword group.
+// Order matters slightly: more specific patterns first.
+const TYPE_HINTS = [
+  { type: 'writing',      patterns: [/เขียน(เรียง|บรรยาย|ย่อหน้า|paragraph|เรื่อง|essay)/i, /เขียนเล่า/i, /แต่งเรื่อง/i, /\bwriting\b/i, /\bessay\b/i, /\bparagraph\b/i] },
+  { type: 'short_answer', patterns: [/ตอบคำถาม\s*(สั้น)?/i, /short\s*answer/i, /\bquestion\b.*\banswer\b/i, /ตอบสั้น/i] },
+  { type: 'matching',     patterns: [/จับคู่/i, /\bmatch(ing)?\b/i, /โยงเส้น/i] },
+  { type: 'fill_blank',   patterns: [/เติมคำ/i, /เติมในช่องว่าง/i, /เติมประโยค/i, /fill\s*(in|the)?\s*blank/i, /gap\s*fill/i, /cloze/i] },
+  { type: 'mcq',          patterns: [/เลือกคำตอบ/i, /เลือกตอบ/i, /ตัวเลือก/i, /multiple\s*choice/i, /\bmcq\b/i, /ก\s*ข\s*ค\s*ง/i] },
+  { type: 'true_false',   patterns: [/ถูก\s*\/?\s*ผิด/i, /true\s*\/?\s*false/i, /T\s*\/\s*F/i, /\bT\/F\b/i] },
+  { type: 'reordering',   patterns: [/เรียง(ประโยค|คำ|ลำดับ)/i, /reorder/i, /rearrange/i, /scrambled?/i, /unscramble/i] },
+  { type: 'reading',      patterns: [/อ่าน(จับใจความ|บทความ|เรื่อง)/i, /\breading\b/i, /\bpassage\b/i, /\bcomprehension\b/i] },
+];
+
+// Returns array of types suggested by text content. Empty = no signal.
+export function detectSectionTypes(text) {
+  if (!text) return [];
+  const hits = new Set();
+  for (const h of TYPE_HINTS) {
+    if (h.patterns.some(p => p.test(text))) hits.add(h.type);
+  }
+  return [...hits];
+}
+
 // Try to extract a worksheet "number" (e.g. "ใบงานที่ 1") to use for matching
 function parseWorksheetLabel(text) {
   if (!text) return null;
@@ -74,12 +97,14 @@ export function extractWorksheets(lessonData) {
   if (mediaWorksheets.length > 0) {
     for (const w of mediaWorksheets) {
       const acts = activitiesFor(w.label);
+      const ctx  = acts.map(a => `[${a.phase}] ${a.name}${a.detail ? ' — ' + a.detail : ''}`).join('\n');
       worksheets.push({
         label:       w.label.no ? `ใบงานที่ ${w.label.no}` : 'ใบงาน',
         displayName: w.raw,
         worksheetNo: w.label.no || String(worksheets.length + 1),
         source:      'media',
-        activityContext: acts.map(a => `[${a.phase}] ${a.name}${a.detail ? ' — ' + a.detail : ''}`).join('\n'),
+        activityContext: ctx,
+        suggestedTypes:  detectSectionTypes(`${w.raw}\n${ctx}`),
       });
     }
   } else {
@@ -88,14 +113,14 @@ export function extractWorksheets(lessonData) {
       WS_KEYWORD_RE.test(a.name || '') || WS_KEYWORD_RE.test(a.detail || '')
     );
     if (inferred.length > 0) {
+      const ctx = inferred.map(a => `[${a.phase}] ${a.name}${a.detail ? ' — ' + a.detail : ''}`).join('\n');
       worksheets.push({
         label:       'ใบงาน',
         displayName: `ใบงานเรื่อง ${meta.topic || 'บทเรียน'}`,
         worksheetNo: '1',
         source:      'inferred',
-        activityContext: inferred
-          .map(a => `[${a.phase}] ${a.name}${a.detail ? ' — ' + a.detail : ''}`)
-          .join('\n'),
+        activityContext: ctx,
+        suggestedTypes:  detectSectionTypes(ctx),
       });
     }
   }

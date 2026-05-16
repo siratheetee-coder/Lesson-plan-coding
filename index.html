@@ -8598,14 +8598,49 @@ function _wsRenderCandidates() {
     </button>`;
   }).join('');
   document.getElementById('ws-step-generate').style.display = '';
+  _wsApplySuggestedTypes();
 }
 
 function wsSelectCandidate(idx) {
   _wsState.selectedWsIdx = idx;
   document.getElementById('ws-step-preview').style.display = 'none';
   _wsRenderCandidates();
+  _wsApplySuggestedTypes();
 }
 window.wsSelectCandidate = wsSelectCandidate;
+
+// Auto-tick checkboxes based on detected types from activity_context.
+// If none detected → tick all (current default behavior).
+function _wsApplySuggestedTypes() {
+  const cand = _wsState.scanResult?.worksheets?.[_wsState.selectedWsIdx];
+  const suggested = Array.isArray(cand?.suggestedTypes) ? cand.suggestedTypes : [];
+  const checks = document.querySelectorAll('.ws-type-chk');
+  if (suggested.length > 0) {
+    checks.forEach(c => { c.checked = suggested.includes(c.value); });
+    _wsShowSuggestionHint(suggested);
+  } else {
+    checks.forEach(c => { c.checked = true; });
+    _wsClearSuggestionHint();
+  }
+}
+
+function _wsShowSuggestionHint(types) {
+  const wrap = document.querySelector('.ws-type-checks');
+  if (!wrap) return;
+  let hint = document.getElementById('ws-suggest-hint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.id = 'ws-suggest-hint';
+    hint.style.cssText = 'grid-column: 1/-1; font-size:0.82rem; color:#047857; background:#ecfdf5; border:1px solid #10b981; border-radius:6px; padding:6px 10px; margin-bottom:4px;';
+    wrap.parentNode.insertBefore(hint, wrap);
+  }
+  const labels = { matching:'Matching', fill_blank:'Fill-blank', mcq:'MCQ', true_false:'T/F', short_answer:'Short Answer', writing:'Writing', reordering:'Reordering', reading:'Reading' };
+  hint.innerHTML = `💡 ตรวจพบในแผน: <b>${types.map(t => labels[t] || t).join(', ')}</b> — ติ๊กเลือกประเภทอื่นเพิ่มได้ตามต้องการ`;
+}
+function _wsClearSuggestionHint() {
+  const hint = document.getElementById('ws-suggest-hint');
+  if (hint) hint.remove();
+}
 
 async function wsGenerate() {
   if (!_wsState.selectedLessonId) return;
