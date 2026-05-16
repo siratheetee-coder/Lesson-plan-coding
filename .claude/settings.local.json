@@ -63,7 +63,11 @@
       "Bash(node --check server/utils/claude.js)",
       "Bash(node -e \"const h=require\\('fs'\\).readFileSync\\('index.html','utf8'\\); const open=\\(h.match\\(/<script>/g\\)||[]\\).length; const close=\\(h.match\\(/<\\\\/script>/g\\)||[]\\).length; console.log\\('script open:',open,'close:',close\\);\")",
       "Bash(node --check server/routes/ai.js)",
-      "Bash(node --check server/db.js)"
+      "Bash(node --check server/db.js)",
+      "Bash(rm -rf wsout3)",
+      "Bash(mkdir wsout3 *)",
+      "Bash(unzip -o \"C:/Users/Lenovo_/Desktop/Cowork \\(Website\\)/AI Website Lesson Generator/worksheet-template.docx\" -d wsout3)",
+      "Bash(node scripts/buildWorksheetTemplate.js)"
     ]
   }
 }
