@@ -8421,13 +8421,26 @@ window.wsDeleteSaved = wsDeleteSaved;
 async function _wsAutoSave() {
   if (!_wsState.generated) return;
   const d = _wsState.generated;
-  const planNum = _wsState.generatedFrom === 'ai'
-    ? _wsState.units.flatMap(u => u.lessons).concat(_wsState.orphanLessons || [])
-        .find(l => l.id === _wsState.selectedLessonId)?.planNumber
-    : null;
-  const title = (_wsState.generatedFrom === 'ai' && planNum)
-    ? `ใบงานของ แผนที่ ${planNum} — ${d.title || 'Worksheet'}`
-    : `ใบงาน — ${d.title || 'Worksheet'} (${new Date().toLocaleDateString('th-TH')})`;
+  // Locate plan + parent unit (AI mode)
+  let planNum = null, unitTitle = null, unitNo = null;
+  if (_wsState.generatedFrom === 'ai' && _wsState.selectedLessonId) {
+    for (const u of (_wsState.units || [])) {
+      const hit = (u.lessons || []).find(l => l.id === _wsState.selectedLessonId);
+      if (hit) { planNum = hit.planNumber; unitTitle = u.title; unitNo = u.unitNo; break; }
+    }
+    if (!planNum) {
+      const orphan = (_wsState.orphanLessons || []).find(l => l.id === _wsState.selectedLessonId);
+      if (orphan) planNum = orphan.planNumber;
+    }
+  }
+  let title;
+  if (_wsState.generatedFrom === 'ai') {
+    const unitTag = unitTitle ? `หน่วย${unitNo ? 'ที่ ' + unitNo : ''} ${unitTitle} — ` : '';
+    const planTag = planNum ? `แผนที่ ${planNum} — ` : '';
+    title = `ใบงานของ ${unitTag}${planTag}${d.title || 'Worksheet'}`;
+  } else {
+    title = `ใบงาน — ${d.title || 'Worksheet'} (${new Date().toLocaleDateString('th-TH')})`;
+  }
   try {
     const out = await _wsJsonFetch('/worksheets/saved', {
       method: 'POST',
