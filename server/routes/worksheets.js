@@ -107,6 +107,12 @@ router.post('/generate', limiters.ai, async (req, res) => {
   try {
     const lessonId = String(req.body?.lesson_id || '').trim();
     const wsIndex  = parseInt(req.body?.worksheet_index ?? 0, 10) || 0;
+    const itemCount = Math.max(3, Math.min(15, parseInt(req.body?.item_count) || 5));
+    const allowedTypesRaw = Array.isArray(req.body?.allowed_types) ? req.body.allowed_types : null;
+    const VALID_TYPES = ['matching','fill_blank','mcq','true_false','short_answer','writing','reordering','reading'];
+    const allowedTypes = (allowedTypesRaw && allowedTypesRaw.length)
+      ? allowedTypesRaw.filter(t => VALID_TYPES.includes(t))
+      : VALID_TYPES;
     if (!lessonId) return res.status(400).json({ error: 'missing_lesson_id' });
 
     const lessons = await db.listLessons(req.user.id);
@@ -132,8 +138,11 @@ router.post('/generate', limiters.ai, async (req, res) => {
       duration:    '20',
       totalScore:  '10',
       activity_context: target.activityContext || '',
-      vocab:       vocab.slice(0, 10),         // cap to avoid blowing context
+      vocab:       vocab.slice(0, 10),
       sentences:   keyExpressions.slice(0, 10),
+      // User-controlled knobs:
+      item_count_per_section: itemCount,
+      allowed_types:          allowedTypes,
     };
 
     const result = await generateWorksheet(aiPayload);

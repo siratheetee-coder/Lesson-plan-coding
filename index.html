@@ -2668,6 +2668,53 @@
     font-family: inherit; font-size: 0.88rem; box-sizing: border-box;
   }
   .ws-section-field textarea { min-height: 60px; resize: vertical; }
+  .ws-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .ws-type-checks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 6px 14px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+  .ws-type-checks label {
+    display: flex; gap: 6px; align-items: center;
+    font-size: 0.88rem; color: #1f2937;
+    cursor: pointer;
+  }
+  .ws-cached-banner {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 0.88rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ws-cached-banner button {
+    background: white;
+    border: 1px solid #b45309;
+    color: #92400e;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .ws-cached-banner button:hover { background: #fffbeb; }
   .ws-add-section {
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
     background: #ecfdf5; border: 1px dashed #10b981; border-radius: 10px;
@@ -3642,11 +3689,33 @@
             <div class="ws-step__head">
               <span class="ws-step__num">4</span>
               <div>
-                <div class="ws-step__title">สร้างใบงานด้วย AI</div>
-                <div class="ws-step__sub">AI จะอ่านกิจกรรมที่ระบุและเลือกรูปแบบ section เหมาะสม</div>
+                <div class="ws-step__title">ตั้งค่าและสร้างใบงาน</div>
+                <div class="ws-step__sub">AI จะเลือกรูปแบบ section ตามที่ครูระบุไว้ใน activity (หรือใช้เฉพาะที่อนุญาตด้านล่าง)</div>
               </div>
             </div>
-            <button id="ws-generate-btn" class="ws-primary-btn" onclick="wsGenerate()">
+
+            <div class="ws-options-grid">
+              <div class="ws-section-field" style="max-width:200px;">
+                <span>จำนวนข้อต่อ section (ถ้าแผนไม่ระบุ)</span>
+                <input type="number" id="ws-opt-itemcount" min="3" max="15" value="5">
+              </div>
+            </div>
+
+            <div class="ws-section-field" style="margin-top:6px;">
+              <span>ประเภทใบงานที่อนุญาตให้ AI ใช้ <span style="font-weight:400; color:#9ca3af;">(ติ๊กเลือก — default ใช้ทุกประเภท)</span></span>
+            </div>
+            <div class="ws-type-checks">
+              <label><input type="checkbox" class="ws-type-chk" value="matching"     checked> Matching</label>
+              <label><input type="checkbox" class="ws-type-chk" value="fill_blank"   checked> Fill-blank</label>
+              <label><input type="checkbox" class="ws-type-chk" value="mcq"          checked> Multiple Choice</label>
+              <label><input type="checkbox" class="ws-type-chk" value="true_false"   checked> True/False</label>
+              <label><input type="checkbox" class="ws-type-chk" value="short_answer" checked> Short Answer</label>
+              <label><input type="checkbox" class="ws-type-chk" value="writing"      checked> Writing</label>
+              <label><input type="checkbox" class="ws-type-chk" value="reordering"   checked> Reordering</label>
+              <label><input type="checkbox" class="ws-type-chk" value="reading"      checked> Reading</label>
+            </div>
+
+            <button id="ws-generate-btn" class="ws-primary-btn" onclick="wsGenerate()" style="margin-top:14px;">
               ✨ สร้างใบงานด้วย AI (ฟรี)
             </button>
             <div id="ws-generate-status" class="ws-status"></div>
@@ -8156,11 +8225,15 @@ const _wsState = {
   selectedLessonId: null,
   scanResult: null,
   selectedWsIdx: 0,
+  aiOptions: {                 // user-controlled AI behaviour
+    itemCount: 5,
+    allowedTypes: ['matching','fill_blank','mcq','true_false','short_answer','writing','reordering','reading'],
+  },
   // Manual mode
   manualSections: [],
+  manualMeta: { worksheetNo: '1', title: '', subject: 'ภาษาอังกฤษ', level: '', duration: '30', totalScore: '10' },
   // Shared output
   generated: null,             // { worksheetNo, title, ..., sections }
-  // Track which mode produced `generated` so export can include lesson_id
   generatedFrom: null,         // 'ai' | 'manual'
 };
 
@@ -8179,28 +8252,105 @@ async function _wsJsonFetch(path, opts = {}) {
   return json;
 }
 
+// ─── Persistence (localStorage) ───────────────────────────
+const WS_CACHE_KEY = 'lpg:worksheetState:v2';
+function _wsSaveCache() {
+  try {
+    const snap = {
+      mode: _wsState.mode,
+      // AI mode context — needed so the preview can be restored meaningfully
+      selectedUnitId: _wsState.selectedUnitId,
+      selectedLessonId: _wsState.selectedLessonId,
+      selectedWsIdx: _wsState.selectedWsIdx,
+      // Manual mode form state
+      manualSections: _wsState.manualSections,
+      manualMeta: _wsState.manualMeta,
+      // Final output
+      generated: _wsState.generated,
+      generatedFrom: _wsState.generatedFrom,
+    };
+    localStorage.setItem(WS_CACHE_KEY, JSON.stringify(snap));
+  } catch {}
+}
+function _wsLoadCache() {
+  try {
+    const raw = localStorage.getItem(WS_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+function _wsClearCache() {
+  try { localStorage.removeItem(WS_CACHE_KEY); } catch {}
+}
+
 // ─── Entry point ──────────────────────────────────────────
 function renderWorksheetsPanel() {
-  // Reset to mode picker every time the panel is opened
+  // If we have a cached state, restore it instead of showing mode picker
+  const cached = _wsLoadCache();
+  if (cached && cached.generated && cached.mode) {
+    Object.assign(_wsState, cached);
+    _wsShowCachedBanner();
+    wsSetMode(cached.mode, /*skipReset=*/true);
+    _wsRenderPreview();
+    document.getElementById('ws-step-preview').style.display = '';
+    return;
+  }
+  if (cached && cached.mode) {
+    // No final output but mode + intermediate state — restore mode only
+    Object.assign(_wsState, cached);
+    wsSetMode(cached.mode, /*skipReset=*/true);
+    return;
+  }
   wsSetMode(null);
 }
 
-function wsSetMode(mode) {
+function _wsShowCachedBanner() {
+  // Insert a "cached worksheet restored" banner above the preview, dismissable
+  const previewStep = document.getElementById('ws-step-preview');
+  if (!previewStep) return;
+  // Avoid duplicates
+  if (previewStep.querySelector('.ws-cached-banner')) return;
+  const banner = document.createElement('div');
+  banner.className = 'ws-cached-banner';
+  banner.innerHTML = `
+    <span>💾 ใบงานที่สร้างไว้ล่าสุดถูกบันทึกไว้ — กดสร้างใหม่หรือ Download ได้เลย</span>
+    <button onclick="wsClearWorksheet()">เริ่มใหม่</button>
+  `;
+  previewStep.insertBefore(banner, previewStep.firstChild);
+}
+
+function wsClearWorksheet() {
+  _wsClearCache();
+  _wsState.generated = null;
+  _wsState.generatedFrom = null;
+  _wsState.manualSections = [];
+  _wsState.scanResult = null;
+  _wsState.selectedUnitId = null;
+  _wsState.selectedLessonId = null;
+  wsSetMode(null);
+}
+window.wsClearWorksheet = wsClearWorksheet;
+
+function wsSetMode(mode, skipReset) {
   _wsState.mode = mode;
   document.getElementById('ws-mode-picker').style.display    = mode ? 'none' : '';
   document.getElementById('ws-ai-mode').style.display        = (mode === 'ai') ? '' : 'none';
   document.getElementById('ws-manual-mode').style.display    = (mode === 'manual') ? '' : 'none';
-  document.getElementById('ws-step-preview').style.display   = 'none';
-  _wsState.generated = null;
-  if (mode === 'ai')     _wsLoadUnits();
-  if (mode === 'manual') _wsRenderSectionList();
+  if (!skipReset) {
+    document.getElementById('ws-step-preview').style.display = 'none';
+    _wsState.generated = null;
+    _wsState.generatedFrom = null;
+  }
+  if (mode === 'ai')     _wsLoadUnits(skipReset);
+  if (mode === 'manual') _wsRenderManualForm();
+  _wsSaveCache();
 }
 window.wsSetMode = wsSetMode;
 
 // ═══════════════════════════════════════════════════════════
 // AI MODE
 // ═══════════════════════════════════════════════════════════
-async function _wsLoadUnits() {
+async function _wsLoadUnits(skipReset) {
   const sel = document.getElementById('ws-unit-select');
   sel.disabled = true;
   sel.innerHTML = '<option>⏳ กำลังโหลด...</option>';
@@ -8222,10 +8372,28 @@ async function _wsLoadUnits() {
   } catch (e) {
     sel.innerHTML = `<option>โหลดไม่สำเร็จ: ${escapeHtml(e.message)}</option>`;
   }
-  // Reset downstream
-  document.getElementById('ws-step-plans').style.display = 'none';
-  document.getElementById('ws-step-candidates').style.display = 'none';
-  document.getElementById('ws-step-generate').style.display = 'none';
+  // Restore previous selection if any (from cache)
+  if (skipReset && _wsState.selectedUnitId) {
+    sel.value = _wsState.selectedUnitId;
+    wsOnUnitChange();
+    if (_wsState.selectedLessonId) {
+      // Re-trigger plan selection (will re-scan + re-show candidates)
+      setTimeout(() => wsSelectPlan(_wsState.selectedLessonId), 50);
+    }
+  } else {
+    document.getElementById('ws-step-plans').style.display = 'none';
+    document.getElementById('ws-step-candidates').style.display = 'none';
+    document.getElementById('ws-step-generate').style.display = 'none';
+  }
+  // Restore AI options UI from state
+  const opt = _wsState.aiOptions || {};
+  const ic = document.getElementById('ws-opt-itemcount');
+  if (ic && opt.itemCount) ic.value = opt.itemCount;
+  if (Array.isArray(opt.allowedTypes) && opt.allowedTypes.length) {
+    document.querySelectorAll('.ws-type-chk').forEach(c => {
+      c.checked = opt.allowedTypes.includes(c.value);
+    });
+  }
 }
 
 function wsOnUnitChange() {
@@ -8308,6 +8476,18 @@ window.wsSelectCandidate = wsSelectCandidate;
 
 async function wsGenerate() {
   if (!_wsState.selectedLessonId) return;
+  // Read AI options from form
+  const itemCount = Math.max(3, Math.min(15, parseInt(document.getElementById('ws-opt-itemcount')?.value) || 5));
+  const allowedTypes = [...document.querySelectorAll('.ws-type-chk:checked')].map(c => c.value);
+  if (allowedTypes.length === 0) {
+    const s = document.getElementById('ws-generate-status');
+    s.className = 'ws-status err';
+    s.textContent = '✗ กรุณาเลือกประเภทใบงานอย่างน้อย 1 ประเภท';
+    return;
+  }
+  _wsState.aiOptions = { itemCount, allowedTypes };
+  _wsSaveCache();
+
   const btn = document.getElementById('ws-generate-btn');
   const status = document.getElementById('ws-generate-status');
   btn.disabled = true;
@@ -8317,7 +8497,12 @@ async function wsGenerate() {
   try {
     const out = await _wsJsonFetch('/worksheets/generate', {
       method: 'POST',
-      body: { lesson_id: _wsState.selectedLessonId, worksheet_index: _wsState.selectedWsIdx },
+      body: {
+        lesson_id:       _wsState.selectedLessonId,
+        worksheet_index: _wsState.selectedWsIdx,
+        item_count:      itemCount,
+        allowed_types:   allowedTypes,
+      },
     });
     _wsState.generated = out.data;
     _wsState.generatedFrom = 'ai';
@@ -8325,6 +8510,7 @@ async function wsGenerate() {
     document.getElementById('ws-step-preview').style.display = '';
     document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
     status.textContent = '✓ สร้างใบงานสำเร็จ — กดปุ่ม Download DOCX เพื่อบันทึก';
+    _wsSaveCache();
   } catch (e) {
     status.className = 'ws-status err';
     status.textContent = '✗ ' + (e.message || 'AI ขัดข้อง กรุณาลองใหม่');
@@ -8338,10 +8524,32 @@ window.wsGenerate = wsGenerate;
 // ═══════════════════════════════════════════════════════════
 // MANUAL MODE
 // ═══════════════════════════════════════════════════════════
+function _wsRenderManualForm() {
+  // Restore meta fields from state
+  const m = _wsState.manualMeta || {};
+  const ids = ['no', 'title', 'subject', 'level', 'duration', 'totalscore'];
+  const keys = ['worksheetNo', 'title', 'subject', 'level', 'duration', 'totalScore'];
+  ids.forEach((id, i) => {
+    const el = document.getElementById('ws-m-' + id);
+    if (el) {
+      el.value = m[keys[i]] ?? '';
+      if (!el._wsWired) {
+        el.addEventListener('input', () => {
+          _wsState.manualMeta[keys[i]] = el.value;
+          _wsSaveCache();
+        });
+        el._wsWired = true;
+      }
+    }
+  });
+  _wsRenderSectionList();
+}
+
 function wsAddSection() {
   const type = document.getElementById('ws-add-section-type').value;
   _wsState.manualSections.push(_wsBlankSection(type));
   _wsRenderSectionList();
+  _wsSaveCache();
 }
 window.wsAddSection = wsAddSection;
 
@@ -8374,6 +8582,7 @@ function _blankItem(type) {
 function wsRemoveSection(idx) {
   _wsState.manualSections.splice(idx, 1);
   _wsRenderSectionList();
+  _wsSaveCache();
 }
 window.wsRemoveSection = wsRemoveSection;
 
@@ -8382,6 +8591,7 @@ function wsAddItem(secIdx) {
   if (!sec || !Array.isArray(sec.items)) return;
   sec.items.push(_blankItem(sec.type === 'reading' ? 'mcq' : sec.type));
   _wsRenderSectionList();
+  _wsSaveCache();
 }
 window.wsAddItem = wsAddItem;
 
@@ -8390,6 +8600,7 @@ function wsRemoveItem(secIdx, itemIdx) {
   if (!sec || !Array.isArray(sec.items)) return;
   sec.items.splice(itemIdx, 1);
   _wsRenderSectionList();
+  _wsSaveCache();
 }
 window.wsRemoveItem = wsRemoveItem;
 
@@ -8399,6 +8610,7 @@ function wsAddRubric(secIdx) {
   sec.rubric = sec.rubric || [];
   sec.rubric.push({ criterion: '', points: '' });
   _wsRenderSectionList();
+  _wsSaveCache();
 }
 window.wsAddRubric = wsAddRubric;
 
@@ -8407,6 +8619,7 @@ function wsRemoveRubric(secIdx, rIdx) {
   if (!sec || !sec.rubric) return;
   sec.rubric.splice(rIdx, 1);
   _wsRenderSectionList();
+  _wsSaveCache();
 }
 window.wsRemoveRubric = wsRemoveRubric;
 
@@ -8568,15 +8781,8 @@ function _wsRenderWritingBody(sec, secIdx) {
 }
 
 function wsManualBuild() {
-  const meta = {
-    worksheetNo: document.getElementById('ws-m-no').value || '1',
-    title:       document.getElementById('ws-m-title').value || 'Worksheet',
-    subject:     document.getElementById('ws-m-subject').value || 'ภาษาอังกฤษ',
-    level:       document.getElementById('ws-m-level').value || '',
-    duration:    document.getElementById('ws-m-duration').value || '30',
-    totalScore:  document.getElementById('ws-m-totalscore').value || '10',
-  };
-  // Auto-number items
+  const meta = { ..._wsState.manualMeta };
+  if (!meta.title) meta.title = 'Worksheet';
   const sections = _wsState.manualSections.map(sec => {
     const out = { ...sec };
     if (Array.isArray(out.items)) {
@@ -8595,6 +8801,7 @@ function wsManualBuild() {
   _wsRenderPreview();
   document.getElementById('ws-step-preview').style.display = '';
   document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  _wsSaveCache();
 }
 window.wsManualBuild = wsManualBuild;
 
