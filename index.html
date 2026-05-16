@@ -1605,7 +1605,25 @@
   #dash-library-list {
     display: flex !important;
     flex-direction: column;
-    gap: 4px;
+    gap: 16px;
+  }
+  .dash-library-group { display: flex; flex-direction: column; gap: 4px; }
+  .dash-library-group__head {
+    font-weight: 700; color: #3a47cc;
+    background: linear-gradient(135deg, #eef0ff, #d2d9fb);
+    border-left: 4px solid #5363f0;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 4px;
+  }
+  .dash-library-group__count {
+    font-size: 0.78rem; font-weight: 600;
+    color: #4b5563;
+    background: white;
+    padding: 2px 10px; border-radius: 999px;
+    border: 1px solid #d1d5db;
   }
   .dash-library-row {
     display: flex; align-items: center; gap: 10px;
@@ -9457,7 +9475,52 @@ function renderLibraryList() {
       '</div>';
     return;
   }
-  box.innerHTML = filtered.map(buildLibraryRow).join('');
+  // ── Group by Unit ────────────────────────────────────────
+  const units = (typeof loadUnits === 'function') ? loadUnits() : [];
+  // Build lessonId → unit map (units have lessonIds[] OR lesson.data.unitId points back)
+  const lessonToUnit = new Map();
+  units.forEach(u => {
+    (u.lessonIds || []).forEach(lid => lessonToUnit.set(lid, u));
+  });
+  // Group filtered lessons
+  const groups = new Map(); // key=unit.id or '__orphan', value={unit, plans}
+  filtered.forEach(e => {
+    let u = lessonToUnit.get(e.id);
+    if (!u && e.data?.unitId) u = units.find(x => x.id === e.data.unitId) || null;
+    const key = u?.id || '__orphan';
+    if (!groups.has(key)) groups.set(key, { unit: u, plans: [] });
+    groups.get(key).plans.push(e);
+  });
+  // Sort: units by unitNo asc (nulls last), orphan last
+  const sortedKeys = [...groups.keys()].sort((a, b) => {
+    if (a === '__orphan') return 1;
+    if (b === '__orphan') return -1;
+    const ua = groups.get(a).unit, ub = groups.get(b).unit;
+    const an = parseInt(ua?.unitNo) || 9999, bn = parseInt(ub?.unitNo) || 9999;
+    return an - bn;
+  });
+  // Sort plans within each group by plan-number
+  sortedKeys.forEach(k => {
+    groups.get(k).plans.sort((a, b) => {
+      const pa = parseInt(a.data?.fields?.['plan-number']) || 9999;
+      const pb = parseInt(b.data?.fields?.['plan-number']) || 9999;
+      return pa - pb;
+    });
+  });
+  // Render
+  const html = sortedKeys.map(k => {
+    const g = groups.get(k);
+    const label = g.unit
+      ? `📚 หน่วยที่ ${escapeHtmlDash(g.unit.unitNo || '—')} : ${escapeHtmlDash(g.unit.title || '(ไม่มีชื่อ)')}`
+      : '📂 ไม่อยู่ในหน่วย';
+    return (
+      `<div class="dash-library-group">` +
+        `<div class="dash-library-group__head">${label} <span class="dash-library-group__count">${g.plans.length} แผน</span></div>` +
+        g.plans.map(buildLibraryRow).join('') +
+      `</div>`
+    );
+  }).join('');
+  box.innerHTML = html;
 }
 
 // Open a saved plan into the form for in-place editing.
