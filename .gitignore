@@ -23,3 +23,6 @@ videos/
 
 # Generated test render — not for commit
 worksheet-test-rendered.docx
+
+# Word/Office lock files
+~$*
