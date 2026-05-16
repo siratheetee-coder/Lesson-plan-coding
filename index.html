@@ -1421,14 +1421,15 @@
   .dash-topbar-left .greeting b { color: #3a47cc; }
   .dash-topbar-right { display: flex; align-items: center; gap: 16px; }
   .dash-quota {
-    background: linear-gradient(135deg, #eef0ff, #d2d9fb);
-    color: #3a47cc;
+    background: linear-gradient(135deg, #d4f5f4, #b8eeed);
+    color: #1aa6a2;
     padding: 8px 16px;
     border-radius: 999px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     display: flex; align-items: center; gap: 8px;
-    border: 1px solid #bac4fa;
+    border: 1px solid #5fdcd7;
+    box-shadow: 0 2px 6px rgba(45,206,201,0.15);
   }
   .dash-quota-bar {
     width: 80px; height: 6px;
@@ -1437,7 +1438,7 @@
   }
   .dash-quota-bar > span {
     display: block; height: 100%;
-    background: linear-gradient(90deg, #5363f0, #a78bfa);
+    background: linear-gradient(90deg, #2dcec9, #1aa6a2);
     border-radius: 999px;
     transition: width 0.3s;
   }
@@ -1478,6 +1479,7 @@
   .dash-nav-item.active {
     background: linear-gradient(135deg, #eef0ff, #d2d9fb);
     color: #3a47cc; font-weight: 700;
+    box-shadow: inset 3px 0 0 #2dcec9;
   }
   .dash-nav-item .icon { font-size: 1.1rem; width: 22px; text-align: center; }
   .dash-nav-divider {
@@ -2752,12 +2754,13 @@
     white-space: nowrap;
   }
   .ws-saved-row__mode {
-    font-size: 0.72rem; color: #047857;
-    background: #ecfdf5; border: 1px solid #a7f3d0;
+    font-size: 0.72rem; color: #1aa6a2;
+    background: #d4f5f4; border: 1px solid #5fdcd7;
     padding: 2px 8px; border-radius: 999px;
     flex-shrink: 0;
+    font-weight: 700;
   }
-  .ws-saved-row__mode--manual { color: #1e40af; background: #eff6ff; border-color: #bfdbfe; }
+  .ws-saved-row__mode--manual { color: #3a47cc; background: #eef0ff; border-color: #bac4fa; }
   .ws-saved-row__btn {
     background: none; border: none;
     cursor: pointer; font-family: inherit;
