@@ -2565,6 +2565,120 @@
     border: 1px dashed #d1d5db;
     border-radius: 10px;
   }
+  /* mode picker */
+  .ws-mode-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px; margin-bottom: 8px;
+  }
+  .ws-mode-card {
+    text-align: left;
+    background: white; border: 2px solid #e5e7eb;
+    border-radius: 14px; padding: 22px 20px;
+    cursor: pointer; font-family: inherit;
+    transition: transform .15s, border-color .15s, box-shadow .2s;
+  }
+  .ws-mode-card:hover { border-color: #10b981; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.12); }
+  .ws-mode-icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .ws-mode-title { font-weight: 800; font-size: 1.1rem; color: #1f2937; margin-bottom: 4px; }
+  .ws-mode-sub { font-size: 0.86rem; color: #6b7280; line-height: 1.5; }
+  .ws-back-btn {
+    background: none; border: none; color: #7c3aed;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer;
+    padding: 4px 0 12px; font-family: inherit;
+  }
+  .ws-back-btn:hover { text-decoration: underline; }
+
+  /* select dropdowns + inputs */
+  .ws-select {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid #e5e7eb; border-radius: 10px;
+    font-family: inherit; font-size: 0.95rem;
+    background: white;
+    box-sizing: border-box;
+  }
+  .ws-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .ws-form-grid label {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 0.86rem; font-weight: 600; color: #4b5563;
+  }
+  .ws-form-grid input, .ws-form-grid select, .ws-form-grid textarea {
+    padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px;
+    font-family: inherit; font-size: 0.92rem; box-sizing: border-box;
+  }
+
+  /* section editor cards in manual mode */
+  .ws-section-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 12px;
+  }
+  .ws-section-card__head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; gap: 8px;
+  }
+  .ws-section-card__type {
+    font-weight: 700; color: #047857;
+    background: #ecfdf5; border: 1px solid #10b981;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 0.82rem;
+  }
+  .ws-section-card__remove {
+    background: none; border: 1px solid #fecaca; color: #b91c1c;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-family: inherit; font-size: 0.8rem;
+  }
+  .ws-section-card__remove:hover { background: #fee2e2; }
+  .ws-section-items { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+  .ws-section-item {
+    display: flex; gap: 6px; align-items: center;
+    background: white; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .ws-section-item input, .ws-section-item textarea {
+    border: none; outline: none; background: transparent;
+    font-family: inherit; font-size: 0.88rem;
+    padding: 4px; flex: 1;
+  }
+  .ws-section-item textarea { min-height: 28px; resize: vertical; }
+  .ws-section-item .ws-num { font-weight: 700; color: #6b7280; min-width: 24px; }
+  .ws-section-item__remove {
+    background: none; border: none; color: #9ca3af;
+    cursor: pointer; font-size: 1rem; padding: 2px 6px;
+  }
+  .ws-section-item__remove:hover { color: #b91c1c; }
+  .ws-add-item-btn {
+    background: white; border: 1px dashed #10b981; color: #047857;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-size: 0.86rem; font-weight: 600;
+    margin-top: 8px;
+  }
+  .ws-add-item-btn:hover { background: #ecfdf5; }
+  .ws-section-field {
+    margin-bottom: 8px;
+    display: flex; flex-direction: column; gap: 3px;
+    font-size: 0.84rem; color: #4b5563;
+  }
+  .ws-section-field input, .ws-section-field textarea {
+    padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-family: inherit; font-size: 0.88rem; box-sizing: border-box;
+  }
+  .ws-section-field textarea { min-height: 60px; resize: vertical; }
+  .ws-add-section {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    background: #ecfdf5; border: 1px dashed #10b981; border-radius: 10px;
+    padding: 10px 12px; margin-top: 8px;
+  }
+  .ws-add-section label { font-weight: 600; color: #047857; }
+  .ws-add-section select {
+    flex: 1; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-family: inherit; font-size: 0.88rem; background: white;
+    min-width: 160px;
+  }
 
   /* ───────── Tutorial Panel (video list) ───────── */
   .tutorial-list {
@@ -3467,54 +3581,137 @@
       <!-- WORKSHEETS — สร้างใบงาน -->
       <div data-panel="worksheets" style="display:none;">
         <div class="dash-welcome">
-          <h1>📝 สร้างใบงานจากแผนการสอน</h1>
-          <p>เลือกแผนของคุณ → AI อ่านสื่อและกิจกรรมที่เกี่ยวกับใบงาน → สร้างใบงาน พร้อม Export เป็น DOCX</p>
+          <h1>📝 สร้างใบงาน</h1>
+          <p>เลือกโหมดที่ต้องการ — ให้ AI สร้างจากแผน หรือสร้างเองโดยกรอกข้อมูล</p>
         </div>
 
-        <!-- Step 1: select lesson -->
-        <div class="ws-step">
-          <div class="ws-step__head">
-            <span class="ws-step__num">1</span>
-            <div>
-              <div class="ws-step__title">เลือกแผนการสอน</div>
-              <div class="ws-step__sub">เลือกแผนที่มีใบงานระบุไว้ในสื่อหรือกิจกรรม</div>
-            </div>
-          </div>
-          <input id="ws-search" type="text" class="ws-search" placeholder="🔎 ค้นหาแผน: ชื่อ หัวข้อ ระดับชั้น...">
-          <div id="ws-lesson-list" class="ws-lesson-list"></div>
-        </div>
-
-        <!-- Step 2: candidates -->
-        <div class="ws-step" id="ws-step-candidates" style="display:none;">
-          <div class="ws-step__head">
-            <span class="ws-step__num">2</span>
-            <div>
-              <div class="ws-step__title">ใบงานที่พบในแผนนี้</div>
-              <div class="ws-step__sub">เลือกใบงานที่ต้องการสร้าง</div>
-            </div>
-          </div>
-          <div id="ws-candidates" class="ws-candidates"></div>
-        </div>
-
-        <!-- Step 3: generate -->
-        <div class="ws-step" id="ws-step-generate" style="display:none;">
-          <div class="ws-step__head">
-            <span class="ws-step__num">3</span>
-            <div>
-              <div class="ws-step__title">สร้างใบงานด้วย AI</div>
-              <div class="ws-step__sub">AI จะอ่านกิจกรรมที่ระบุและสร้างใบงาน 2 ตอน (Matching + Fill-in-the-blank)</div>
-            </div>
-          </div>
-          <button id="ws-generate-btn" class="ws-primary-btn" onclick="wsGenerate()">
-            ✨ สร้างใบงานด้วย AI (ฟรี)
+        <!-- Mode picker -->
+        <div class="ws-mode-picker" id="ws-mode-picker">
+          <button class="ws-mode-card" onclick="wsSetMode('ai')">
+            <div class="ws-mode-icon">✨</div>
+            <div class="ws-mode-title">ให้ AI สร้างจากแผน</div>
+            <div class="ws-mode-sub">เลือกหน่วย → เลือกแผน → AI อ่านสื่อ/กิจกรรม → สร้างให้อัตโนมัติ</div>
           </button>
-          <div id="ws-generate-status" class="ws-status"></div>
+          <button class="ws-mode-card" onclick="wsSetMode('manual')">
+            <div class="ws-mode-icon">✍️</div>
+            <div class="ws-mode-title">สร้างเอง</div>
+            <div class="ws-mode-sub">กรอกข้อมูล + เพิ่ม Section ได้หลายรูปแบบ (8 ประเภท)</div>
+          </button>
         </div>
 
-        <!-- Step 4: preview + export -->
+        <!-- AI MODE -->
+        <div id="ws-ai-mode" style="display:none;">
+          <button class="ws-back-btn" onclick="wsSetMode(null)">← เปลี่ยนโหมด</button>
+
+          <div class="ws-step">
+            <div class="ws-step__head">
+              <span class="ws-step__num">1</span>
+              <div>
+                <div class="ws-step__title">เลือกหน่วยการเรียนรู้</div>
+                <div class="ws-step__sub">เลือกหน่วยก่อน เพื่อกรองแผน</div>
+              </div>
+            </div>
+            <select id="ws-unit-select" class="ws-select" onchange="wsOnUnitChange()">
+              <option value="">— กรุณาเลือกหน่วย —</option>
+            </select>
+          </div>
+
+          <div class="ws-step" id="ws-step-plans" style="display:none;">
+            <div class="ws-step__head">
+              <span class="ws-step__num">2</span>
+              <div>
+                <div class="ws-step__title">เลือกแผนการสอน</div>
+                <div class="ws-step__sub">แผนเรียงตามลำดับใน plan-number</div>
+              </div>
+            </div>
+            <div id="ws-plan-list" class="ws-lesson-list"></div>
+          </div>
+
+          <div class="ws-step" id="ws-step-candidates" style="display:none;">
+            <div class="ws-step__head">
+              <span class="ws-step__num">3</span>
+              <div>
+                <div class="ws-step__title">ใบงานที่พบในแผนนี้</div>
+                <div class="ws-step__sub">เลือกใบงานที่จะให้ AI สร้าง</div>
+              </div>
+            </div>
+            <div id="ws-candidates" class="ws-candidates"></div>
+          </div>
+
+          <div class="ws-step" id="ws-step-generate" style="display:none;">
+            <div class="ws-step__head">
+              <span class="ws-step__num">4</span>
+              <div>
+                <div class="ws-step__title">สร้างใบงานด้วย AI</div>
+                <div class="ws-step__sub">AI จะอ่านกิจกรรมที่ระบุและเลือกรูปแบบ section เหมาะสม</div>
+              </div>
+            </div>
+            <button id="ws-generate-btn" class="ws-primary-btn" onclick="wsGenerate()">
+              ✨ สร้างใบงานด้วย AI (ฟรี)
+            </button>
+            <div id="ws-generate-status" class="ws-status"></div>
+          </div>
+        </div>
+
+        <!-- MANUAL MODE -->
+        <div id="ws-manual-mode" style="display:none;">
+          <button class="ws-back-btn" onclick="wsSetMode(null)">← เปลี่ยนโหมด</button>
+
+          <div class="ws-step">
+            <div class="ws-step__head">
+              <span class="ws-step__num">1</span>
+              <div>
+                <div class="ws-step__title">ข้อมูลหัวเอกสาร</div>
+                <div class="ws-step__sub">ใส่ข้อมูลที่จะแสดงด้านบนใบงาน</div>
+              </div>
+            </div>
+            <div class="ws-form-grid">
+              <label>ใบงานที่ <input type="text" id="ws-m-no" value="1"></label>
+              <label>เรื่อง <input type="text" id="ws-m-title" placeholder="เช่น Animals in the Forest"></label>
+              <label>รายวิชา <input type="text" id="ws-m-subject" value="ภาษาอังกฤษ"></label>
+              <label>ชั้น <input type="text" id="ws-m-level" placeholder="เช่น ประถมศึกษาปีที่ 4"></label>
+              <label>เวลา (นาที) <input type="number" id="ws-m-duration" value="30"></label>
+              <label>คะแนนเต็ม <input type="number" id="ws-m-totalscore" value="10"></label>
+            </div>
+          </div>
+
+          <div class="ws-step">
+            <div class="ws-step__head">
+              <span class="ws-step__num">2</span>
+              <div>
+                <div class="ws-step__title">Section ในใบงาน</div>
+                <div class="ws-step__sub">เพิ่ม Section ได้หลายประเภท ผสมกันใน 1 ใบงาน</div>
+              </div>
+            </div>
+            <div id="ws-section-list"></div>
+            <div class="ws-add-section">
+              <label>+ เพิ่ม Section:</label>
+              <select id="ws-add-section-type">
+                <option value="matching">Matching (จับคู่)</option>
+                <option value="fill_blank">Fill-in-the-blank</option>
+                <option value="mcq">Multiple Choice</option>
+                <option value="true_false">True / False</option>
+                <option value="short_answer">Short Answer</option>
+                <option value="writing">Writing Prompt</option>
+                <option value="reordering">Sentence Reordering</option>
+                <option value="reading">Reading Comprehension</option>
+              </select>
+              <button class="ws-secondary-btn" onclick="wsAddSection()">+ เพิ่ม</button>
+            </div>
+          </div>
+
+          <div class="ws-step">
+            <button class="ws-primary-btn" onclick="wsManualBuild()">
+              👁️ ดูตัวอย่าง
+            </button>
+            <div id="ws-manual-status" class="ws-status"></div>
+          </div>
+        </div>
+
+        <!-- Preview + export (shared between modes) -->
         <div class="ws-step" id="ws-step-preview" style="display:none;">
           <div class="ws-step__head">
-            <span class="ws-step__num">4</span>
+            <span class="ws-step__num">★</span>
             <div>
               <div class="ws-step__title">ตัวอย่างใบงาน</div>
               <div class="ws-step__sub">ตรวจสอบเนื้อหาก่อน Export</div>
@@ -3522,7 +3719,7 @@
           </div>
           <div id="ws-preview" class="ws-preview"></div>
           <div class="ws-actions">
-            <button class="ws-secondary-btn" onclick="wsGenerate()">🔄 สร้างใหม่</button>
+            <button class="ws-secondary-btn" onclick="wsResetPreview()">🔄 แก้ไข</button>
             <button class="ws-primary-btn" onclick="wsExportDocx()">
               📥 Download DOCX <span class="ws-cost">(0.5 เครดิต)</span>
             </button>
@@ -7949,17 +8146,25 @@ function openDashboardView() {
 
 // ----- Sidebar nav -----
 // ═══════════════════════════════════════════════════════════
-// ─── Worksheet generator panel ────────────────────────────
+// ─── Worksheet generator panel (v2) ───────────────────────
 // ═══════════════════════════════════════════════════════════
 const _wsState = {
-  lessons:       [],        // cached list from API
-  selectedId:    null,
-  scanResult:    null,      // { meta, worksheets, vocab, keyExpressions }
+  mode: null,                  // 'ai' | 'manual' | null
+  // AI mode
+  units: [], orphanLessons: [],
+  selectedUnitId: null,        // 'orphan' or unit id
+  selectedLessonId: null,
+  scanResult: null,
   selectedWsIdx: 0,
-  generated:     null,      // worksheet JSON returned by AI
+  // Manual mode
+  manualSections: [],
+  // Shared output
+  generated: null,             // { worksheetNo, title, ..., sections }
+  // Track which mode produced `generated` so export can include lesson_id
+  generatedFrom: null,         // 'ai' | 'manual'
 };
 
-// Helper: authenticated JSON fetch (uses window.authFetch which auto-refreshes token)
+// Helper: authenticated JSON fetch
 async function _wsJsonFetch(path, opts = {}) {
   const fetcher = window.authFetch || window.fetch;
   const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
@@ -7968,71 +8173,101 @@ async function _wsJsonFetch(path, opts = {}) {
   try { json = await res.json(); } catch {}
   if (!res.ok) {
     const msg = (json && (json.message || json.error)) || `HTTP ${res.status}`;
-    const err = new Error(msg);
-    err.code = json?.error;
+    const err = new Error(msg); err.code = json?.error;
     throw err;
   }
   return json;
 }
 
-async function renderWorksheetsPanel() {
-  const listEl = document.getElementById('ws-lesson-list');
-  if (!listEl) return;
-  listEl.innerHTML = '<div class="ws-empty">⏳ กำลังโหลดแผนการสอน...</div>';
-  try {
-    const out = await _wsJsonFetch('/lessons', { method: 'GET' });
-    _wsState.lessons = (out.lessons || []).filter(l => l && l.id);
-    _wsRenderLessonList();
-  } catch (e) {
-    listEl.innerHTML = `<div class="ws-empty">โหลดแผนไม่สำเร็จ: ${escapeHtml(e.message || 'unknown')}</div>`;
-  }
-  // Wire search
-  const searchEl = document.getElementById('ws-search');
-  if (searchEl && !searchEl._wired) {
-    searchEl.addEventListener('input', _wsRenderLessonList);
-    searchEl._wired = true;
-  }
+// ─── Entry point ──────────────────────────────────────────
+function renderWorksheetsPanel() {
+  // Reset to mode picker every time the panel is opened
+  wsSetMode(null);
 }
 
-function _wsRenderLessonList() {
-  const listEl = document.getElementById('ws-lesson-list');
-  const q = (document.getElementById('ws-search')?.value || '').trim().toLowerCase();
-  const items = _wsState.lessons.filter(l => {
-    if (!q) return true;
-    const hay = `${l.title || ''} ${l.data?.fields?.topic || ''} ${l.data?.fields?.['class-level'] || ''}`.toLowerCase();
-    return hay.includes(q);
-  });
-  if (!items.length) {
-    listEl.innerHTML = '<div class="ws-empty">ไม่พบแผนที่ตรงกับคำค้นหา</div>';
+function wsSetMode(mode) {
+  _wsState.mode = mode;
+  document.getElementById('ws-mode-picker').style.display    = mode ? 'none' : '';
+  document.getElementById('ws-ai-mode').style.display        = (mode === 'ai') ? '' : 'none';
+  document.getElementById('ws-manual-mode').style.display    = (mode === 'manual') ? '' : 'none';
+  document.getElementById('ws-step-preview').style.display   = 'none';
+  _wsState.generated = null;
+  if (mode === 'ai')     _wsLoadUnits();
+  if (mode === 'manual') _wsRenderSectionList();
+}
+window.wsSetMode = wsSetMode;
+
+// ═══════════════════════════════════════════════════════════
+// AI MODE
+// ═══════════════════════════════════════════════════════════
+async function _wsLoadUnits() {
+  const sel = document.getElementById('ws-unit-select');
+  sel.disabled = true;
+  sel.innerHTML = '<option>⏳ กำลังโหลด...</option>';
+  try {
+    const out = await _wsJsonFetch('/worksheets/units', { method: 'GET' });
+    _wsState.units = out.units || [];
+    _wsState.orphanLessons = out.orphanLessons || [];
+    const opts = ['<option value="">— กรุณาเลือกหน่วย —</option>'];
+    for (const u of _wsState.units) {
+      const cnt = u.lessons.length;
+      const tag = u.unitNo ? `หน่วยที่ ${u.unitNo}: ` : '';
+      opts.push(`<option value="${escapeHtml(u.id)}">${tag}${escapeHtml(u.title)} (${cnt} แผน)</option>`);
+    }
+    if (_wsState.orphanLessons.length) {
+      opts.push(`<option value="orphan">📂 แผนที่ไม่อยู่ในหน่วย (${_wsState.orphanLessons.length} แผน)</option>`);
+    }
+    sel.innerHTML = opts.join('');
+    sel.disabled = false;
+  } catch (e) {
+    sel.innerHTML = `<option>โหลดไม่สำเร็จ: ${escapeHtml(e.message)}</option>`;
+  }
+  // Reset downstream
+  document.getElementById('ws-step-plans').style.display = 'none';
+  document.getElementById('ws-step-candidates').style.display = 'none';
+  document.getElementById('ws-step-generate').style.display = 'none';
+}
+
+function wsOnUnitChange() {
+  const v = document.getElementById('ws-unit-select').value;
+  _wsState.selectedUnitId = v || null;
+  _wsState.selectedLessonId = null;
+  _wsState.scanResult = null;
+  document.getElementById('ws-step-candidates').style.display = 'none';
+  document.getElementById('ws-step-generate').style.display = 'none';
+  if (!v) {
+    document.getElementById('ws-step-plans').style.display = 'none';
     return;
   }
-  listEl.innerHTML = items.map(l => {
-    const f = l.data?.fields || {};
-    const subject = f['subject-name'] || '—';
-    const level   = f['class-level']  || '—';
-    const topic   = f.topic || l.title || 'ไม่ระบุหัวข้อ';
-    const date    = (l.savedAt || l.saved_at) ? new Date(l.savedAt || l.saved_at).toLocaleDateString('th-TH') : '';
-    const isSel   = (l.id === _wsState.selectedId) ? 'selected' : '';
-    return `<button class="ws-lesson-card ${isSel}" onclick="wsSelectLesson('${escapeHtml(l.id)}')">
-      <div class="ws-lesson-card__title">${escapeHtml(topic)}</div>
-      <div class="ws-lesson-card__sub">${escapeHtml(subject)} · ${escapeHtml(level)} · ${escapeHtml(date)}</div>
-    </button>`;
-  }).join('');
+  const lessons = (v === 'orphan')
+    ? _wsState.orphanLessons
+    : (_wsState.units.find(u => u.id === v)?.lessons || []);
+  const listEl = document.getElementById('ws-plan-list');
+  if (!lessons.length) {
+    listEl.innerHTML = '<div class="ws-empty">ยังไม่มีแผนในหน่วยนี้</div>';
+  } else {
+    listEl.innerHTML = lessons.map(l => {
+      const planTag = l.planNumber ? `แผนที่ ${escapeHtml(String(l.planNumber))} · ` : '';
+      return `<button class="ws-lesson-card" data-lid="${escapeHtml(l.id)}" onclick="wsSelectPlan('${escapeHtml(l.id)}')">
+        <div class="ws-lesson-card__title">${planTag}${escapeHtml(l.title)}</div>
+        <div class="ws-lesson-card__sub">${escapeHtml(l.subject || '—')} · ${escapeHtml(l.level || '—')}</div>
+      </button>`;
+    }).join('');
+  }
+  document.getElementById('ws-step-plans').style.display = '';
 }
+window.wsOnUnitChange = wsOnUnitChange;
 
-async function wsSelectLesson(lessonId) {
-  _wsState.selectedId = lessonId;
+async function wsSelectPlan(lessonId) {
+  _wsState.selectedLessonId = lessonId;
   _wsState.scanResult = null;
   _wsState.selectedWsIdx = 0;
-  _wsState.generated = null;
-  _wsRenderLessonList(); // re-highlight
-  // Hide subsequent steps
-  document.getElementById('ws-step-candidates').style.display = '';
-  document.getElementById('ws-step-generate').style.display   = 'none';
-  document.getElementById('ws-step-preview').style.display    = 'none';
-  // Scan
+  document.querySelectorAll('#ws-plan-list .ws-lesson-card').forEach(b =>
+    b.classList.toggle('selected', b.dataset.lid === lessonId));
+  document.getElementById('ws-step-generate').style.display = 'none';
   const candEl = document.getElementById('ws-candidates');
   candEl.innerHTML = '<div class="ws-empty">⏳ กำลังตรวจสอบใบงานในแผน...</div>';
+  document.getElementById('ws-step-candidates').style.display = '';
   try {
     const out = await _wsJsonFetch('/worksheets/scan', { method: 'POST', body: { lesson_id: lessonId } });
     _wsState.scanResult = out;
@@ -8041,7 +8276,7 @@ async function wsSelectLesson(lessonId) {
     candEl.innerHTML = `<div class="ws-empty">สแกนไม่สำเร็จ: ${escapeHtml(e.message || 'unknown')}</div>`;
   }
 }
-window.wsSelectLesson = wsSelectLesson;
+window.wsSelectPlan = wsSelectPlan;
 
 function _wsRenderCandidates() {
   const candEl = document.getElementById('ws-candidates');
@@ -8049,9 +8284,7 @@ function _wsRenderCandidates() {
   if (!r || !r.worksheets || !r.worksheets.length) {
     candEl.innerHTML = `<div class="ws-candidate__empty">
       ⚠️ ไม่พบ "ใบงาน" ในสื่อหรือกิจกรรมของแผนนี้<br>
-      <span style="font-size:0.85rem; opacity:0.85;">
-        กรุณาแก้ไขแผนและเพิ่มคำว่า "ใบงาน" ใน "สื่อและแหล่งการเรียนรู้" หรือในขั้นกิจกรรมก่อน
-      </span>
+      <span style="font-size:0.85rem; opacity:0.85;">ลองสลับมา "สร้างเอง" หรือกลับไปแก้แผนเพิ่มคำว่า "ใบงาน" ในสื่อ/กิจกรรม</span>
     </div>`;
     return;
   }
@@ -8063,20 +8296,18 @@ function _wsRenderCandidates() {
       ${ctx}
     </button>`;
   }).join('');
-  // Show step 3
   document.getElementById('ws-step-generate').style.display = '';
 }
 
 function wsSelectCandidate(idx) {
   _wsState.selectedWsIdx = idx;
-  _wsState.generated = null;
   document.getElementById('ws-step-preview').style.display = 'none';
   _wsRenderCandidates();
 }
 window.wsSelectCandidate = wsSelectCandidate;
 
 async function wsGenerate() {
-  if (!_wsState.selectedId) return;
+  if (!_wsState.selectedLessonId) return;
   const btn = document.getElementById('ws-generate-btn');
   const status = document.getElementById('ws-generate-status');
   btn.disabled = true;
@@ -8086,13 +8317,14 @@ async function wsGenerate() {
   try {
     const out = await _wsJsonFetch('/worksheets/generate', {
       method: 'POST',
-      body: { lesson_id: _wsState.selectedId, worksheet_index: _wsState.selectedWsIdx },
+      body: { lesson_id: _wsState.selectedLessonId, worksheet_index: _wsState.selectedWsIdx },
     });
     _wsState.generated = out.data;
+    _wsState.generatedFrom = 'ai';
     _wsRenderPreview();
     document.getElementById('ws-step-preview').style.display = '';
     document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    status.textContent = '✓ สร้างใบงานสำเร็จ — กดปุ่ม Download DOCX ด้านล่างเพื่อบันทึก';
+    status.textContent = '✓ สร้างใบงานสำเร็จ — กดปุ่ม Download DOCX เพื่อบันทึก';
   } catch (e) {
     status.className = 'ws-status err';
     status.textContent = '✗ ' + (e.message || 'AI ขัดข้อง กรุณาลองใหม่');
@@ -8103,57 +8335,362 @@ async function wsGenerate() {
 }
 window.wsGenerate = wsGenerate;
 
+// ═══════════════════════════════════════════════════════════
+// MANUAL MODE
+// ═══════════════════════════════════════════════════════════
+function wsAddSection() {
+  const type = document.getElementById('ws-add-section-type').value;
+  _wsState.manualSections.push(_wsBlankSection(type));
+  _wsRenderSectionList();
+}
+window.wsAddSection = wsAddSection;
+
+function _wsBlankSection(type) {
+  const base = { id: Math.random().toString(36).slice(2), type, title: '', instructions: '', score: '' };
+  switch (type) {
+    case 'matching':    return { ...base, items: [_blankItem('matching')] };
+    case 'fill_blank':  return { ...base, wordBank: '', items: [_blankItem('fill_blank')] };
+    case 'mcq':         return { ...base, items: [_blankItem('mcq')] };
+    case 'true_false':  return { ...base, items: [_blankItem('true_false')] };
+    case 'short_answer':return { ...base, items: [_blankItem('short_answer')] };
+    case 'writing':     return { ...base, prompt: '', lines: 8, rubric: [{ criterion: '', points: '' }] };
+    case 'reordering':  return { ...base, items: [_blankItem('reordering')] };
+    case 'reading':     return { ...base, passage: '', items: [_blankItem('mcq')] };
+    default:            return base;
+  }
+}
+function _blankItem(type) {
+  switch (type) {
+    case 'matching':    return { word: '', letter: '', meaning: '' };
+    case 'fill_blank':  return { sentence: '', answer: '' };
+    case 'mcq':         return { question: '', choices: ['a) ', 'b) ', 'c) ', 'd) '], answer: '' };
+    case 'true_false':  return { statement: '', answer: 'T' };
+    case 'short_answer':return { question: '', lines: 2, answer: '' };
+    case 'reordering':  return { scrambled: '', answer: '' };
+    default: return {};
+  }
+}
+
+function wsRemoveSection(idx) {
+  _wsState.manualSections.splice(idx, 1);
+  _wsRenderSectionList();
+}
+window.wsRemoveSection = wsRemoveSection;
+
+function wsAddItem(secIdx) {
+  const sec = _wsState.manualSections[secIdx];
+  if (!sec || !Array.isArray(sec.items)) return;
+  sec.items.push(_blankItem(sec.type === 'reading' ? 'mcq' : sec.type));
+  _wsRenderSectionList();
+}
+window.wsAddItem = wsAddItem;
+
+function wsRemoveItem(secIdx, itemIdx) {
+  const sec = _wsState.manualSections[secIdx];
+  if (!sec || !Array.isArray(sec.items)) return;
+  sec.items.splice(itemIdx, 1);
+  _wsRenderSectionList();
+}
+window.wsRemoveItem = wsRemoveItem;
+
+function wsAddRubric(secIdx) {
+  const sec = _wsState.manualSections[secIdx];
+  if (!sec) return;
+  sec.rubric = sec.rubric || [];
+  sec.rubric.push({ criterion: '', points: '' });
+  _wsRenderSectionList();
+}
+window.wsAddRubric = wsAddRubric;
+
+function wsRemoveRubric(secIdx, rIdx) {
+  const sec = _wsState.manualSections[secIdx];
+  if (!sec || !sec.rubric) return;
+  sec.rubric.splice(rIdx, 1);
+  _wsRenderSectionList();
+}
+window.wsRemoveRubric = wsRemoveRubric;
+
+const _wsTypeLabels = {
+  matching: 'Matching (จับคู่)',
+  fill_blank: 'Fill-in-the-blank',
+  mcq: 'Multiple Choice',
+  true_false: 'True / False',
+  short_answer: 'Short Answer',
+  writing: 'Writing Prompt',
+  reordering: 'Sentence Reordering',
+  reading: 'Reading Comprehension',
+};
+
+function _wsRenderSectionList() {
+  const wrap = document.getElementById('ws-section-list');
+  if (!wrap) return;
+  if (!_wsState.manualSections.length) {
+    wrap.innerHTML = '<div class="ws-empty">ยังไม่มี section — เลือกประเภทด้านล่างแล้วกด "+ เพิ่ม"</div>';
+    return;
+  }
+  wrap.innerHTML = _wsState.manualSections.map((sec, i) => `
+    <div class="ws-section-card">
+      <div class="ws-section-card__head">
+        <span class="ws-section-card__type">Part ${i+1}: ${escapeHtml(_wsTypeLabels[sec.type] || sec.type)}</span>
+        <button class="ws-section-card__remove" onclick="wsRemoveSection(${i})">✕ ลบ section</button>
+      </div>
+      <div class="ws-section-field">
+        <span>ชื่อ Section (English)</span>
+        <input type="text" placeholder="${escapeHtml(_wsTypeLabels[sec.type])}"
+          value="${escapeHtml(sec.title)}"
+          oninput="_wsState.manualSections[${i}].title = this.value">
+      </div>
+      <div class="ws-section-field">
+        <span>คำชี้แจง (ไทย)</span>
+        <textarea oninput="_wsState.manualSections[${i}].instructions = this.value">${escapeHtml(sec.instructions)}</textarea>
+      </div>
+      <div class="ws-section-field" style="max-width:120px;">
+        <span>คะแนน</span>
+        <input type="number" value="${escapeHtml(sec.score)}"
+          oninput="_wsState.manualSections[${i}].score = this.value">
+      </div>
+      ${_wsRenderSectionBody(sec, i)}
+    </div>
+  `).join('');
+}
+
+function _wsRenderSectionBody(sec, i) {
+  switch (sec.type) {
+    case 'matching':    return _wsRenderItems(sec, i, ['word', 'letter', 'meaning'], ['คำ', 'ตัวอักษร', 'ความหมาย']);
+    case 'fill_blank':  return `
+      <div class="ws-section-field">
+        <span>Word Bank (คั่นด้วย "   |   ")</span>
+        <input type="text" value="${escapeHtml(sec.wordBank || '')}"
+          oninput="_wsState.manualSections[${i}].wordBank = this.value">
+      </div>
+      ${_wsRenderItems(sec, i, ['sentence', 'answer'], ['ประโยค (ใส่ "........................" แทนช่องว่าง)', 'คำตอบ'])}
+    `;
+    case 'mcq':         return _wsRenderMcqItems(sec, i);
+    case 'true_false':  return _wsRenderItems(sec, i, ['statement', 'answer'], ['ประโยค', 'คำตอบ (T/F)']);
+    case 'short_answer':return _wsRenderItems(sec, i, ['question', 'lines', 'answer'], ['คำถาม', 'บรรทัด', 'ตัวอย่างคำตอบ']);
+    case 'writing':     return _wsRenderWritingBody(sec, i);
+    case 'reordering':  return _wsRenderItems(sec, i, ['scrambled', 'answer'], ['คำที่สลับ (คั่นด้วย " / ")', 'ประโยคถูก']);
+    case 'reading':     return `
+      <div class="ws-section-field">
+        <span>Passage (เนื้อเรื่อง)</span>
+        <textarea oninput="_wsState.manualSections[${i}].passage = this.value">${escapeHtml(sec.passage || '')}</textarea>
+      </div>
+      ${_wsRenderMcqItems(sec, i)}
+    `;
+    default: return '';
+  }
+}
+
+function _wsRenderItems(sec, secIdx, fields, labels) {
+  const items = sec.items || [];
+  const rows = items.map((it, j) => `
+    <div class="ws-section-item">
+      <span class="ws-num">${j + 1}.</span>
+      ${fields.map((f, fi) => `
+        <input type="${f === 'lines' ? 'number' : 'text'}" placeholder="${escapeHtml(labels[fi])}"
+          value="${escapeHtml(it[f] ?? '')}"
+          oninput="_wsState.manualSections[${secIdx}].items[${j}].${f} = this.value">
+      `).join('')}
+      <button class="ws-section-item__remove" onclick="wsRemoveItem(${secIdx}, ${j})">✕</button>
+    </div>
+  `).join('');
+  return `<div class="ws-section-items">${rows}</div>
+    <button class="ws-add-item-btn" onclick="wsAddItem(${secIdx})">+ เพิ่มข้อ</button>`;
+}
+
+function _wsRenderMcqItems(sec, secIdx) {
+  const items = sec.items || [];
+  const rows = items.map((it, j) => `
+    <div class="ws-section-item" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; gap:6px; align-items:center;">
+        <span class="ws-num">${j + 1}.</span>
+        <input type="text" placeholder="คำถาม"
+          value="${escapeHtml(it.question || '')}"
+          oninput="_wsState.manualSections[${secIdx}].items[${j}].question = this.value">
+        <button class="ws-section-item__remove" onclick="wsRemoveItem(${secIdx}, ${j})">✕</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px;">
+        ${['a','b','c','d'].map((letter, ci) => `
+          <input type="text" placeholder="${letter}) ตัวเลือก"
+            value="${escapeHtml((it.choices || [])[ci] || '')}"
+            oninput="_wsMcqChoice(${secIdx}, ${j}, ${ci}, this.value)"
+            style="font-size:0.86rem;">
+        `).join('')}
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; margin-top:4px;">
+        <span style="font-size:0.82rem; color:#6b7280;">คำตอบ:</span>
+        <select onchange="_wsState.manualSections[${secIdx}].items[${j}].answer = this.value"
+          style="padding:4px 8px; border:1px solid #d1d5db; border-radius:6px; font-family:inherit;">
+          ${['', 'a', 'b', 'c', 'd'].map(o =>
+            `<option value="${o}" ${it.answer === o ? 'selected' : ''}>${o || '— เลือก —'}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+  `).join('');
+  return `<div class="ws-section-items">${rows}</div>
+    <button class="ws-add-item-btn" onclick="wsAddItem(${secIdx})">+ เพิ่มข้อ</button>`;
+}
+function _wsMcqChoice(secIdx, itemIdx, choiceIdx, value) {
+  const sec = _wsState.manualSections[secIdx];
+  if (!sec) return;
+  sec.items[itemIdx].choices = sec.items[itemIdx].choices || ['','','',''];
+  sec.items[itemIdx].choices[choiceIdx] = value;
+}
+window._wsMcqChoice = _wsMcqChoice;
+
+function _wsRenderWritingBody(sec, secIdx) {
+  const rubric = sec.rubric || [];
+  return `
+    <div class="ws-section-field">
+      <span>Writing Prompt</span>
+      <textarea oninput="_wsState.manualSections[${secIdx}].prompt = this.value">${escapeHtml(sec.prompt || '')}</textarea>
+    </div>
+    <div class="ws-section-field" style="max-width:120px;">
+      <span>จำนวนบรรทัด</span>
+      <input type="number" value="${escapeHtml(sec.lines || 8)}"
+        oninput="_wsState.manualSections[${secIdx}].lines = this.value">
+    </div>
+    <div class="ws-section-field"><span>Rubric (เกณฑ์การให้คะแนน)</span></div>
+    ${rubric.map((r, j) => `
+      <div class="ws-section-item">
+        <span class="ws-num">${j + 1}.</span>
+        <input type="text" placeholder="เกณฑ์"
+          value="${escapeHtml(r.criterion || '')}"
+          oninput="_wsState.manualSections[${secIdx}].rubric[${j}].criterion = this.value">
+        <input type="number" placeholder="คะแนน" style="max-width:80px;"
+          value="${escapeHtml(r.points || '')}"
+          oninput="_wsState.manualSections[${secIdx}].rubric[${j}].points = this.value">
+        <button class="ws-section-item__remove" onclick="wsRemoveRubric(${secIdx}, ${j})">✕</button>
+      </div>
+    `).join('')}
+    <button class="ws-add-item-btn" onclick="wsAddRubric(${secIdx})">+ เพิ่ม rubric</button>
+  `;
+}
+
+function wsManualBuild() {
+  const meta = {
+    worksheetNo: document.getElementById('ws-m-no').value || '1',
+    title:       document.getElementById('ws-m-title').value || 'Worksheet',
+    subject:     document.getElementById('ws-m-subject').value || 'ภาษาอังกฤษ',
+    level:       document.getElementById('ws-m-level').value || '',
+    duration:    document.getElementById('ws-m-duration').value || '30',
+    totalScore:  document.getElementById('ws-m-totalscore').value || '10',
+  };
+  // Auto-number items
+  const sections = _wsState.manualSections.map(sec => {
+    const out = { ...sec };
+    if (Array.isArray(out.items)) {
+      out.items = out.items.map((it, i) => ({ num: String(i + 1), ...it }));
+    }
+    return out;
+  });
+  if (!sections.length) {
+    const s = document.getElementById('ws-manual-status');
+    s.className = 'ws-status err';
+    s.textContent = '✗ กรุณาเพิ่ม section อย่างน้อย 1 อัน';
+    return;
+  }
+  _wsState.generated = { ...meta, sections };
+  _wsState.generatedFrom = 'manual';
+  _wsRenderPreview();
+  document.getElementById('ws-step-preview').style.display = '';
+  document.getElementById('ws-step-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.wsManualBuild = wsManualBuild;
+
+function wsResetPreview() {
+  document.getElementById('ws-step-preview').style.display = 'none';
+  _wsState.generated = null;
+}
+window.wsResetPreview = wsResetPreview;
+
+// ═══════════════════════════════════════════════════════════
+// PREVIEW (shared)
+// ═══════════════════════════════════════════════════════════
 function _wsRenderPreview() {
   const d = _wsState.generated;
   if (!d) return;
   const previewEl = document.getElementById('ws-preview');
-  const part1 = (d.part1 || []).map(it =>
-    `<div class="ws-item">${escapeHtml(it.num)}.&nbsp;&nbsp;${escapeHtml(it.word)}&nbsp;&nbsp;(......)&nbsp;&nbsp;${escapeHtml(it.letter)}.&nbsp;&nbsp;${escapeHtml(it.meaning)}</div>`
-  ).join('');
-  const part2 = (d.part2 || []).map(it =>
-    `<div class="ws-item">${escapeHtml(it.num)}.&nbsp;&nbsp;${escapeHtml(it.sentence)}</div>`
-  ).join('');
+  const sections = (d.sections || []).map((s, i) => _wsRenderPreviewSection(s, i + 1)).join('');
   previewEl.innerHTML = `
     <h3>ใบงานที่ ${escapeHtml(d.worksheetNo || '')} เรื่อง ${escapeHtml(d.title || '')}</h3>
     <div class="ws-meta">วิชา${escapeHtml(d.subject || '')} · ชั้น${escapeHtml(d.level || '')} · เวลา ${escapeHtml(d.duration || '')} นาที · คะแนนเต็ม ${escapeHtml(d.totalScore || '')} คะแนน</div>
-
-    <h4>Part 1 : ${escapeHtml(d.part1Title || '')} (${escapeHtml(d.part1Score || '')} คะแนน)</h4>
-    <div class="ws-instr">คำชี้แจง: ${escapeHtml(d.part1Instructions || '')}</div>
-    ${part1}
-
-    <h4>Part 2 : ${escapeHtml(d.part2Title || '')} (${escapeHtml(d.part2Score || '')} คะแนน)</h4>
-    <div class="ws-instr">คำชี้แจง: ${escapeHtml(d.part2Instructions || '')}</div>
-    <div class="ws-bank">${escapeHtml(d.wordBank || '')}</div>
-    ${part2}
-
-    <h4>เฉลย</h4>
-    <div class="ws-answer">Part 1: ${escapeHtml(d.answer1Line || '')}</div>
-    <div class="ws-answer">Part 2: ${escapeHtml(d.answer2Line || '')}</div>
+    ${sections}
   `;
 }
 
+function _wsRenderPreviewSection(s, partN) {
+  const head = `<h4>Part ${partN}: ${escapeHtml(s.title || _wsTypeLabels[s.type] || s.type)} (${escapeHtml(s.score || '')} คะแนน)</h4>
+    ${s.instructions ? `<div class="ws-instr">คำชี้แจง: ${escapeHtml(s.instructions)}</div>` : ''}`;
+  let body = '';
+  switch (s.type) {
+    case 'matching':
+      body = (s.items || []).map(it =>
+        `<div class="ws-item">${escapeHtml(it.num || '')}.&nbsp;&nbsp;${escapeHtml(it.word || '')}&nbsp;&nbsp;(......)&nbsp;&nbsp;${escapeHtml(it.letter || '')}.&nbsp;&nbsp;${escapeHtml(it.meaning || '')}</div>`
+      ).join('');
+      break;
+    case 'fill_blank':
+      body = (s.wordBank ? `<div class="ws-bank">${escapeHtml(s.wordBank)}</div>` : '') +
+        (s.items || []).map(it =>
+          `<div class="ws-item">${escapeHtml(it.num || '')}.&nbsp;&nbsp;${escapeHtml(it.sentence || '')}</div>`
+        ).join('');
+      break;
+    case 'mcq':
+    case 'reading':
+      if (s.passage) body += `<div class="ws-item" style="background:white; border:1px solid #d1d5db; padding:10px; border-radius:6px; margin-bottom:8px;">${escapeHtml(s.passage)}</div>`;
+      body += (s.items || []).map(it => `
+        <div class="ws-item">${escapeHtml(it.num || '')}. ${escapeHtml(it.question || '')}<br>
+        ${(it.choices || []).map(c => `&nbsp;&nbsp;&nbsp;${escapeHtml(c)}`).join('<br>')}</div>
+      `).join('');
+      break;
+    case 'true_false':
+      body = (s.items || []).map(it =>
+        `<div class="ws-item">_____ &nbsp; ${escapeHtml(it.num || '')}. ${escapeHtml(it.statement || '')}</div>`
+      ).join('');
+      break;
+    case 'short_answer':
+      body = (s.items || []).map(it =>
+        `<div class="ws-item">${escapeHtml(it.num || '')}. ${escapeHtml(it.question || '')}<br>
+        <span style="color:#9ca3af;">${'.'.repeat(60)}</span></div>`
+      ).join('');
+      break;
+    case 'writing':
+      body = `<div class="ws-item"><b>${escapeHtml(s.prompt || '')}</b></div>
+        <div class="ws-item" style="color:#9ca3af;">${'.'.repeat(80)} × ${escapeHtml(String(s.lines || 8))} บรรทัด</div>
+        ${(s.rubric || []).map(r => `<div class="ws-item">☐ ${escapeHtml(r.criterion || '')} (${escapeHtml(r.points || '')} คะแนน)</div>`).join('')}`;
+      break;
+    case 'reordering':
+      body = (s.items || []).map(it =>
+        `<div class="ws-item">${escapeHtml(it.num || '')}. ${escapeHtml(it.scrambled || '')}<br>→ ${'.'.repeat(60)}</div>`
+      ).join('');
+      break;
+  }
+  return head + body;
+}
+
 async function wsExportDocx() {
-  if (!_wsState.generated || !_wsState.selectedId) return;
-  const status = document.getElementById('ws-generate-status');
-  status.className = 'ws-status';
-  status.textContent = '⏳ กำลังสร้างไฟล์ DOCX...';
+  if (!_wsState.generated) return;
+  const status = document.querySelector('#ws-step-preview .ws-status') || document.createElement('div');
   try {
     const fetcher = window.authFetch || window.fetch;
+    const body = {
+      worksheet_no: _wsState.generated.worksheetNo || '1',
+      data:         _wsState.generated,
+    };
+    // AI mode: include lesson_id for audit/idempotency. Manual: use 'manual' as marker.
+    body.lesson_id = (_wsState.generatedFrom === 'ai')
+      ? _wsState.selectedLessonId
+      : 'manual:' + (window.currentUser?.id || 'anon');
     const resp = await fetcher('/api/worksheets/export-docx', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lesson_id:    _wsState.selectedId,
-        worksheet_no: _wsState.generated.worksheetNo || '1',
-        data:         _wsState.generated,
-      }),
+      body: JSON.stringify(body),
     });
     if (!resp.ok) {
       let msg = 'export ไม่สำเร็จ';
       try { const j = await resp.json(); msg = j.message || j.error || msg; } catch {}
       throw new Error(msg);
     }
-    // Get filename from Content-Disposition
     const cd = resp.headers.get('Content-Disposition') || '';
     let filename = 'worksheet.docx';
     const mStar = cd.match(/filename\*\=UTF-8''([^;]+)/);
@@ -8168,12 +8705,9 @@ async function wsExportDocx() {
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-    status.textContent = '✓ ดาวน์โหลดไฟล์ DOCX เรียบร้อย';
-    // Refresh credits display
     if (typeof renderUserBar === 'function') renderUserBar();
   } catch (e) {
-    status.className = 'ws-status err';
-    status.textContent = '✗ ' + (e.message || 'export ไม่สำเร็จ');
+    alert('Export ไม่สำเร็จ: ' + (e.message || 'unknown'));
   }
 }
 window.wsExportDocx = wsExportDocx;
