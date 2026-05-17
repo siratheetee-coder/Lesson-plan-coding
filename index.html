@@ -41,7 +41,7 @@
 
   /* Primary purple — used by AI use confirmation */
   .aiw-btn.primary {
-    background: linear-gradient(180deg,#a78bfa 0%, #5363f0 50%, #3a47cc 100%);
+    background: linear-gradient(180deg,#8895f5 0%, #5363f0 50%, #3a47cc 100%);
     color: #fff;
     text-shadow: 0 1px 2px rgba(0,0,0,.25);
     box-shadow: 0 6px 0 #2a358a, 0 10px 24px rgba(83,99,240,.4), inset 0 1px 0 rgba(255,255,255,.4);
@@ -61,13 +61,13 @@
 
   /* Green/success — used for "Go to Unit Planner" (the recommended path) */
   .aiw-btn.green {
-    background: linear-gradient(180deg,#6ee7b7 0%, #10b981 50%, #047857 100%);
+    background: linear-gradient(180deg,#9aa6f5 0%, #5363f0 50%, #3a47cc 100%);
     color: #fff;
     text-shadow: 0 1px 2px rgba(6,78,59,.4);
-    box-shadow: 0 6px 0 #064e3b, 0 10px 24px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.45);
+    box-shadow: 0 6px 0 #064e3b, 0 10px 24px rgba(83,99,240,.4), inset 0 1px 0 rgba(255,255,255,.45);
   }
-  .aiw-btn.green:hover  { box-shadow: 0 8px 0 #064e3b, 0 14px 30px rgba(16,185,129,.55), inset 0 1px 0 rgba(255,255,255,.45); }
-  .aiw-btn.green:active { box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(16,185,129,.3),  inset 0 1px 0 rgba(255,255,255,.3); }
+  .aiw-btn.green:hover  { box-shadow: 0 8px 0 #064e3b, 0 14px 30px rgba(83,99,240,.55), inset 0 1px 0 rgba(255,255,255,.45); }
+  .aiw-btn.green:active { box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(83,99,240,.3),  inset 0 1px 0 rgba(255,255,255,.3); }
 
   /* Blue (less used now — kept for compat) */
   .aiw-btn.blue {
@@ -671,15 +671,15 @@
   .btn-next {
     background: var(--primary);
     color: white;
-    box-shadow: 0 4px 6px rgba(37,99,235,0.3);
+    box-shadow: 0 4px 6px rgba(83,99,240,0.3);
   }
-  .btn-next:hover { background: var(--primary-dark); box-shadow: 0 6px 8px rgba(37,99,235,0.4); transform: translateY(-1px); }
+  .btn-next:hover { background: var(--primary-dark); box-shadow: 0 6px 8px rgba(83,99,240,0.4); transform: translateY(-1px); }
   .btn-save {
     background: #fff;
     color: #1d4ed8;
     border: 2px solid #2563eb;
   }
-  .btn-save:hover { background: #eff6ff; box-shadow: 0 4px 8px rgba(37,99,235,0.2); transform: translateY(-1px); }
+  .btn-save:hover { background: #eff6ff; box-shadow: 0 4px 8px rgba(83,99,240,0.2); transform: translateY(-1px); }
   .nav-right { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
   /* History button in header */
@@ -792,7 +792,7 @@
   }
   .roster-name-input:focus, .roster-no-input:focus {
     outline: none;
-    border-color: #a78bfa;
+    border-color: #8895f5;
     box-shadow: 0 0 0 2px rgba(167,139,250,0.2);
   }
   .roster-del-btn {
@@ -879,7 +879,7 @@
     align-items: center;
     transition: all 0.15s;
   }
-  .history-item:hover { border-color: var(--primary); box-shadow: 0 4px 10px rgba(37,99,235,0.08); }
+  .history-item:hover { border-color: var(--primary); box-shadow: 0 4px 10px rgba(83,99,240,0.08); }
   .history-item-info { flex: 1; min-width: 0; }
   .history-item-title { font-weight: 600; color: var(--gray-800); margin-bottom: 4px; font-size: 1rem; }
   .history-item-meta { font-size: 0.8rem; color: var(--gray-500); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -1552,7 +1552,7 @@
   }
   .dash-action-icon.purple  { background: linear-gradient(135deg, #eef0ff, #bac4fa); }
   .dash-action-icon.blue    { background: linear-gradient(135deg, #dbeafe, #93c5fd); }
-  .dash-action-icon.emerald { background: linear-gradient(135deg, #d1fae5, #6ee7b7); }
+  .dash-action-icon.emerald { background: linear-gradient(135deg, #d1fae5, #9aa6f5); }
   .dash-action-title {
     font-size: 1.05rem; font-weight: 700; color: #1f2937;
     margin-bottom: 4px;
@@ -1619,11 +1619,11 @@
     margin-bottom: 4px;
   }
   .dash-library-group__count {
-    font-size: 0.78rem; font-weight: 600;
-    color: #4b5563;
-    background: white;
+    font-size: 0.78rem; font-weight: 700;
+    color: white;
+    background: #3a47cc;
     padding: 2px 10px; border-radius: 999px;
-    border: 1px solid #d1d5db;
+    border: 1px solid #3a47cc;
   }
   .dash-library-row {
     display: flex; align-items: center; gap: 10px;
@@ -1641,8 +1641,8 @@
     padding: 2px 7px; border-radius: 4px;
     flex-shrink: 0;
   }
-  .dash-library-row__badge.docx { background: #eef0ff; color: #3a47cc; }
-  .dash-library-row__badge.pdf  { background: #fef2f2; color: #b91c1c; }
+  .dash-library-row__badge.docx { background: #3a47cc; color: white; }
+  .dash-library-row__badge.pdf  { background: #b91c1c; color: white; }
   .dash-library-row__title {
     flex: 1;
     font-weight: 600; color: #1f2937; font-size: 0.92rem;
@@ -1663,7 +1663,24 @@
   .dash-library-row__btn:hover { background: #f3f4f6; color: #1f2937; }
   .dash-library-row__btn--danger:hover { background: #fee2e2; color: #b91c1c; }
   @media (max-width: 560px) {
-    .dash-library-row__meta { display: none; }
+    .dash-library-row {
+      flex-wrap: wrap;
+      padding: 8px 10px;
+    }
+    .dash-library-row__title {
+      flex-basis: 100%;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      order: 1;
+    }
+    .dash-library-row__badge { order: 0; }
+    .dash-library-row__meta {
+      flex-basis: 100%;
+      order: 2;
+      font-size: 0.74rem;
+    }
+    .dash-library-row__btn { order: 3; }
   }
 
   .dash-recent-empty {
@@ -1889,10 +1906,10 @@
   }
   .cs-docx-btn {
     background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-    box-shadow: 0 8px 22px rgba(37,99,235,.35) !important;
+    box-shadow: 0 8px 22px rgba(83,99,240,.35) !important;
   }
   .cs-docx-btn:hover:not(:disabled) {
-    box-shadow: 0 12px 28px rgba(37,99,235,.45) !important;
+    box-shadow: 0 12px 28px rgba(83,99,240,.45) !important;
   }
   .cs-docx-btn:disabled {
     background: linear-gradient(135deg, #d1d5db, #9ca3af) !important;
@@ -2180,7 +2197,7 @@
   }
   .unit-hours-meter .bar > span {
     display: block; height: 100%;
-    background: linear-gradient(90deg,#5363f0,#a78bfa);
+    background: linear-gradient(90deg,#5363f0,#8895f5);
     transition: width 0.3s;
   }
   .unit-hours-meter.over .bar > span { background: linear-gradient(90deg,#ef4444,#f87171); }
@@ -2329,6 +2346,7 @@
     margin: 4px 0 8px;
     text-shadow: 0 1px 0 rgba(255,255,255,0.6);
     letter-spacing: 0.3px;
+    word-break: break-word;
   }
   .promo-toast-msg {
     font-size: 1.02rem;
@@ -2401,7 +2419,7 @@
     border-radius: 8px; font-size: 1rem; font-family: inherit;
     box-sizing: border-box; transition: border-color .15s;
   }
-  .auth-modal input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+  .auth-modal input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(83,99,240,.15); }
   .auth-modal .auth-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0 6px; font-size: .88rem; }
   .auth-modal .auth-row label { display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer; }
   .auth-modal button.auth-primary {
@@ -2435,16 +2453,16 @@
   .dash-topup-btn {
     display: flex; align-items: center; gap: 5px;
     padding: 8px 14px; border-radius: 10px;
-    background: linear-gradient(180deg, #6ee7b7 0%, #10b981 60%, #047857 100%);
+    background: linear-gradient(180deg, #9aa6f5 0%, #5363f0 60%, #3a47cc 100%);
     color: white; border: none;
     font-family: inherit; font-size: .82rem; font-weight: 700;
     cursor: pointer; white-space: nowrap;
     text-shadow: 0 1px 2px rgba(6,78,59,.3);
-    box-shadow: 0 3px 0 #064e3b, 0 5px 12px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.4);
+    box-shadow: 0 3px 0 #064e3b, 0 5px 12px rgba(83,99,240,.3), inset 0 1px 0 rgba(255,255,255,.4);
     transition: transform .12s, box-shadow .12s, filter .12s;
   }
-  .dash-topup-btn:hover  { transform: translateY(-1px); filter: brightness(1.05); box-shadow: 0 4px 0 #064e3b, 0 7px 14px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.45); }
-  .dash-topup-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #064e3b, 0 2px 6px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.3); }
+  .dash-topup-btn:hover  { transform: translateY(-1px); filter: brightness(1.05); box-shadow: 0 4px 0 #064e3b, 0 7px 14px rgba(83,99,240,.4), inset 0 1px 0 rgba(255,255,255,.45); }
+  .dash-topup-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #064e3b, 0 2px 6px rgba(83,99,240,.3), inset 0 1px 0 rgba(255,255,255,.3); }
   @media (max-width: 640px) { .dash-topup-btn { display: none; } }
 
   /* ─── Top-up Modal — "Become a Supporter" 3D theme ─── */
@@ -2499,11 +2517,16 @@
     flex-shrink: 0;
     width: 32px; height: 32px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #10b981, #047857);
+    background: linear-gradient(135deg, #5363f0, #3a47cc);
     color: white;
     font-weight: 700; font-size: 0.95rem;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 6px rgba(16,185,129,0.25);
+    box-shadow: 0 2px 6px rgba(83,99,240,0.25);
+  }
+  /* Preview step uses cyan accent to distinguish "result" from numbered steps */
+  #ws-step-preview .ws-step__num {
+    background: linear-gradient(135deg, #2dcec9, #1aa6a2);
+    box-shadow: 0 2px 6px rgba(45,206,201,0.3);
   }
   .ws-step__title { font-weight: 700; font-size: 1.05rem; color: #1f2937; margin-bottom: 2px; }
   .ws-step__sub   { font-size: 0.86rem; color: #6b7280; }
@@ -2529,7 +2552,7 @@
     transition: border-color .15s, background .15s;
   }
   .ws-lesson-card:hover { background: #f3f4f6; }
-  .ws-lesson-card.selected { border-color: #10b981; background: #ecfdf5; }
+  .ws-lesson-card.selected { border-color: #5363f0; background: #eef0ff; }
   .ws-lesson-card__title { font-weight: 700; font-size: 0.95rem; color: #1f2937; margin-bottom: 3px; }
   .ws-lesson-card__sub   { font-size: 0.8rem; color: #6b7280; }
   .ws-candidates { display: flex; flex-direction: column; gap: 10px; }
@@ -2544,7 +2567,7 @@
     transition: border-color .15s, background .15s;
   }
   .ws-candidate:hover { background: #f3f4f6; }
-  .ws-candidate.selected { border-color: #10b981; background: #ecfdf5; }
+  .ws-candidate.selected { border-color: #5363f0; background: #eef0ff; }
   .ws-candidate__name { font-weight: 700; color: #1f2937; margin-bottom: 4px; }
   .ws-candidate__ctx {
     font-size: 0.82rem; color: #6b7280;
@@ -2562,12 +2585,12 @@
     text-align: center;
   }
   .ws-primary-btn {
-    background: linear-gradient(135deg, #10b981, #047857);
+    background: linear-gradient(135deg, #5363f0, #3a47cc);
     color: white; border: none;
     padding: 12px 22px; border-radius: 10px;
     font-family: inherit; font-size: 0.95rem; font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    box-shadow: 0 4px 12px rgba(83,99,240,0.3);
     transition: transform .15s, filter .2s;
   }
   .ws-primary-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); }
@@ -2592,14 +2615,14 @@
     font-size: 0.9rem;
     line-height: 1.6;
   }
-  .ws-preview h3 { margin: 0 0 4px; color: #047857; }
+  .ws-preview h3 { margin: 0 0 4px; color: #3a47cc; }
   .ws-preview h4 { margin: 14px 0 6px; color: #1f2937; }
   .ws-preview .ws-meta { color: #6b7280; font-size: 0.85rem; margin-bottom: 12px; }
   .ws-preview .ws-instr { font-style: italic; color: #6b7280; margin-bottom: 8px; }
   .ws-preview .ws-item { margin: 4px 0; }
   .ws-preview .ws-bank {
     display: inline-block;
-    background: white; border: 1px solid #047857;
+    background: white; border: 1px solid #3a47cc;
     border-radius: 6px; padding: 6px 14px;
     font-weight: 600; margin: 6px 0 10px;
   }
@@ -2625,7 +2648,7 @@
     cursor: pointer; font-family: inherit;
     transition: transform .15s, border-color .15s, box-shadow .2s;
   }
-  .ws-mode-card:hover { border-color: #10b981; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.12); }
+  .ws-mode-card:hover { border-color: #5363f0; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(83,99,240,0.12); }
   .ws-mode-icon { font-size: 2.2rem; margin-bottom: 8px; }
   .ws-mode-title { font-weight: 800; font-size: 1.1rem; color: #1f2937; margin-bottom: 4px; }
   .ws-mode-sub { font-size: 0.86rem; color: #6b7280; line-height: 1.5; }
@@ -2669,8 +2692,8 @@
     margin-bottom: 10px; gap: 8px;
   }
   .ws-section-card__type {
-    font-weight: 700; color: #047857;
-    background: #ecfdf5; border: 1px solid #10b981;
+    font-weight: 700; color: #3a47cc;
+    background: #eef0ff; border: 1px solid #5363f0;
     padding: 4px 10px; border-radius: 999px;
     font-size: 0.82rem;
   }
@@ -2699,12 +2722,12 @@
   }
   .ws-section-item__remove:hover { color: #b91c1c; }
   .ws-add-item-btn {
-    background: white; border: 1px dashed #10b981; color: #047857;
+    background: white; border: 1px dashed #5363f0; color: #3a47cc;
     padding: 8px 14px; border-radius: 8px; cursor: pointer;
     font-family: inherit; font-size: 0.86rem; font-weight: 600;
     margin-top: 8px;
   }
-  .ws-add-item-btn:hover { background: #ecfdf5; }
+  .ws-add-item-btn:hover { background: #eef0ff; }
   .ws-section-field {
     margin-bottom: 8px;
     display: flex; flex-direction: column; gap: 3px;
@@ -2735,6 +2758,13 @@
     display: flex; gap: 6px; align-items: center;
     font-size: 0.88rem; color: #1f2937;
     cursor: pointer;
+  }
+  .ws-type-chk__en { color: #9ca3af; font-weight: 400; font-size: 0.78rem; margin-left: 2px; }
+  @media (max-width: 600px) {
+    .tutorial-item { padding: 14px 14px 12px; }
+    .tutorial-item__head { gap: 10px; }
+    .tutorial-item__title { font-size: 0.98rem; }
+    .tutorial-item__desc  { font-size: 0.82rem; }
   }
   .ws-cached-banner {
     background: #fef3c7;
@@ -2788,13 +2818,13 @@
     white-space: nowrap;
   }
   .ws-saved-row__mode {
-    font-size: 0.72rem; color: #1aa6a2;
-    background: #d4f5f4; border: 1px solid #5fdcd7;
+    font-size: 0.72rem; color: white;
+    background: #1aa6a2; border: 1px solid #1aa6a2;
     padding: 2px 8px; border-radius: 999px;
     flex-shrink: 0;
     font-weight: 700;
   }
-  .ws-saved-row__mode--manual { color: #3a47cc; background: #eef0ff; border-color: #bac4fa; }
+  .ws-saved-row__mode--manual { color: white; background: #3a47cc; border-color: #3a47cc; }
   .ws-saved-row__btn {
     background: none; border: none;
     cursor: pointer; font-family: inherit;
@@ -2808,10 +2838,10 @@
   }
   .ws-add-section {
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-    background: #ecfdf5; border: 1px dashed #10b981; border-radius: 10px;
+    background: #eef0ff; border: 1px dashed #5363f0; border-radius: 10px;
     padding: 10px 12px; margin-top: 8px;
   }
-  .ws-add-section label { font-weight: 600; color: #047857; }
+  .ws-add-section label { font-weight: 600; color: #3a47cc; }
   .ws-add-section select {
     flex: 1; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
     font-family: inherit; font-size: 0.88rem; background: white;
@@ -3051,8 +3081,8 @@
   .fb-submit-btn:disabled { opacity: .55; cursor: not-allowed; }
   .fb-success-note {
     margin-top: 12px; padding: 10px 12px;
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    border: 1px solid #6ee7b7;
+    background: linear-gradient(135deg, #d1fae5, #bac4fa);
+    border: 1px solid #9aa6f5;
     border-radius: 10px;
     font-size: .85rem; font-weight: 600;
     color: #065f46;
@@ -3078,7 +3108,7 @@
     max-height: 92vh; overflow-y: auto; position: relative;
     box-shadow:
       0 30px 80px -10px rgba(15,23,42,.35),
-      0 18px 30px -10px rgba(16,185,129,.18),
+      0 18px 30px -10px rgba(83,99,240,.18),
       inset 0 1px 0 rgba(255,255,255,.85);
     transform-style: preserve-3d;
     animation: aiwPop .4s cubic-bezier(.34,1.56,.64,1);
@@ -3086,7 +3116,7 @@
   }
   .topup-modal-header {
     padding: 32px 28px 22px; text-align: center; position: relative;
-    background: linear-gradient(135deg,#ecfdf5 0%, #d1fae5 50%, #fef3c7 100%);
+    background: linear-gradient(135deg,#eef0ff 0%, #d1fae5 50%, #fef3c7 100%);
     border-radius: 24px 24px 0 0;
     overflow: hidden;
   }
@@ -3100,10 +3130,10 @@
   .topup-modal-header .topup-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 84px; height: 84px;
-    background: linear-gradient(145deg,#a7f3d0 0%, #10b981 60%, #047857 100%);
+    background: linear-gradient(145deg,#bac4fa 0%, #5363f0 60%, #3a47cc 100%);
     border-radius: 50%; font-size: 2.4rem; line-height: 1;
     box-shadow:
-      0 14px 30px -8px rgba(16,185,129,.55),
+      0 14px 30px -8px rgba(83,99,240,.55),
       inset 0 -5px 10px rgba(6,78,59,.4),
       inset 0 5px 10px rgba(255,255,255,.55);
     animation: topupHeart 2.8s ease-in-out infinite;
@@ -3121,10 +3151,10 @@
   .topup-modal-header .topup-balance {
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(255,255,255,.85);
-    border: 1px solid rgba(16,185,129,.3);
-    color: #047857; font-size: .82rem; font-weight: 700;
+    border: 1px solid rgba(83,99,240,.3);
+    color: #3a47cc; font-size: .82rem; font-weight: 700;
     padding: 6px 14px; border-radius: 999px; margin-top: 12px;
-    box-shadow: 0 2px 6px rgba(16,185,129,.15);
+    box-shadow: 0 2px 6px rgba(83,99,240,.15);
   }
   .topup-modal-body { padding: 22px 26px 28px; position: relative; z-index: 1; }
   .topup-modal-close {
@@ -3140,7 +3170,7 @@
 
   /* Section labels (small, gentle) */
   .topup-section-label {
-    font-size: .82rem; font-weight: 700; color: #047857;
+    font-size: .82rem; font-weight: 700; color: #3a47cc;
     margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
   }
 
@@ -3155,8 +3185,8 @@
     cursor: pointer; text-align: center; position: relative;
     background: linear-gradient(165deg, #ffffff 0%, #f0fdf4 100%);
     box-shadow:
-      0 4px 0 #a7f3d0,
-      0 8px 22px -8px rgba(16,185,129,.18),
+      0 4px 0 #bac4fa,
+      0 8px 22px -8px rgba(83,99,240,.18),
       inset 0 1px 0 rgba(255,255,255,.9);
     transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
     animation: topupSprout .4s ease-out backwards;
@@ -3167,20 +3197,20 @@
   .topup-pkg-card:nth-child(4) { animation-delay: .18s; }
   .topup-pkg-card:hover {
     transform: translateY(-3px);
-    border-color: #10b981;
+    border-color: #5363f0;
     box-shadow:
-      0 7px 0 #6ee7b7,
-      0 14px 30px -10px rgba(16,185,129,.35),
+      0 7px 0 #9aa6f5,
+      0 14px 30px -10px rgba(83,99,240,.35),
       inset 0 1px 0 rgba(255,255,255,.95);
   }
-  .topup-pkg-card:active { transform: translateY(2px); box-shadow: 0 1px 0 #a7f3d0, 0 4px 10px rgba(16,185,129,.18), inset 0 1px 0 rgba(255,255,255,.7); }
+  .topup-pkg-card:active { transform: translateY(2px); box-shadow: 0 1px 0 #bac4fa, 0 4px 10px rgba(83,99,240,.18), inset 0 1px 0 rgba(255,255,255,.7); }
   .topup-pkg-card.selected {
-    border-color: #047857;
-    background: linear-gradient(165deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: #3a47cc;
+    background: linear-gradient(165deg, #eef0ff 0%, #d1fae5 100%);
     box-shadow:
-      0 4px 0 #047857,
-      0 0 0 3px rgba(16,185,129,.25),
-      0 12px 28px -8px rgba(16,185,129,.4),
+      0 4px 0 #3a47cc,
+      0 0 0 3px rgba(83,99,240,.25),
+      0 12px 28px -8px rgba(83,99,240,.4),
       inset 0 1px 0 rgba(255,255,255,.9);
     transform: translateY(-1px);
   }
@@ -3189,7 +3219,7 @@
     line-height: 1; margin-bottom: 2px;
     text-shadow: 0 1px 0 rgba(255,255,255,.6);
   }
-  .topup-pkg-card .pkg-label   { font-size: .8rem; color: #047857; margin-bottom: 10px; font-weight: 600; }
+  .topup-pkg-card .pkg-label   { font-size: .8rem; color: #3a47cc; margin-bottom: 10px; font-weight: 600; }
   .topup-pkg-card .pkg-price   { font-size: 1.15rem; font-weight: 800; color: #1f2937; }
   .topup-pkg-card .pkg-per     { font-size: .72rem; color: #6b7280; margin-top: 4px; }
   .topup-pkg-badge {
@@ -3210,15 +3240,15 @@
 
   .topup-confirm-btn {
     width: 100%; margin-top: 16px; padding: 14px 22px;
-    background: linear-gradient(180deg,#6ee7b7 0%, #10b981 50%, #047857 100%);
+    background: linear-gradient(180deg,#9aa6f5 0%, #5363f0 50%, #3a47cc 100%);
     color: white; border: none; border-radius: 12px;
     font-family: inherit; font-size: 1rem; font-weight: 700;
     cursor: pointer; transition: transform .12s, box-shadow .12s, filter .12s;
     text-shadow: 0 1px 2px rgba(6,78,59,.4);
-    box-shadow: 0 6px 0 #064e3b, 0 10px 24px rgba(16,185,129,.4), inset 0 1px 0 rgba(255,255,255,.45);
+    box-shadow: 0 6px 0 #064e3b, 0 10px 24px rgba(83,99,240,.4), inset 0 1px 0 rgba(255,255,255,.45);
   }
-  .topup-confirm-btn:hover  { transform: translateY(-2px); filter: brightness(1.04); box-shadow: 0 8px 0 #064e3b, 0 14px 30px rgba(16,185,129,.55), inset 0 1px 0 rgba(255,255,255,.5); }
-  .topup-confirm-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(16,185,129,.3), inset 0 1px 0 rgba(255,255,255,.3); }
+  .topup-confirm-btn:hover  { transform: translateY(-2px); filter: brightness(1.04); box-shadow: 0 8px 0 #064e3b, 0 14px 30px rgba(83,99,240,.55), inset 0 1px 0 rgba(255,255,255,.5); }
+  .topup-confirm-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #064e3b, 0 4px 10px rgba(83,99,240,.3), inset 0 1px 0 rgba(255,255,255,.3); }
   .topup-confirm-btn:disabled { opacity: .55; cursor: not-allowed; transform: none !important; filter: none !important; }
 
   .topup-thanks-note {
@@ -3739,7 +3769,7 @@
 
         <!-- AI MODE -->
         <div id="ws-ai-mode" style="display:none;">
-          <button class="ws-back-btn" onclick="wsSetMode(null)">← เปลี่ยนโหมด</button>
+          <button type="button" class="ws-back-btn" onclick="wsConfirmBackToModePicker()">← เปลี่ยนโหมด</button>
 
           <div class="ws-step">
             <div class="ws-step__head">
@@ -3796,14 +3826,14 @@
               <span>ประเภทใบงานที่อนุญาตให้ AI ใช้ <span style="font-weight:400; color:#9ca3af;">(ติ๊กเลือก — default ใช้ทุกประเภท)</span></span>
             </div>
             <div class="ws-type-checks">
-              <label><input type="checkbox" class="ws-type-chk" value="matching"     checked> Matching</label>
-              <label><input type="checkbox" class="ws-type-chk" value="fill_blank"   checked> Fill-blank</label>
-              <label><input type="checkbox" class="ws-type-chk" value="mcq"          checked> Multiple Choice</label>
-              <label><input type="checkbox" class="ws-type-chk" value="true_false"   checked> True/False</label>
-              <label><input type="checkbox" class="ws-type-chk" value="short_answer" checked> Short Answer</label>
-              <label><input type="checkbox" class="ws-type-chk" value="writing"      checked> Writing</label>
-              <label><input type="checkbox" class="ws-type-chk" value="reordering"   checked> Reordering</label>
-              <label><input type="checkbox" class="ws-type-chk" value="reading"      checked> Reading</label>
+              <label><input type="checkbox" class="ws-type-chk" value="matching"     checked> 🔗 จับคู่ <span class="ws-type-chk__en">(Matching)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="fill_blank"   checked> ✏️ เติมคำ <span class="ws-type-chk__en">(Fill-blank)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="mcq"          checked> ☑️ เลือกตอบ <span class="ws-type-chk__en">(MCQ)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="true_false"   checked> ✓✗ ถูก/ผิด <span class="ws-type-chk__en">(T/F)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="short_answer" checked> 💬 ตอบสั้น <span class="ws-type-chk__en">(Short Answer)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="writing"      checked> 📝 เขียนเรียงความ <span class="ws-type-chk__en">(Writing)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="reordering"   checked> 🔀 เรียงประโยค <span class="ws-type-chk__en">(Reordering)</span></label>
+              <label><input type="checkbox" class="ws-type-chk" value="reading"      checked> 📖 อ่านจับใจความ <span class="ws-type-chk__en">(Reading)</span></label>
             </div>
 
             <button id="ws-generate-btn" class="ws-primary-btn" onclick="wsGenerate()" style="margin-top:14px;">
@@ -3815,7 +3845,7 @@
 
         <!-- MANUAL MODE -->
         <div id="ws-manual-mode" style="display:none;">
-          <button class="ws-back-btn" onclick="wsSetMode(null)">← เปลี่ยนโหมด</button>
+          <button type="button" class="ws-back-btn" onclick="wsConfirmBackToModePicker()">← เปลี่ยนโหมด</button>
 
           <div class="ws-step">
             <div class="ws-step__head">
@@ -3847,14 +3877,14 @@
             <div class="ws-add-section">
               <label>+ เพิ่ม Section:</label>
               <select id="ws-add-section-type">
-                <option value="matching">Matching (จับคู่)</option>
-                <option value="fill_blank">Fill-in-the-blank</option>
-                <option value="mcq">Multiple Choice</option>
-                <option value="true_false">True / False</option>
-                <option value="short_answer">Short Answer</option>
-                <option value="writing">Writing Prompt</option>
-                <option value="reordering">Sentence Reordering</option>
-                <option value="reading">Reading Comprehension</option>
+                <option value="matching">🔗 จับคู่ — Matching</option>
+                <option value="fill_blank">✏️ เติมคำ — Fill-blank</option>
+                <option value="mcq">☑️ เลือกตอบ — MCQ</option>
+                <option value="true_false">✓✗ ถูก/ผิด — True/False</option>
+                <option value="short_answer">💬 ตอบสั้น — Short Answer</option>
+                <option value="writing">📝 เขียนเรียงความ — Writing</option>
+                <option value="reordering">🔀 เรียงประโยค — Reordering</option>
+                <option value="reading">📖 อ่านจับใจความ — Reading</option>
               </select>
               <button class="ws-secondary-btn" onclick="wsAddSection()">+ เพิ่ม</button>
             </div>
@@ -3929,7 +3959,7 @@
                   <span style="font-size:0.85rem; color:#3a47cc;">⚡ เครดิตคงเหลือ</span>
                   <span id="profile-quota-text" style="font-size:1.1rem; font-weight:800; color:#3a47cc;">— แผน</span>
                 </div>
-                <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#10b981,#047857); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
+                <button onclick="openTopupModal()" style="width:100%; padding:9px; background:linear-gradient(135deg,#5363f0,#3a47cc); color:white; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:600; cursor:pointer;">
                   💚 ร่วมสนับสนุนโปรเจกต์
                 </button>
                 <div style="font-size:0.72rem; color:#6b7280; margin-top:8px; text-align:center;">สมัครใหม่รับฟรี 10 แผนแรก · AI ช่วยฟรีไม่จำกัด</div>
@@ -8394,10 +8424,12 @@ function renderWorksheetsPanel() {
   const cached = _wsLoadCache();
   if (cached && cached.generated && cached.mode) {
     Object.assign(_wsState, cached);
+    _wsState._restoring = true;       // FIX: suppress autosave from cache replay
     _wsShowCachedBanner();
     wsSetMode(cached.mode, true);
     _wsRenderPreview();
     document.getElementById('ws-step-preview').style.display = '';
+    _wsState._restoring = false;
     return;
   }
   if (cached && cached.mode) {
@@ -8416,8 +8448,11 @@ async function _wsLoadSavedList() {
   try {
     const out = await _wsJsonFetch('/worksheets/saved', { method: 'GET' });
     const list = out.worksheets || [];
-    if (!list.length) { sec.style.display = 'none'; return; }
     sec.style.display = '';
+    if (!list.length) {
+      wrap.innerHTML = '<div class="ws-empty" style="padding:16px; font-size:0.86rem;">ยังไม่มีใบงานที่บันทึก — ใบงานที่สร้างจะมาแสดงที่นี่อัตโนมัติ</div>';
+      return;
+    }
     wrap.innerHTML = list.map(w => {
       const dt = w.createdAt ? new Date(w.createdAt).toLocaleDateString('th-TH') : '';
       const modeClass = w.mode === 'ai' ? '' : 'ws-saved-row__mode--manual';
@@ -8468,10 +8503,19 @@ window.wsDeleteSaved = wsDeleteSaved;
 
 async function _wsAutoSave() {
   if (!_wsState.generated) return;
+  if (_wsState._restoring) return;  // FIX: don't resurrect deleted rows
   const d = _wsState.generated;
   // Locate plan + parent unit (AI mode)
   let planNum = null, unitTitle = null, unitNo = null;
   if (_wsState.generatedFrom === 'ai' && _wsState.selectedLessonId) {
+    // FIX: ensure units loaded (autosave may run before AI mode is entered)
+    if (!_wsState.units?.length && !_wsState.orphanLessons?.length) {
+      try {
+        const out = await _wsJsonFetch('/worksheets/units', { method: 'GET' });
+        _wsState.units = out.units || [];
+        _wsState.orphanLessons = out.orphanLessons || [];
+      } catch {}
+    }
     for (const u of (_wsState.units || [])) {
       const hit = (u.lessons || []).find(l => l.id === _wsState.selectedLessonId);
       if (hit) { planNum = hit.planNumber; unitTitle = u.title; unitNo = u.unitNo; break; }
@@ -8531,9 +8575,18 @@ function wsClearWorksheet() {
   _wsState.scanResult = null;
   _wsState.selectedUnitId = null;
   _wsState.selectedLessonId = null;
+  _wsState.savedId = null;        // FIX: prevent overwriting old saved row
   wsSetMode(null);
 }
 window.wsClearWorksheet = wsClearWorksheet;
+
+function wsConfirmBackToModePicker() {
+  if (_wsState.generated) {
+    if (!confirm('ออกจากโหมดนี้ตัวอย่างที่กำลังดูจะหายจากหน้าจอ (แต่ใบงานที่สร้างแล้วยังอยู่ในรายการ "ใบงานที่บันทึกไว้") ดำเนินการต่อ?')) return;
+  }
+  wsSetMode(null);
+}
+window.wsConfirmBackToModePicker = wsConfirmBackToModePicker;
 
 function wsSetMode(mode, skipReset) {
   _wsState.mode = mode;
@@ -8581,8 +8634,9 @@ async function _wsLoadUnits(skipReset) {
     sel.value = _wsState.selectedUnitId;
     wsOnUnitChange();
     if (_wsState.selectedLessonId) {
-      // Re-trigger plan selection (will re-scan + re-show candidates)
-      setTimeout(() => wsSelectPlan(_wsState.selectedLessonId), 50);
+      // FIX: wait until plan-list DOM is rendered, then select (no race)
+      await new Promise(r => requestAnimationFrame(r));
+      wsSelectPlan(_wsState.selectedLessonId);
     }
   } else {
     document.getElementById('ws-step-plans').style.display = 'none';
@@ -8654,9 +8708,14 @@ function _wsRenderCandidates() {
   const candEl = document.getElementById('ws-candidates');
   const r = _wsState.scanResult;
   if (!r || !r.worksheets || !r.worksheets.length) {
+    const lid = _wsState.selectedLessonId;
     candEl.innerHTML = `<div class="ws-candidate__empty">
       ⚠️ ไม่พบ "ใบงาน" ในสื่อหรือกิจกรรมของแผนนี้<br>
-      <span style="font-size:0.85rem; opacity:0.85;">ลองสลับมา "สร้างเอง" หรือกลับไปแก้แผนเพิ่มคำว่า "ใบงาน" ในสื่อ/กิจกรรม</span>
+      <span style="font-size:0.85rem; opacity:0.85;">เพิ่มคำว่า "ใบงาน" ในสื่อหรือกิจกรรม แล้วลองอีกครั้ง</span>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:10px; flex-wrap:wrap;">
+        ${lid ? `<button class="ws-secondary-btn" onclick="editLessonPlan('${escapeHtml(lid)}')">✏️ แก้ไขแผนนี้</button>` : ''}
+        <button class="ws-secondary-btn" onclick="wsSetMode('manual')">✍️ สลับไป "สร้างเอง"</button>
+      </div>
     </div>`;
     return;
   }
@@ -8686,12 +8745,28 @@ function _wsApplySuggestedTypes() {
   const cand = _wsState.scanResult?.worksheets?.[_wsState.selectedWsIdx];
   const suggested = Array.isArray(cand?.suggestedTypes) ? cand.suggestedTypes : [];
   const checks = document.querySelectorAll('.ws-type-chk');
-  if (suggested.length > 0) {
-    checks.forEach(c => { c.checked = suggested.includes(c.value); });
-    _wsShowSuggestionHint(suggested);
+  // FIX: don't clobber user's manual changes on subsequent candidate clicks.
+  // Mark wired-once so listener attaches; once user touches a checkbox, suppress auto-apply.
+  if (!checks[0]?._wsTouched) {
+    checks.forEach(c => {
+      if (!c._wsWired) {
+        c.addEventListener('change', () => {
+          checks.forEach(x => { x._wsTouched = true; });
+        }, { once: true });
+        c._wsWired = true;
+      }
+    });
+    if (suggested.length > 0) {
+      checks.forEach(c => { c.checked = suggested.includes(c.value); });
+      _wsShowSuggestionHint(suggested);
+    } else {
+      checks.forEach(c => { c.checked = true; });
+      _wsClearSuggestionHint();
+    }
   } else {
-    checks.forEach(c => { c.checked = true; });
-    _wsClearSuggestionHint();
+    // User has manually touched — show hint as info but don't change ticks
+    if (suggested.length > 0) _wsShowSuggestionHint(suggested);
+    else _wsClearSuggestionHint();
   }
 }
 
@@ -8702,7 +8777,7 @@ function _wsShowSuggestionHint(types) {
   if (!hint) {
     hint = document.createElement('div');
     hint.id = 'ws-suggest-hint';
-    hint.style.cssText = 'grid-column: 1/-1; font-size:0.82rem; color:#047857; background:#ecfdf5; border:1px solid #10b981; border-radius:6px; padding:6px 10px; margin-bottom:4px;';
+    hint.style.cssText = 'grid-column: 1/-1; font-size:0.82rem; color:#3a47cc; background:#eef0ff; border:1px solid #5363f0; border-radius:6px; padding:6px 10px; margin-bottom:4px;';
     wrap.parentNode.insertBefore(hint, wrap);
   }
   const labels = { matching:'Matching', fill_blank:'Fill-blank', mcq:'MCQ', true_false:'T/F', short_answer:'Short Answer', writing:'Writing', reordering:'Reordering', reading:'Reading' };
@@ -9179,10 +9254,10 @@ function showPromoAnnouncement() {
       <div class="promo-toast-emoji">🎉</div>
       <div class="promo-toast-title" id="promo-toast-title">ฉลองเปิดเทอม แจกฟรี!</div>
       <div class="promo-toast-msg">
-        เพิ่มถึง <span class="promo-toast-credits">40 เครดิต</span><br>
+        เครดิตของคุณเติมถึง <span class="promo-toast-credits">40 เครดิต</span> เรียบร้อยแล้ว<br>
         สร้างแผนการสอนได้จุกๆ 💛
       </div>
-      <button class="promo-toast-btn" id="promo-toast-close">รับเลย</button>
+      <button type="button" class="promo-toast-btn" id="promo-toast-close">ปิด</button>
     </div>
   `;
   document.body.appendChild(backdrop);
@@ -9246,6 +9321,7 @@ function renderTutorialPanel() {
                   src="${embedUrl}"
                   title="${escapeHtml(v.title)}"
                   loading="lazy"
+                  sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerpolicy="strict-origin-when-cross-origin"
                   allowfullscreen></iframe>
@@ -9496,8 +9572,14 @@ function renderLibraryList() {
     if (a === '__orphan') return 1;
     if (b === '__orphan') return -1;
     const ua = groups.get(a).unit, ub = groups.get(b).unit;
-    const an = parseInt(ua?.unitNo) || 9999, bn = parseInt(ub?.unitNo) || 9999;
-    return an - bn;
+    // Numeric-then-alpha sort: "1" < "1.1" < "2" < "ก" < "ข"
+    const aNum = parseFloat(String(ua?.unitNo || '').replace(',', '.'));
+    const bNum = parseFloat(String(ub?.unitNo || '').replace(',', '.'));
+    const aIsNum = !isNaN(aNum), bIsNum = !isNaN(bNum);
+    if (aIsNum && bIsNum) return aNum - bNum;
+    if (aIsNum) return -1;  // numbered before non-numbered
+    if (bIsNum) return  1;
+    return String(ua?.unitNo || ua?.title || '').localeCompare(String(ub?.unitNo || ub?.title || ''), 'th');
   });
   // Sort plans within each group by plan-number
   sortedKeys.forEach(k => {
@@ -10585,7 +10667,7 @@ function openUnitPickerModal(units) {
         const cls = esc(u.classLevel || '');
         return (
           '<button onclick="pickUnitForCurrentPlan(\'' + esc(u.id) + '\')" ' +
-            'style="display:block; width:100%; text-align:left; background:' + (isActive ? '#eef0ff' : '#fff') + '; border:1px solid ' + (isActive ? '#a78bfa' : '#e5e7eb') + '; border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-family:inherit;">' +
+            'style="display:block; width:100%; text-align:left; background:' + (isActive ? '#eef0ff' : '#fff') + '; border:1px solid ' + (isActive ? '#8895f5' : '#e5e7eb') + '; border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-family:inherit;">' +
             '<div style="font-weight:600; color:#1f2937; margin-bottom:4px;">📚 ' + esc(u.title || '(ยังไม่ตั้งชื่อ)') + (isActive ? ' <span style="color:#5363f0; font-size:0.75rem;">• หน่วยปัจจุบัน</span>' : '') + '</div>' +
             '<div style="font-size:0.78rem; color:#6b7280;">' + (subj ? subj + ' · ' : '') + cls + ' · มี ' + n + ' แผน</div>' +
           '</button>'
@@ -12100,7 +12182,7 @@ window.renderUnitDashboard = renderUnitDashboard;
       <h2>ร่วมเป็น "ผู้สนับสนุนรุ่นแรก" ของเรา</h2>
       <p>
         หากคุณครูชอบแผนการสอนนี้ และอยากช่วยให้โปรเจกต์นี้พัฒนาต่อไป<br>
-        การสนับสนุนเล็กๆ ของคุณครูจะเป็น<b style="color:#047857;">กำลังใจ</b>ให้ทีมงานพัฒนาฟีเจอร์ใหม่ๆ ต่อไปค่ะ 💗
+        การสนับสนุนเล็กๆ ของคุณครูจะเป็น<b style="color:#3a47cc;">กำลังใจ</b>ให้ทีมงานพัฒนาฟีเจอร์ใหม่ๆ ต่อไปค่ะ 💗
       </p>
       <div class="topup-balance">
         <span>💎</span>
@@ -13568,10 +13650,10 @@ document.addEventListener('click', (e) => {
         // ─── New header: "สนับสนุนเราเพียง X บาท เพื่อสร้างแผนเพิ่มถึง Y แผน" ───
         const supportHeader = `
           <div style="text-align:center; margin-bottom:14px; padding:18px 14px;
-                      background:linear-gradient(135deg,#ecfdf5,#d1fae5);
-                      border:1px solid #a7f3d0; border-radius:14px;
+                      background:linear-gradient(135deg,#eef0ff,#d1fae5);
+                      border:1px solid #bac4fa; border-radius:14px;
                       box-shadow:inset 0 1px 0 rgba(255,255,255,.7);">
-            <div style="font-size:0.92rem; color:#047857; font-weight:600; line-height:1.55;">
+            <div style="font-size:0.92rem; color:#3a47cc; font-weight:600; line-height:1.55;">
               💚 สนับสนุนเราเพียง <b style="color:#065f46; font-size:1.15rem;">${pkg.price_thb} บาท</b><br>
               เพื่อสร้างแผนเพิ่มถึง <b style="color:#065f46; font-size:1.15rem;">${pkg.credits} แผน</b>
             </div>
@@ -13585,8 +13667,8 @@ document.addEventListener('click', (e) => {
              </div>`
           : `<div style="display:inline-block; padding:6px 14px; background:#fff;
                         border:1px solid #d1fae5; border-radius:999px; margin:6px auto;
-                        font-size:.88rem; color:#047857; font-weight:700;
-                        box-shadow:0 2px 6px rgba(16,185,129,.12);">
+                        font-size:.88rem; color:#3a47cc; font-weight:700;
+                        box-shadow:0 2px 6px rgba(83,99,240,.12);">
                💳 ยอดในตัว QR: ฿${pkg.price_thb}.00
              </div>`;
 
@@ -13617,7 +13699,7 @@ document.addEventListener('click', (e) => {
             : `<div style="font-weight:600; color:#475569; font-size:.88rem;">${platformIcon} ${c}</div>`;
           contactBlock = `
             <div style="margin-top:18px; padding:16px 14px; background:linear-gradient(165deg,#ffffff,#f0fdf4);
-                        border:1px dashed #a7f3d0; border-radius:14px; text-align:center;">
+                        border:1px dashed #bac4fa; border-radius:14px; text-align:center;">
               <div style="font-size:0.85rem; color:#475569; line-height:1.6; margin-bottom:12px;">
                 หากชำระเงินแล้ว <b style="color:#dc2626;">ไม่ได้รับเครดิต</b><br>
                 คุณครูสามารถส่งสลิปให้ทีมงานเพื่อตรวจสอบได้
@@ -13630,11 +13712,11 @@ document.addEventListener('click', (e) => {
         const slipUploader = _topupConfig.slipok ? `
           <div style="margin-top:16px; padding:18px 16px; background:linear-gradient(165deg,#f0fdf4,#dcfce7);
                       border:1px solid #86efac; border-radius:14px;
-                      box-shadow:0 4px 12px rgba(16,185,129,.12), inset 0 1px 0 rgba(255,255,255,.7);">
+                      box-shadow:0 4px 12px rgba(83,99,240,.12), inset 0 1px 0 rgba(255,255,255,.7);">
             <div style="font-size:.95rem; font-weight:800; color:#064e3b; margin-bottom:4px; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px;">
               <span>📤</span><span>อัพโหลดสลิปเพื่อรับเครดิตอัตโนมัติ</span>
             </div>
-            <div style="font-size:.78rem; color:#047857; text-align:center; margin-bottom:14px; line-height:1.55;">
+            <div style="font-size:.78rem; color:#3a47cc; text-align:center; margin-bottom:14px; line-height:1.55;">
               ระบบตรวจสอบสลิปอัตโนมัติด้วย SlipOK<br>
               <b>ยืนยันแล้วเครดิตเข้าทันที</b>
             </div>
