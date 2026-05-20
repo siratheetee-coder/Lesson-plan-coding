@@ -2746,8 +2746,8 @@
   }
   .ws-type-checks {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 6px 14px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px 14px;
     background: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -2758,7 +2758,9 @@
     display: flex; gap: 6px; align-items: center;
     font-size: 0.88rem; color: #1f2937;
     cursor: pointer;
+    white-space: nowrap;
   }
+  .ws-type-checks label > input { flex-shrink: 0; }
   .ws-type-chk__en { color: #9ca3af; font-weight: 400; font-size: 0.78rem; margin-left: 2px; }
   @media (max-width: 600px) {
     .tutorial-item { padding: 14px 14px 12px; }
