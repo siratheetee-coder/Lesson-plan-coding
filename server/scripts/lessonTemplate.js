@@ -235,11 +235,14 @@ function buildRight(d) {
 // ─── FOOTER (post-notes + signatures) ───────────────────
 function buildFooter() {
   const noteLines = [];
-  for (let i = 0; i < 3; i++) {
+  // 4 lines total. Last paragraph has no spacing-after so it doesn't push
+  // an extra empty line past the cell padding.
+  const N_LINES = 4;
+  for (let i = 0; i < N_LINES; i++) {
     noteLines.push(new Paragraph({
-      children: [T(' ', { size: 22 })], // bottom border needs a run
+      children: [T(' ', { size: 22 })],
       border: { bottom: { style: BorderStyle.DOTTED, size: 8, color: '6B7280', space: 4 } },
-      spacing: { after: 180 },
+      spacing: (i === N_LINES - 1) ? { after: 0 } : { after: 180 },
     }));
   }
   return [
