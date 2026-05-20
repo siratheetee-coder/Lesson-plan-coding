@@ -93,7 +93,7 @@ function buildHeader(d) {
   const inner = [
     P([
       T('แผนการจัดการเรียนรู้ที่ ', { bold: true, size: 30 }),
-      T(d.planNo, { bold: true, size: 30, color: C.headBorder }),
+      T(d.planNo, { bold: true, size: 30 }),
     ], { alignment: AlignmentType.CENTER, spacing: { after: 100 } }),
     new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -235,7 +235,13 @@ function buildRight(d) {
 // ─── FOOTER (post-notes + signatures) ───────────────────
 function buildFooter() {
   const noteLines = [];
-  for (let i = 0; i < 3; i++) noteLines.push(P(T('.'.repeat(140), { size: 22, color: C.meta })));
+  for (let i = 0; i < 3; i++) {
+    noteLines.push(new Paragraph({
+      children: [T(' ', { size: 22 })], // bottom border needs a run
+      border: { bottom: { style: BorderStyle.DOTTED, size: 8, color: '6B7280', space: 4 } },
+      spacing: { after: 180 },
+    }));
+  }
   return [
     blank(),
     heartPanel('บันทึกหลังการสอน', noteLines),
