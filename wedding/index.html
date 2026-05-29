@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wedding Invitation — Groom & Bride</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf8f5;
+      --beige: #f0ebe3;
+      --border: #e0d5c8;
+      --accent: #8b6e5a;
+      --accent-dark: #6b5144;
+      --text: #2c2c2c;
+      --text-muted: #7a7268;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      transition: background 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(250, 248, 245, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      transition: color 0.4s;
+    }
+    nav.scrolled .nav-logo { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 0.88rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: rgba(255,255,255,0.9);
+      transition: color 0.3s;
+    }
+    nav.scrolled .nav-links a { color: var(--text-muted); }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-rsvp {
+      padding: 8px 22px;
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 2px;
+      color: var(--white) !important;
+      transition: background 0.3s, border-color 0.3s, color 0.3s !important;
+    }
+    nav.scrolled .nav-rsvp {
+      border-color: var(--accent);
+      color: var(--accent) !important;
+    }
+    .nav-rsvp:hover {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: var(--white) !important;
+    }
+    .nav-hamburger { display: none; cursor: pointer; background: none; border: none; padding: 4px; }
+    .nav-hamburger span {
+      display: block;
+      width: 22px; height: 2px;
+      background: var(--white);
+      margin: 5px 0;
+      transition: background 0.4s;
+    }
+    nav.scrolled .nav-hamburger span { background: var(--text); }
+
+    /* ── HERO ── */
+    #hero {
+      height: 100vh;
+      min-height: 600px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #c9b49a 0%, #a88870 35%, #7a5c48 70%, #4a3428 100%);
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.28);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      color: var(--white);
+      max-width: 640px;
+      padding: 0 24px;
+    }
+    .hero-date {
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .hero-date::before, .hero-date::after {
+      content: '';
+      width: 40px; height: 1px;
+      background: rgba(255,255,255,0.6);
+    }
+    .hero-subtitle {
+      font-size: 1rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      opacity: 0.9;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+    .hero-scroll {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.7;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--white);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: opacity 0.3s;
+    }
+    .hero-scroll:hover { opacity: 1; }
+    .scroll-line {
+      width: 1px; height: 44px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.6; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.15); }
+    }
+
+    /* ── SECTION BASE ── */
+    section { padding: 96px 24px; }
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .section-divider {
+      width: 48px; height: 1px;
+      background: var(--accent);
+      margin: 0 auto 32px;
+    }
+    .section-body { max-width: 580px; margin: 0 auto; text-align: center; }
+    .section-body p { color: var(--text-muted); line-height: 1.9; }
+
+    /* ── STORY ── */
+    #story { background: var(--white); }
+    .story-container {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .story-image-wrap {
+      position: relative;
+    }
+    .story-image-placeholder {
+      width: 100%;
+      padding-bottom: 125%;
+      background: linear-gradient(135deg, #e8ddd4 0%, #c9b49a 100%);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .story-image-placeholder::after {
+      content: '♡';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .story-frame {
+      position: absolute;
+      inset: 16px -16px -16px 16px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      z-index: -1;
+    }
+    .story-text { text-align: left; }
+    .story-text .section-divider { margin-left: 0; }
+    .story-text p { color: var(--text-muted); margin-bottom: 16px; }
+    .story-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+    .story-detail-item { display: flex; gap: 14px; align-items: flex-start; }
+    .detail-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .detail-label { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
+    .detail-value { font-weight: 500; font-size: 0.95rem; }
+
+    /* ── GALLERY ── */
+    #gallery { background: var(--cream); }
+    .gallery-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      columns: 3;
+      column-gap: 16px;
+    }
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 2px;
+      position: relative;
+    }
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.04); }
+    .gallery-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-item:hover .gallery-item-overlay { background: rgba(0,0,0,0.2); }
+    .gallery-item-overlay span {
+      color: white;
+      font-size: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-item-overlay span { opacity: 1; }
+
+    .gallery-placeholder {
+      width: 100%;
+      display: block;
+      border-radius: 2px;
+    }
+
+    .gallery-empty {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+    .gallery-empty-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.4; }
+
+    /* ── LIGHTBOX ── */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.93);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.active { display: flex; }
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 2px;
+    }
+    .lb-close {
+      position: absolute;
+      top: 20px; right: 24px;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .lb-close:hover { opacity: 1; }
+    .lb-prev, .lb-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 16px;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .lb-prev:hover, .lb-next:hover { opacity: 1; }
+    .lb-prev { left: 16px; }
+    .lb-next { right: 16px; }
+    .lb-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── REGISTRATION ── */
+    #rsvp { background: var(--white); }
+    .form-container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 48px;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .form-group {
+      margin-bottom: 24px;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    label .optional {
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      text-transform: none;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b6e5a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+
+    .food-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .food-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .food-option:has(input:checked) {
+      border-color: var(--accent);
+      background: #f5ede7;
+    }
+    .food-option input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+      margin: 0;
+    }
+    .food-option span { font-size: 0.88rem; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { background: var(--accent-dark); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .form-error {
+      color: #c0392b;
+      font-size: 0.82rem;
+      margin-top: 6px;
+      display: none;
+    }
+    .form-error.visible { display: block; }
+
+    /* ── THANK YOU MODAL ── */
+    #thankModal {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #thankModal.active { display: flex; }
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+    }
+    .modal-card {
+      position: relative;
+      background: var(--white);
+      border-radius: 4px;
+      padding: 52px 44px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.85) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-icon { font-size: 3rem; margin-bottom: 16px; }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+    .modal-text { color: var(--text-muted); margin-bottom: 28px; line-height: 1.8; }
+    .modal-close-btn {
+      padding: 11px 32px;
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .modal-close-btn:hover { background: var(--accent-dark); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #2c2826;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 52px 24px;
+    }
+    .footer-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--white);
+      margin-bottom: 8px;
+      font-weight: 400;
+    }
+    .footer-date { font-size: 0.85rem; letter-spacing: 0.2em; margin-bottom: 24px; }
+    .footer-divider {
+      width: 40px; height: 1px;
+      background: rgba(255,255,255,0.2);
+      margin: 24px auto;
+    }
+    .footer-info { font-size: 0.82rem; line-height: 2; }
+
+    /* ── ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--cream); border-bottom: 1px solid var(--border); flex-direction: column; gap: 0; padding: 8px 0; }
+      .nav-links.open { display: flex; }
+      .nav-links a { color: var(--text-muted) !important; padding: 12px 24px; }
+      .nav-rsvp { border-color: var(--accent) !important; color: var(--accent) !important; }
+      .nav-hamburger { display: block; }
+
+      .story-container { grid-template-columns: 1fr; gap: 40px; }
+      .story-image-wrap { max-width: 320px; margin: 0 auto; }
+      .story-text { text-align: center; }
+      .story-text .section-divider { margin: 0 auto 32px; }
+      .story-detail-item { justify-content: center; }
+
+      .gallery-grid { columns: 2; }
+
+      .form-container { padding: 28px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .food-options { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .gallery-grid { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="nav-logo">G & B</div>
+  <button class="nav-hamburger" id="hamburger" aria-label="menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#hero">หน้าแรก</a></li>
+    <li><a href="#story">เรื่องราวของเรา</a></li>
+    <li><a href="#gallery">แกลเลอรี่</a></li>
+    <li><a href="#rsvp" class="nav-rsvp">RSVP</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-date">29 November 2025</div>
+    <p class="hero-subtitle">We're Getting Married!</p>
+    <h1 class="hero-title">Groom &amp; Bride</h1>
+    <button class="hero-scroll" onclick="document.getElementById('story').scrollIntoView({behavior:'smooth'})">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </button>
+  </div>
+</section>
+
+<!-- STORY -->
+<section id="story">
+  <div class="story-container">
+    <div class="story-image-wrap fade-up">
+      <div class="story-image-placeholder"></div>
+      <div class="story-frame"></div>
+    </div>
+    <div class="story-text fade-up">
+      <div class="section-label">Our Story</div>
+      <h2 class="section-title">เรื่องราวของเรา</h2>
+      <div class="section-divider"></div>
+      <p>จากความบังเอิญเล็กๆ ที่กลายเป็นความทรงจำอันงดงาม เราค้นพบว่าชีวิตสวยงามขึ้นเมื่อได้ใช้เวลาร่วมกัน</p>
+      <p>วันนี้เราอยากเชิญทุกท่านมาร่วมเป็นสักขีพยานในวันพิเศษที่สุดของชีวิต</p>
+      <div class="story-detail">
+        <div class="story-detail-item">
+          <span class="detail-icon">📅</span>
+          <div>
+            <div class="detail-label">วันที่</div>
+            <div class="detail-value">เสาร์ที่ 29 พฤศจิกายน 2568</div>
+          </div>
+        </div>
+        <div class="story-detail-item">
+          <span class="detail-icon">⏰</span>
+          <div>
+            <div class="detail-label">เวลา</div>
+            <div class="detail-value">17:00 — 22:00 น.</div>
+          </div>
+        </div>
+        <div class="story-detail-item">
+          <span class="detail-icon">📍</span>
+          <div>
+            <div class="detail-label">สถานที่</div>
+            <div class="detail-value">โรงแรม / ห้องจัดเลี้ยง, กรุงเทพมหานคร</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="section-body fade-up">
+    <div class="section-label">Memories</div>
+    <h2 class="section-title">แกลเลอรี่</h2>
+    <div class="section-divider"></div>
+    <p>ภาพความทรงจำของเรา</p>
+  </div>
+  <br><br>
+  <div class="gallery-grid" id="galleryGrid">
+    <!-- filled by JS -->
+  </div>
+</section>
+
+<!-- REGISTRATION -->
+<section id="rsvp">
+  <div class="section-body fade-up">
+    <div class="section-label">RSVP</div>
+    <h2 class="section-title">ยืนยันการเข้าร่วม</h2>
+    <div class="section-divider"></div>
+    <p>กรุณายืนยันการเข้าร่วมงานภายใน 30 ตุลาคม 2568</p>
+  </div>
+  <br><br>
+  <form class="form-container fade-up" id="rsvpForm" novalidate>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">ชื่อ-นามสกุล <span style="color:#c0392b">*</span></label>
+        <input type="text" id="name" name="name" placeholder="กรอกชื่อ-นามสกุล" autocomplete="name" />
+        <div class="form-error" id="nameError">กรุณากรอกชื่อ-นามสกุล</div>
+      </div>
+      <div class="form-group">
+        <label for="phone">เบอร์โทรศัพท์ <span class="optional">(ไม่บังคับ)</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="0812345678" autocomplete="tel" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="guests">จำนวนผู้ติดตาม (นอกจากตัวท่าน)</label>
+      <select id="guests" name="guests">
+        <option value="0">มาคนเดียว</option>
+        <option value="1">+ 1 คน</option>
+        <option value="2">+ 2 คน</option>
+        <option value="3">+ 3 คน</option>
+        <option value="4">+ 4 คน</option>
+        <option value="5">+ 5 คน</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>ข้อจำกัดด้านอาหาร / Allergy</label>
+      <div class="food-options">
+        <label class="food-option">
+          <input type="checkbox" name="food" value="ทานได้ทุกอย่าง" checked />
+          <span>🍽️ ทานได้ทุกอย่าง</span>
+        </label>
+        <label class="food-option">
+          <input type="checkbox" name="food" value="มังสวิรัติ" />
+          <span>🥗 มังสวิรัติ</span>
+        </label>
+        <label class="food-option">
+          <input type="checkbox" name="food" value="เจ" />
+          <span>🌿 เจ</span>
+        </label>
+        <label class="food-option">
+          <input type="checkbox" name="food" value="แพ้อาหารทะเล" />
+          <span>🦐 แพ้อาหารทะเล</span>
+        </label>
+      </div>
+      <input type="text" id="foodNote" name="foodNote" placeholder="ระบุ allergy หรือข้อจำกัดอื่นๆ (ถ้ามี)" />
+    </div>
+
+    <div class="form-group">
+      <label for="message">ข้อความถึงคู่บ่าวสาว <span class="optional">(ไม่บังคับ)</span></label>
+      <textarea id="message" name="message" placeholder="คำอวยพร หรือข้อความที่อยากบอก…"></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">ยืนยันการเข้าร่วมงาน</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-title">Groom &amp; Bride</div>
+  <div class="footer-date">29 · 11 · 2025</div>
+  <div class="footer-divider"></div>
+  <div class="footer-info">
+    โรงแรม / ห้องจัดเลี้ยง, กรุงเทพมหานคร<br>
+    17:00 — 22:00 น.
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button class="lb-close" id="lbClose">✕</button>
+  <button class="lb-prev" id="lbPrev">‹</button>
+  <img id="lbImg" src="" alt="gallery" />
+  <button class="lb-next" id="lbNext">›</button>
+  <div class="lb-counter" id="lbCounter"></div>
+</div>
+
+<!-- THANK YOU MODAL -->
+<div id="thankModal">
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-card">
+    <div class="modal-icon">💐</div>
+    <h2 class="modal-title">ขอบคุณมากครับ / ค่ะ</h2>
+    <p class="modal-text">เราได้รับการยืนยันของท่านแล้ว<br>รอพบกันในวันพิเศษของเรา!</p>
+    <button class="modal-close-btn" id="modalCloseBtn">ปิด</button>
+  </div>
+</div>
+
+<script>
+  // NAV scroll effect
+  const nav = document.getElementById('mainNav');
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+  hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // Intersection observer for fade-up
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Gallery
+  const PLACEHOLDER_COLORS = [
+    ['#e8ddd4','#c9b49a'], ['#d4c5b5','#a88870'], ['#c9b49a','#8b6e5a'],
+    ['#ddd0c4','#b89a85'], ['#e0d5c8','#c5a892'], ['#ccc0b0','#9a7d6e'],
+  ];
+  const PLACEHOLDER_HEIGHTS = [260, 340, 300, 380, 280, 320];
+
+  async function loadGallery() {
+    const grid = document.getElementById('galleryGrid');
+    try {
+      const res = await fetch('/api/photos');
+      const { photos } = await res.json();
+      if (photos && photos.length > 0) {
+        grid.innerHTML = photos.map((src, i) =>
+          `<div class="gallery-item" data-index="${i}">
+            <img src="${src}" alt="gallery photo ${i+1}" loading="lazy" />
+            <div class="gallery-item-overlay"><span>⤢</span></div>
+          </div>`
+        ).join('');
+        setupLightbox(photos);
+      } else {
+        renderPlaceholders(grid);
+      }
+    } catch {
+      renderPlaceholders(grid);
+    }
+  }
+
+  function renderPlaceholders(grid) {
+    grid.innerHTML = PLACEHOLDER_COLORS.map((colors, i) => {
+      const h = PLACEHOLDER_HEIGHTS[i];
+      return `<div class="gallery-item placeholder-item">
+        <div class="gallery-placeholder" style="height:${h}px;background:linear-gradient(135deg,${colors[0]},${colors[1]});display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:2rem;opacity:0.4;color:white;">♡</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Lightbox
+  let lbPhotos = [], lbIndex = 0;
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbCounter = document.getElementById('lbCounter');
+
+  function openLightbox(photos, index) {
+    lbPhotos = photos; lbIndex = index;
+    lbImg.src = lbPhotos[lbIndex];
+    lbCounter.textContent = `${lbIndex + 1} / ${lbPhotos.length}`;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+  }
+  function lbNavigate(dir) {
+    lbIndex = (lbIndex + dir + lbPhotos.length) % lbPhotos.length;
+    lbImg.src = lbPhotos[lbIndex];
+    lbCounter.textContent = `${lbIndex + 1} / ${lbPhotos.length}`;
+  }
+
+  function setupLightbox(photos) {
+    document.querySelectorAll('.gallery-item').forEach((item, i) => {
+      item.addEventListener('click', () => openLightbox(photos, i));
+    });
+  }
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lbPrev').addEventListener('click', () => lbNavigate(-1));
+  document.getElementById('lbNext').addEventListener('click', () => lbNavigate(1));
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lbNavigate(-1);
+    if (e.key === 'ArrowRight') lbNavigate(1);
+  });
+
+  // RSVP Form
+  const form = document.getElementById('rsvpForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const nameInput = document.getElementById('name');
+  const nameError = document.getElementById('nameError');
+
+  nameInput.addEventListener('input', () => {
+    nameError.classList.remove('visible');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    if (name.length < 2) {
+      nameError.classList.add('visible');
+      nameInput.focus();
+      return;
+    }
+
+    const foodCheckboxes = form.querySelectorAll('input[name="food"]:checked');
+    const food = Array.from(foodCheckboxes).map(cb => cb.value);
+
+    const payload = {
+      name,
+      phone: form.phone.value.trim(),
+      guests: parseInt(form.guests.value) || 0,
+      food,
+      foodNote: document.getElementById('foodNote').value.trim(),
+      message: document.getElementById('message').value.trim(),
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'กำลังส่ง…';
+
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        form.reset();
+        form.querySelector('input[name="food"][value="ทานได้ทุกอย่าง"]').checked = true;
+        document.getElementById('thankModal').classList.add('active');
+      } else {
+        alert(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+      }
+    } catch {
+      alert('ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'ยืนยันการเข้าร่วมงาน';
+    }
+  });
+
+  // Modal close
+  document.getElementById('modalCloseBtn').addEventListener('click', () => {
+    document.getElementById('thankModal').classList.remove('active');
+  });
+  document.getElementById('modalBackdrop').addEventListener('click', () => {
+    document.getElementById('thankModal').classList.remove('active');
+  });
+
+  loadGallery();
+</script>
+</body>
+</html>

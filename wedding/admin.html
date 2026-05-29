@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Wedding Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #faf8f5;
+      --beige: #f0ebe3;
+      --border: #e0d5c8;
+      --accent: #8b6e5a;
+      --accent-dark: #6b5144;
+      --text: #2c2c2c;
+      --text-muted: #7a7268;
+    }
+    body { font-family: 'Sarabun', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+    /* LOGIN */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 52px 44px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+    }
+    .login-icon { font-size: 2rem; margin-bottom: 16px; }
+    .login-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    .login-subtitle { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 28px; }
+    .login-card input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .login-card input:focus { outline: none; border-color: var(--accent); }
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 2px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .login-error { color: #c0392b; font-size: 0.82rem; margin-top: 10px; display: none; }
+    .login-error.visible { display: block; }
+
+    /* ADMIN LAYOUT */
+    #adminScreen { display: none; }
+    .admin-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+    }
+    .admin-header-actions { display: flex; gap: 10px; align-items: center; }
+    .btn-small {
+      padding: 8px 18px;
+      border-radius: 2px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.05em;
+    }
+    .btn-outline {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger {
+      background: none;
+      border: 1px solid #e0c0c0;
+      color: #c0392b;
+    }
+    .btn-danger:hover { background: #fdf0f0; }
+
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    /* STATS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label { font-size: 0.8rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+    .tab-btn {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* TABLE */
+    .table-wrap { background: white; border: 1px solid var(--border); border-radius: 4px; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--cream);
+    }
+    tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--beige);
+      vertical-align: top;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--cream); }
+    .food-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--beige);
+      border-radius: 2px;
+      font-size: 0.75rem;
+      color: var(--accent-dark);
+      margin: 2px 2px 2px 0;
+    }
+    .del-btn {
+      background: none;
+      border: none;
+      color: #c0392b;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 6px;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+    .del-btn:hover { opacity: 1; }
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* UPLOAD */
+    .upload-zone {
+      background: white;
+      border: 2px dashed var(--border);
+      border-radius: 4px;
+      padding: 52px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent);
+      background: #fdf8f5;
+    }
+    .upload-zone-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+    .upload-zone h3 { font-weight: 500; margin-bottom: 8px; }
+    .upload-zone p { color: var(--text-muted); font-size: 0.85rem; }
+    #fileInput { display: none; }
+
+    .upload-progress {
+      margin-top: 16px;
+      background: var(--beige);
+      border-radius: 2px;
+      height: 4px;
+      overflow: hidden;
+      display: none;
+    }
+    .upload-progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .photo-thumb {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 2px;
+      background: var(--beige);
+    }
+    .photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-del {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 24px; height: 24px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .photo-thumb:hover .photo-del { opacity: 1; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--text);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .admin-header { padding: 14px 16px; }
+      .admin-main { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon">🔐</div>
+    <h1 class="login-title">Admin Panel</h1>
+    <p class="login-subtitle">กรอก Secret เพื่อเข้าสู่ระบบ</p>
+    <input type="password" id="secretInput" placeholder="Admin secret" />
+    <button class="btn-primary" id="loginBtn">เข้าสู่ระบบ</button>
+    <div class="login-error" id="loginError">Secret ไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen">
+  <div class="admin-header">
+    <div class="admin-header-title">Wedding Admin Panel</div>
+    <div class="admin-header-actions">
+      <button class="btn-small btn-outline" id="refreshBtn">↻ รีเฟรช</button>
+      <button class="btn-small btn-outline" id="exportBtn">↓ Export CSV</button>
+      <button class="btn-small btn-danger" id="logoutBtn">ออกจากระบบ</button>
+    </div>
+  </div>
+  <div class="admin-main">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value" id="statRegistrations">0</div><div class="stat-label">ผู้ลงทะเบียน</div></div>
+      <div class="stat-card"><div class="stat-value" id="statGuests">0</div><div class="stat-label">ผู้เข้าร่วมทั้งหมด</div></div>
+      <div class="stat-card"><div class="stat-value" id="statPhotos">0</div><div class="stat-label">รูปภาพ</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="registrations">รายการลงทะเบียน</button>
+      <button class="tab-btn" data-tab="photos">จัดการรูปภาพ</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-registrations">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ชื่อ-นามสกุล</th>
+              <th>เบอร์โทร</th>
+              <th>ผู้ติดตาม</th>
+              <th>อาหาร</th>
+              <th>ข้อความ</th>
+              <th>วันที่</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="registrationsTable"></tbody>
+        </table>
+        <div class="empty-state" id="registrationsEmpty" style="display:none">ยังไม่มีผู้ลงทะเบียน</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-photos">
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-zone-icon">🖼️</div>
+        <h3>คลิกหรือลากรูปภาพมาวางที่นี่</h3>
+        <p>รองรับ JPG, PNG, WEBP — ขนาดสูงสุด 10 MB ต่อไฟล์</p>
+        <input type="file" id="fileInput" accept="image/*" multiple />
+      </div>
+      <div class="upload-progress" id="uploadProgress">
+        <div class="upload-progress-bar" id="uploadProgressBar"></div>
+      </div>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let SECRET = '';
+
+  function showToast(msg, duration = 3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  // LOGIN
+  async function tryLogin(secret) {
+    try {
+      const res = await fetch(`/api/registrations?secret=${encodeURIComponent(secret)}`);
+      if (res.ok) {
+        SECRET = secret;
+        sessionStorage.setItem('wedding_secret', secret);
+        showAdmin();
+        return true;
+      }
+    } catch {}
+    return false;
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const val = document.getElementById('secretInput').value.trim();
+    if (!val) return;
+    const ok = await tryLogin(val);
+    if (!ok) document.getElementById('loginError').classList.add('visible');
+    else document.getElementById('loginError').classList.remove('visible');
+  });
+  document.getElementById('secretInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  // Auto-login from session
+  const saved = sessionStorage.getItem('wedding_secret');
+  if (saved) tryLogin(saved);
+
+  function showAdmin() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminScreen').style.display = 'block';
+    loadAll();
+  }
+
+  // LOGOUT
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('wedding_secret');
+    SECRET = '';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminScreen').style.display = 'none';
+    document.getElementById('secretInput').value = '';
+  });
+
+  // TABS
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+
+  // LOAD DATA
+  async function loadAll() {
+    await Promise.all([loadRegistrations(), loadPhotos()]);
+  }
+  document.getElementById('refreshBtn').addEventListener('click', loadAll);
+
+  async function loadRegistrations() {
+    try {
+      const res = await fetch(`/api/registrations?secret=${SECRET}`);
+      const { registrations, totalGuests, count } = await res.json();
+      document.getElementById('statRegistrations').textContent = count;
+      document.getElementById('statGuests').textContent = totalGuests;
+      renderTable(registrations);
+    } catch {}
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('registrationsTable');
+    const empty = document.getElementById('registrationsEmpty');
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map((r, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${esc(r.name)}</strong></td>
+        <td>${esc(r.phone) || '<span style="color:#bbb">—</span>'}</td>
+        <td style="text-align:center">${r.guests}</td>
+        <td>${(r.food || []).map(f => `<span class="food-tag">${esc(f)}</span>`).join('')}${r.foodNote ? `<br><small style="color:#888">${esc(r.foodNote)}</small>` : ''}</td>
+        <td style="max-width:200px;word-break:break-word">${esc(r.message) || '<span style="color:#bbb">—</span>'}</td>
+        <td style="white-space:nowrap;font-size:0.8rem;color:var(--text-muted)">${new Date(r.createdAt).toLocaleDateString('th-TH', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td>
+        <td><button class="del-btn" onclick="deleteReg('${r.id}')">✕</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function deleteReg(id) {
+    if (!confirm('ลบรายการนี้?')) return;
+    await fetch(`/api/registrations/${id}?secret=${SECRET}`, { method: 'DELETE' });
+    showToast('ลบเรียบร้อย');
+    loadRegistrations();
+  }
+
+  // EXPORT CSV
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+    try {
+      const res = await fetch(`/api/registrations?secret=${SECRET}`);
+      const { registrations } = await res.json();
+      const header = ['#','ชื่อ-นามสกุล','เบอร์โทร','ผู้ติดตาม','อาหาร','หมายเหตุอาหาร','ข้อความ','วันที่ลงทะเบียน'];
+      const rows = registrations.map((r, i) => [
+        i+1, r.name, r.phone, r.guests,
+        (r.food||[]).join(' / '), r.foodNote, r.message,
+        new Date(r.createdAt).toLocaleString('th-TH')
+      ]);
+      const csv = [header, ...rows].map(row =>
+        row.map(cell => `"${String(cell||'').replace(/"/g,'""')}"`).join(',')
+      ).join('\n');
+      const blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'wedding-registrations.csv'; a.click();
+      URL.revokeObjectURL(url);
+    } catch { showToast('Export ล้มเหลว'); }
+  });
+
+  // PHOTOS
+  async function loadPhotos() {
+    const res = await fetch('/api/photos');
+    const { photos } = await res.json();
+    document.getElementById('statPhotos').textContent = photos.length;
+    const grid = document.getElementById('photoGrid');
+    grid.innerHTML = photos.map(src => {
+      const filename = src.split('/').pop();
+      return `<div class="photo-thumb">
+        <img src="${src}" loading="lazy" alt="" />
+        <button class="photo-del" onclick="deletePhoto('${filename}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function deletePhoto(filename) {
+    if (!confirm('ลบรูปนี้?')) return;
+    await fetch(`/api/photos/${filename}?secret=${SECRET}`, { method: 'DELETE' });
+    showToast('ลบรูปเรียบร้อย');
+    loadPhotos();
+  }
+
+  // UPLOAD
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    uploadFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', () => uploadFiles(fileInput.files));
+
+  async function uploadFiles(files) {
+    if (!files || files.length === 0) return;
+    const formData = new FormData();
+    Array.from(files).forEach(f => formData.append('photos', f));
+
+    const progress = document.getElementById('uploadProgress');
+    const bar = document.getElementById('uploadProgressBar');
+    progress.style.display = 'block';
+    bar.style.width = '30%';
+
+    try {
+      const res = await fetch(`/api/photos?secret=${SECRET}`, { method: 'POST', body: formData });
+      bar.style.width = '100%';
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Upload สำเร็จ ${data.files.length} ไฟล์`);
+        loadPhotos();
+      } else {
+        showToast('Upload ล้มเหลว: ' + (data.error || ''));
+      }
+    } catch {
+      showToast('Upload ล้มเหลว');
+    } finally {
+      setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 1000);
+      fileInput.value = '';
+    }
+  }
+</script>
+</body>
+</html>
