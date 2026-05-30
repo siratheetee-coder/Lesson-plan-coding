@@ -719,29 +719,6 @@
     </div>
 
     <div class="form-group">
-      <label>ข้อจำกัดด้านอาหาร / Allergy</label>
-      <div class="food-options">
-        <label class="food-option">
-          <input type="checkbox" name="food" value="ทานได้ทุกอย่าง" checked />
-          <span>🍽️ ทานได้ทุกอย่าง</span>
-        </label>
-        <label class="food-option">
-          <input type="checkbox" name="food" value="มังสวิรัติ" />
-          <span>🥗 มังสวิรัติ</span>
-        </label>
-        <label class="food-option">
-          <input type="checkbox" name="food" value="เจ" />
-          <span>🌿 เจ</span>
-        </label>
-        <label class="food-option">
-          <input type="checkbox" name="food" value="แพ้อาหารทะเล" />
-          <span>🦐 แพ้อาหารทะเล</span>
-        </label>
-      </div>
-      <input type="text" id="foodNote" name="foodNote" placeholder="ระบุ allergy หรือข้อจำกัดอื่นๆ (ถ้ามี)" />
-    </div>
-
-    <div class="form-group">
       <label for="message">ข้อความถึงคู่บ่าวสาว <span class="optional">(ไม่บังคับ)</span></label>
       <textarea id="message" name="message" placeholder="คำอวยพร หรือข้อความที่อยากบอก…"></textarea>
     </div>
@@ -899,15 +876,10 @@
       return;
     }
 
-    const foodCheckboxes = form.querySelectorAll('input[name="food"]:checked');
-    const food = Array.from(foodCheckboxes).map(cb => cb.value);
-
     const payload = {
       name,
       phone: form.phone.value.trim(),
       guests: parseInt(form.guests.value) || 0,
-      food,
-      foodNote: document.getElementById('foodNote').value.trim(),
       message: document.getElementById('message').value.trim(),
     };
 
@@ -923,7 +895,6 @@
       const data = await res.json();
       if (data.success) {
         form.reset();
-        form.querySelector('input[name="food"][value="ทานได้ทุกอย่าง"]').checked = true;
         document.getElementById('thankModal').classList.add('active');
       } else {
         alert(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
