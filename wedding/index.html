@@ -300,6 +300,40 @@
       transition: opacity 0.3s;
     }
     .gallery-item:hover .gallery-item-overlay span { opacity: 1; }
+    .gallery-like {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.15s;
+    }
+    .gallery-like:hover { background: rgba(0,0,0,0.65); }
+    .gallery-like:active { transform: scale(0.92); }
+    .gallery-like .like-heart {
+      font-size: 1rem;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+    .gallery-like.liked { background: rgba(193,73,83,0.9); }
+    .gallery-like.liked .like-heart { transform: scale(1.15); }
+    .like-pop { animation: likePop 0.35s ease; }
+    @keyframes likePop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.4); }
+      100% { transform: scale(1.15); }
+    }
 
     .gallery-placeholder {
       width: 100%;
@@ -641,8 +675,8 @@
       <div class="section-label">Our Story</div>
       <h2 class="section-title">เรื่องราวของเรา</h2>
       <div class="section-divider"></div>
-      <p>เราเริ่มต้นจากวันธรรมดาวันหนึ่ง — นั่งเรียนด้วยกัน ซ้อมหลัดด้วยกัน ค่อย ๆ รู้จักกันทีละนิด จนโลกของเราสองคนเริ่มทับซ้อนกันมากขึ้นทุกวัน</p>
-      <p>จนวันหนึ่ง เราก็รู้ว่า… อยากให้คนนี้อยู่ข้าง ๆ ไปตลอด และสุดท้าย เราก็ทำได้จริง ๆ</p>
+      <p>เราเริ่มต้นจากวันธรรมดาวันหนึ่ง นั่งเรียนด้วยกัน ซ้อมหลัดด้วยกัน ค่อย ๆ รู้จักกันทีละนิด จนโลกของเราสองคนเริ่มทับซ้อนกันมากขึ้นทุกวัน</p>
+      <p>จนวันหนึ่ง เราก็รู้ว่า อยากให้คนนี้อยู่ข้าง ๆ ไปตลอด และสุดท้าย เราก็ทำได้จริง ๆ</p>
       <p>วันนี้เราอยากเชิญทุกคนที่รักมาร่วมเป็นสักขีพยานในก้าวที่สำคัญที่สุดของชีวิตเราด้วยกัน</p>
       <div class="story-detail">
         <div class="story-detail-item">
@@ -786,25 +820,79 @@
   ];
   const PLACEHOLDER_HEIGHTS = [260, 340, 300, 380, 280, 320];
 
+  const fileKey = src => src.split('/').pop();
+  function getLikedSet() {
+    try { return new Set(JSON.parse(localStorage.getItem('likedPhotos') || '[]')); }
+    catch { return new Set(); }
+  }
+  function saveLikedSet(set) {
+    localStorage.setItem('likedPhotos', JSON.stringify([...set]));
+  }
+
   async function loadGallery() {
     const grid = document.getElementById('galleryGrid');
     try {
       const res = await fetch('/api/photos');
-      const { photos } = await res.json();
+      const { photos, likes = {} } = await res.json();
       if (photos && photos.length > 0) {
-        grid.innerHTML = photos.map((src, i) =>
-          `<div class="gallery-item" data-index="${i}">
+        const likedSet = getLikedSet();
+        grid.innerHTML = photos.map((src, i) => {
+          const key = fileKey(src);
+          const count = likes[key] || 0;
+          const liked = likedSet.has(key);
+          return `<div class="gallery-item" data-index="${i}">
             <img src="${src}" alt="gallery photo ${i+1}" loading="lazy" />
             <div class="gallery-item-overlay"><span>⤢</span></div>
-          </div>`
-        ).join('');
+            <button class="gallery-like${liked ? ' liked' : ''}" data-key="${key}" aria-label="ถูกใจ">
+              <span class="like-heart">${liked ? '♥' : '♡'}</span>
+              <span class="like-count">${count}</span>
+            </button>
+          </div>`;
+        }).join('');
         setupLightbox(photos);
+        setupLikes();
       } else {
         renderPlaceholders(grid);
       }
     } catch {
       renderPlaceholders(grid);
     }
+  }
+
+  function setupLikes() {
+    document.querySelectorAll('.gallery-like').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        const key = btn.dataset.key;
+        const likedSet = getLikedSet();
+        const wasLiked = likedSet.has(key);
+        const action = wasLiked ? 'unlike' : 'like';
+        const heart = btn.querySelector('.like-heart');
+        const countEl = btn.querySelector('.like-count');
+        btn.disabled = true;
+        try {
+          const res = await fetch('/api/likes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: key, action }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            if (wasLiked) { likedSet.delete(key); } else { likedSet.add(key); }
+            saveLikedSet(likedSet);
+            btn.classList.toggle('liked', !wasLiked);
+            heart.textContent = wasLiked ? '♡' : '♥';
+            countEl.textContent = data.count;
+            if (!wasLiked) {
+              heart.classList.remove('like-pop');
+              void heart.offsetWidth;
+              heart.classList.add('like-pop');
+            }
+          }
+        } catch {}
+        btn.disabled = false;
+      });
+    });
   }
 
   function renderPlaceholders(grid) {

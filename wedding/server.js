@@ -10,11 +10,13 @@ const PORT = process.env.PORT || 3001;
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'wedding2025';
 
 const DATA_FILE = path.join(__dirname, 'data', 'registrations.json');
+const LIKES_FILE = path.join(__dirname, 'data', 'likes.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 if (!fs.existsSync(path.join(__dirname, 'data'))) fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
 if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, '[]', 'utf8');
+if (!fs.existsSync(LIKES_FILE)) fs.writeFileSync(LIKES_FILE, '{}', 'utf8');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
@@ -48,6 +50,18 @@ function readRegistrations() {
 
 function writeRegistrations(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function readLikes() {
+  try {
+    return JSON.parse(fs.readFileSync(LIKES_FILE, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function writeLikes(data) {
+  fs.writeFileSync(LIKES_FILE, JSON.stringify(data, null, 2), 'utf8');
 }
 
 app.post('/api/register', (req, res) => {
@@ -108,10 +122,28 @@ app.get('/api/photos', (req, res) => {
         return tb - ta;
       })
       .map(f => `/uploads/${f}`);
-    res.json({ photos: files });
+    const likes = readLikes();
+    res.json({ photos: files, likes });
   } catch {
-    res.json({ photos: [] });
+    res.json({ photos: [], likes: {} });
   }
+});
+
+// Toggle a like for a photo. Body: { filename, action: 'like' | 'unlike' }
+app.post('/api/likes', (req, res) => {
+  const { filename, action } = req.body;
+  if (!filename || typeof filename !== 'string') {
+    return res.status(400).json({ error: 'filename required' });
+  }
+  const key = path.basename(filename);
+  if (!/\.(jpg|jpeg|png|webp|gif)$/i.test(key) || !fs.existsSync(path.join(UPLOADS_DIR, key))) {
+    return res.status(404).json({ error: 'photo not found' });
+  }
+  const likes = readLikes();
+  const current = likes[key] || 0;
+  likes[key] = action === 'unlike' ? Math.max(0, current - 1) : current + 1;
+  writeLikes(likes);
+  res.json({ success: true, count: likes[key] });
 });
 
 app.delete('/api/photos/:filename', (req, res) => {
@@ -120,6 +152,11 @@ app.delete('/api/photos/:filename', (req, res) => {
   }
   const filepath = path.join(UPLOADS_DIR, req.params.filename);
   if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
+  const likes = readLikes();
+  if (likes[req.params.filename] !== undefined) {
+    delete likes[req.params.filename];
+    writeLikes(likes);
+  }
   res.json({ success: true });
 });
 
