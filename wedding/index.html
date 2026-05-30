@@ -231,21 +231,12 @@
     .story-image-wrap {
       position: relative;
     }
-    .story-image-placeholder {
+    .story-photo {
       width: 100%;
-      padding-bottom: 125%;
-      background: linear-gradient(135deg, #e8ddd4 0%, #c9b49a 100%);
+      display: block;
       border-radius: 2px;
       position: relative;
-      overflow: hidden;
-    }
-    .story-image-placeholder::after {
-      content: '♡';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      color: rgba(255,255,255,0.5);
+      box-shadow: 0 12px 40px rgba(60,45,35,0.18);
     }
     .story-frame {
       position: absolute;
@@ -629,7 +620,7 @@
 <section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-content">
-    <div class="hero-date">20 November 2026</div>
+    <div class="hero-date">20 December 2026</div>
     <p class="hero-subtitle">We're Getting Married</p>
     <h1 class="hero-title">Pumpim &amp; Auto</h1>
   </div>
@@ -643,7 +634,7 @@
 <section id="story">
   <div class="story-container">
     <div class="story-image-wrap fade-up">
-      <div class="story-image-placeholder"></div>
+      <img class="story-photo" src="assets/story.jpg" alt="Pumpim & Auto" loading="lazy" />
       <div class="story-frame"></div>
     </div>
     <div class="story-text fade-up">
@@ -657,21 +648,21 @@
           <span class="detail-icon">📅</span>
           <div>
             <div class="detail-label">วันที่</div>
-            <div class="detail-value">เสาร์ที่ 29 พฤศจิกายน 2568</div>
+            <div class="detail-value">อาทิตย์ที่ 20 ธันวาคม 2569</div>
           </div>
         </div>
         <div class="story-detail-item">
           <span class="detail-icon">⏰</span>
           <div>
             <div class="detail-label">เวลา</div>
-            <div class="detail-value">17:00 — 22:00 น.</div>
+            <div class="detail-value">18.00 — 22.00 น.</div>
           </div>
         </div>
         <div class="story-detail-item">
           <span class="detail-icon">📍</span>
           <div>
             <div class="detail-label">สถานที่</div>
-            <div class="detail-value">โรงแรม / ห้องจัดเลี้ยง, กรุงเทพมหานคร</div>
+            <div class="detail-value">โรงแรมตักสิลา จังหวัดมหาสารคาม</div>
           </div>
         </div>
       </div>
@@ -699,7 +690,7 @@
     <div class="section-label">RSVP</div>
     <h2 class="section-title">ยืนยันการเข้าร่วม</h2>
     <div class="section-divider"></div>
-    <p>กรุณายืนยันการเข้าร่วมงานภายใน 30 ตุลาคม 2568</p>
+    <p>กรุณายืนยันการเข้าร่วมงานภายใน 30 พฤศจิกายน 2569</p>
   </div>
   <br><br>
   <form class="form-container fade-up" id="rsvpForm" novalidate>
@@ -762,11 +753,11 @@
 <!-- FOOTER -->
 <footer>
   <div class="footer-title">Pumpim &amp; Auto</div>
-  <div class="footer-date">20 · 11 · 2026</div>
+  <div class="footer-date">20 · 12 · 2026</div>
   <div class="footer-divider"></div>
   <div class="footer-info">
-    โรงแรม / ห้องจัดเลี้ยง, กรุงเทพมหานคร<br>
-    17:00 — 22:00 น.
+    โรงแรมตักสิลา จังหวัดมหาสารคาม<br>
+    18.00 — 22.00 น.
   </div>
 </footer>
 
