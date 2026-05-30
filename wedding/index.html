@@ -257,7 +257,7 @@
       border-top: 1px solid var(--border);
     }
     .story-detail-item { display: flex; gap: 14px; align-items: flex-start; }
-    .detail-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .detail-icon { width: 28px; height: 28px; flex-shrink: 0; margin-top: 2px; object-fit: contain; }
     .detail-label { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
     .detail-value { font-weight: 500; font-size: 0.95rem; }
 
@@ -645,21 +645,21 @@
       <p>วันนี้เราอยากเชิญทุกท่านมาร่วมเป็นสักขีพยานในวันพิเศษที่สุดของชีวิต</p>
       <div class="story-detail">
         <div class="story-detail-item">
-          <span class="detail-icon">📅</span>
+          <img class="detail-icon" src="assets/calendar.png" alt="วันที่" />
           <div>
             <div class="detail-label">วันที่</div>
             <div class="detail-value">อาทิตย์ที่ 20 ธันวาคม 2569</div>
           </div>
         </div>
         <div class="story-detail-item">
-          <span class="detail-icon">⏰</span>
+          <img class="detail-icon" src="assets/time.png" alt="เวลา" />
           <div>
             <div class="detail-label">เวลา</div>
             <div class="detail-value">18.00 — 22.00 น.</div>
           </div>
         </div>
         <div class="story-detail-item">
-          <span class="detail-icon">📍</span>
+          <img class="detail-icon" src="assets/location.png" alt="สถานที่" />
           <div>
             <div class="detail-label">สถานที่</div>
             <div class="detail-value">โรงแรมตักสิลา จังหวัดมหาสารคาม</div>
