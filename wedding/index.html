@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wedding Invitation — Groom & Bride</title>
+  <title>Wedding Invitation — Madchim & Auto</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -98,7 +98,7 @@
       min-height: 600px;
       position: relative;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       text-align: center;
       overflow: hidden;
@@ -106,13 +106,20 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background: linear-gradient(160deg, #c9b49a 0%, #a88870 35%, #7a5c48 70%, #4a3428 100%);
+      background-image: url('/assets/hero.jpg');
+      background-size: cover;
+      background-position: center 22%;
+      background-repeat: no-repeat;
     }
     .hero-bg::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.28);
+      background: linear-gradient(to bottom,
+        rgba(20,30,55,0.34) 0%,
+        rgba(20,30,55,0.12) 32%,
+        rgba(0,0,0,0.0) 55%,
+        rgba(0,0,0,0.12) 100%);
     }
     .hero-content {
       position: relative;
@@ -120,6 +127,8 @@
       color: var(--white);
       max-width: 640px;
       padding: 0 24px;
+      margin-top: 13vh;
+      text-shadow: 0 2px 18px rgba(20,30,55,0.35);
     }
     .hero-date {
       font-size: 0.85rem;
@@ -152,11 +161,16 @@
       margin-bottom: 32px;
     }
     .hero-scroll {
+      position: absolute;
+      bottom: 34px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
       display: inline-flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      opacity: 0.7;
+      opacity: 0.85;
       cursor: pointer;
       border: none;
       background: none;
@@ -165,6 +179,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       transition: opacity 0.3s;
+      text-shadow: 0 2px 12px rgba(20,30,55,0.4);
     }
     .hero-scroll:hover { opacity: 1; }
     .scroll-line {
@@ -597,7 +612,7 @@
 
 <!-- NAV -->
 <nav id="mainNav">
-  <div class="nav-logo">G & B</div>
+  <div class="nav-logo">M & A</div>
   <button class="nav-hamburger" id="hamburger" aria-label="menu">
     <span></span><span></span><span></span>
   </button>
@@ -613,14 +628,14 @@
 <section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-content">
-    <div class="hero-date">29 November 2025</div>
-    <p class="hero-subtitle">We're Getting Married!</p>
-    <h1 class="hero-title">Groom &amp; Bride</h1>
-    <button class="hero-scroll" onclick="document.getElementById('story').scrollIntoView({behavior:'smooth'})">
-      <span>Scroll</span>
-      <div class="scroll-line"></div>
-    </button>
+    <div class="hero-date">20 November 2026</div>
+    <p class="hero-subtitle">We're Getting Married</p>
+    <h1 class="hero-title">Madchim &amp; Auto</h1>
   </div>
+  <button class="hero-scroll" onclick="document.getElementById('story').scrollIntoView({behavior:'smooth'})">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </button>
 </section>
 
 <!-- STORY -->
@@ -745,8 +760,8 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-title">Groom &amp; Bride</div>
-  <div class="footer-date">29 · 11 · 2025</div>
+  <div class="footer-title">Madchim &amp; Auto</div>
+  <div class="footer-date">20 · 11 · 2026</div>
   <div class="footer-divider"></div>
   <div class="footer-info">
     โรงแรม / ห้องจัดเลี้ยง, กรุงเทพมหานคร<br>
