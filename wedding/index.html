@@ -704,14 +704,12 @@
 <!-- NAV -->
 <nav id="mainNav">
   <div class="nav-logo">P & A</div>
-  <div class="nav-right">
-    <button id="langToggle" class="lang-toggle">EN</button>
-    <button class="nav-hamburger" id="hamburger" aria-label="menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
+  <button class="nav-hamburger" id="hamburger" aria-label="menu">
+    <span></span><span></span><span></span>
+  </button>
   <ul class="nav-links" id="navLinks">
     <li><a href="#hero" data-th="หน้าแรก" data-en="Home">หน้าแรก</a></li>
+    <li><button id="langToggle" class="lang-toggle">EN</button></li>
     <li><a href="#story" data-th="เรื่องราวของเรา" data-en="Our Story">เรื่องราวของเรา</a></li>
     <li><a href="#gallery" data-th="แกลเลอรี่" data-en="Gallery">แกลเลอรี่</a></li>
     <li><a href="#rsvp" class="nav-rsvp">RSVP</a></li>
@@ -918,22 +916,17 @@
   bgMusic.volume = 0.35;
 
   function startMusic() {
+    // muted autoplay is permitted by all browsers; unmute right after
+    bgMusic.muted = true;
     bgMusic.play().then(() => {
+      bgMusic.muted = false;
       musicBtn.classList.add('playing');
       musicBtn.textContent = '♫';
-    }).catch(() => {});
+    }).catch(() => { bgMusic.muted = false; });
   }
 
-  // Try autoplay immediately; browsers that allow it will start right away
+  // Autoplay immediately on page load
   startMusic();
-
-  // Fallback: start on first user interaction (covers browsers that block autoplay)
-  const autoplayEvents = ['click', 'scroll', 'touchstart', 'keydown'];
-  function onFirstInteraction() {
-    if (bgMusic.paused) startMusic();
-    autoplayEvents.forEach(e => document.removeEventListener(e, onFirstInteraction));
-  }
-  autoplayEvents.forEach(e => document.addEventListener(e, onFirstInteraction, { once: true, passive: true }));
 
   musicBtn.addEventListener('click', e => {
     e.stopPropagation();
