@@ -597,6 +597,71 @@
     }
     .footer-info { font-size: 0.82rem; line-height: 2; }
 
+    /* ── PAGE LOAD ANIMATION ── */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    nav            { animation: fadeSlideIn 0.6s ease 0.1s both; }
+    .hero-date     { animation: fadeSlideIn 0.8s ease 0.5s both; }
+    .hero-subtitle { animation: fadeSlideIn 0.8s ease 0.8s both; }
+    .hero-title    { animation: fadeSlideIn 0.9s ease 1.1s both; }
+    .hero-scroll   { animation: fadeSlideIn 0.7s ease 1.5s both; }
+
+    /* ── LANG TOGGLE ── */
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .lang-toggle {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.6);
+      color: rgba(255,255,255,0.9);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      padding: 5px 12px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    nav.scrolled .lang-toggle { border-color: var(--accent); color: var(--accent); }
+    .lang-toggle:hover { background: var(--accent); border-color: var(--accent); color: var(--white); }
+
+    /* ── MUSIC BUTTON ── */
+    .music-toggle {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      z-index: 200;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(250,248,245,0.92);
+      backdrop-filter: blur(10px);
+      color: var(--accent);
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      transition: background 0.3s, transform 0.2s;
+    }
+    .music-toggle:hover { transform: scale(1.08); background: var(--beige); }
+    .music-toggle.playing { background: var(--accent); color: var(--white); border-color: var(--accent); }
+
+    /* ── GUEST TOGGLE ── */
+    .guest-toggle-wrap { display: flex; gap: 10px; margin-top: 4px; }
+    .guest-btn {
+      flex: 1;
+      padding: 11px 16px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: transparent;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .guest-btn.active { background: var(--accent); border-color: var(--accent); color: var(--white); }
+    .guest-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
     /* ── ANIMATIONS ── */
     .fade-up {
       opacity: 0;
@@ -639,13 +704,16 @@
 <!-- NAV -->
 <nav id="mainNav">
   <div class="nav-logo">P & A</div>
-  <button class="nav-hamburger" id="hamburger" aria-label="menu">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="nav-right">
+    <button id="langToggle" class="lang-toggle">EN</button>
+    <button class="nav-hamburger" id="hamburger" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
   <ul class="nav-links" id="navLinks">
-    <li><a href="#hero">หน้าแรก</a></li>
-    <li><a href="#story">เรื่องราวของเรา</a></li>
-    <li><a href="#gallery">แกลเลอรี่</a></li>
+    <li><a href="#hero" data-th="หน้าแรก" data-en="Home">หน้าแรก</a></li>
+    <li><a href="#story" data-th="เรื่องราวของเรา" data-en="Our Story">เรื่องราวของเรา</a></li>
+    <li><a href="#gallery" data-th="แกลเลอรี่" data-en="Gallery">แกลเลอรี่</a></li>
     <li><a href="#rsvp" class="nav-rsvp">RSVP</a></li>
   </ul>
 </nav>
@@ -672,32 +740,32 @@
       <div class="story-frame"></div>
     </div>
     <div class="story-text fade-up">
-      <div class="section-label">Our Story</div>
-      <h2 class="section-title">เรื่องราวของเรา</h2>
+      <div class="section-label" data-th="Our Story" data-en="Our Story">Our Story</div>
+      <h2 class="section-title" data-th="เรื่องราวของเรา" data-en="Our Story">เรื่องราวของเรา</h2>
       <div class="section-divider"></div>
-      <p>เราเริ่มต้นจากวันธรรมดาวันหนึ่ง นั่งเรียนด้วยกัน ซ้อมหลัดด้วยกัน ค่อย ๆ รู้จักกันทีละนิด จนโลกของเราสองคนเริ่มทับซ้อนกันมากขึ้นทุกวัน</p>
-      <p>จนวันหนึ่ง เราก็รู้ว่า อยากให้คนนี้อยู่ข้าง ๆ ไปตลอด และสุดท้าย เราก็ทำได้จริง ๆ</p>
-      <p>วันนี้เราอยากเชิญทุกคนที่รักมาร่วมเป็นสักขีพยานในก้าวที่สำคัญที่สุดของชีวิตเราด้วยกัน</p>
+      <p data-th="เราเริ่มต้นจากวันธรรมดาวันหนึ่ง นั่งเรียนด้วยกัน ซ้อมหลัดด้วยกัน ค่อย ๆ รู้จักกันทีละนิด จนโลกของเราสองคนเริ่มทับซ้อนกันมากขึ้นทุกวัน" data-en="We started with one ordinary day — sitting in class together, practicing side by side — getting to know each other little by little, until our two worlds began to overlap more and more.">เราเริ่มต้นจากวันธรรมดาวันหนึ่ง นั่งเรียนด้วยกัน ซ้อมหลัดด้วยกัน ค่อย ๆ รู้จักกันทีละนิด จนโลกของเราสองคนเริ่มทับซ้อนกันมากขึ้นทุกวัน</p>
+      <p data-th="จนวันหนึ่ง เราก็รู้ว่า อยากให้คนนี้อยู่ข้าง ๆ ไปตลอด และสุดท้าย เราก็ทำได้จริง ๆ" data-en="Then one day, we knew. We wanted this person by our side forever. And in the end, we made it happen.">จนวันหนึ่ง เราก็รู้ว่า อยากให้คนนี้อยู่ข้าง ๆ ไปตลอด และสุดท้าย เราก็ทำได้จริง ๆ</p>
+      <p data-th="วันนี้เราอยากเชิญทุกคนที่รักมาร่วมเป็นสักขีพยานในก้าวที่สำคัญที่สุดของชีวิตเราด้วยกัน" data-en="Today, we'd love to invite everyone we love to witness the most important step of our lives together.">วันนี้เราอยากเชิญทุกคนที่รักมาร่วมเป็นสักขีพยานในก้าวที่สำคัญที่สุดของชีวิตเราด้วยกัน</p>
       <div class="story-detail">
         <div class="story-detail-item">
           <img class="detail-icon" src="assets/calendar.png" alt="วันที่" />
           <div>
-            <div class="detail-label">วันที่</div>
-            <div class="detail-value">อาทิตย์ที่ 20 ธันวาคม 2569</div>
+            <div class="detail-label" data-th="วันที่" data-en="Date">วันที่</div>
+            <div class="detail-value" data-th="อาทิตย์ที่ 20 ธันวาคม 2569" data-en="Sunday, 20 December 2026">อาทิตย์ที่ 20 ธันวาคม 2569</div>
           </div>
         </div>
         <div class="story-detail-item">
           <img class="detail-icon" src="assets/time.png" alt="เวลา" />
           <div>
-            <div class="detail-label">เวลา</div>
-            <div class="detail-value">18.00 — 22.00 น.</div>
+            <div class="detail-label" data-th="เวลา" data-en="Time">เวลา</div>
+            <div class="detail-value" data-th="18.00 — 22.00 น." data-en="6:00 PM — 10:00 PM">18.00 — 22.00 น.</div>
           </div>
         </div>
         <div class="story-detail-item">
           <img class="detail-icon" src="assets/location.png" alt="สถานที่" />
           <div>
-            <div class="detail-label">สถานที่</div>
-            <div class="detail-value">โรงแรมตักสิลา จังหวัดมหาสารคาม</div>
+            <div class="detail-label" data-th="สถานที่" data-en="Venue">สถานที่</div>
+            <div class="detail-value" data-th="โรงแรมตักสิลา จังหวัดมหาสารคาม" data-en="Taksila Hotel, Maha Sarakham">โรงแรมตักสิลา จังหวัดมหาสารคาม</div>
           </div>
         </div>
       </div>
@@ -709,9 +777,9 @@
 <section id="gallery">
   <div class="section-body fade-up">
     <div class="section-label">Memories</div>
-    <h2 class="section-title">แกลเลอรี่</h2>
+    <h2 class="section-title" data-th="แกลเลอรี่" data-en="Gallery">แกลเลอรี่</h2>
     <div class="section-divider"></div>
-    <p>ภาพความทรงจำของเรา</p>
+    <p data-th="ภาพความทรงจำของเรา" data-en="Our Memories">ภาพความทรงจำของเรา</p>
   </div>
   <br><br>
   <div class="gallery-grid" id="galleryGrid">
@@ -723,42 +791,42 @@
 <section id="rsvp">
   <div class="section-body fade-up">
     <div class="section-label">RSVP</div>
-    <h2 class="section-title">ยืนยันการเข้าร่วม</h2>
+    <h2 class="section-title" data-th="ร่วมเป็นสักขีพยานในงานสมรสของเรา" data-en="Join Us On Our Special Day">ร่วมเป็นสักขีพยานในงานสมรสของเรา</h2>
     <div class="section-divider"></div>
-    <p>กรุณายืนยันการเข้าร่วมงานภายใน 30 พฤศจิกายน 2569</p>
+    <p data-th="กรุณายืนยันการเข้าร่วมงานภายใน 30 พฤศจิกายน 2569" data-en="Please RSVP by 30 November 2026">กรุณายืนยันการเข้าร่วมงานภายใน 30 พฤศจิกายน 2569</p>
   </div>
   <br><br>
   <form class="form-container fade-up" id="rsvpForm" novalidate>
     <div class="form-row">
       <div class="form-group">
-        <label for="name">ชื่อ-นามสกุล <span style="color:#c0392b">*</span></label>
-        <input type="text" id="name" name="name" placeholder="กรอกชื่อ-นามสกุล" autocomplete="name" />
-        <div class="form-error" id="nameError">กรุณากรอกชื่อ-นามสกุล</div>
+        <label for="name" data-th="ชื่อ-นามสกุล" data-en="Full Name">ชื่อ-นามสกุล <span style="color:#c0392b">*</span></label>
+        <input type="text" id="name" name="name" placeholder="กรอกชื่อ-นามสกุล" data-th-placeholder="กรอกชื่อ-นามสกุล" data-en-placeholder="Enter your full name" autocomplete="name" />
+        <div class="form-error" id="nameError" data-th="กรุณากรอกชื่อ-นามสกุล" data-en="Please enter your full name">กรุณากรอกชื่อ-นามสกุล</div>
       </div>
       <div class="form-group">
-        <label for="phone">เบอร์โทรศัพท์ <span class="optional">(ไม่บังคับ)</span></label>
+        <label for="phone" data-th="เบอร์โทรศัพท์" data-en="Phone Number">เบอร์โทรศัพท์ <span class="optional" data-th="(ไม่บังคับ)" data-en="(optional)">(ไม่บังคับ)</span></label>
         <input type="tel" id="phone" name="phone" placeholder="0812345678" autocomplete="tel" />
       </div>
     </div>
 
     <div class="form-group">
-      <label for="guests">จำนวนผู้ติดตาม (นอกจากตัวท่าน)</label>
-      <select id="guests" name="guests">
-        <option value="0">มาคนเดียว</option>
-        <option value="1">+ 1 คน</option>
-        <option value="2">+ 2 คน</option>
-        <option value="3">+ 3 คน</option>
-        <option value="4">+ 4 คน</option>
-        <option value="5">+ 5 คน</option>
-      </select>
+      <label data-th="ผู้ติดตาม" data-en="Additional Guest">ผู้ติดตาม <span class="optional" data-th="(ไม่บังคับ)" data-en="(optional)">(ไม่บังคับ)</span></label>
+      <div class="guest-toggle-wrap">
+        <button type="button" class="guest-btn active" id="guestNone" data-th="มาคนเดียว" data-en="Just me">มาคนเดียว</button>
+        <button type="button" class="guest-btn" id="guestPlus1" data-th="พา +1 คน" data-en="+1 Guest">พา +1 คน</button>
+      </div>
+      <input type="hidden" id="guests" name="guests" value="0" />
+      <div id="guestNameWrap" style="display:none; margin-top:12px;">
+        <input type="text" id="guestName" name="guestName" placeholder="ชื่อผู้ติดตาม" data-th-placeholder="ชื่อผู้ติดตาม" data-en-placeholder="Guest's name" />
+      </div>
     </div>
 
     <div class="form-group">
-      <label for="message">ข้อความถึงคู่บ่าวสาว <span class="optional">(ไม่บังคับ)</span></label>
-      <textarea id="message" name="message" placeholder="คำอวยพร หรือข้อความที่อยากบอก…"></textarea>
+      <label for="message" data-th="ข้อความถึงคู่บ่าวสาว" data-en="Message to the Couple">ข้อความถึงคู่บ่าวสาว <span class="optional" data-th="(ไม่บังคับ)" data-en="(optional)">(ไม่บังคับ)</span></label>
+      <textarea id="message" name="message" placeholder="คำอวยพร หรือข้อความที่อยากบอก…" data-th-placeholder="คำอวยพร หรือข้อความที่อยากบอก…" data-en-placeholder="A blessing or anything you'd like to say…"></textarea>
     </div>
 
-    <button type="submit" class="btn-submit" id="submitBtn">ยืนยันการเข้าร่วมงาน</button>
+    <button type="submit" class="btn-submit" id="submitBtn" data-th="ยืนยันการเข้าร่วมงาน" data-en="Confirm Attendance">ยืนยันการเข้าร่วมงาน</button>
   </form>
 </section>
 
@@ -768,10 +836,18 @@
   <div class="footer-date">20 · 12 · 2026</div>
   <div class="footer-divider"></div>
   <div class="footer-info">
-    โรงแรมตักสิลา จังหวัดมหาสารคาม<br>
-    18.00 — 22.00 น.
+    <span data-th="โรงแรมตักสิลา จังหวัดมหาสารคาม" data-en="Taksila Hotel, Maha Sarakham">โรงแรมตักสิลา จังหวัดมหาสารคาม</span><br>
+    <span data-th="18.00 — 22.00 น." data-en="6:00 PM — 10:00 PM">18.00 — 22.00 น.</span>
   </div>
 </footer>
+
+<!-- BACKGROUND MUSIC -->
+<audio id="bgMusic" loop preload="none">
+  <source src="assets/bg music.mp3" type="audio/mpeg">
+  <source src="assets/bg music.wav" type="audio/wav">
+  <source src="assets/bg music.ogg" type="audio/ogg">
+</audio>
+<button id="musicToggle" class="music-toggle" aria-label="เปิด/ปิดเพลง">♪</button>
 
 <!-- LIGHTBOX -->
 <div id="lightbox">
@@ -787,9 +863,9 @@
   <div class="modal-backdrop" id="modalBackdrop"></div>
   <div class="modal-card">
     <div class="modal-icon">💐</div>
-    <h2 class="modal-title">ขอบคุณมากครับ / ค่ะ</h2>
-    <p class="modal-text">เราได้รับการยืนยันของท่านแล้ว<br>รอพบกันในวันพิเศษของเรา!</p>
-    <button class="modal-close-btn" id="modalCloseBtn">ปิด</button>
+    <h2 class="modal-title" data-th="ขอบคุณมากครับ / ค่ะ" data-en="Thank You!">ขอบคุณมากครับ / ค่ะ</h2>
+    <p class="modal-text" data-th="เราได้รับการยืนยันของท่านแล้ว รอพบกันในวันพิเศษของเรา!" data-en="We've received your RSVP. We can't wait to celebrate with you!">เราได้รับการยืนยันของท่านแล้ว<br>รอพบกันในวันพิเศษของเรา!</p>
+    <button class="modal-close-btn" id="modalCloseBtn" data-th="ปิด" data-en="Close">ปิด</button>
   </div>
 </div>
 
@@ -805,6 +881,68 @@
   hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
   navLinks.querySelectorAll('a').forEach(a => {
     a.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // LANGUAGE TOGGLE
+  let currentLang = 'th';
+  const STRINGS = {
+    th: { submit: 'ยืนยันการเข้าร่วมงาน', submitting: 'กำลังส่ง…' },
+    en: { submit: 'Confirm Attendance', submitting: 'Sending…' },
+  };
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.getElementById('langToggle').textContent = lang === 'th' ? 'EN' : 'TH';
+    document.querySelectorAll('[data-th]').forEach(el => {
+      el.textContent = el.dataset[lang];
+    });
+    document.querySelectorAll('[data-th-placeholder]').forEach(el => {
+      el.placeholder = lang === 'th' ? el.dataset.thPlaceholder : el.dataset.enPlaceholder;
+    });
+    const sb = document.getElementById('submitBtn');
+    if (!sb.disabled) sb.textContent = STRINGS[lang].submit;
+  }
+
+  document.getElementById('langToggle').addEventListener('click', () => {
+    setLang(currentLang === 'th' ? 'en' : 'th');
+  });
+
+  // MUSIC PLAYER
+  const bgMusic = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicToggle');
+  bgMusic.volume = 0.35;
+
+  musicBtn.addEventListener('click', () => {
+    if (bgMusic.paused) {
+      bgMusic.play().then(() => {
+        musicBtn.classList.add('playing');
+        musicBtn.textContent = '♫';
+      }).catch(() => {});
+    } else {
+      bgMusic.pause();
+      musicBtn.classList.remove('playing');
+      musicBtn.textContent = '♪';
+    }
+  });
+
+  // GUEST TOGGLE
+  const guestNoneBtn = document.getElementById('guestNone');
+  const guestPlus1Btn = document.getElementById('guestPlus1');
+  const guestsInput = document.getElementById('guests');
+  const guestNameWrap = document.getElementById('guestNameWrap');
+
+  guestNoneBtn.addEventListener('click', () => {
+    guestNoneBtn.classList.add('active');
+    guestPlus1Btn.classList.remove('active');
+    guestsInput.value = '0';
+    guestNameWrap.style.display = 'none';
+  });
+  guestPlus1Btn.addEventListener('click', () => {
+    guestPlus1Btn.classList.add('active');
+    guestNoneBtn.classList.remove('active');
+    guestsInput.value = '1';
+    guestNameWrap.style.display = 'block';
   });
 
   // Intersection observer for fade-up
@@ -968,12 +1106,13 @@
     const payload = {
       name,
       phone: form.phone.value.trim(),
-      guests: parseInt(form.guests.value) || 0,
+      guests: parseInt(guestsInput.value) || 0,
+      guestName: document.getElementById('guestName').value.trim(),
       message: document.getElementById('message').value.trim(),
     };
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'กำลังส่ง…';
+    submitBtn.textContent = STRINGS[currentLang].submitting;
 
     try {
       const res = await fetch('/api/register', {
@@ -984,6 +1123,10 @@
       const data = await res.json();
       if (data.success) {
         form.reset();
+        guestNoneBtn.classList.add('active');
+        guestPlus1Btn.classList.remove('active');
+        guestNameWrap.style.display = 'none';
+        guestsInput.value = '0';
         document.getElementById('thankModal').classList.add('active');
       } else {
         alert(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
@@ -992,7 +1135,7 @@
       alert('ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'ยืนยันการเข้าร่วมงาน';
+      submitBtn.textContent = STRINGS[currentLang].submit;
     }
   });
 

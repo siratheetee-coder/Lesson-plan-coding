@@ -65,7 +65,7 @@ function writeLikes(data) {
 }
 
 app.post('/api/register', (req, res) => {
-  const { name, phone, guests, food, foodNote, message } = req.body;
+  const { name, phone, guests, guestName, message } = req.body;
   if (!name || name.trim().length < 2) {
     return res.status(400).json({ error: 'กรุณากรอกชื่อ-นามสกุล' });
   }
@@ -75,8 +75,7 @@ app.post('/api/register', (req, res) => {
     name: name.trim(),
     phone: (phone || '').trim(),
     guests: parseInt(guests) || 0,
-    food: Array.isArray(food) ? food : [food].filter(Boolean),
-    foodNote: (foodNote || '').trim(),
+    guestName: (guestName || '').trim(),
     message: (message || '').trim(),
     createdAt: new Date().toISOString(),
   };
