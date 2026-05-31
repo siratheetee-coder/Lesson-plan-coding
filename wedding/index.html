@@ -842,9 +842,13 @@
 </footer>
 
 <!-- BACKGROUND MUSIC -->
-<audio id="bgMusic" loop preload="none">
+<audio id="bgMusic" loop preload="auto">
   <source src="assets/bg music.mp3" type="audio/mpeg">
+  <source src="assets/bg-music.mp3" type="audio/mpeg">
+  <source src="assets/bgmusic.mp3" type="audio/mpeg">
+  <source src="bg music.mp3" type="audio/mpeg">
   <source src="assets/bg music.wav" type="audio/wav">
+  <source src="bg music.wav" type="audio/wav">
   <source src="assets/bg music.ogg" type="audio/ogg">
 </audio>
 <button id="musicToggle" class="music-toggle" aria-label="เปิด/ปิดเพลง">♪</button>
@@ -913,12 +917,28 @@
   const musicBtn = document.getElementById('musicToggle');
   bgMusic.volume = 0.35;
 
-  musicBtn.addEventListener('click', () => {
+  function startMusic() {
+    bgMusic.play().then(() => {
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '♫';
+    }).catch(() => {});
+  }
+
+  // Try autoplay immediately; browsers that allow it will start right away
+  startMusic();
+
+  // Fallback: start on first user interaction (covers browsers that block autoplay)
+  const autoplayEvents = ['click', 'scroll', 'touchstart', 'keydown'];
+  function onFirstInteraction() {
+    if (bgMusic.paused) startMusic();
+    autoplayEvents.forEach(e => document.removeEventListener(e, onFirstInteraction));
+  }
+  autoplayEvents.forEach(e => document.addEventListener(e, onFirstInteraction, { once: true, passive: true }));
+
+  musicBtn.addEventListener('click', e => {
+    e.stopPropagation();
     if (bgMusic.paused) {
-      bgMusic.play().then(() => {
-        musicBtn.classList.add('playing');
-        musicBtn.textContent = '♫';
-      }).catch(() => {});
+      startMusic();
     } else {
       bgMusic.pause();
       musicBtn.classList.remove('playing');
