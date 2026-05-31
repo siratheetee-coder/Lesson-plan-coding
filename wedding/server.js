@@ -12,11 +12,18 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || 'wedding2025';
 const DATA_FILE = path.join(__dirname, 'data', 'registrations.json');
 const LIKES_FILE = path.join(__dirname, 'data', 'likes.json');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const GUEST_UPLOADS_DIR = path.join(__dirname, 'uploads', 'guest');
 
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(GUEST_UPLOADS_DIR)) fs.mkdirSync(GUEST_UPLOADS_DIR, { recursive: true });
 if (!fs.existsSync(path.join(__dirname, 'data'))) fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
 if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, '[]', 'utf8');
 if (!fs.existsSync(LIKES_FILE)) fs.writeFileSync(LIKES_FILE, '{}', 'utf8');
+
+const imageFilter = (req, file, cb) => {
+  const allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+  cb(null, allowed.includes(path.extname(file.originalname).toLowerCase()));
+};
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
@@ -25,15 +32,16 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${randomUUID().slice(0, 8)}${ext}`);
   },
 });
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 }, fileFilter: imageFilter });
+
+const guestStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, GUEST_UPLOADS_DIR),
+  filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, allowed.includes(ext));
+    cb(null, `${Date.now()}-${randomUUID().slice(0, 8)}${ext}`);
   },
 });
+const uploadGuest = multer({ storage: guestStorage, limits: { fileSize: 10 * 1024 * 1024 }, fileFilter: imageFilter });
 
 app.use(cors());
 app.use(express.json());
@@ -156,6 +164,39 @@ app.delete('/api/photos/:filename', (req, res) => {
     delete likes[req.params.filename];
     writeLikes(likes);
   }
+  res.json({ success: true });
+});
+
+// Guest (public) photo upload
+app.get('/api/guest-photos', (req, res) => {
+  try {
+    const files = fs.readdirSync(GUEST_UPLOADS_DIR)
+      .filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f))
+      .sort((a, b) => {
+        const ta = fs.statSync(path.join(GUEST_UPLOADS_DIR, a)).mtimeMs;
+        const tb = fs.statSync(path.join(GUEST_UPLOADS_DIR, b)).mtimeMs;
+        return tb - ta;
+      })
+      .map(f => `/uploads/guest/${f}`);
+    res.json({ photos: files });
+  } catch {
+    res.json({ photos: [] });
+  }
+});
+
+app.post('/api/guest-photos', uploadGuest.single('photo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'กรุณาเลือกรูปภาพ' });
+  }
+  res.json({ success: true, file: `/uploads/guest/${req.file.filename}` });
+});
+
+app.delete('/api/guest-photos/:filename', (req, res) => {
+  if (req.query.secret !== ADMIN_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const filepath = path.join(GUEST_UPLOADS_DIR, req.params.filename);
+  if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
   res.json({ success: true });
 });
 

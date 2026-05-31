@@ -406,6 +406,103 @@
       letter-spacing: 0.1em;
     }
 
+    /* ── LIVE PHOTOS ── */
+    #live-photos { background: var(--beige); padding: 96px 0 80px; overflow: hidden; }
+    #live-photos .section-body { margin-bottom: 44px; }
+
+    .live-upload-wrap {
+      text-align: center;
+      margin: 0 auto 52px;
+    }
+    .live-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 40px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .live-upload-btn:hover { background: var(--accent); color: var(--white); }
+    .live-upload-btn:disabled { opacity: 0.6; cursor: not-allowed; background: var(--accent); color: var(--white); }
+    .live-upload-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .strip-empty {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .strip-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 10px; opacity: 0.35; }
+
+    .strip-outer {
+      width: 100%;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+      mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    }
+    .strip-track {
+      display: flex;
+      gap: 10px;
+      width: max-content;
+      animation: strip-scroll 40s linear infinite;
+    }
+    .strip-track:hover { animation-play-state: paused; }
+    @keyframes strip-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .strip-photo {
+      width: 172px;
+      height: 230px;
+      flex-shrink: 0;
+      border-radius: 2px;
+      overflow: hidden;
+      background: var(--border);
+    }
+    .strip-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s;
+    }
+    .strip-photo:hover img { transform: scale(1.07); }
+
+    /* Toast */
+    #liveToast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--text);
+      color: var(--white);
+      padding: 11px 24px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s, transform 0.35s;
+      z-index: 9000;
+      white-space: nowrap;
+    }
+    #liveToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* ── REGISTRATION ── */
     #rsvp { background: var(--white); }
     .form-container {
@@ -712,6 +809,7 @@
     <li><a href="#hero" data-th="หน้าแรก" data-en="Home">หน้าแรก</a></li>
     <li><a href="#story" data-th="เรื่องราวของเรา" data-en="Our Story">เรื่องราวของเรา</a></li>
     <li><a href="#gallery" data-th="แกลเลอรี่" data-en="Gallery">แกลเลอรี่</a></li>
+    <li><a href="#live-photos" data-th="Live Photos" data-en="Live Photos">Live Photos</a></li>
     <li><a href="#rsvp" class="nav-rsvp">RSVP</a></li>
   </ul>
 </nav>
@@ -784,6 +882,33 @@
     <!-- filled by JS -->
   </div>
 </section>
+
+<!-- LIVE PHOTOS -->
+<section id="live-photos">
+  <div class="section-body fade-up">
+    <div class="section-label">Live Photos</div>
+    <h2 class="section-title" data-th="รูปของคุณในงาน" data-en="Your Memories">รูปของคุณในงาน</h2>
+    <div class="section-divider"></div>
+    <p data-th="แชร์ช่วงเวลาพิเศษของคุณในวันสำคัญนี้" data-en="Share your special moments from our big day">แชร์ช่วงเวลาพิเศษของคุณในวันสำคัญนี้</p>
+  </div>
+
+  <div class="live-upload-wrap fade-up">
+    <input type="file" id="livePhotoInput" accept="image/*" style="display:none" />
+    <button class="live-upload-btn" id="liveUploadBtn" data-th="เพิ่มรูปของคุณ ♡" data-en="Add Your Photo ♡">เพิ่มรูปของคุณ ♡</button>
+    <p class="live-upload-hint" data-th="รองรับ JPG, PNG — ขนาดสูงสุด 10 MB" data-en="Supports JPG, PNG — max 10 MB">รองรับ JPG, PNG — ขนาดสูงสุด 10 MB</p>
+  </div>
+
+  <div id="liveStripEmpty" class="strip-empty" style="display:none">
+    <span class="strip-empty-icon">📷</span>
+    <p data-th="เป็นคนแรกที่แชร์รูปในงาน!" data-en="Be the first to share a photo!">เป็นคนแรกที่แชร์รูปในงาน!</p>
+  </div>
+
+  <div class="strip-outer" id="liveStripOuter" style="display:none">
+    <div class="strip-track" id="liveStripTrack"></div>
+  </div>
+</section>
+
+<div id="liveToast"></div>
 
 <!-- REGISTRATION -->
 <section id="rsvp">
@@ -1167,6 +1292,87 @@
   });
 
   loadGallery();
+
+  // ── LIVE PHOTOS ──
+  function showLiveToast(msg) {
+    const t = document.getElementById('liveToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  async function loadLivePhotos() {
+    try {
+      const res = await fetch('/api/guest-photos');
+      const { photos = [] } = await res.json();
+      renderStrip(photos);
+    } catch {
+      renderStrip([]);
+    }
+  }
+
+  function renderStrip(photos) {
+    const empty = document.getElementById('liveStripEmpty');
+    const outer = document.getElementById('liveStripOuter');
+    const track = document.getElementById('liveStripTrack');
+
+    if (photos.length === 0) {
+      empty.style.display = 'block';
+      outer.style.display = 'none';
+      return;
+    }
+
+    empty.style.display = 'none';
+    outer.style.display = 'block';
+
+    // Pad to at least 10 items so the strip looks full on any screen
+    let base = [...photos];
+    while (base.length < 10) base = [...base, ...photos];
+
+    // Duplicate for seamless loop (animate -50% of total width)
+    const doubled = [...base, ...base];
+    track.innerHTML = doubled.map(src =>
+      `<div class="strip-photo"><img src="${src}" alt="" loading="lazy" /></div>`
+    ).join('');
+
+    // Speed scales with number of photos (~3s per item, min 20s)
+    track.style.animationDuration = `${Math.max(20, base.length * 3)}s`;
+  }
+
+  document.getElementById('liveUploadBtn').addEventListener('click', () => {
+    document.getElementById('livePhotoInput').click();
+  });
+
+  document.getElementById('livePhotoInput').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const btn = document.getElementById('liveUploadBtn');
+    btn.disabled = true;
+    btn.textContent = currentLang === 'th' ? 'กำลังอัปโหลด…' : 'Uploading…';
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    try {
+      const res = await fetch('/api/guest-photos', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        showLiveToast(currentLang === 'th' ? 'อัปโหลดสำเร็จ! รูปของคุณปรากฏแล้ว ♡' : 'Photo uploaded! ♡');
+        loadLivePhotos();
+      } else {
+        showLiveToast(data.error || (currentLang === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed'));
+      }
+    } catch {
+      showLiveToast(currentLang === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Error, please try again');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = currentLang === 'th' ? 'เพิ่มรูปของคุณ ♡' : 'Add Your Photo ♡';
+      e.target.value = '';
+    }
+  });
+
+  loadLivePhotos();
 </script>
 </body>
 </html>

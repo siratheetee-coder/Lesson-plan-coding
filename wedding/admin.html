@@ -324,6 +324,7 @@
     <div class="tabs">
       <button class="tab-btn active" data-tab="registrations">รายการลงทะเบียน</button>
       <button class="tab-btn" data-tab="photos">จัดการรูปภาพ</button>
+      <button class="tab-btn" data-tab="guest-photos">Live Photos</button>
     </div>
 
     <div class="tab-panel active" id="tab-registrations">
@@ -345,6 +346,12 @@
         </table>
         <div class="empty-state" id="registrationsEmpty" style="display:none">ยังไม่มีผู้ลงทะเบียน</div>
       </div>
+    </div>
+
+    <div class="tab-panel" id="tab-guest-photos">
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px">รูปภาพที่แขกอัปโหลดผ่านหน้าเว็บ — คลิก ✕ เพื่อลบ</p>
+      <div class="photo-grid" id="guestPhotoGrid"></div>
+      <div class="empty-state" id="guestPhotosEmpty" style="display:none">ยังไม่มีรูปจากแขก</div>
     </div>
 
     <div class="tab-panel" id="tab-photos">
@@ -440,7 +447,7 @@
 
   // LOAD DATA
   async function loadAll() {
-    await Promise.all([loadRegistrations(), loadPhotos()]);
+    await Promise.all([loadRegistrations(), loadPhotos(), loadGuestPhotos()]);
   }
   document.getElementById('refreshBtn').addEventListener('click', loadAll);
 
@@ -531,6 +538,34 @@
     await fetch(`/api/photos/${filename}?secret=${SECRET}`, { method: 'DELETE' });
     showToast('ลบรูปเรียบร้อย');
     loadPhotos();
+  }
+
+  // GUEST PHOTOS
+  async function loadGuestPhotos() {
+    const res = await fetch('/api/guest-photos');
+    const { photos = [] } = await res.json();
+    const grid = document.getElementById('guestPhotoGrid');
+    const empty = document.getElementById('guestPhotosEmpty');
+    if (photos.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = photos.map(src => {
+      const filename = src.split('/').pop();
+      return `<div class="photo-thumb">
+        <img src="${src}" loading="lazy" alt="" />
+        <button class="photo-del" onclick="deleteGuestPhoto('${filename}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function deleteGuestPhoto(filename) {
+    if (!confirm('ลบรูปนี้?')) return;
+    await fetch(`/api/guest-photos/${filename}?secret=${SECRET}`, { method: 'DELETE' });
+    showToast('ลบรูปเรียบร้อย');
+    loadGuestPhotos();
   }
 
   // UPLOAD
