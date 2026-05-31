@@ -132,6 +132,35 @@
         rgba(10,18,40,0.45) 68%,
         rgba(10,18,40,0.72) 100%);
     }
+
+    /* ── BUBBLES ── */
+    .bubbles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%,
+        rgba(255,255,255,0.55),
+        rgba(255,255,255,0.12) 45%,
+        rgba(255,255,255,0.04) 70%);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.25);
+      animation: bubbleRise linear infinite;
+      opacity: 0;
+    }
+    @keyframes bubbleRise {
+      0%   { transform: translateY(0) translateX(0) scale(0.8); opacity: 0; }
+      10%  { opacity: 0.8; }
+      50%  { transform: translateY(-50vh) translateX(20px) scale(1); }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-105vh) translateX(-15px) scale(1.1); opacity: 0; }
+    }
     .hero-content {
       position: relative;
       z-index: 2;
@@ -313,8 +342,22 @@
     .detail-icon { width: 28px; height: 28px; flex-shrink: 0; margin-top: 2px; object-fit: contain; }
     .detail-label { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
     .detail-value { font-weight: 500; font-size: 0.95rem; }
-    a.map-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border); transition: border-color 0.2s, color 0.2s; }
-    a.map-link:hover { color: var(--accent); border-color: var(--accent); }
+    a.map-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      padding: 6px 16px;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      transition: background 0.25s, color 0.25s;
+    }
+    a.map-btn:hover { background: var(--accent); color: var(--white); }
 
     /* ── GALLERY ── */
     #gallery { background: var(--cream); }
@@ -872,6 +915,7 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-bg"></div>
+  <div class="bubbles" id="bubbles"></div>
   <div class="hero-content">
     <div class="hero-date">20 December 2026</div>
     <p class="hero-subtitle">We're Getting Married</p>
@@ -925,8 +969,9 @@
           <img class="detail-icon" src="assets/location.png" alt="สถานที่" />
           <div>
             <div class="detail-label" data-th="สถานที่" data-en="Venue">สถานที่</div>
-            <a class="detail-value map-link" href="https://maps.google.com/?q=โรงแรมตักสิลา+มหาสารคาม" target="_blank" rel="noopener"
-               data-th="โรงแรมตักสิลา จังหวัดมหาสารคาม ↗" data-en="Taksila Hotel, Maha Sarakham ↗">โรงแรมตักสิลา จังหวัดมหาสารคาม ↗</a>
+            <div class="detail-value" data-th="โรงแรมตักสิลา จังหวัดมหาสารคาม" data-en="Taksila Hotel, Maha Sarakham">โรงแรมตักสิลา จังหวัดมหาสารคาม</div>
+            <a class="map-btn" href="https://maps.google.com/?q=โรงแรมตักสิลา+มหาสารคาม" target="_blank" rel="noopener"
+               data-th="📍 ดูแผนที่" data-en="📍 View Map">📍 ดูแผนที่</a>
           </div>
         </div>
       </div>
@@ -1001,7 +1046,7 @@
       <label data-th="ผู้ติดตาม" data-en="Additional Guest">ผู้ติดตาม <span class="optional" data-th="(ไม่บังคับ)" data-en="(optional)">(ไม่บังคับ)</span></label>
       <div class="guest-toggle-wrap">
         <button type="button" class="guest-btn active" id="guestNone" data-th="มาคนเดียว" data-en="Just me">มาคนเดียว</button>
-        <button type="button" class="guest-btn" id="guestPlus1" data-th="พา +1 คน" data-en="+1 Guest">พา +1 คน</button>
+        <button type="button" class="guest-btn" id="guestPlus1" data-th="เพิ่มแขก +1 คน" data-en="+1 Guest">เพิ่มแขก +1 คน</button>
       </div>
       <input type="hidden" id="guests" name="guests" value="0" />
       <div id="guestNameWrap" style="display:none; margin-top:12px;">
@@ -1063,6 +1108,24 @@
 </div>
 
 <script>
+  // BUBBLES
+  (function () {
+    const wrap = document.getElementById('bubbles');
+    if (!wrap) return;
+    const COUNT = 18;
+    for (let i = 0; i < COUNT; i++) {
+      const b = document.createElement('span');
+      b.className = 'bubble';
+      const size = 8 + Math.random() * 46;        // 8px – 54px
+      b.style.width = size + 'px';
+      b.style.height = size + 'px';
+      b.style.left = Math.random() * 100 + 'vw';
+      b.style.animationDuration = (9 + Math.random() * 11) + 's';  // 9s – 20s
+      b.style.animationDelay = (Math.random() * 12) + 's';
+      wrap.appendChild(b);
+    }
+  })();
+
   // COUNTDOWN
   (function () {
     const target = new Date('2026-12-20T18:00:00+07:00');
