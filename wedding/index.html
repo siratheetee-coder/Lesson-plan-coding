@@ -1558,7 +1558,51 @@
     track.style.animationDuration = `${Math.max(20, base.length * 3)}s`;
   }
 
+  // Resize/compress an image file on the client before upload.
+  // Caps the longest edge to maxDim and re-encodes as JPEG.
+  function resizeImage(file, maxDim = 1600, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          if (blob) resolve(new File([blob], 'photo.jpg', { type: 'image/jpeg' }));
+          else reject(new Error('compress failed'));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load failed')); };
+      img.src = url;
+    });
+  }
+
+  // 1 photo per person (per browser)
+  const LIVE_UPLOAD_KEY = 'live_photo_uploaded';
+  function hasUploaded() { return localStorage.getItem(LIVE_UPLOAD_KEY) === '1'; }
+  function markUploaded() { localStorage.setItem(LIVE_UPLOAD_KEY, '1'); }
+
+  function refreshUploadBtn() {
+    const btn = document.getElementById('liveUploadBtn');
+    if (hasUploaded()) {
+      btn.disabled = true;
+      btn.textContent = currentLang === 'th' ? 'คุณแชร์รูปแล้ว ♡' : 'You’ve shared ♡';
+    }
+  }
+
   document.getElementById('liveUploadBtn').addEventListener('click', () => {
+    if (hasUploaded()) {
+      showLiveToast(currentLang === 'th' ? 'แชร์ได้คนละ 1 รูปเท่านั้น ♡' : 'Only 1 photo per guest ♡');
+      return;
+    }
     document.getElementById('livePhotoInput').click();
   });
 
@@ -1566,31 +1610,45 @@
     const file = e.target.files[0];
     if (!file) return;
 
+    if (hasUploaded()) {
+      showLiveToast(currentLang === 'th' ? 'แชร์ได้คนละ 1 รูปเท่านั้น ♡' : 'Only 1 photo per guest ♡');
+      e.target.value = '';
+      return;
+    }
+
     const btn = document.getElementById('liveUploadBtn');
     btn.disabled = true;
     btn.textContent = currentLang === 'th' ? 'กำลังอัปโหลด…' : 'Uploading…';
 
-    const formData = new FormData();
-    formData.append('photo', file);
-
     try {
+      let toUpload = file;
+      try { toUpload = await resizeImage(file); } catch { /* fall back to original */ }
+
+      const formData = new FormData();
+      formData.append('photo', toUpload);
+
       const res = await fetch('/api/guest-photos', { method: 'POST', body: formData });
       const data = await res.json();
       if (data.success) {
+        markUploaded();
         showLiveToast(currentLang === 'th' ? 'อัปโหลดสำเร็จ! รูปของคุณปรากฏแล้ว ♡' : 'Photo uploaded! ♡');
         loadLivePhotos();
+        refreshUploadBtn();
       } else {
         showLiveToast(data.error || (currentLang === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed'));
+        btn.disabled = false;
+        btn.textContent = currentLang === 'th' ? 'เพิ่มรูปของคุณ ♡' : 'Add Your Photo ♡';
       }
     } catch {
       showLiveToast(currentLang === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Error, please try again');
-    } finally {
       btn.disabled = false;
       btn.textContent = currentLang === 'th' ? 'เพิ่มรูปของคุณ ♡' : 'Add Your Photo ♡';
+    } finally {
       e.target.value = '';
     }
   });
 
+  refreshUploadBtn();
   loadLivePhotos();
 </script>
 </body>
