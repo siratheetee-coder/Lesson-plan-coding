@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wedding Invitation — Pumpim & Auto</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>" />
+
+  <!-- Open Graph (LINE / Facebook sharing) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Pumpim &amp; Auto — Wedding Invitation" />
+  <meta property="og:description" content="ขอเชิญร่วมแสดงความยินดีและเป็นสักขีพยานในงานสมรส 20 ธันวาคม 2569 โรงแรมตักสิลา มหาสารคาม" />
+  <meta property="og:image"       content="assets/hero.jpg" />
+  <meta name="description"        content="ขอเชิญร่วมแสดงความยินดีและเป็นสักขีพยานในงานสมรส 20 ธันวาคม 2569 โรงแรมตักสิลา มหาสารคาม" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -158,8 +169,50 @@
       font-size: clamp(2.1rem, 7vw, 5.5rem);
       font-weight: 400;
       line-height: 1.1;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       white-space: nowrap;
+    }
+    .countdown {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 32px;
+    }
+    .cd-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 54px;
+    }
+    .cd-val {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-weight: 400;
+      color: var(--white);
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    .cd-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+    .cd-sep {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+      color: rgba(255,255,255,0.35);
+      padding-bottom: 18px;
+      line-height: 1;
+    }
+    .cd-done {
+      font-size: 1rem;
+      letter-spacing: 0.22em;
+      color: rgba(255,255,255,0.85);
+      text-transform: uppercase;
+      margin-bottom: 32px;
     }
     .hero-scroll {
       position: absolute;
@@ -260,6 +313,8 @@
     .detail-icon { width: 28px; height: 28px; flex-shrink: 0; margin-top: 2px; object-fit: contain; }
     .detail-label { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
     .detail-value { font-weight: 500; font-size: 0.95rem; }
+    a.map-link { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border); transition: border-color 0.2s, color 0.2s; }
+    a.map-link:hover { color: var(--accent); border-color: var(--accent); }
 
     /* ── GALLERY ── */
     #gallery { background: var(--cream); }
@@ -821,6 +876,15 @@
     <div class="hero-date">20 December 2026</div>
     <p class="hero-subtitle">We're Getting Married</p>
     <h1 class="hero-title">Pumpim &amp; Auto</h1>
+    <div class="countdown" id="countdown">
+      <div class="cd-unit"><span class="cd-val" id="cdDays">--</span><span class="cd-label" data-th="วัน" data-en="Days">วัน</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-val" id="cdHours">--</span><span class="cd-label" data-th="ชั่วโมง" data-en="Hours">ชั่วโมง</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-val" id="cdMins">--</span><span class="cd-label" data-th="นาที" data-en="Mins">นาที</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-val" id="cdSecs">--</span><span class="cd-label" data-th="วินาที" data-en="Secs">วินาที</span></div>
+    </div>
   </div>
   <button class="hero-scroll" onclick="document.getElementById('story').scrollIntoView({behavior:'smooth'})">
     <span>Scroll</span>
@@ -861,7 +925,8 @@
           <img class="detail-icon" src="assets/location.png" alt="สถานที่" />
           <div>
             <div class="detail-label" data-th="สถานที่" data-en="Venue">สถานที่</div>
-            <div class="detail-value" data-th="โรงแรมตักสิลา จังหวัดมหาสารคาม" data-en="Taksila Hotel, Maha Sarakham">โรงแรมตักสิลา จังหวัดมหาสารคาม</div>
+            <a class="detail-value map-link" href="https://maps.google.com/?q=โรงแรมตักสิลา+มหาสารคาม" target="_blank" rel="noopener"
+               data-th="โรงแรมตักสิลา จังหวัดมหาสารคาม ↗" data-en="Taksila Hotel, Maha Sarakham ↗">โรงแรมตักสิลา จังหวัดมหาสารคาม ↗</a>
           </div>
         </div>
       </div>
@@ -950,6 +1015,7 @@
     </div>
 
     <button type="submit" class="btn-submit" id="submitBtn" data-th="ยืนยันการเข้าร่วมงาน" data-en="Confirm Attendance">ยืนยันการเข้าร่วมงาน</button>
+    <div id="submitError" style="display:none;margin-top:14px;color:#c0392b;font-size:0.85rem;text-align:center;"></div>
   </form>
 </section>
 
@@ -997,6 +1063,36 @@
 </div>
 
 <script>
+  // COUNTDOWN
+  (function () {
+    const target = new Date('2026-12-20T18:00:00+07:00');
+    const el = {
+      days: document.getElementById('cdDays'),
+      hours: document.getElementById('cdHours'),
+      mins: document.getElementById('cdMins'),
+      secs: document.getElementById('cdSecs'),
+      wrap: document.getElementById('countdown'),
+    };
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function tick() {
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        el.wrap.outerHTML = '<p class="cd-done">วันนี้คือวันพิเศษ ♡</p>';
+        return;
+      }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      el.days.textContent = pad(d);
+      el.hours.textContent = pad(h);
+      el.mins.textContent = pad(m);
+      el.secs.textContent = pad(s);
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+
   // NAV scroll effect
   const nav = document.getElementById('mainNav');
   const hamburger = document.getElementById('hamburger');
@@ -1273,10 +1369,16 @@
         guestsInput.value = '0';
         document.getElementById('thankModal').classList.add('active');
       } else {
-        alert(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+        const errEl = document.getElementById('submitError');
+        errEl.textContent = data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+        errEl.style.display = 'block';
+        setTimeout(() => { errEl.style.display = 'none'; }, 6000);
       }
     } catch {
-      alert('ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่');
+      const errEl = document.getElementById('submitError');
+      errEl.textContent = 'ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่';
+      errEl.style.display = 'block';
+      setTimeout(() => { errEl.style.display = 'none'; }, 6000);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = STRINGS[currentLang].submit;

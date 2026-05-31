@@ -48,6 +48,23 @@ app.use(express.json());
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
+// Simple in-memory rate limiter for guest photo uploads (5 per IP per hour)
+const rateLimitMap = new Map();
+function guestPhotoRateLimit(req, res, next) {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const window = 60 * 60 * 1000; // 1 hour
+  const max = 5;
+  const record = rateLimitMap.get(ip) || { count: 0, start: now };
+  if (now - record.start > window) { record.count = 0; record.start = now; }
+  if (record.count >= max) {
+    return res.status(429).json({ error: 'อัปโหลดได้สูงสุด 5 รูปต่อชั่วโมง' });
+  }
+  record.count++;
+  rateLimitMap.set(ip, record);
+  next();
+}
+
 function readRegistrations() {
   try {
     return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -78,6 +95,14 @@ app.post('/api/register', (req, res) => {
     return res.status(400).json({ error: 'กรุณากรอกชื่อ-นามสกุล' });
   }
   const registrations = readRegistrations();
+  // Duplicate check by phone (if provided)
+  const cleanPhone = (phone || '').trim().replace(/\D/g, '');
+  if (cleanPhone.length >= 9) {
+    const dup = registrations.find(r => r.phone.replace(/\D/g, '') === cleanPhone);
+    if (dup) {
+      return res.status(409).json({ error: `เบอร์นี้ได้ลงทะเบียนแล้ว (${dup.name}) หากต้องการแก้ไข กรุณาติดต่อเจ้าบ่าวสาว` });
+    }
+  }
   const entry = {
     id: randomUUID(),
     name: name.trim(),
@@ -184,7 +209,7 @@ app.get('/api/guest-photos', (req, res) => {
   }
 });
 
-app.post('/api/guest-photos', uploadGuest.single('photo'), (req, res) => {
+app.post('/api/guest-photos', guestPhotoRateLimit, uploadGuest.single('photo'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'กรุณาเลือกรูปภาพ' });
   }
