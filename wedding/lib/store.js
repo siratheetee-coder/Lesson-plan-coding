@@ -1,6 +1,10 @@
 // Upstash Redis storage — reads UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN from env
 const { Redis } = require('@upstash/redis');
 
+if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  throw new Error('Missing UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN environment variables');
+}
+
 const redis = Redis.fromEnv();
 
 const REG_KEY   = 'wedding:registrations';
