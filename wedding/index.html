@@ -597,6 +597,74 @@
     }
     .footer-info { font-size: 0.82rem; line-height: 2; }
 
+    /* ── INTRO OVERLAY ── */
+    #introOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.9s ease;
+    }
+    #introOverlay.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .intro-content {
+      text-align: center;
+      animation: introFade 1.2s ease both;
+    }
+    @keyframes introFade {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .intro-heart {
+      font-size: 1.6rem;
+      color: var(--accent);
+      letter-spacing: 0.4em;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .intro-names {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .intro-date {
+      font-size: 0.82rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+    .intro-divider {
+      width: 40px; height: 1px;
+      background: var(--accent);
+      margin: 0 auto 48px;
+      opacity: 0.5;
+    }
+    .intro-enter-btn {
+      padding: 14px 48px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      border-radius: 2px;
+    }
+    .intro-enter-btn:hover {
+      background: var(--accent);
+      color: var(--white);
+    }
+
     /* ── PAGE LOAD ANIMATION ── */
     @keyframes fadeSlideIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -700,6 +768,17 @@
   </style>
 </head>
 <body>
+
+<!-- INTRO OVERLAY -->
+<div id="introOverlay">
+  <div class="intro-content">
+    <span class="intro-heart">♡ ♡ ♡</span>
+    <h2 class="intro-names">Pumpim &amp; Auto</h2>
+    <p class="intro-date">20 · December · 2026</p>
+    <div class="intro-divider"></div>
+    <button id="enterBtn" class="intro-enter-btn" data-th="เข้าสู่งาน" data-en="Enter">เข้าสู่งาน</button>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav id="mainNav">
@@ -840,7 +919,7 @@
 </footer>
 
 <!-- BACKGROUND MUSIC -->
-<audio id="bgMusic" loop preload="auto" autoplay muted>
+<audio id="bgMusic" loop preload="auto">
   <source src="assets/bg music.mp3" type="audio/mpeg">
   <source src="assets/bg music.m4a" type="audio/mp4">
   <source src="assets/bg music.wav" type="audio/wav">
@@ -910,26 +989,35 @@
     setLang(currentLang === 'th' ? 'en' : 'th');
   });
 
-  // MUSIC PLAYER
+  // INTRO OVERLAY + MUSIC
   const bgMusic = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicToggle');
+  const introOverlay = document.getElementById('introOverlay');
   bgMusic.volume = 0.35;
 
-  // autoplay + muted is allowed by all browsers; unmute the moment audio starts
-  bgMusic.addEventListener('play', () => {
+  document.getElementById('enterBtn').addEventListener('click', () => {
+    // This click IS a user gesture — browser allows audio play here
     bgMusic.muted = false;
-    musicBtn.classList.add('playing');
-    musicBtn.textContent = '♫';
+    bgMusic.play().then(() => {
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '♫';
+    }).catch(() => {});
+    introOverlay.classList.add('fade-out');
+    setTimeout(() => { introOverlay.style.display = 'none'; }, 950);
   });
+
   bgMusic.addEventListener('pause', () => {
     musicBtn.classList.remove('playing');
     musicBtn.textContent = '♪';
+  });
+  bgMusic.addEventListener('play', () => {
+    musicBtn.classList.add('playing');
+    musicBtn.textContent = '♫';
   });
 
   musicBtn.addEventListener('click', e => {
     e.stopPropagation();
     if (bgMusic.paused) {
-      bgMusic.muted = false;
       bgMusic.play().catch(() => {});
     } else {
       bgMusic.pause();
