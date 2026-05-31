@@ -708,8 +708,8 @@
     <span></span><span></span><span></span>
   </button>
   <ul class="nav-links" id="navLinks">
-    <li><a href="#hero" data-th="หน้าแรก" data-en="Home">หน้าแรก</a></li>
     <li><button id="langToggle" class="lang-toggle">EN</button></li>
+    <li><a href="#hero" data-th="หน้าแรก" data-en="Home">หน้าแรก</a></li>
     <li><a href="#story" data-th="เรื่องราวของเรา" data-en="Our Story">เรื่องราวของเรา</a></li>
     <li><a href="#gallery" data-th="แกลเลอรี่" data-en="Gallery">แกลเลอรี่</a></li>
     <li><a href="#rsvp" class="nav-rsvp">RSVP</a></li>
@@ -840,14 +840,14 @@
 </footer>
 
 <!-- BACKGROUND MUSIC -->
-<audio id="bgMusic" loop preload="auto">
+<audio id="bgMusic" loop preload="auto" autoplay muted>
   <source src="assets/bg music.mp3" type="audio/mpeg">
-  <source src="assets/bg-music.mp3" type="audio/mpeg">
-  <source src="assets/bgmusic.mp3" type="audio/mpeg">
-  <source src="bg music.mp3" type="audio/mpeg">
+  <source src="assets/bg music.m4a" type="audio/mp4">
   <source src="assets/bg music.wav" type="audio/wav">
-  <source src="bg music.wav" type="audio/wav">
   <source src="assets/bg music.ogg" type="audio/ogg">
+  <source src="bg music.mp3" type="audio/mpeg">
+  <source src="bg music.m4a" type="audio/mp4">
+  <source src="bg music.wav" type="audio/wav">
 </audio>
 <button id="musicToggle" class="music-toggle" aria-label="เปิด/ปิดเพลง">♪</button>
 
@@ -915,27 +915,24 @@
   const musicBtn = document.getElementById('musicToggle');
   bgMusic.volume = 0.35;
 
-  function startMusic() {
-    // muted autoplay is permitted by all browsers; unmute right after
-    bgMusic.muted = true;
-    bgMusic.play().then(() => {
-      bgMusic.muted = false;
-      musicBtn.classList.add('playing');
-      musicBtn.textContent = '♫';
-    }).catch(() => { bgMusic.muted = false; });
-  }
-
-  // Autoplay immediately on page load
-  startMusic();
+  // autoplay + muted is allowed by all browsers; unmute the moment audio starts
+  bgMusic.addEventListener('play', () => {
+    bgMusic.muted = false;
+    musicBtn.classList.add('playing');
+    musicBtn.textContent = '♫';
+  });
+  bgMusic.addEventListener('pause', () => {
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '♪';
+  });
 
   musicBtn.addEventListener('click', e => {
     e.stopPropagation();
     if (bgMusic.paused) {
-      startMusic();
+      bgMusic.muted = false;
+      bgMusic.play().catch(() => {});
     } else {
       bgMusic.pause();
-      musicBtn.classList.remove('playing');
-      musicBtn.textContent = '♪';
     }
   });
 
