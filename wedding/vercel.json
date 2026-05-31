@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "index.html",  "use": "@vercel/static" },
-    { "src": "admin.html",  "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)",   "dest": "/api/$1" },
-    { "src": "/admin",      "dest": "/admin.html" },
-    { "src": "/",           "dest": "/index.html" }
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    { "source": "/api/registrations/:id", "destination": "/api/registrations/[id]" },
+    { "source": "/api/photos/:filename",   "destination": "/api/photos/[filename]" },
+    { "source": "/api/guest-photos/:filename", "destination": "/api/guest-photos/[filename]" }
   ]
 }
