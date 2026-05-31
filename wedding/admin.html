@@ -298,7 +298,7 @@
     <div class="login-icon">🔐</div>
     <h1 class="login-title">Admin Panel</h1>
     <p class="login-subtitle">กรอก Secret เพื่อเข้าสู่ระบบ</p>
-    <input type="password" id="secretInput" placeholder="Admin secret" />
+    <input type="password" id="secretInput" placeholder="กรอก secret เช่น wedding2025" />
     <button class="btn-primary" id="loginBtn">เข้าสู่ระบบ</button>
     <div class="login-error" id="loginError">Secret ไม่ถูกต้อง</div>
   </div>
@@ -382,18 +382,28 @@
         SECRET = secret;
         sessionStorage.setItem('wedding_secret', secret);
         showAdmin();
-        return true;
+        return 'ok';
       }
-    } catch {}
-    return false;
+      return 'wrong';
+    } catch {
+      return 'network';
+    }
   }
 
   document.getElementById('loginBtn').addEventListener('click', async () => {
     const val = document.getElementById('secretInput').value.trim();
     if (!val) return;
-    const ok = await tryLogin(val);
-    if (!ok) document.getElementById('loginError').classList.add('visible');
-    else document.getElementById('loginError').classList.remove('visible');
+    const result = await tryLogin(val);
+    const errEl = document.getElementById('loginError');
+    if (result === 'ok') {
+      errEl.classList.remove('visible');
+    } else if (result === 'network') {
+      errEl.textContent = 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ — ตรวจสอบว่า node server.js กำลังรันอยู่';
+      errEl.classList.add('visible');
+    } else {
+      errEl.textContent = 'Secret ไม่ถูกต้อง';
+      errEl.classList.add('visible');
+    }
   });
   document.getElementById('secretInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') document.getElementById('loginBtn').click();
