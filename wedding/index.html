@@ -161,6 +161,32 @@
       90%  { opacity: 0.6; }
       100% { transform: translateY(-105vh) translateX(-15px) scale(1.1); opacity: 0; }
     }
+
+    /* ── SECTION EDGE BUBBLES (warm brown) ── */
+    .sec-bubbles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .sec-bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%,
+        rgba(196, 168, 142, 0.52),
+        rgba(139, 110, 90, 0.1) 55%,
+        transparent 76%);
+      border: 1px solid rgba(139, 110, 90, 0.09);
+      animation: secBubbleRise linear infinite;
+      opacity: 0;
+    }
+    @keyframes secBubbleRise {
+      0%   { transform: translateY(0) scale(0.85);    opacity: 0; }
+      8%   { opacity: 1; }
+      88%  { opacity: 0.45; }
+      100% { transform: translateY(-120vh) scale(1.06); opacity: 0; }
+    }
     .hero-content {
       position: relative;
       z-index: 2;
@@ -276,7 +302,7 @@
     }
 
     /* ── SECTION BASE ── */
-    section { padding: 96px 24px; }
+    section { padding: 96px 24px; position: relative; }
     .section-label {
       font-size: 0.75rem;
       letter-spacing: 0.35em;
@@ -1124,6 +1150,34 @@
       b.style.animationDelay = (Math.random() * 12) + 's';
       wrap.appendChild(b);
     }
+  })();
+
+  // SECTION EDGE BUBBLES
+  (function () {
+    function createSectionBubbles(id, count) {
+      const section = document.getElementById(id);
+      if (!section) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'sec-bubbles';
+      section.insertBefore(wrap, section.firstChild);
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('span');
+        b.className = 'sec-bubble';
+        const size = 6 + Math.random() * 30;       // 6–36 px
+        b.style.width  = size + 'px';
+        b.style.height = size + 'px';
+        // constrain to left edge (0–8%) or right edge (92–100%)
+        const onLeft = Math.random() < 0.5;
+        const x = onLeft ? Math.random() * 8 : 92 + Math.random() * 8;
+        b.style.left = x + '%';
+        b.style.bottom = -size + 'px';
+        b.style.animationDuration = (14 + Math.random() * 20) + 's';
+        // negative delay = already mid-animation on page load
+        b.style.animationDelay = -(Math.random() * 20) + 's';
+        wrap.appendChild(b);
+      }
+    }
+    ['story', 'gallery', 'live-photos', 'rsvp'].forEach(id => createSectionBubbles(id, 9));
   })();
 
   // COUNTDOWN
