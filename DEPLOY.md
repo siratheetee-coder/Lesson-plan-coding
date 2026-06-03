@@ -1,138 +1,116 @@
-# Deploy บน Render (Backend + PostgreSQL)
+# Deploy Guide — Neon (DB) + Koyeb (App)
 
-## ภาพรวม
-
-```
-[Render Web Service]     [Render PostgreSQL]
-  Express server    ───►   Database (ถาวร)
-  + Frontend static
-```
-
-คำสั่งเดียว ได้ทั้ง backend + frontend + database — ฟรีทุกอย่าง
+Truly $0/month, always-on, no credit card needed. Replacement for Render free tier.
 
 ---
 
-## ขั้นที่ 1: Push code ขึ้น GitHub
+## 1. Backup Render Postgres
 
-1. ไปที่ https://github.com/new → สร้าง repo ใหม่ (private หรือ public)
-2. เปิด PowerShell ที่ root โปรเจกต์:
+In Render Dashboard → your Postgres → **Connect** → copy External Database URL (looks like `postgresql://user:pass@host/db`).
 
-```powershell
-cd "C:\Users\Lenovo_\Desktop\Cowork (Website)\AI Website Lesson Generator"
-git init
-git add .
-git commit -m "initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
-git push -u origin main
+On your local machine (needs `pg_dump` — install Postgres client or use Docker):
+
+```bash
+pg_dump "postgresql://YOUR_RENDER_URL" --no-owner --no-acl > backup.sql
 ```
 
-> **.gitignore** จะกัน `.env` และ `node_modules/` ไม่ให้ขึ้น GitHub
-
----
-
-## ขั้นที่ 2: สร้าง PostgreSQL บน Render
-
-1. ไปที่ https://render.com → Login ด้วย GitHub
-2. กด **New → PostgreSQL**
-3. ตั้งค่า:
-   - **Name:** `lesson-plan-db` (ตั้งชื่ออะไรก็ได้)
-   - **Region:** Singapore (ใกล้ไทยที่สุด)
-   - **Plan:** Free
-4. กด **Create Database**
-5. รอ 1-2 นาที → copy **Internal Database URL**
-   (หน้าตาเช่น: `postgresql://user:pass@host/dbname`)
-
----
-
-## ขั้นที่ 3: สร้าง Web Service บน Render
-
-1. กด **New → Web Service**
-2. Connect GitHub → เลือก repo ที่เพิ่ง push
-3. ตั้งค่า:
-
-| Field | ค่า |
-|---|---|
-| **Name** | `lesson-plan-app` |
-| **Region** | Singapore |
-| **Branch** | main |
-| **Root Directory** | `server` |
-| **Runtime** | Node |
-| **Build Command** | `npm install` |
-| **Start Command** | `npm start` |
-| **Plan** | Free |
-
-4. กด **Add Environment Variable** ใส่ทั้ง 3 ค่า:
-
-| Key | Value |
-|---|---|
-| `NODE_ENV` | `production` |
-| `JWT_ACCESS_SECRET` | (รันคำสั่งด้านล่างได้ค่า) |
-| `JWT_REFRESH_SECRET` | (รันอีกครั้งได้ค่าใหม่) |
-| `DATABASE_URL` | (paste Internal Database URL จาก ขั้นที่ 2) |
-
-**สร้าง JWT secrets:**
-```powershell
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+If `pg_dump` not installed:
+```bash
+docker run --rm postgres:16 pg_dump "URL" > backup.sql
 ```
-รัน 2 ครั้ง → ได้ 2 ค่า → ใส่แต่ละ key
 
-5. กด **Create Web Service**
-6. รอ 3-5 นาทีให้ deploy เสร็จ
-
----
-
-## ขั้นที่ 4: ทดสอบ
-
-เปิดเบราว์เซอร์:
-```
-https://lesson-plan-app.onrender.com/health
-```
-ต้องเห็น: `{"ok":true,"time":...}`
-
-แล้วเปิด:
-```
-https://lesson-plan-app.onrender.com
-```
-จะเห็นหน้า Login → กดสมัครสมาชิก → ใช้งานได้
-
----
-
-## ขั้นที่ 5 (ถ้ามี): เพิ่ม Google Login
-
-1. ไปที่ https://console.cloud.google.com/apis/credentials
-2. Create → OAuth 2.0 Client ID → Web application
-3. **Authorized JavaScript origins:** `https://lesson-plan-app.onrender.com`
-4. เพิ่ม env var ใน Render:
-   - `GOOGLE_CLIENT_ID` = client ID ที่ได้
-
----
-
-## ข้อสังเกต Free Tier
-
-| เรื่อง | รายละเอียด |
-|---|---|
-| **Sleep หลัง 15 นาที** | Request แรกช้า ~30 วินาที (Render spin up ใหม่) |
-| **PostgreSQL ฟรี 90 วัน** | หลังจากนั้น $7/เดือน หรือย้ายไป Supabase (ฟรีถาวร) |
-| **Web Service ฟรี** | 750 ชั่วโมง/เดือน (เพียงพอสำหรับ 1 app) |
-
----
-
-## Auto-deploy
-
-ทุกครั้งที่ `git push` → Render จะ deploy ใหม่อัตโนมัติ
-
-```powershell
-git add .
-git commit -m "update something"
-git push
+Verify backup is non-empty:
+```bash
+ls -lh backup.sql
+head backup.sql
 ```
 
 ---
 
-## ทดสอบ local ยังทำได้ปกติ
+## 2. Set up Neon (free Postgres, 3 GB)
 
-```powershell
-cd server
-npm start
-```
-จะใช้ JSON file แทน PostgreSQL อัตโนมัติ (ถ้าไม่มี `DATABASE_URL` ใน `.env`)
+1. Sign up at **https://neon.tech** (Google login works)
+2. Create project → name it `easy-eng-plan`
+3. Region: pick closest to users (Asia Pacific Singapore = `aws-ap-southeast-1`)
+4. Copy connection string from dashboard → looks like:
+   ```
+   postgresql://user:pass@ep-something-123.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+   ```
+5. Restore backup:
+   ```bash
+   psql "NEON_URL" < backup.sql
+   ```
+6. Verify:
+   ```bash
+   psql "NEON_URL" -c "SELECT count(*) FROM users;"
+   ```
+
+---
+
+## 3. Set up Koyeb (free app, 1 always-on nano)
+
+1. Sign up at **https://app.koyeb.com** (GitHub login — no CC needed)
+2. **Create Web Service**
+3. Source: **GitHub** → select repo `siratheetee-coder/Lesson-plan-coding`
+4. Branch: `main` · Build method: **Dockerfile**
+5. Instance type: **Nano (free)**
+6. Region: **Frankfurt** (or Singapore if available)
+7. Port: `3000`
+8. **Environment variables** (copy from Render dashboard):
+
+   | Key | Value |
+   |-----|-------|
+   | `DATABASE_URL` | Neon connection string from step 2 |
+   | `JWT_ACCESS_SECRET` | (copy from Render) |
+   | `JWT_REFRESH_SECRET` | (copy from Render) |
+   | `JWT_ACCESS_TTL` | `15m` |
+   | `JWT_REFRESH_TTL_SHORT` | `7d` |
+   | `JWT_REFRESH_TTL_LONG` | `30d` |
+   | `APP_ORIGIN` | `https://YOUR-APP.koyeb.app` (fill after first deploy) |
+   | `GOOGLE_CLIENT_ID` | (your Google OAuth client) |
+   | `ANTHROPIC_API_KEY` | (your Claude key) |
+   | `ADMIN_EMAILS` | (admin emails) |
+   | `RESEND_API_KEY` | (your Resend key) |
+   | `SMTP_FROM` | (your sender) |
+   | `SUPPORT_FB`, `SUPPORT_EMAIL`, etc. | (copy from Render) |
+   | `NODE_ENV` | `production` |
+
+9. Health check path: `/healthz`
+10. Click **Deploy**
+
+First build takes 3–5 min. Watch logs for `✓ Server running`.
+
+---
+
+## 4. Wire frontend
+
+1. After Koyeb deploys, you get URL like `https://easy-eng-plan-yourname.koyeb.app`
+2. Update env var `APP_ORIGIN` to this URL → triggers redeploy
+3. **Google OAuth Console**: add the Koyeb URL to **Authorized JavaScript origins**
+4. Test login, AI generation, DOCX export end-to-end
+
+---
+
+## 5. Custom domain (optional)
+
+Koyeb supports free custom domains. Settings → Domains → add `easyengplan.com` → set CNAME at your DNS to `<app>.koyeb.app`.
+
+---
+
+## 6. Cleanup Render
+
+Once Koyeb is verified working:
+1. Render Dashboard → Web Service → **Suspend** (don't delete — keep 1 week as backup)
+2. After 1 week of stable Koyeb: delete Render resources
+
+---
+
+## Notes
+
+- **Koyeb nano**: 0.1 CPU, 256 MB RAM. Plenty for ~5 concurrent users.
+- **Cold start**: <1 sec on Koyeb (Render free was 30 sec)
+- **Egress**: 100 GB/mo free
+- **Logs**: 7 days retention
+- **Auto-deploy from GitHub**: enabled — every push to `main` redeploys
+
+Issues? Check Koyeb service logs first. DB issues → Neon dashboard SQL editor.

@@ -86,6 +86,7 @@ app.use('/api/feedback', limiters.global, feedbackRouter);
 app.use('/api/course-structure', limiters.global, courseStructureRouter);
 app.use('/api/worksheets', limiters.global, worksheetsRouter);
 app.get('/api/whoami', limiters.global, requireAuth, (req, res) => res.json({ user: req.user }));
+app.get('/healthz', (_req, res) => res.json({ ok: true, t: Date.now() })); // for deploy health checks
 
 // Serve frontend from project root
 const FRONTEND_DIR = path.resolve(__dirname, '..');
