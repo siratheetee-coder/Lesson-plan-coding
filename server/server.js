@@ -97,7 +97,13 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'server_error' });
 });
 
-app.listen(PORT, () => {
+// Vercel serverless: import the app instead of listen()
+export default app;
+
+// Skip app.listen() on Vercel (serverless functions are stateless)
+if (process.env.VERCEL) {
+  console.log('Running on Vercel — exported app, no listen()');
+} else app.listen(PORT, () => {
   const isProd = process.env.NODE_ENV === 'production';
   const url = isProd ? `https://<your-app>.onrender.com` : `http://localhost:${PORT}`;
   console.log('');

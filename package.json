@@ -1,5 +1,7 @@
 {
-  "dependencies": {
-    "adm-zip": "^0.5.17"
-  }
+  "name": "easy-eng-plan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" }
 }

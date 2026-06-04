@@ -1,0 +1,13 @@
+.git
+.claude
+node_modules
+**/node_modules
+*.docx
+videos
+data/*.json
+.env
+server/.env
+*.md
+!DEPLOY.md
+.dockerignore
+Dockerfile
