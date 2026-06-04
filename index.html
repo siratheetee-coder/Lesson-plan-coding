@@ -2387,6 +2387,30 @@
   .promo-toast-btn:active { transform: translateY(1px); }
 
   /* ===== Auth Modal ===== */
+  .migration-notice {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1px solid #d97706;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #78350f;
+    box-shadow: 0 2px 6px rgba(217,119,6,0.15);
+  }
+  .migration-notice__head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 700; margin-bottom: 4px;
+  }
+  .migration-notice__close {
+    background: none; border: none;
+    font-size: 1.4rem; line-height: 1;
+    color: #78350f; cursor: pointer;
+    padding: 0 4px;
+  }
+  .migration-notice__close:hover { color: #b91c1c; }
+  .migration-notice__body { font-size: 0.82rem; }
+
   .auth-overlay {
     position: fixed; inset: 0; z-index: 9999;
     background: rgba(15,23,42,.55);
@@ -11619,6 +11643,18 @@ window.renderUnitDashboard = renderUnitDashboard;
       </div>
 
     <div class="auth-modal">
+      <!-- Migration notice — shown until user dismisses it -->
+      <div id="migration-notice" class="migration-notice" style="display:none;">
+        <div class="migration-notice__head">
+          <span>⚠️ แจ้งย้ายฐานข้อมูล</span>
+          <button type="button" class="migration-notice__close" onclick="dismissMigrationNotice()" aria-label="ปิด">×</button>
+        </div>
+        <div class="migration-notice__body">
+          ระบบมีการย้ายฐานข้อมูล (Render → Neon)<br>
+          กรุณา <b>สมัครสมาชิกใหม่ด้วย email เดิม</b> — แผน/หน่วยที่บันทึกในเบราว์เซอร์จะถูกกู้คืนอัตโนมัติหลัง login
+        </div>
+      </div>
+
       <h2 id="auth-title">เข้าสู่ระบบ</h2>
       <div class="auth-sub" id="auth-subtitle">เข้าสู่ระบบเพื่อบันทึกแผนการสอนของคุณ</div>
 
@@ -11706,10 +11742,23 @@ window.renderUnitDashboard = renderUnitDashboard;
   const $ = (id) => document.getElementById(id);
   const overlay = $('auth-overlay');
 
+  window.dismissMigrationNotice = function () {
+    try { localStorage.setItem('lpg:migrationNoticeDismissed', '1'); } catch(e) {}
+    const notice = document.getElementById('migration-notice');
+    if (notice) notice.style.display = 'none';
+  };
+
   function showAuth() {
     overlay.classList.add('show');
     const dash = $('dashboard-view');
     if (dash) dash.style.display = 'none';
+    // Show migration notice unless dismissed
+    try {
+      const notice = $('migration-notice');
+      if (notice && localStorage.getItem('lpg:migrationNoticeDismissed') !== '1') {
+        notice.style.display = '';
+      }
+    } catch(e) {}
     // Prefill email if "remember me" was used previously. Browser's password
     // manager handles the password autofill via autocomplete attributes.
     try {
