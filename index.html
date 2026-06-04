@@ -2390,26 +2390,26 @@
   .migration-notice {
     background: linear-gradient(135deg, #fef3c7, #fde68a);
     border: 1px solid #d97706;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 14px;
-    font-size: 0.84rem;
-    line-height: 1.5;
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    font-size: 0.78rem;
+    line-height: 1.35;
     color: #78350f;
-    box-shadow: 0 2px 6px rgba(217,119,6,0.15);
   }
   .migration-notice__head {
     display: flex; justify-content: space-between; align-items: center;
-    font-weight: 700; margin-bottom: 4px;
+    font-weight: 700; margin-bottom: 2px;
+    font-size: 0.8rem;
   }
   .migration-notice__close {
     background: none; border: none;
-    font-size: 1.4rem; line-height: 1;
+    font-size: 1.2rem; line-height: 1;
     color: #78350f; cursor: pointer;
-    padding: 0 4px;
+    padding: 0 2px;
   }
   .migration-notice__close:hover { color: #b91c1c; }
-  .migration-notice__body { font-size: 0.82rem; }
+  .migration-notice__body { font-size: 0.74rem; }
 
   .auth-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -2430,7 +2430,7 @@
     width: min(420px, 92vw);
     background: #fff; border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0,0,0,.25);
-    padding: 28px 28px 24px;
+    padding: 20px 24px 18px;
     font-family: 'Sarabun', sans-serif;
   }
   .auth-modal h2 { margin: 0 0 6px; font-size: 1.4rem; color: #1e293b; }
@@ -2444,20 +2444,20 @@
     box-sizing: border-box; transition: border-color .15s;
   }
   .auth-modal input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(83,99,240,.15); }
-  .auth-modal .auth-row { display: flex; align-items: center; justify-content: space-between; margin: 14px 0 6px; font-size: .88rem; }
+  .auth-modal .auth-row { display: flex; align-items: center; justify-content: space-between; margin: 10px 0 4px; font-size: .88rem; }
   .auth-modal .auth-row label { display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer; }
   .auth-modal button.auth-primary {
-    width: 100%; margin-top: 14px; padding: 11px;
+    width: 100%; margin-top: 10px; padding: 11px;
     background: #2563eb; color: #fff; border: none; border-radius: 8px;
     font-size: 1rem; font-weight: 600; cursor: pointer;
     transition: background .15s;
   }
   .auth-modal button.auth-primary:hover:not(:disabled) { background: #1d4ed8; }
   .auth-modal button.auth-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 14px; color: #94a3b8; font-size: .82rem; }
+  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 12px 0 10px; color: #94a3b8; font-size: .82rem; }
   .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
   #auth-google-btn { display: flex; justify-content: center; min-height: 44px; }
-  .auth-toggle { text-align: center; margin-top: 16px; font-size: .9rem; color: #475569; }
+  .auth-toggle { text-align: center; margin-top: 10px; font-size: .9rem; color: #475569; }
   .auth-toggle a { color: #2563eb; cursor: pointer; font-weight: 500; }
   .auth-toggle a:hover { text-decoration: underline; }
   .auth-error { background: #fee2e2; color: #991b1b; padding: 8px 12px; border-radius: 8px; font-size: .88rem; margin-top: 10px; display: none; }
@@ -11650,8 +11650,7 @@ window.renderUnitDashboard = renderUnitDashboard;
           <button type="button" class="migration-notice__close" onclick="dismissMigrationNotice()" aria-label="ปิด">×</button>
         </div>
         <div class="migration-notice__body">
-          ระบบมีการย้ายฐานข้อมูล (Render → Neon)<br>
-          กรุณา <b>สมัครสมาชิกใหม่ด้วย email เดิม</b> — แผน/หน่วยที่บันทึกในเบราว์เซอร์จะถูกกู้คืนอัตโนมัติหลัง login
+          ระบบมีการย้ายฐานข้อมูล กรุณา <b>สมัครสมาชิกใหม่ด้วย email เดิม</b> — แผน/หน่วยที่บันทึกในเบราว์เซอร์จะถูกกู้คืนอัตโนมัติหลัง login
         </div>
       </div>
 
