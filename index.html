@@ -10270,7 +10270,12 @@ function renderUnitDashboard() {
   const linkedIds = u.lessonIds || [];
   const lessons = linkedIds
     .map(id => hist.find(h => h.id === id))
-    .filter(Boolean);
+    .filter(Boolean)
+    .sort((a, b) => {
+      const an = parseInt(a.data?.fields?.['plan-number']) || 9999;
+      const bn = parseInt(b.data?.fields?.['plan-number']) || 9999;
+      return an - bn;
+    });
   const missing = linkedIds.length - lessons.length;
 
   // Summary cards
@@ -10329,12 +10334,25 @@ function renderUnitDashboard() {
     listHtml += '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:0.82rem; color:#991b1b; margin-bottom:10px;">⚠️ มีแผน ' + missing + ' รายการที่ถูกลบไปแล้ว</div>';
   }
 
-  // Attach existing lessons from history
-  const unlinked = hist.filter(h => !linkedIds.includes(h.id));
+  // Attach existing lessons from history.
+  // Exclude lessons already in ANY unit (not just the current one).
+  const otherUnitsLinked = new Set();
+  loadUnits().forEach(u => {
+    if (u.id === _currentUnit?.id) return;
+    (u.lessonIds || []).forEach(lid => otherUnitsLinked.add(lid));
+  });
+  const unlinked = hist.filter(h =>
+    !linkedIds.includes(h.id) && !otherUnitsLinked.has(h.id)
+  );
+  // Persist <details> open state across re-renders so user can click "+ เพิ่ม"
+  // multiple times without the panel collapsing
+  if (window._unitAttachOpen === undefined) window._unitAttachOpen = true;
   let attachHtml = '';
   if (unlinked.length) {
     attachHtml =
-      '<details style="margin-top:10px; padding:12px 14px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px;">' +
+      '<details' + (window._unitAttachOpen ? ' open' : '') +
+        ' ontoggle="window._unitAttachOpen = this.open"' +
+        ' style="margin-top:10px; padding:12px 14px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px;">' +
         '<summary style="cursor:pointer; font-weight:600; color:#3a47cc; font-size:0.88rem;">➕ เพิ่มแผนที่เคยทำไว้เข้าหน่วย (' + unlinked.length + ' รายการ)</summary>' +
         '<div style="margin-top:10px; display:flex; flex-direction:column; gap:6px; max-height:300px; overflow-y:auto;">' +
           unlinked.map(h => {
@@ -10357,13 +10375,38 @@ function renderUnitDashboard() {
   box.innerHTML = summaryHtml + listHtml + attachHtml;
 }
 
+// Re-number all lessons in the current unit sequentially (1..N) and write back.
+// Also sets lesson.data.unitId back-pointer so recovery can restore links if
+// unit.lessonIds is ever lost.
+function _renumberCurrentUnitLessons() {
+  if (!_currentUnit?.lessonIds) return;
+  const hist = loadHistory();
+  let changed = false;
+  _currentUnit.lessonIds.forEach((lid, i) => {
+    const lesson = hist.find(h => h.id === lid);
+    if (!lesson?.data) return;
+    if (!lesson.data.fields) lesson.data.fields = {};
+    const newNo = String(i + 1);
+    if (lesson.data.fields['plan-number'] !== newNo) {
+      lesson.data.fields['plan-number'] = newNo;
+      changed = true;
+    }
+    if (lesson.data.unitId !== _currentUnit.id) {
+      lesson.data.unitId = _currentUnit.id;
+      changed = true;
+    }
+  });
+  if (changed) writeHistory(hist);
+}
+
 function attachLessonToUnit(historyId) {
   if (!_currentUnit) return;
   if (!_currentUnit.lessonIds) _currentUnit.lessonIds = [];
   if (!_currentUnit.lessonIds.includes(historyId)) {
     _currentUnit.lessonIds.push(historyId);
+    _renumberCurrentUnitLessons();
     saveUnit(_currentUnit);
-    showUnitToast('✅ เพิ่มแผนในหน่วยแล้ว');
+    showUnitToast('✅ เพิ่มแผนในหน่วยแล้ว (แผนที่ ' + _currentUnit.lessonIds.length + ')');
     renderUnitDashboard();
   }
 }
@@ -10371,6 +10414,16 @@ function removeUnitLesson(historyId) {
   if (!_currentUnit) return;
   if (!confirm('เอาแผนนี้ออกจากหน่วย? (ตัวแผนจะยังอยู่ในคลังของคุณ)')) return;
   _currentUnit.lessonIds = (_currentUnit.lessonIds || []).filter(id => id !== historyId);
+  // Clear unitId back-pointer on the removed lesson
+  try {
+    const hist = loadHistory();
+    const removed = hist.find(h => h.id === historyId);
+    if (removed?.data?.unitId === _currentUnit.id) {
+      removed.data.unitId = null;
+      writeHistory(hist);
+    }
+  } catch(e) {}
+  _renumberCurrentUnitLessons();
   saveUnit(_currentUnit);
   showUnitToast('➖ เอาออกจากหน่วยแล้ว');
   renderUnitDashboard();
