@@ -13979,6 +13979,35 @@ window.addEventListener('auth:login', async () => {
         if (localUnits.length > 0) _syncUnitsToServer([], localUnits);
       }
     }
+    // RECOVERY: rebuild lessonIds from lesson.data.unitId back-pointers.
+    // If a previous bug stripped a unit's lessonIds, this re-links lessons
+    // whose draft had recorded which unit they belonged to.
+    try {
+      if (Array.isArray(_units) && Array.isArray(_hist)) {
+        const unitById = new Map(_units.map(u => [u.id, u]));
+        let anyChange = false;
+        for (const lesson of _hist) {
+          const targetUnitId = lesson?.data?.unitId;
+          if (!targetUnitId) continue;
+          const u = unitById.get(targetUnitId);
+          if (!u) continue;
+          if (!Array.isArray(u.lessonIds)) u.lessonIds = [];
+          if (!u.lessonIds.includes(lesson.id)) {
+            u.lessonIds.push(lesson.id);
+            anyChange = true;
+          }
+        }
+        if (anyChange) {
+          const recoveredUnits = [..._units];
+          try { localStorage.setItem(UNITS_KEY, JSON.stringify(recoveredUnits)); } catch(e) {}
+          // Push recovered state back to server
+          if (typeof _syncUnitsToServer === 'function') {
+            _syncUnitsToServer([], recoveredUnits);
+          }
+          console.log('[recovery] rebuilt unit.lessonIds from lesson.data.unitId');
+        }
+      }
+    } catch(e) { console.warn('[recovery] failed:', e); }
     // Refresh UI now that we have fresh server data
     if (typeof renderHistoryList === 'function') { try { renderHistoryList(); } catch(e){} }
     if (typeof renderUnitDashboard === 'function') { try { renderUnitDashboard(); } catch(e){} }
