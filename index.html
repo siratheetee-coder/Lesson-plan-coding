@@ -5895,21 +5895,25 @@ function saveToHistory(format) {
 function deleteHistoryItem(id) {
   const hist = loadHistory().filter(e => e.id !== id);
   writeHistory(hist);
-  // Cascade: remove this lesson id from any unit that references it so counts stay accurate
-  try {
-    const units = loadUnits();
-    let changed = false;
-    units.forEach(u => {
-      if (!Array.isArray(u.lessonIds)) return;
-      const before = u.lessonIds.length;
-      u.lessonIds = u.lessonIds.filter(lid => lid !== id);
-      if (u.lessonIds.length !== before) {
-        u.updatedAt = Date.now();
-        changed = true;
-      }
-    });
-    if (changed) writeUnits(units);
-  } catch (e) { /* unit storage not available — fine */ }
+  // Cascade: only when _hist is confirmed (loaded from server) AND _units is too.
+  // During the login race both can be null; cascading then would wipe lessonIds
+  // and propagate to the server. Skip — pruning will happen later when data is loaded.
+  if (_hist !== null && _units !== null) {
+    try {
+      const units = loadUnits();
+      let changed = false;
+      units.forEach(u => {
+        if (!Array.isArray(u.lessonIds)) return;
+        const before = u.lessonIds.length;
+        u.lessonIds = u.lessonIds.filter(lid => lid !== id);
+        if (u.lessonIds.length !== before) {
+          u.updatedAt = Date.now();
+          changed = true;
+        }
+      });
+      if (changed) writeUnits(units);
+    } catch (e) { /* unit storage not available — fine */ }
+  }
   renderHistoryList();
   // Refresh any unit views that are currently visible
   if (typeof renderUnitList === 'function') { try { renderUnitList(); } catch(e){} }
@@ -9813,17 +9817,22 @@ function backToUnitList() {
 function renderUnitList() {
   const box = document.getElementById('unit-card-list');
   if (!box) return;
-  // Prune stale lessonIds (referring to deleted history entries) so counts reflect reality
-  const histIds = new Set((typeof loadHistory === 'function' ? loadHistory() : []).map(h => h.id));
   let unitsRaw = loadUnits();
-  let pruned = false;
-  unitsRaw.forEach(u => {
-    if (!Array.isArray(u.lessonIds)) return;
-    const before = u.lessonIds.length;
-    u.lessonIds = u.lessonIds.filter(id => histIds.has(id));
-    if (u.lessonIds.length !== before) pruned = true;
-  });
-  if (pruned) writeUnits(unitsRaw);
+  // BUGFIX: only prune lessonIds when we have a CONFIRMED history snapshot
+  // (_hist !== null = loaded from server). Pruning against an empty
+  // localStorage during the login race would strip valid lessonIds and
+  // propagate the loss to the server via writeUnits→_syncUnitsToServer.
+  if (_hist !== null) {
+    const histIds = new Set(loadHistory().map(h => h.id));
+    let pruned = false;
+    unitsRaw.forEach(u => {
+      if (!Array.isArray(u.lessonIds)) return;
+      const before = u.lessonIds.length;
+      u.lessonIds = u.lessonIds.filter(id => histIds.has(id));
+      if (u.lessonIds.length !== before) pruned = true;
+    });
+    if (pruned) writeUnits(unitsRaw);
+  }
   const units = unitsRaw.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
   if (!units.length) {
     box.innerHTML =
