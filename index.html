@@ -11178,6 +11178,79 @@ function _confirmStandalonePlanDialog() {
 }
 window._confirmStandalonePlanDialog = _confirmStandalonePlanDialog;
 
+// ─── AI completion notifier ───────────────────────────────
+// Used when long-running AI calls (unit outline etc.) finish, so the user
+// can switch tabs and still know when it's ready.
+// Combines: browser Notification API, beep tone, flashing tab title,
+// and an on-screen toast (fallback if permission denied / unsupported).
+let _origTabTitle = null;
+let _titleFlashTimer = null;
+function _stopTitleFlash() {
+  if (_titleFlashTimer) { clearInterval(_titleFlashTimer); _titleFlashTimer = null; }
+  if (_origTabTitle) { document.title = _origTabTitle; _origTabTitle = null; }
+}
+function _startTitleFlash(label) {
+  _stopTitleFlash();
+  _origTabTitle = document.title;
+  let on = false;
+  _titleFlashTimer = setInterval(() => {
+    document.title = on ? _origTabTitle : label;
+    on = !on;
+  }, 900);
+  // Stop flashing once user returns to the tab
+  const onFocus = () => { _stopTitleFlash(); window.removeEventListener('focus', onFocus); document.removeEventListener('visibilitychange', onVis); };
+  const onVis = () => { if (!document.hidden) onFocus(); };
+  window.addEventListener('focus', onFocus);
+  document.addEventListener('visibilitychange', onVis);
+}
+function _beepTone(kind) {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = kind === 'error' ? 280 : 660;
+    gain.gain.value = 0.18;
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.frequency.setValueAtTime(osc.frequency.value, ctx.currentTime);
+    if (kind !== 'error') {
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.18);
+    }
+    osc.stop(ctx.currentTime + 0.32);
+    setTimeout(() => ctx.close(), 500);
+  } catch {}
+}
+function _notifyAiDone(title, body, kind /* 'success' | 'error' */) {
+  // Always show on-screen toast
+  if (typeof window.showExportToast === 'function') {
+    window.showExportToast((kind === 'error' ? '❌ ' : '✅ ') + body, kind === 'error' ? 'err' : 'ok');
+  }
+  // Beep
+  _beepTone(kind);
+  // Flash tab title until the user returns to the tab
+  if (document.hidden) {
+    _startTitleFlash(kind === 'error' ? '❌ AI ขัดข้อง' : '✅ AI เสร็จแล้ว');
+  }
+  // Browser notification (if permission granted)
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const n = new Notification(title, {
+        body,
+        icon: '/favicon-128.png',
+        badge: '/favicon-128.png',
+        tag: 'ai-done',
+        renotify: true,
+      });
+      n.onclick = () => { window.focus(); n.close(); };
+      setTimeout(() => { try { n.close(); } catch {} }, 12000);
+    }
+  } catch {}
+}
+window._notifyAiDone = _notifyAiDone;
+
 // ─── 3D popup: AI overloaded (server semaphore queue full) ───
 window._showAiOverloadedDialog = function(retrySec) {
   document.getElementById('ai-overloaded-overlay')?.remove();
@@ -11355,6 +11428,12 @@ window._aiOutlineUnit = async function() {
       idempotency_key: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
     };
 
+    // Request notification permission early so we can ping the user when done
+    if ('Notification' in window && Notification.permission === 'default') {
+      try { await Notification.requestPermission(); } catch {}
+    }
+    const _genStartTime = Date.now();
+
     const res = await window.authFetch('/api/ai/generate-unit-outline', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -11364,6 +11443,7 @@ window._aiOutlineUnit = async function() {
 
     if (!res.ok || !r.ok) {
       const msg = r.message || 'AI ขัดข้อง กรุณาลองใหม่';
+      _notifyAiDone('❌ ร่างหน่วยไม่สำเร็จ', msg, 'error');
       if (res.status === 402) {
         if (typeof window.showExportToast === 'function') {
           window.showExportToast('💚 เครดิตยังไม่พอสำหรับร่างทั้งหน่วย ร่วมสนับสนุนโปรเจกต์เพื่อสร้างแผนต่อนะคะ ขอบคุณค่ะ', 'info');
@@ -11389,9 +11469,18 @@ window._aiOutlineUnit = async function() {
     const outline = r.data || {};
     const lessons = Array.isArray(outline.lessons) ? outline.lessons : [];
     if (!lessons.length) {
+      _notifyAiDone('❌ ร่างหน่วยไม่สำเร็จ', 'AI ไม่ได้ส่งโครงแผนกลับมา', 'error');
       alert('❌ AI ไม่ได้ส่งโครงแผนกลับมา กรุณาลองใหม่');
       return;
     }
+
+    // Notify success — sound + browser notification + flash tab title
+    const elapsedSec = Math.round((Date.now() - _genStartTime) / 1000);
+    _notifyAiDone(
+      '✅ ร่างหน่วยเสร็จแล้ว',
+      `AI สร้าง ${lessons.length} แผนเสร็จใน ${elapsedSec} วินาที — กลับมาดูตัวอย่างได้เลย`,
+      'success'
+    );
 
     // Show preview modal
     _showOutlinePreviewModal(outline, lessons);
