@@ -412,7 +412,7 @@ const pgDb = {
   // ─── Lessons ────────────────────────────────────────────
   async listLessons(userId) {
     const { rows } = await pgPool.query(
-      'SELECT * FROM lessons WHERE user_id=$1 ORDER BY saved_at DESC LIMIT 50',
+      'SELECT * FROM lessons WHERE user_id=$1 ORDER BY saved_at DESC LIMIT 500',
       [userId]
     );
     return rows.map(r => {

@@ -5763,7 +5763,7 @@ window.clearLessonDraft = clearDraft;
 
 // ================= PLAN HISTORY (Use old plans as template) =================
 const HISTORY_KEY = 'lpg:history:v1';
-const HISTORY_MAX = 30;
+const HISTORY_MAX = 500;  // was 30 — caused silent server-side deletes when exceeded
 
 // ── In-memory cache (populated from server on auth:login) ──
 let _hist = null; // null = not yet loaded from server
@@ -5792,6 +5792,10 @@ function _syncHistToServer(prev, curr) {
   const H = { 'Content-Type': 'application/json' };
   const prevMap = new Map((prev || []).map(e => [e.id, e]));
   const currMap = new Map((curr || []).map(e => [e.id, e]));
+  // NOTE: We no longer DELETE lessons that disappear from curr — that path
+  // used to silently delete the user's oldest lessons whenever writeHistory
+  // applied its HISTORY_MAX slice cap. Explicit deletion happens in
+  // deleteHistoryItem via its own authFetch DELETE.
   for (const [id, entry] of currMap) {
     if (!prevMap.has(id)) {
       // New entry — POST full object
@@ -5808,12 +5812,9 @@ function _syncHistToServer(prev, curr) {
       }
     }
   }
-  for (const [id] of prevMap) {
-    if (!currMap.has(id)) {
-      window.authFetch('/api/lessons/' + id, { method: 'DELETE' })
-        .catch(err => console.warn('[hist sync] DELETE failed:', err));
-    }
-  }
+  // Removed implicit DELETE loop — deletions are now handled exclusively
+  // by deleteHistoryItem (single source of truth), so a stale localStorage
+  // or a slice() truncation can never wipe server data again.
 }
 function buildHistoryTitle(data) {
   const f = data.fields || {};
@@ -5895,6 +5896,11 @@ function saveToHistory(format) {
 function deleteHistoryItem(id) {
   const hist = loadHistory().filter(e => e.id !== id);
   writeHistory(hist);
+  // Explicit server DELETE (writeHistory no longer fires implicit deletes)
+  if (typeof window.authFetch === 'function') {
+    window.authFetch('/api/lessons/' + id, { method: 'DELETE' })
+      .catch(err => console.warn('[hist sync] DELETE failed:', err));
+  }
   // Cascade: only when _hist is confirmed (loaded from server) AND _units is too.
   // During the login race both can be null; cascading then would wipe lessonIds
   // and propagate to the server. Skip — pruning will happen later when data is loaded.
