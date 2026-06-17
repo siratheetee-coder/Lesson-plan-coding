@@ -11732,8 +11732,32 @@ window._createOutlinedLessons = function() {
   // Persist history
   if (typeof writeHistory === 'function') writeHistory(newHist);
 
-  // Link new lessons into unit
-  _currentUnit.lessonIds = (_currentUnit.lessonIds || []).concat(newIds);
+  // Link new lessons into unit. If the unit already has lessons, ask whether
+  // to APPEND or REPLACE so we don't silently double-up after re-runs.
+  const existing = (_currentUnit.lessonIds || []).slice();
+  let finalIds = existing.concat(newIds);
+  if (existing.length > 0) {
+    const choice = confirm(
+      `หน่วยนี้มีแผนอยู่แล้ว ${existing.length} แผน\n\n` +
+      `✓ กด "OK" = แทนที่แผนเดิม (เก็บเฉพาะ ${newIds.length} แผนใหม่)\n` +
+      `✗ กด "Cancel" = เพิ่มต่อท้าย (รวมเป็น ${finalIds.length} แผน)`
+    );
+    if (choice) {
+      // Replace mode — delete the old lessons so they don't orphan
+      finalIds = newIds.slice();
+      if (typeof window.authFetch === 'function') {
+        existing.forEach(oldId => {
+          window.authFetch('/api/lessons/' + oldId, { method: 'DELETE' })
+            .catch(() => {});
+        });
+      }
+      // Also drop from local history
+      const histAfter = (typeof loadHistory === 'function' ? loadHistory() : [])
+        .filter(h => !existing.includes(h.id));
+      if (typeof writeHistory === 'function') writeHistory(histAfter);
+    }
+  }
+  _currentUnit.lessonIds = finalIds;
   saveUnit(_currentUnit);
 
   // Close preview
