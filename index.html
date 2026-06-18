@@ -10384,25 +10384,49 @@ function renderUnitDashboard() {
 // Re-number all lessons in the current unit sequentially (1..N) and write back.
 // Also sets lesson.data.unitId back-pointer so recovery can restore links if
 // unit.lessonIds is ever lost.
+// Push a single lesson back to the server as full upsert so server-side
+// data (including data.unitId back-pointer) stays in sync.
+// writeHistory's _syncHistToServer only PATCHes title/customTitle; other
+// changes (plan-number, unitId) need this explicit push.
+function _pushLessonToServer(lesson) {
+  if (!lesson || !window.authFetch) return;
+  window.authFetch('/api/lessons', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(lesson),
+  }).catch(err => console.warn('[lesson push]', err));
+}
+
 function _renumberCurrentUnitLessons() {
   if (!_currentUnit?.lessonIds) return;
   const hist = loadHistory();
   let changed = false;
+  const changedLessons = [];
   _currentUnit.lessonIds.forEach((lid, i) => {
     const lesson = hist.find(h => h.id === lid);
     if (!lesson?.data) return;
     if (!lesson.data.fields) lesson.data.fields = {};
     const newNo = String(i + 1);
+    let lessonChanged = false;
     if (lesson.data.fields['plan-number'] !== newNo) {
       lesson.data.fields['plan-number'] = newNo;
-      changed = true;
+      lessonChanged = true;
     }
     if (lesson.data.unitId !== _currentUnit.id) {
       lesson.data.unitId = _currentUnit.id;
+      lessonChanged = true;
+    }
+    if (lessonChanged) {
       changed = true;
+      changedLessons.push(lesson);
     }
   });
-  if (changed) writeHistory(hist);
+  if (changed) {
+    writeHistory(hist);
+    // Server sync — push each changed lesson explicitly so data.unitId
+    // persists across logout/login (recovery uses this back-pointer)
+    changedLessons.forEach(_pushLessonToServer);
+  }
 }
 
 function attachLessonToUnit(historyId) {
@@ -10420,13 +10444,15 @@ function removeUnitLesson(historyId) {
   if (!_currentUnit) return;
   if (!confirm('เอาแผนนี้ออกจากหน่วย? (ตัวแผนจะยังอยู่ในคลังของคุณ)')) return;
   _currentUnit.lessonIds = (_currentUnit.lessonIds || []).filter(id => id !== historyId);
-  // Clear unitId back-pointer on the removed lesson
+  // Clear unitId back-pointer on the removed lesson + push to server so the
+  // login-time recovery doesn't re-link it on next session.
   try {
     const hist = loadHistory();
     const removed = hist.find(h => h.id === historyId);
     if (removed?.data?.unitId === _currentUnit.id) {
       removed.data.unitId = null;
       writeHistory(hist);
+      _pushLessonToServer(removed);
     }
   } catch(e) {}
   _renumberCurrentUnitLessons();
