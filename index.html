@@ -6904,7 +6904,7 @@ function showExportToast(text, kind = 'ok') {
   showExportToast._t = setTimeout(() => { el.style.opacity = '0'; }, 3000);
 }
 
-function _doGeneratePlan(format = 'pdf') {
+function _doGeneratePlan(format = 'pdf', opts = {}) {
   // Collect data
   const d = {
     planNo: document.getElementById('plan-number').value,
@@ -7317,9 +7317,17 @@ function _doGeneratePlan(format = 'pdf') {
       setTimeout(() => { document.title = prevTitle; }, 1500);
     }, 400);
   } else if (format === 'docx') {
-    exportAsDocx({ d, indicators, objectives, vocab, sentences, media, attachments, rubrics,
-                   allSkills3r, allSkills8c, activities, assessments, totalTime });
+    const payload = { d, indicators, objectives, vocab, sentences, media, attachments, rubrics,
+                      allSkills3r, allSkills8c, activities, assessments, totalTime };
+    if (opts.returnBlob) {
+      // Bulk caller wants the raw blob — return it and skip the side effects below
+      payload._returnBlob = true;
+      return exportAsDocx(payload);
+    }
+    exportAsDocx(payload);
   }
+  // Bulk callers skip the history-save + feedback flow (no user-driven export here).
+  if (opts.skipHistory) return;
 
   // Save a snapshot to history (this is a COMPLETED plan — ready for reuse / unit linking)
   try {
@@ -8231,6 +8239,9 @@ function exportAsDocx(data) {
       type: 'blob',
       mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     });
+    // If caller requested a blob (e.g., for bulk export), return it instead
+    // of triggering the browser download.
+    if (data._returnBlob) return blob;
     const topicSlug = (d.topic || '').trim().replace(/[\\/:*?"<>|]/g, '').slice(0, 40);
     const filename = (
       `แผนการสอน_${d.planNo||''}` +
@@ -8239,6 +8250,7 @@ function exportAsDocx(data) {
     ).replace(/\s+/g,'_');
     saveAs(blob, filename);
   } catch(e) {
+    if (data._returnBlob) throw e;  // surface error to bulk caller
     alert('ไม่สามารถสร้างไฟล์ DOCX ได้: ' + e.message);
     console.error(e);
   }
@@ -10944,7 +10956,64 @@ function backFromFormView() {
 }
 
 // ----- DOCX Export (simplified: unit header + list of lesson references) -----
-function exportUnitDocx() {
+// Merge several lesson DOCX blobs into one combined DOCX. Each blob has
+// the same template (header/footer/styles/numbering); we keep the first
+// blob's wrapping and replace its body with a concatenation of every
+// blob's body content, separated by page breaks. The final <w:sectPr>
+// is preserved.
+async function _mergeLessonDocxBlobs(blobs) {
+  if (!blobs.length) return null;
+  if (blobs.length === 1) return blobs[0];
+
+  // Extract <w:body> inner content from a DOCX blob (excluding trailing sectPr)
+  async function extractBodyAndSectPr(blob) {
+    const buf = await blob.arrayBuffer();
+    const zip = new PizZip(buf);
+    const xml = zip.file('word/document.xml').asText();
+    // Match <w:body>...</w:body>
+    const bodyMatch = xml.match(/<w:body[^>]*>([\s\S]*?)<\/w:body>/);
+    if (!bodyMatch) return { body: '', sectPr: '' };
+    let body = bodyMatch[1];
+    // Split off trailing sectPr so we can place it once at the end
+    let sectPr = '';
+    const sectMatch = body.match(/<w:sectPr[\s\S]*?<\/w:sectPr>\s*$/);
+    if (sectMatch) {
+      sectPr = sectMatch[0];
+      body = body.slice(0, sectMatch.index);
+    }
+    return { body, sectPr, xml, zip };
+  }
+
+  // Page break paragraph in OOXML
+  const PAGE_BREAK = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+
+  // First blob carries the template, styles, content types, etc.
+  const first = await extractBodyAndSectPr(blobs[0]);
+  let combinedBody = first.body;
+  let finalSectPr = first.sectPr;
+
+  for (let i = 1; i < blobs.length; i++) {
+    const ext = await extractBodyAndSectPr(blobs[i]);
+    combinedBody += PAGE_BREAK + ext.body;
+    if (ext.sectPr) finalSectPr = ext.sectPr; // last one wins
+  }
+
+  // Reassemble first DOCX with combined body
+  const buf = await blobs[0].arrayBuffer();
+  const zip = new PizZip(buf);
+  let xml = zip.file('word/document.xml').asText();
+  xml = xml.replace(
+    /<w:body[^>]*>[\s\S]*?<\/w:body>/,
+    `<w:body>${combinedBody}${finalSectPr}</w:body>`
+  );
+  zip.file('word/document.xml', xml);
+  return zip.generate({
+    type: 'blob',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  });
+}
+
+async function exportUnitDocx() {
   if (!_currentUnit) return;
   collectCurrentUnitFromForm();
   const u = _currentUnit;
@@ -10954,6 +11023,63 @@ function exportUnitDocx() {
     return;
   }
   saveUnit(u);
+
+  // If unit has linked lessons, export them ALL combined into one DOCX
+  const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const linkedLessons = (u.lessonIds || [])
+    .map(id => hist.find(h => h.id === id))
+    .filter(Boolean)
+    .sort((a, b) => {
+      const an = parseInt(a.data?.fields?.['plan-number']) || 9999;
+      const bn = parseInt(b.data?.fields?.['plan-number']) || 9999;
+      return an - bn;
+    });
+
+  if (linkedLessons.length > 0) {
+    if (!confirm(`รวมและ Export แผนทั้งหมด ${linkedLessons.length} แผนในหน่วยนี้เป็น DOCX ไฟล์เดียว?\n\n(ไม่หักเครดิตเพิ่ม)`)) return;
+
+    // Save current form state so we can restore after the bulk loop
+    const savedDraft = (typeof collectDraft === 'function') ? collectDraft() : null;
+    const blobs = [];
+    let failed = 0;
+
+    showUnitToast('⏳ กำลังสร้างไฟล์ DOCX (' + linkedLessons.length + ' แผน)...');
+
+    for (let i = 0; i < linkedLessons.length; i++) {
+      const lesson = linkedLessons[i];
+      try {
+        // Load this lesson into the form
+        if (typeof applyDraft === 'function') applyDraft(lesson.data);
+        // Wait a tick for DOM (indicator chips etc.) to render
+        await new Promise(r => setTimeout(r, 150));
+        // Generate blob via the existing per-lesson pipeline (no history save)
+        const blob = _doGeneratePlan('docx', { returnBlob: true, skipHistory: true });
+        if (blob) blobs.push(blob);
+        else failed++;
+      } catch (err) {
+        console.error('[unit export] lesson failed:', lesson.id, err);
+        failed++;
+      }
+    }
+
+    // Restore the draft the user had loaded before export
+    if (savedDraft && typeof applyDraft === 'function') {
+      try { applyDraft(savedDraft); } catch {}
+    }
+
+    if (!blobs.length) {
+      alert('❌ ไม่สามารถสร้างไฟล์ DOCX ได้ — ลองเปิดแผนทีละแผนแล้ว Export แทน');
+      return;
+    }
+
+    const merged = await _mergeLessonDocxBlobs(blobs);
+    const fname = ('แผนหน่วย_' + (u.unitNo ? u.unitNo + '_' : '') + (u.title || 'unit') + '_ทุกแผน').replace(/\s+/g,'_') + '.docx';
+    saveAs(merged, fname);
+    showUnitToast(`✅ Export ${blobs.length} แผน` + (failed ? ` (ข้าม ${failed} แผนที่ติดขัด)` : '') + ' แล้ว');
+    return;
+  }
+
+  // Fallback: unit has no linked lessons — keep the legacy unit-summary export below
 
   const esc = s => String(s == null ? '' : s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
