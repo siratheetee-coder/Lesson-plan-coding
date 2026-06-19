@@ -503,22 +503,23 @@ export async function renderDocx(data) {
     _twoColInfo(data),
     _hrParagraph(),
   ];
-  if (desc.paragraph_1) {
-    section1.push(new Paragraph({
-      alignment: AlignmentType.LEFT,
-      indent: { firstLine: 720 },
-      spacing: { line: 380, after: 200 },
-      children: [_txt(desc.paragraph_1, { size: 28 })],
-    }));
-  }
-  if (desc.paragraph_2) {
-    section1.push(new Paragraph({
-      alignment: AlignmentType.LEFT,
-      indent: { firstLine: 720 },
-      spacing: { line: 380, after: 200 },
-      children: [_txt(desc.paragraph_2, { size: 28 })],
-    }));
-  }
+  // Thai Distribute alignment for full-width right edge. Combined with
+  // explicit character-spacing controls on the runs to prevent the visual
+  // stretching that "Thai Distributed" usually causes.
+  const makeDescPara = (text) => new Paragraph({
+    alignment: AlignmentType.THAI_DISTRIBUTE,
+    indent: { firstLine: 720 },
+    spacing: { line: 380, after: 200 },
+    children: [new TextRun({
+      text: String(text || ''),
+      font: FONT,
+      size: 28,
+      // Disable inter-character expansion that "Thai Distributed" would apply
+      characterSpacing: 0,
+    })],
+  });
+  if (desc.paragraph_1) section1.push(makeDescPara(desc.paragraph_1));
+  if (desc.paragraph_2) section1.push(makeDescPara(desc.paragraph_2));
   if (!desc.paragraph_1 && !desc.paragraph_2) {
     section1.push(new Paragraph({
       alignment: AlignmentType.CENTER,
