@@ -503,9 +503,9 @@ export async function renderDocx(data) {
     _twoColInfo(data),
     _hrParagraph(),
   ];
-  // Thai Distribute alignment for full-width right edge. Combined with
-  // explicit character-spacing controls on the runs to prevent the visual
-  // stretching that "Thai Distributed" usually causes.
+  // Thai Distribute alignment + th-TH language tags + complex-script size.
+  // Word uses its Thai dictionary to break words → distributes space at word
+  // boundaries instead of stretching characters.
   const makeDescPara = (text) => new Paragraph({
     alignment: AlignmentType.THAI_DISTRIBUTE,
     indent: { firstLine: 720 },
@@ -513,9 +513,12 @@ export async function renderDocx(data) {
     children: [new TextRun({
       text: String(text || ''),
       font: FONT,
-      size: 28,
-      // Disable inter-character expansion that "Thai Distributed" would apply
-      characterSpacing: 0,
+      size: 28,                  // sets <w:sz> AND <w:szCs> for complex-script size
+      language: {
+        value:    'th-TH',
+        bidi:     'th-TH',
+        eastAsia: 'th-TH',
+      },
     })],
   });
   if (desc.paragraph_1) section1.push(makeDescPara(desc.paragraph_1));
