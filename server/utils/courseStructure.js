@@ -144,13 +144,73 @@ export function aggregate({ units, lessonsById, indicatorMap = {} }) {
         if (meta?.code) codeSet.add(meta.code);
       }
     }
-    // Essence: aggregate from lessons (keyConcept / topic of first lesson)
+    // Essence: build a paragraph-length summary from unit + lessons:
+    //   1. Unit's theme/bigIdea (if set), OR first lesson's key-concept as core
+    //   2. + sample vocabulary across lessons (top ~5-6 unique words)
+    //   3. + skill domains touched (listening/speaking/reading/writing)
+    //   4. + summary clause
     const essence = (() => {
+      // Core concept
+      const themeBits = [];
+      if (u.theme?.trim())   themeBits.push(u.theme.trim());
+      if (u.bigIdea?.trim()) themeBits.push(u.bigIdea.trim());
+      const firstKc = linked.find(l => l.data?.fields?.['key-concept'])?.data?.fields?.['key-concept'];
+      const core = themeBits.length
+        ? themeBits.join(' ')
+        : (firstKc?.trim() || `เนื้อหาเกี่ยวกับ ${u.title || 'หน่วยการเรียนรู้นี้'}`);
+
+      // Vocabulary — aggregate unique top words
+      const vocabSeen = new Set();
+      const vocabList = [];
       for (const l of linked) {
-        const kc = l.data?.fields?.['key-concept'] || l.data?.keyConcept;
-        if (kc && kc.trim()) return kc.trim();
+        const v = l.data?.vocab || [];
+        for (const item of v) {
+          const w = (item && typeof item === 'object' ? item.word : item) || '';
+          const word = String(w).trim();
+          if (word && !vocabSeen.has(word.toLowerCase())) {
+            vocabSeen.add(word.toLowerCase());
+            vocabList.push(word);
+            if (vocabList.length >= 8) break;
+          }
+        }
+        if (vocabList.length >= 8) break;
       }
-      return '';
+      const vocabPhrase = vocabList.length
+        ? `คำศัพท์และสำนวนสำคัญ เช่น ${vocabList.slice(0, 6).join(', ')}`
+        : '';
+
+      // Activity / skill summary — derive from checks (sk-reading/writing/listening/etc.)
+      const skills = new Set();
+      for (const l of linked) {
+        const c = l.data?.checks || {};
+        if (c['sk-reading'])   skills.add('การอ่าน');
+        if (c['sk-writing'])   skills.add('การเขียน');
+        if (c['sk-comm'])      skills.add('การสื่อสาร');
+      }
+      // Lessons usually exercise all four skills; assume listen+speak baseline
+      const skillsArr = ['การฟัง', 'การพูด', ...skills];
+      const skillUniq = [...new Set(skillsArr)];
+      const skillPhrase = skillUniq.length
+        ? `พร้อมพัฒนาทักษะ${skillUniq.join(' ')} ผ่านกิจกรรมการสนทนา การฟัง การอ่าน และการเขียน`
+        : '';
+
+      // Wrap-up: list 1-2 lesson topics as concrete activities
+      const sampleTopics = linked
+        .map(l => l.data?.fields?.topic?.trim())
+        .filter(Boolean)
+        .slice(0, 3);
+      const activityPhrase = sampleTopics.length
+        ? `โดยมีกิจกรรมการเรียนรู้เช่น ${sampleTopics.join(' / ')}`
+        : '';
+
+      // Combine into one sentence-paragraph
+      const parts = [
+        `นักเรียนได้เรียนรู้${core.replace(/^\s*(นักเรียนได้เรียนรู้|เรียนรู้)\s*/i, '')}`,
+        vocabPhrase,
+        activityPhrase,
+        skillPhrase,
+      ].filter(Boolean);
+      return parts.join(' ');
     })();
     return {
       no: u.unitNo || String(i + 1),
