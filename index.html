@@ -1945,6 +1945,13 @@
     font-size: 1.02rem; font-weight: 700; color: #1f2937;
     margin-bottom: 4px; line-height: 1.3;
   }
+  .unit-card-no {
+    display: inline-block;
+    font-size: 0.72rem; font-weight: 700;
+    background: #5363f0; color: white;
+    padding: 2px 8px; border-radius: 999px;
+    margin-right: 4px; vertical-align: middle;
+  }
   .unit-card-sub {
     font-size: 0.82rem; color: #6b7280; margin-bottom: 12px;
   }
@@ -9839,7 +9846,17 @@ function renderUnitList() {
     });
     if (pruned) writeUnits(unitsRaw);
   }
-  const units = unitsRaw.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  // Sort by unitNo (numeric → alpha → fallback to updatedAt desc).
+  const units = unitsRaw.sort((a, b) => {
+    const an = parseFloat(String(a.unitNo || '').replace(',', '.'));
+    const bn = parseFloat(String(b.unitNo || '').replace(',', '.'));
+    const aIsNum = !isNaN(an), bIsNum = !isNaN(bn);
+    if (aIsNum && bIsNum) return an - bn;
+    if (aIsNum) return -1;
+    if (bIsNum) return 1;
+    if (a.unitNo && b.unitNo) return String(a.unitNo).localeCompare(String(b.unitNo), 'th');
+    return (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
   if (!units.length) {
     box.innerHTML =
       '<div class="unit-empty" style="grid-column:1/-1;">' +
@@ -9856,11 +9873,14 @@ function renderUnitList() {
     const title = escapeHtmlDash(u.title || '(ยังไม่ตั้งชื่อ)');
     const cls = escapeHtmlDash(u.classLevel || '');
     const subj = escapeHtmlDash(u.subjectName || u.subjectGroup || u.subject || '');
+    const unitNoTag = u.unitNo
+      ? '<span class="unit-card-no">หน่วยที่ ' + escapeHtmlDash(u.unitNo) + '</span> '
+      : '';
     return (
       '<div class="unit-card" onclick="openUnitEditor(\'' + u.id + '\')">' +
         '<button class="unit-card-menu" onclick="event.stopPropagation(); confirmDeleteUnit(\'' + u.id + '\');" title="ลบ">🗑</button>' +
         '<div class="unit-card-icon">📚</div>' +
-        '<div class="unit-card-title">' + title + '</div>' +
+        '<div class="unit-card-title">' + unitNoTag + title + '</div>' +
         '<div class="unit-card-sub">' + (subj ? subj + ' · ' : '') + cls + (u.year ? ' · ปี ' + escapeHtmlDash(u.year) : '') + '</div>' +
         '<div class="unit-card-stats">' +
           '<span>🗂 <b>' + n + '</b> แผน</span>' +
@@ -9881,7 +9901,16 @@ window._selectedUnitIds = window._selectedUnitIds || [];
 function renderCourseStructurePanel() {
   const grid = document.getElementById('cs-unit-grid');
   if (!grid) return;
-  const units = loadUnits().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const units = loadUnits().sort((a, b) => {
+    const an = parseFloat(String(a.unitNo || '').replace(',', '.'));
+    const bn = parseFloat(String(b.unitNo || '').replace(',', '.'));
+    const aIsNum = !isNaN(an), bIsNum = !isNaN(bn);
+    if (aIsNum && bIsNum) return an - bn;
+    if (aIsNum) return -1;
+    if (bIsNum) return 1;
+    if (a.unitNo && b.unitNo) return String(a.unitNo).localeCompare(String(b.unitNo), 'th');
+    return (b.updatedAt || 0) - (a.updatedAt || 0);
+  });
   if (!units.length) {
     grid.innerHTML =
       '<div class="cs-empty">' +
@@ -9900,11 +9929,14 @@ function renderCourseStructurePanel() {
     const cls = escapeHtmlDash(u.classLevel || '');
     const subj = escapeHtmlDash(u.subjectName || u.subjectGroup || u.subject || '');
     const isSel = window._selectedUnitIds.includes(u.id);
+    const unitNoTag = u.unitNo
+      ? '<span class="unit-card-no">หน่วยที่ ' + escapeHtmlDash(u.unitNo) + '</span> '
+      : '';
     return (
       '<div class="cs-card' + (isSel ? ' selected' : '') + '" data-unit-id="' + u.id + '" onclick="toggleCsCard(this)">' +
         '<div class="cs-card-check">' + (isSel ? '✓' : '') + '</div>' +
         '<div class="cs-card-icon">📚</div>' +
-        '<div class="cs-card-title">' + title + '</div>' +
+        '<div class="cs-card-title">' + unitNoTag + title + '</div>' +
         '<div class="cs-card-sub">' + (subj ? subj + ' · ' : '') + cls + (u.year ? ' · ปี ' + escapeHtmlDash(u.year) : '') + '</div>' +
         '<div class="cs-card-stats">' +
           '<span>🗂 <b>' + n + '</b> แผน</span>' +
@@ -10312,15 +10344,18 @@ function renderUnitDashboard() {
       '</div>';
   } else {
     listHtml =
-      '<div style="margin-bottom:10px; font-weight:600; color:#374151;">📋 รายการแผนในหน่วย (' + lessons.length + ')</div>' +
-      '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">' +
+      '<div style="margin-bottom:10px; font-weight:600; color:#374151;">📋 รายการแผนในหน่วย (' + lessons.length + ') <span style="font-weight:400; color:#6b7280; font-size:0.82rem;">— ลากเพื่อจัดลำดับใหม่</span></div>' +
+      '<div id="unit-lesson-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">' +
         lessons.map((h, i) => {
           const title = getLessonTitle(h);
           const fields = (h.data && h.data.fields) || {};
           const obj = fields['main-objective'] || fields['objective'] || '';
           const when = formatRelTime(h.savedAt || 0);
           return (
-            '<div style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:12px;">' +
+            '<div class="unit-lesson-row" draggable="true" data-lid="' + esc(h.id) + '" ' +
+            'ondragstart="_unitLessonDragStart(event)" ondragover="_unitLessonDragOver(event)" ondrop="_unitLessonDrop(event)" ondragend="_unitLessonDragEnd(event)" ' +
+            'style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:12px; cursor:grab;">' +
+              '<span class="unit-lesson-grip" title="ลากเพื่อจัดลำดับ" style="color:#9ca3af; font-size:1.1rem; cursor:grab; user-select:none; flex-shrink:0;">⠿</span>' +
               '<div style="width:32px; height:32px; background:#eef0ff; color:#3a47cc; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">' + (i + 1) + '</div>' +
               '<div style="flex:1; min-width:0;">' +
                 '<div style="font-weight:600; color:#1f2937; font-size:0.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(title) + '</div>' +
@@ -10428,6 +10463,60 @@ function _renumberCurrentUnitLessons() {
     changedLessons.forEach(_pushLessonToServer);
   }
 }
+
+// ─── Drag-drop reorder for unit dashboard lesson list ─────
+let _draggedLid = null;
+function _unitLessonDragStart(e) {
+  const row = e.target.closest('.unit-lesson-row');
+  if (!row) return;
+  _draggedLid = row.dataset.lid;
+  e.dataTransfer.effectAllowed = 'move';
+  row.style.opacity = '0.5';
+}
+function _unitLessonDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const row = e.target.closest('.unit-lesson-row');
+  if (!row || row.dataset.lid === _draggedLid) return;
+  // Insert before or after based on cursor position
+  const rect = row.getBoundingClientRect();
+  const isAfter = (e.clientY - rect.top) > rect.height / 2;
+  row.style.borderTop    = isAfter ? '1px solid #e5e7eb' : '2px solid #5363f0';
+  row.style.borderBottom = isAfter ? '2px solid #5363f0' : '1px solid #e5e7eb';
+}
+function _unitLessonDrop(e) {
+  e.preventDefault();
+  const row = e.target.closest('.unit-lesson-row');
+  if (!row || !_draggedLid) return;
+  const targetLid = row.dataset.lid;
+  if (targetLid === _draggedLid) return;
+  if (!_currentUnit?.lessonIds) return;
+  const list = _currentUnit.lessonIds.slice();
+  const fromIdx = list.indexOf(_draggedLid);
+  if (fromIdx === -1) return;
+  list.splice(fromIdx, 1);
+  let toIdx = list.indexOf(targetLid);
+  if (toIdx === -1) toIdx = list.length;
+  const rect = row.getBoundingClientRect();
+  if ((e.clientY - rect.top) > rect.height / 2) toIdx += 1;
+  list.splice(toIdx, 0, _draggedLid);
+  _currentUnit.lessonIds = list;
+  _renumberCurrentUnitLessons();
+  saveUnit(_currentUnit);
+  renderUnitDashboard();
+}
+function _unitLessonDragEnd(e) {
+  document.querySelectorAll('.unit-lesson-row').forEach(r => {
+    r.style.opacity = '';
+    r.style.borderTop = '1px solid #e5e7eb';
+    r.style.borderBottom = '1px solid #e5e7eb';
+  });
+  _draggedLid = null;
+}
+window._unitLessonDragStart = _unitLessonDragStart;
+window._unitLessonDragOver  = _unitLessonDragOver;
+window._unitLessonDrop      = _unitLessonDrop;
+window._unitLessonDragEnd   = _unitLessonDragEnd;
 
 function attachLessonToUnit(historyId) {
   if (!_currentUnit) return;
