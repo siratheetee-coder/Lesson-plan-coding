@@ -26,3 +26,5 @@ worksheet-test-rendered.docx
 
 # Word/Office lock files
 ~$*
+
+.claude/
