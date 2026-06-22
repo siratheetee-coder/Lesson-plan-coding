@@ -11025,9 +11025,9 @@ async function exportUnitDocx() {
   saveUnit(u);
 
   // If unit has linked lessons, export them ALL combined into one DOCX
-  const hist = (typeof loadHistory === 'function') ? loadHistory() : [];
+  const _bulkHist = (typeof loadHistory === 'function') ? loadHistory() : [];
   const linkedLessons = (u.lessonIds || [])
-    .map(id => hist.find(h => h.id === id))
+    .map(id => _bulkHist.find(h => h.id === id))
     .filter(Boolean)
     .sort((a, b) => {
       const an = parseInt(a.data?.fields?.['plan-number']) || 9999;
