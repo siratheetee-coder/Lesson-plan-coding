@@ -571,7 +571,14 @@ const SYS_WORKSHEET = `คุณคือผู้ช่วยครูไทย
    - duration คาดการณ์จากจำนวน section (matching/fill_blank/MCQ = ~5 นาที/section, writing/reading = ~10-15 นาที)
 
 7) **ไม่ต้องส่ง answer key แยก**
-   - คำตอบฝังใน items.answer ของแต่ละข้อ → ระบบจะ generate หน้าเฉลยอัตโนมัติ`;
+   - คำตอบฝังใน items.answer ของแต่ละข้อ → ระบบจะ generate หน้าเฉลยอัตโนมัติ
+
+8) **คำสั่งเพิ่มเติมจากครู (custom_instructions)**
+   - field "custom_instructions" คือข้อความที่ครูพิมพ์ระบุความต้องการเพิ่มเติม
+   - **มีน้ำหนักสูงสุด** — ทำตามนี้ก่อนกฎอื่น (ยกเว้นกฎด้านความปลอดภัย/ความเหมาะสม)
+   - ถ้าครูระบุ "เน้น vocabulary X คำ" / "ทำให้ง่ายขึ้น" / "เพิ่มประโยคยาว" / "ห้ามใช้ type Y" / "ใช้คำศัพท์เกี่ยวกับ Z" → ทำตามทันที
+   - ถ้า custom_instructions ขัดกับ allowed_types — ใช้ allowed_types เป็นหลัก
+   - ถ้า empty/ว่าง → ใช้กฎมาตรฐานข้างต้น`;
 
 // ─── Style presets (non-cached, appended to system) ─────
 const STYLE_INSTRUCTIONS = {

@@ -3869,6 +3869,12 @@
               <label><input type="checkbox" class="ws-type-chk" value="reading"      checked> 📖 อ่านจับใจความ <span class="ws-type-chk__en">(Reading)</span></label>
             </div>
 
+            <div class="ws-section-field" style="margin-top:10px;">
+              <span>คำสั่งเพิ่มเติมสำหรับ AI <span style="font-weight:400; color:#9ca3af;">(ไม่บังคับ — บอก AI ว่าอยากได้แบบไหน เช่น "เน้น vocabulary 7 คำ", "ทำให้ง่ายขึ้นสำหรับ ป.4", "เพิ่มประโยคยาวๆ", "ห้ามใช้ T/F")</span></span>
+              <textarea id="ws-opt-custom" rows="3" placeholder="พิมพ์ข้อความสั่ง AI ที่นี่ (ถ้ามี)..."
+                style="width:100%; padding:9px 12px; border:1px solid #d1d5db; border-radius:8px; font-family:inherit; font-size:0.9rem; resize:vertical; box-sizing:border-box;"></textarea>
+            </div>
+
             <button id="ws-generate-btn" class="ws-primary-btn" onclick="wsGenerate()" style="margin-top:14px;">
               ✨ สร้างใบงานด้วย AI (ฟรี)
             </button>
@@ -8707,6 +8713,8 @@ async function _wsLoadUnits(skipReset) {
       c.checked = opt.allowedTypes.includes(c.value);
     });
   }
+  const custEl = document.getElementById('ws-opt-custom');
+  if (custEl && typeof opt.customInstructions === 'string') custEl.value = opt.customInstructions;
 }
 
 function wsOnUnitChange() {
@@ -8848,13 +8856,14 @@ async function wsGenerate() {
   // Read AI options from form
   const itemCount = Math.max(3, Math.min(15, parseInt(document.getElementById('ws-opt-itemcount')?.value) || 5));
   const allowedTypes = [...document.querySelectorAll('.ws-type-chk:checked')].map(c => c.value);
+  const customInstructions = (document.getElementById('ws-opt-custom')?.value || '').trim().slice(0, 1500);
   if (allowedTypes.length === 0) {
     const s = document.getElementById('ws-generate-status');
     s.className = 'ws-status err';
     s.textContent = '✗ กรุณาเลือกประเภทใบงานอย่างน้อย 1 ประเภท';
     return;
   }
-  _wsState.aiOptions = { itemCount, allowedTypes };
+  _wsState.aiOptions = { itemCount, allowedTypes, customInstructions };
   _wsSaveCache();
 
   const btn = document.getElementById('ws-generate-btn');
@@ -8871,6 +8880,7 @@ async function wsGenerate() {
         worksheet_index: _wsState.selectedWsIdx,
         item_count:      itemCount,
         allowed_types:   allowedTypes,
+        custom_instructions: customInstructions,
       },
     });
     _wsState.generated = out.data;

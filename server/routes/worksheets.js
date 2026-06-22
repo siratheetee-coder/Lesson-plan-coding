@@ -159,6 +159,7 @@ router.post('/generate', limiters.ai, async (req, res) => {
     const allowedTypes = (allowedTypesRaw && allowedTypesRaw.length)
       ? allowedTypesRaw.filter(t => VALID_TYPES.includes(t))
       : VALID_TYPES;
+    const customInstructions = String(req.body?.custom_instructions || '').trim().slice(0, 1500);
     if (!lessonId) return res.status(400).json({ error: 'missing_lesson_id' });
 
     const lessons = await db.listLessons(req.user.id);
@@ -189,6 +190,7 @@ router.post('/generate', limiters.ai, async (req, res) => {
       // User-controlled knobs:
       item_count_per_section: itemCount,
       allowed_types:          allowedTypes,
+      custom_instructions:    customInstructions,  // free-form teacher requests
     };
 
     const result = await generateWorksheet(aiPayload);
