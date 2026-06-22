@@ -4013,6 +4013,16 @@
               </div>
             </div>
             <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:4px;">โรงเรียน <span style="font-weight:400; color:#9ca3af;">(ไม่บังคับ — แสดงในแผน)</span></label>
+              <input id="profile-school-input" type="text" placeholder="เช่น โรงเรียนวัดบางพระ"
+                style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem;">
+            </div>
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:4px;">ชื่อผู้อำนวยการโรงเรียน <span style="font-weight:400; color:#9ca3af;">(ไม่บังคับ)</span></label>
+              <input id="profile-director-input" type="text" placeholder="ชื่อ-นามสกุล ผอ."
+                style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem;">
+            </div>
+            <div>
               <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">รูปแบบการเขียนของ AI</label>
               <select id="profile-ai-style" style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem; background:white;">
                 <option value="">— ค่าเริ่มต้น (เป็นทางการ) —</option>
@@ -7715,7 +7725,14 @@ function exportAsDocx(data) {
       const methodLines  = list.map(a => {
         const what = (a.what || '').trim();
         const how  = (a.how  || '').trim();
-        return what && how ? `${what} — ${how}` : (what || how);
+        // Dedupe: if "how" is contained in "what" (or vice versa), don't repeat
+        if (what && how) {
+          if (what === how) return what;
+          if (what.includes(how)) return what;
+          if (how.includes(what))  return how;
+          return `${what} — ${how}`;
+        }
+        return what || how;
       });
       const criteriaLines = list.map(a => (a.criteria || '').trim());
       replaceWithBulletsAt(`{assessment_${dom.toLowerCase()}_method}`, methodLines);
@@ -7735,7 +7752,7 @@ function exportAsDocx(data) {
       total_hours:            '',
       lesson_topic:           safe(d.topic || ''),
       duration:               safe(String(totalTime)),
-      teacher_name:           '...................................................',
+      teacher_name:           safe(d.teacher && d.teacher !== '...............................' ? d.teacher : (loadProfile().name || '')) || '...................................................',
       standard:               '',  // replaced inline below
       key_content:            safe(d.keyConcept),
       sentence_pattern:       '',  // replaced inline below as bullet paragraphs
@@ -7761,7 +7778,7 @@ function exportAsDocx(data) {
       total_time:             safe(String(totalTime)),
       // assessment_X_method/criteria placeholders are replaced inline above
       // (per-domain bullet paragraphs grouped by K/P/A).
-      principal_name:         '...................................................',
+      principal_name:         safe(loadProfile().director) || '...................................................',
       sign_date_teacher:      '',
       sign_date_principal:    '',
       appendix_1:             '',   // replaced by appendix injection below
@@ -8277,11 +8294,13 @@ function loadProfile() {
         name: p.name || 'คุณครู',
         quotaUsed: Number(p.quotaUsed) || 0,
         quotaMax: Number(p.quotaMax) || DEFAULT_QUOTA_MAX,
-        aiStyle: p.aiStyle || ''
+        aiStyle: p.aiStyle || '',
+        school: p.school || '',
+        director: p.director || '',
       };
     }
   } catch(e) {}
-  return { name: 'คุณครู', quotaUsed: 0, quotaMax: DEFAULT_QUOTA_MAX, aiStyle: '' };
+  return { name: 'คุณครู', quotaUsed: 0, quotaMax: DEFAULT_QUOTA_MAX, aiStyle: '', school: '', director: '' };
 }
 function saveProfileData(p) {
   try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch(e) {}
@@ -8302,6 +8321,10 @@ function renderProfileUI() {
   // Profile panel
   const profileInput = document.getElementById('profile-name-input');
   if (profileInput) profileInput.value = p.name;
+  const schoolInput = document.getElementById('profile-school-input');
+  if (schoolInput) schoolInput.value = p.school || '';
+  const directorInput = document.getElementById('profile-director-input');
+  if (directorInput) directorInput.value = p.director || '';
   const styleSel = document.getElementById('profile-ai-style');
   if (styleSel) styleSel.value = p.aiStyle || '';
   // Credits display is handled by updateCreditsUI (auth login event)
@@ -8312,6 +8335,10 @@ function saveProfile() {
   const input = document.getElementById('profile-name-input');
   const newName = (input && input.value || '').trim() || 'คุณครู';
   p.name = newName;
+  const schoolInput = document.getElementById('profile-school-input');
+  p.school = (schoolInput && schoolInput.value || '').trim();
+  const directorInput = document.getElementById('profile-director-input');
+  p.director = (directorInput && directorInput.value || '').trim();
   const styleSel = document.getElementById('profile-ai-style');
   p.aiStyle = (styleSel && styleSel.value) || '';
   saveProfileData(p);
