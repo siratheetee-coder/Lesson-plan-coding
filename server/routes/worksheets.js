@@ -160,6 +160,9 @@ router.post('/generate', limiters.ai, async (req, res) => {
       ? allowedTypesRaw.filter(t => VALID_TYPES.includes(t))
       : VALID_TYPES;
     const customInstructions = String(req.body?.custom_instructions || '').trim().slice(0, 1500);
+    const VALID_CEFR = ['A1','A2','B1','B2','C1','C2'];
+    const cefr = VALID_CEFR.includes(String(req.body?.cefr || '').toUpperCase())
+      ? String(req.body.cefr).toUpperCase() : '';
     if (!lessonId) return res.status(400).json({ error: 'missing_lesson_id' });
 
     const lessons = await db.listLessons(req.user.id);
@@ -191,6 +194,7 @@ router.post('/generate', limiters.ai, async (req, res) => {
       item_count_per_section: itemCount,
       allowed_types:          allowedTypes,
       custom_instructions:    customInstructions,  // free-form teacher requests
+      cefr:                   cefr,                 // CEFR level for vocab/sentence difficulty
     };
 
     const result = await generateWorksheet(aiPayload);

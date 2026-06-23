@@ -3853,6 +3853,18 @@
                 <span>จำนวนข้อต่อ section (ถ้าแผนไม่ระบุ)</span>
                 <input type="number" id="ws-opt-itemcount" min="3" max="15" value="5">
               </div>
+              <div class="ws-section-field" style="max-width:260px;">
+                <span>ระดับคำศัพท์ (CEFR)</span>
+                <select id="ws-opt-cefr">
+                  <option value="">— auto จากระดับชั้น —</option>
+                  <option value="A1">A1 (ป.1-3)</option>
+                  <option value="A2">A2 (ป.4-6)</option>
+                  <option value="B1">B1 (ม.1-3)</option>
+                  <option value="B2">B2 (ม.4-6)</option>
+                  <option value="C1">C1</option>
+                  <option value="C2">C2</option>
+                </select>
+              </div>
             </div>
 
             <div class="ws-section-field" style="margin-top:6px;">
@@ -4021,6 +4033,19 @@
               <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:4px;">ชื่อผู้อำนวยการโรงเรียน <span style="font-weight:400; color:#9ca3af;">(ไม่บังคับ)</span></label>
               <input id="profile-director-input" type="text" placeholder="ชื่อ-นามสกุล ผอ."
                 style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem;">
+            </div>
+            <div>
+              <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:4px;">ระดับคำศัพท์ (CEFR) <span style="font-weight:400; color:#9ca3af;">— AI จะใช้คำที่เหมาะกับระดับนี้</span></label>
+              <select id="profile-cefr" style="width:100%; padding:10px 14px; border:1px solid #d2d9fb; border-radius:10px; font-family:inherit; font-size:0.9rem; background:white;">
+                <option value="">— ค่าเริ่มต้น (auto จากระดับชั้น) —</option>
+                <option value="A1">A1 — เริ่มต้น (ป.1-ป.3)</option>
+                <option value="A2">A2 — พื้นฐาน (ป.4-ป.6)</option>
+                <option value="B1">B1 — กลาง (ม.1-ม.3)</option>
+                <option value="B2">B2 — สูง (ม.4-ม.6)</option>
+                <option value="C1">C1 — สูงมาก (มหาวิทยาลัย)</option>
+                <option value="C2">C2 — เชี่ยวชาญ (Native-like)</option>
+              </select>
+              <div style="font-size:0.72rem; color:#6b7280; margin-top:4px;">มีผลกับ vocab + ประโยคใน AI generation</div>
             </div>
             <div>
               <label style="display:block; font-size:0.82rem; font-weight:600; color:#4b5563; margin-bottom:6px;">รูปแบบการเขียนของ AI</label>
@@ -8297,10 +8322,11 @@ function loadProfile() {
         aiStyle: p.aiStyle || '',
         school: p.school || '',
         director: p.director || '',
+        cefr: p.cefr || '',
       };
     }
   } catch(e) {}
-  return { name: 'คุณครู', quotaUsed: 0, quotaMax: DEFAULT_QUOTA_MAX, aiStyle: '', school: '', director: '' };
+  return { name: 'คุณครู', quotaUsed: 0, quotaMax: DEFAULT_QUOTA_MAX, aiStyle: '', school: '', director: '', cefr: '' };
 }
 function saveProfileData(p) {
   try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch(e) {}
@@ -8325,6 +8351,8 @@ function renderProfileUI() {
   if (schoolInput) schoolInput.value = p.school || '';
   const directorInput = document.getElementById('profile-director-input');
   if (directorInput) directorInput.value = p.director || '';
+  const cefrSel = document.getElementById('profile-cefr');
+  if (cefrSel) cefrSel.value = p.cefr || '';
   const styleSel = document.getElementById('profile-ai-style');
   if (styleSel) styleSel.value = p.aiStyle || '';
   // Credits display is handled by updateCreditsUI (auth login event)
@@ -8339,6 +8367,8 @@ function saveProfile() {
   p.school = (schoolInput && schoolInput.value || '').trim();
   const directorInput = document.getElementById('profile-director-input');
   p.director = (directorInput && directorInput.value || '').trim();
+  const cefrSel = document.getElementById('profile-cefr');
+  p.cefr = (cefrSel && cefrSel.value) || '';
   const styleSel = document.getElementById('profile-ai-style');
   p.aiStyle = (styleSel && styleSel.value) || '';
   saveProfileData(p);
@@ -8742,6 +8772,8 @@ async function _wsLoadUnits(skipReset) {
   }
   const custEl = document.getElementById('ws-opt-custom');
   if (custEl && typeof opt.customInstructions === 'string') custEl.value = opt.customInstructions;
+  const cefrEl = document.getElementById('ws-opt-cefr');
+  if (cefrEl && typeof opt.cefr === 'string') cefrEl.value = opt.cefr;
 }
 
 function wsOnUnitChange() {
@@ -8884,13 +8916,15 @@ async function wsGenerate() {
   const itemCount = Math.max(3, Math.min(15, parseInt(document.getElementById('ws-opt-itemcount')?.value) || 5));
   const allowedTypes = [...document.querySelectorAll('.ws-type-chk:checked')].map(c => c.value);
   const customInstructions = (document.getElementById('ws-opt-custom')?.value || '').trim().slice(0, 1500);
+  const cefr = (document.getElementById('ws-opt-cefr')?.value || '').trim()
+            || (() => { try { return JSON.parse(localStorage.getItem('lpg:profile:v1')||'{}').cefr || ''; } catch { return ''; } })();
   if (allowedTypes.length === 0) {
     const s = document.getElementById('ws-generate-status');
     s.className = 'ws-status err';
     s.textContent = '✗ กรุณาเลือกประเภทใบงานอย่างน้อย 1 ประเภท';
     return;
   }
-  _wsState.aiOptions = { itemCount, allowedTypes, customInstructions };
+  _wsState.aiOptions = { itemCount, allowedTypes, customInstructions, cefr };
   _wsSaveCache();
 
   const btn = document.getElementById('ws-generate-btn');
@@ -8908,6 +8942,7 @@ async function wsGenerate() {
         item_count:      itemCount,
         allowed_types:   allowedTypes,
         custom_instructions: customInstructions,
+        cefr:                cefr,
       },
     });
     _wsState.generated = out.data;
@@ -11322,10 +11357,11 @@ window._aiDraftUnitArc = async function() {
       semester: get('ue-semester'),
     };
     const idemKey = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+    const _profileCefrArc = (() => { try { return JSON.parse(localStorage.getItem('lpg:profile:v1')||'{}').cefr || ''; } catch { return ''; } })();
     const res = await window.authFetch('/api/ai/generate-unit-arc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...payload, idempotency_key: idemKey }),
+      body: JSON.stringify({ ...payload, cefr: _profileCefrArc, idempotency_key: idemKey }),
     });
     const r = await res.json().catch(() => ({}));
     if (!res.ok || !r.ok) {
@@ -11709,6 +11745,7 @@ window._aiOutlineUnit = async function() {
       progression:  _currentUnit.progression || '',
       lesson_count: requestedCount || null,
       available_indicators: availableIndicators,
+      cefr: (() => { try { return JSON.parse(localStorage.getItem('lpg:profile:v1')||'{}').cefr || ''; } catch { return ''; } })(),
       idempotency_key: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
     };
 
@@ -13302,6 +13339,20 @@ window.renderUnitDashboard = renderUnitDashboard;
       return p.aiStyle || '';
     } catch { return ''; }
   }
+  // Read CEFR vocab level — profile setting or auto-derive from class-level
+  function _cefr() {
+    try {
+      const p = JSON.parse(localStorage.getItem('lpg:profile:v1') || '{}');
+      if (p.cefr) return p.cefr;
+    } catch {}
+    // Fallback: derive from current class-level field
+    const cl = (document.getElementById('class-level')?.value || '').trim();
+    if (/ป\.?\s*[1-3]/.test(cl)) return 'A1';
+    if (/ป\.?\s*[4-6]/.test(cl)) return 'A2';
+    if (/ม\.?\s*[1-3]/.test(cl)) return 'B1';
+    if (/ม\.?\s*[4-6]/.test(cl)) return 'B2';
+    return '';
+  }
 
   // Internal worker — used by both _aiAssist and _generateFullPlan
   async function _runAi(kind, { silent = false } = {}) {
@@ -13319,6 +13370,7 @@ window.renderUnitDashboard = renderUnitDashboard;
         ...cfg.payload(),
         ai_session: { ..._aiSession },   // accumulator → coherence
         style: _aiStyle(),               // writing style preset
+        cefr:  _cefr(),                  // vocab/sentence difficulty level
         idempotency_key: idemKey,
       };
       const res = await window.authFetch(url, {

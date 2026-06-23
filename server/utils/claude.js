@@ -588,6 +588,49 @@ const STYLE_INSTRUCTIONS = {
   detailed: 'รูปแบบการเขียน: อธิบายรายละเอียดถี่ถ้วน เพิ่มบริบท เหตุผล และตัวอย่างที่เป็นรูปธรรม',
 };
 
+// CEFR vocabulary/sentence difficulty calibration (appended when payload has cefr)
+const CEFR_GUIDE = {
+  A1: `ระดับ A1 (เริ่มต้น)
+- คำศัพท์: คำพื้นฐาน 500 คำแรก (cat, dog, eat, play, big, small...)
+- ประโยค: Subject + Verb + Object ง่ายๆ ไม่เกิน 5-7 คำ
+- ไวยากรณ์: present simple, has/have, like + N, can/can't
+- ห้าม: present perfect, conditionals, passive voice, idioms`,
+  A2: `ระดับ A2 (พื้นฐาน)
+- คำศัพท์: ~1,000 คำ — เพิ่มคำเกี่ยวกับชีวิตประจำวัน, อาหาร, งานอดิเรก
+- ประโยค: 7-10 คำ มี past simple + future (will/going to)
+- ไวยากรณ์: present continuous, past simple, comparatives (-er), modal verbs (must/should)
+- ห้าม: present perfect, complex relative clauses`,
+  B1: `ระดับ B1 (กลาง)
+- คำศัพท์: ~2,000 คำ — รวมคำเชิงนามธรรม + phrasal verbs ที่พบบ่อย
+- ประโยค: 10-15 คำ มี subordinate clauses (because, although, if)
+- ไวยากรณ์: present perfect, conditionals type 1-2, passive voice เบื้องต้น
+- ขยายสำนวน: phrasal verbs (look up, give up), expressing opinion`,
+  B2: `ระดับ B2 (สูง)
+- คำศัพท์: ~4,000 คำ — รวมคำทางวิชาการ + สำนวน
+- ประโยค: complex sentences พร้อม relative clauses + multiple clauses
+- ไวยากรณ์: ครบทุก tense, conditionals type 3, reported speech, passive ขั้นสูง
+- ขยายสำนวน: idioms, formal/informal register`,
+  C1: `ระดับ C1 (สูงมาก)
+- คำศัพท์: ~8,000 คำ — รวมคำเฉพาะทาง + nuance
+- ประโยค: เขียนได้คล่องและซับซ้อน fluent + nuanced
+- ไวยากรณ์: ใช้ทุกรูปแบบได้คล่อง + รูปแบบขั้นสูง
+- ขยายสำนวน: collocations, idioms, advanced discourse markers`,
+  C2: `ระดับ C2 (เชี่ยวชาญ / Near-native)
+- คำศัพท์: ไม่จำกัด รวมคำเฉพาะทาง + literary
+- ประโยค: ซับซ้อนระดับเจ้าของภาษา
+- ไวยากรณ์: ครบถ้วน + การใช้ที่หลากหลาย
+- ขยายสำนวน: literary devices, register switching, native expressions`,
+};
+function _cefrInstruction(cefr) {
+  if (!cefr || !CEFR_GUIDE[cefr]) return null;
+  return `═══ ปรับระดับภาษาให้ตรงกับ CEFR ${cefr} ═══
+${CEFR_GUIDE[cefr]}
+
+**กฎเข้ม**: vocab + ประโยค + ไวยากรณ์ทุกอย่างที่สร้าง ต้องเหมาะกับ CEFR ${cefr} เท่านั้น
+- ถ้าคำที่ต้องการใช้ ระดับสูงกว่า → เปลี่ยนเป็นคำที่ง่ายกว่าหรือ paraphrase
+- ถ้าคำที่ต้องการใช้ ระดับต่ำกว่าและไม่เพียงพอ → ใช้คำง่ายแต่เพิ่มความลึก/บริบท`;
+}
+
 const COHERENCE_INSTRUCTION = `หมายเหตุสำคัญเรื่องความสอดคล้อง (Coherence):
 ในข้อมูลที่ส่งมา หากมีฟิลด์ "ai_session" จะเป็น object ที่บรรจุผลลัพธ์ที่ AI สร้างไว้ในขั้นก่อนหน้าของแผนเดียวกัน (เช่น objectives, concept, vocab, sentences, task, activities)
 - ให้ถือว่าข้อมูลใน ai_session เป็น "การตัดสินใจที่กำหนดไว้แล้ว" และต้องสร้างผลลัพธ์ใหม่ที่ "ต่อเนื่อง สอดคล้อง และอ้างอิงได้" กับข้อมูลเหล่านั้น
@@ -651,7 +694,7 @@ function _extractJson(text) {
 async function _callClaude({ system, payload, maxTokens }) {
   // Extract style + ai_session + unit_context — they alter the system prompt,
   // not the JSON Claude reads in the user message. Re-inject the data ones below.
-  const { style, ai_session, unit_context, ...cleanPayload } = payload || {};
+  const { style, ai_session, unit_context, cefr, ...cleanPayload } = payload || {};
 
   const hasSession = ai_session && Object.keys(ai_session).length;
   const hasUnit    = unit_context && Object.keys(unit_context).length;
@@ -669,6 +712,12 @@ async function _callClaude({ system, payload, maxTokens }) {
   if (hasUnit)    systemBlocks.push({ type: 'text', text: UNIT_CONTEXT_INSTRUCTION });
   if (style && STYLE_INSTRUCTIONS[style]) {
     systemBlocks.push({ type: 'text', text: STYLE_INSTRUCTIONS[style] });
+  }
+  const cefrText = _cefrInstruction(cefr);
+  if (cefrText) {
+    systemBlocks.push({ type: 'text', text: cefrText });
+    // Re-inject CEFR into the JSON Claude reads, for visibility/debug
+    finalPayload = { ...finalPayload, cefr };
   }
 
   const c = client();
